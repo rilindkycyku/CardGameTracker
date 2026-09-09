@@ -81,42 +81,6 @@ export function matricaEShlyerjes(
   return matrica;
 }
 
-/** Një pikë e grafikut: totali i secilit lojtar pas atij raundi. */
-export type HapiKumulativ = {
-  roundNumber: number;
-  totals: Record<string, number>;
-};
-
-/**
- * Totalet e mbledhura raund pas raundi, për grafikun.
- *
- * Merren vetëm raundet që kanë të paktën një pikë të futur: raundet e zbrazëta
- * në fund të fletës janë vende të lira për t'u mbushur, jo raunde me zero.
- */
-export function totaletKumulative(
-  players: string[],
-  rounds: Raundi[],
-): HapiKumulativ[] {
-  const rrjedha: HapiKumulativ[] = [];
-  const running: Record<string, number> = {};
-  for (const player of players) running[player] = 0;
-
-  for (const raundi of sipasRadhes(rounds)) {
-    if (!eshteIMbushur(players, raundi)) continue;
-
-    for (const player of players) {
-      const pike = raundi.scores[player];
-      if (typeof pike === 'number' && Number.isFinite(pike)) {
-        running[player] = (running[player] ?? 0) + pike;
-      }
-    }
-
-    rrjedha.push({ roundNumber: raundi.roundNumber, totals: { ...running } });
-  }
-
-  return rrjedha;
-}
-
 /** A ka ky raund së paku një pikë të futur për ndonjë prej lojtarëve? */
 export function eshteIMbushur(players: string[], raundi: Raundi): boolean {
   return players.some((player) => typeof raundi.scores[player] === 'number');
@@ -205,62 +169,4 @@ export function pjesemarrjeEBarabarte(
   const vlerat = players.map((player) => sa[player] ?? 0);
 
   return vlerat.every((v) => v === vlerat[0]);
-}
-
-/** Një vijë e grafikut: pikat e një lojtari, nga hyrja e tij deri te dalja. */
-export type Seria = {
-  player: string;
-  /** Vendi i lojtarit te lista — mban të njëjtën ngjyrë edhe kur seritë hiqen. */
-  ngjyra: number;
-  pikat: { roundNumber: number; total: number }[];
-};
-
-/**
- * Seritë e grafikut, secila e prerë te raundet që lojtari i luajti vërtet.
- *
- * Një lojtar që hyri te raundi i pestë nuk duhet të ketë vijë të sheshtë mbi
- * zeron nga raundi i parë: aty ai nuk po humbte, aty ai nuk ishte fare. Vija e
- * tij nis nga raundi para të parit të vetin, me total zero, që të ketë prej nga
- * të ngjitet — dhe mbaron te raundi i fundit ku shënoi, që dikush i larguar në
- * mes të mos duket sikur qëndroi deri në fund.
- *
- * Për lojën e zakonshme, ku të gjithë luajnë çdo raund, kjo jep pikërisht atë
- * që jepte më parë: nga raundi 0 me zero, deri te i fundit.
- */
-export function seriteEGrafikut(players: string[], rounds: Raundi[]): Seria[] {
-  const rrjedha = totaletKumulative(players, rounds);
-  const luajtur = sipasRadhes(rounds).filter((r) => eshteIMbushur(players, r));
-
-  return players.map((player, ngjyra) => {
-    const iPari = luajtur.findIndex(
-      (r) => typeof r.scores[player] === 'number',
-    );
-
-    if (iPari === -1) return { player, ngjyra, pikat: [] };
-
-    let iFundit = iPari;
-    for (let i = luajtur.length - 1; i > iPari; i--) {
-      if (typeof luajtur[i]!.scores[player] === 'number') {
-        iFundit = i;
-        break;
-      }
-    }
-
-    // Pika e nisjes: raundi para të parit të vetin. Kur lojtari ishte aty që nga
-    // fillimi, ai raund është „0" — nisja e përbashkët e të gjithëve.
-    const nisja = {
-      roundNumber: iPari === 0 ? 0 : rrjedha[iPari - 1]!.roundNumber,
-      total: 0,
-    };
-
-    const pikat = [nisja];
-    for (let i = iPari; i <= iFundit; i++) {
-      pikat.push({
-        roundNumber: rrjedha[i]!.roundNumber,
-        total: rrjedha[i]!.totals[player] ?? 0,
-      });
-    }
-
-    return { player, ngjyra, pikat };
-  });
 }

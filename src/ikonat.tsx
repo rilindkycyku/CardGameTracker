@@ -61,12 +61,6 @@ const SHTIGJET: Record<string, JSX.Element> = {
       <path d="M3.6 10h16.8M8.4 3.6v3.4M15.6 3.6v3.4" />
     </>
   ),
-  grafiku: (
-    <>
-      <path d="M4 4v15.4a.6.6 0 0 0 .6.6H20" />
-      <path d="m7.4 15.2 3.4-4.4 3 2.6 4-6" />
-    </>
-  ),
   renditja: (
     <>
       <path d="M7.6 4.4h8.8v4.2a4.4 4.4 0 1 1-8.8 0Z" />

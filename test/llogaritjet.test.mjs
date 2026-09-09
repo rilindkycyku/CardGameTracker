@@ -23,7 +23,6 @@ import {
   totalet,
   renditja,
   matricaEShlyerjes,
-  totaletKumulative,
   eshteIMbushur,
   raundiNeVijim,
   sipasRadhes,
@@ -32,7 +31,6 @@ import {
   lojeratESortuara,
   raundetELuajtura,
   pjesemarrjeEBarabarte,
-  seriteEGrafikut,
 } from '../src/llogaritjet.ts';
 
 const burimi = JSON.parse(
@@ -124,41 +122,6 @@ test('një qelizë e zbrazët nuk numërohet si zero e futur', () => {
   assert.equal(dala.vigi, 0);
   assert.equal(dala.meri, 21);
   assert.equal(dala.rila, 38);
-});
-
-test('totalet kumulative i kapërcejnë raundet e pashënuara', () => {
-  const grupi = burimi.groups.find((g) => g.id === 'brigj_5');
-  const rrjedha = totaletKumulative(grupi.players, raundetE(grupi));
-
-  // Fleta ka gjashtë raunde, por vetëm dy janë mbushur.
-  assert.equal(rrjedha.length, 2);
-  assert.deepEqual(rrjedha[0], {
-    roundNumber: 1,
-    totals: { lila: 148, lesa: -40, rila: 200 },
-  });
-  assert.deepEqual(rrjedha[1], {
-    roundNumber: 2,
-    totals: { lila: 155, lesa: -25, rila: 180 },
-  });
-});
-
-test('hapi i fundit i rrjedhës është totali përfundimtar', () => {
-  for (const grupi of burimi.groups) {
-    const raundet = raundetE(grupi);
-    const rrjedha = totaletKumulative(grupi.players, raundet);
-    if (rrjedha.length === 0) continue;
-
-    assert.deepEqual(
-      rrjedha.at(-1).totals,
-      totalet(grupi.players, raundet),
-      `rrjedha e ${grupi.id}`,
-    );
-  }
-});
-
-test('një grup pa asnjë pikë të futur nuk jep asnjë hap grafiku', () => {
-  const grupi = burimi.groups.find((g) => g.id === 'brigj_4_merged_teams');
-  assert.deepEqual(totaletKumulative(grupi.players, raundetE(grupi)), []);
 });
 
 test('eshteIMbushur dallon raundin e shënuar nga vendi i lirë', () => {
@@ -280,73 +243,3 @@ test('totali nuk ndryshon nga hyrja e vonë — mbetet shuma e pikëve', () => {
   assert.equal(renditja(HYRI_VONE.players, t)[0].player, 'rila');
 });
 
-test('vija e një lojtari nis nga raundi para hyrjes së tij, jo nga zeroja', () => {
-  const serite = seriteEGrafikut(HYRI_VONE.players, HYRI_VONE.rounds);
-  const rila = serite.find((s) => s.player === 'rila');
-
-  // Pa këtë, `rila` do të dukej si vijë e sheshtë mbi zero nga raundi i parë —
-  // sikur po luante dhe s'po merrte pikë.
-  assert.deepEqual(rila.pikat, [
-    { roundNumber: 2, total: 0 },
-    { roundNumber: 3, total: -20 },
-  ]);
-});
-
-test('vija e një lojtari mbaron te raundi i fundit ku shënoi', () => {
-  const raundet = [
-    { id: 1, gameId: 1, roundNumber: 1, scores: { a: 10, b: 20 } },
-    { id: 2, gameId: 1, roundNumber: 2, scores: { a: 30, b: 40 } },
-    { id: 3, gameId: 1, roundNumber: 3, scores: { a: 50 } },
-  ];
-  const serite = seriteEGrafikut(['a', 'b'], raundet);
-
-  assert.deepEqual(serite.find((s) => s.player === 'b').pikat, [
-    { roundNumber: 0, total: 0 },
-    { roundNumber: 1, total: 20 },
-    { roundNumber: 2, total: 60 },
-  ]);
-});
-
-test('lojtari i shtuar por që s’ka luajtur ende nuk ka vijë', () => {
-  const serite = seriteEGrafikut(
-    ['a', 'b'],
-    [{ id: 1, gameId: 1, roundNumber: 1, scores: { a: 10 } }],
-  );
-
-  assert.deepEqual(serite.find((s) => s.player === 'b').pikat, []);
-});
-
-test('ngjyra e serisë ndjek vendin te lista, jo radhën e vizatimit', () => {
-  // Kur një seri hiqet nga grafiku sepse është e zbrazët, të tjerat nuk guxojnë
-  // të ndërrojnë ngjyrë.
-  const serite = seriteEGrafikut(HYRI_VONE.players, HYRI_VONE.rounds);
-
-  assert.deepEqual(
-    serite.map((s) => [s.player, s.ngjyra]),
-    [['meri', 0], ['lesa', 1], ['rila', 2]],
-  );
-});
-
-test('kur luajnë të gjithë, seritë janë ato që ishin: nga raundi 0 deri në fund', () => {
-  for (const grupi of burimi.groups) {
-    const raundet = raundetE(grupi);
-    const rrjedha = totaletKumulative(grupi.players, raundet);
-    if (rrjedha.length === 0) continue;
-    if (!pjesemarrjeEBarabarte(grupi.players, raundet.filter((r) =>
-      grupi.players.some((p) => typeof r.scores[p] === 'number')))) continue;
-
-    for (const seria of seriteEGrafikut(grupi.players, raundet)) {
-      assert.deepEqual(
-        seria.pikat,
-        [
-          { roundNumber: 0, total: 0 },
-          ...rrjedha.map((h) => ({
-            roundNumber: h.roundNumber,
-            total: h.totals[seria.player],
-          })),
-        ],
-        `${grupi.id}: seria e ${seria.player}`,
-      );
-    }
-  }
-});

@@ -30,25 +30,24 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 50 prova, pa framework provash
+npm test          # node --test — 52 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
 
 ## Rregullat e arkitekturës
 
-### 1. `llogaritjet.ts` dhe `pikezimi.ts` nuk njohin as bazën, as React-in, as `window`-in
+### 1. `llogaritjet.ts`, `pikezimi.ts` dhe `fusha.ts` nuk njohin as bazën, as React-in, as `window`-in
 
-Të dyja importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
-zgjat dyqind milisekonda dhe nuk ka çka të prishet mes provës dhe kodit.
+Të treja importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
+zgjat treqind milisekonda dhe nuk ka çka të prishet mes provës dhe kodit.
 
-Logjika e re shkon në njërin nga këta dy skedarë, me prova. Mos fut `import` të bazës, të React-it
-apo të ndonjë API-je të shfletuesit në to.
+Logjika e re shkon në njërin nga këta tre skedarë, me prova. Mos fut `import` të bazës, të
+React-it apo të ndonjë API-je të shfletuesit në to.
 
 ### 2. Asnjë vlerë e derivuar nuk ruhet
 
-Në bazë shkruhen vetëm pikët e futura. Totalet, renditja, matrica dhe rrjedha e grafikut
-llogariten sa herë lexohen.
+Në bazë shkruhen vetëm pikët e futura. Totalet, renditja dhe matrica llogariten sa herë lexohen.
 
 Kjo nuk është kursim vendi — është e vetmja mënyrë që redaktimi i raundit të tretë në raundin e
 dhjetë të mos lërë prapa një total të ngrirë diku. Nëse shton një vlerë të derivuar, mos e ruaj.
@@ -87,11 +86,6 @@ Dy gjëra rrjedhin prej kësaj dhe nuk guxojnë të hiqen:
   i pari pa luajtur asgjë. Prandaj `raundetELuajtura` nxjerr kontekstin dhe renditja shton kolonën
   „raunde" me një shënim mbi tabelë. Mos e „rregullo" duke ndryshuar totalin.
 
-Grafiku ndjek të njëjtin rregull: `seriteEGrafikut` e pret secilën vijë te raundet që lojtari i
-luajti vërtet. Një vijë e sheshtë mbi zeron nga raundi i parë do të thoshte „po luante dhe s'po
-merrte pikë", kurse e vërteta është „nuk ishte aty". Kur luajnë të gjithë, kjo jep pikërisht atë
-që jepte më parë, dhe një provë e mban të matur.
-
 ### 6. Emrat e fushave vijnë nga `logic.json`
 
 `test/logic.json` është fleta origjinale e nxjerrë nga Google Sheets-i, dhe çdo numër aty u
@@ -108,7 +102,7 @@ plota dhe provohen normalisht. Mos i „rregullo" ato fusha — janë dëshmi e 
 
 ### 7. Vlerat dinamike vizatohen me SVG, jo me atribut `style`
 
-Grafiku është SVG i shkruar me dorë, ngjyrat vijnë nga tokenat `--seria-N` përmes klasave. Kjo
+Asnjë atribut `style` nuk shkruhet askund: vlerat që ndryshojnë marrin klasë ose atribut SVG. Kjo
 është zakoni i Kujdestarisë, ku CSP-ja `style-src 'self'` e ndalon atributin `style` fare — dhe
 mbahet edhe këtu, që të dy projektet të mbeten të zëvendësueshëm.
 
@@ -116,8 +110,7 @@ Nëse shton diçka që kërkon stil inline, zgjidhja është një klasë ose nj�
 
 ### 8. Pa bibliotekë grafikësh, pa bibliotekë rrugëtimi, pa bibliotekë gjendjeje
 
-Varësitë janë tri: `react`, `react-dom`, `idb`. Grafiku me bosht e legjendë është nën dyqind
-rreshta; Chart.js-i do të shtonte mbi njëqind kilobajt. Rrugët janë katër; një `switch` mbi hash-in
+Varësitë janë tri: `react`, `react-dom`, `idb`. Rrugët janë katër; një `switch` mbi hash-in
 mjafton dhe butoni «prapa» i telefonit punon vetvetiu. Gjendja lexohet nga baza pas çdo shkrimi —
 baza është lokale, një lexim i tërë është disa milisekonda, dhe një cache që del jashtë sinkronie
 do të ishte rrezik pa përfitim.
@@ -156,5 +149,13 @@ duken si i njëjti dorëshkrim. Nëse ndërron një token atje, ndërroje edhe k
 - **Numërimet e listave shkojnë përmes `index.count()`**, jo duke lexuar regjistrat. `numriILojerave`
   dhe `numriIRaundeve` e nxjerrin numrin nga vetë indeksi, brenda një transaksioni të vetëm — pa to,
   ekrani i grupeve shpaketonte çdo objekt `scores` të çdo raundi vetëm që të matte një gjatësi.
+- **Fusha e pikëve është `type="text"`, dhe shenja ka butonin e vet.** Tastiera `inputMode="numeric"`
+  e Androidit ka vetëm shifra — pa minus — prandaj pikët e mbylljes (−20, −40) nuk shkruheshin dot
+  fare në telefon. `pastro()` te `fusha.ts` e njeh minusin kudo qoftë e jo vetëm në krye, sepse kur
+  shenja shtypet para shifrave kursori bie para tij dhe teksti del „4−". Mos e kthe në `type="number"`:
+  ajo e hedh poshtë „−"-in e vetëm para se të vijnë shifrat.
+- **Matrica renditet sipas renditjes, jo sipas radhës së tavolinës.** Shlyerja shihet kur mbaron
+  loja, dhe atëherë lexohet duke nisur nga fituesi. Vendi shkruhet krah emrit te rreshti, që radha
+  të mos duket e rastit.
 - **Kolona e parë e tabelës së raundeve rri `sticky`.** Me gjashtë lojtarë tabela del më e gjerë se
   telefoni, dhe pa të humb se cili raund po shihet sapo rrëshqitet.

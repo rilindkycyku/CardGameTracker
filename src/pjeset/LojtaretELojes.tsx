@@ -13,7 +13,7 @@
  *   • Hiqet vetëm ai që s'ka shënuar ende. Kush ka pikë te ndonjë raund mbetet
  *     te loja: pikët e tij janë pjesë e historikut të asaj mbrëmjeje, dhe
  *     heqja e tij do t'i linte ato të varura pa kolonë. Kush ikën para fundit
- *     thjesht pushon së shënuari, dhe vija e tij te grafiku mbaron aty.
+ *     thjesht pushon së shënuari.
  */
 
 import { useState } from 'react';

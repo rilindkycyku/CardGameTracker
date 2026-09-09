@@ -844,13 +844,57 @@ th.numri {
 
 .futja__njesi {
   display: grid;
-  grid-template-columns: 1fr 6.5rem;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 0.6rem;
   padding: 0.45rem 0.5rem 0.45rem 0.85rem;
   border: 1px solid var(--kufiri);
   border-radius: var(--rreze-2);
   background: var(--siperfaqe-2);
+}
+
+/* Shenja dhe numri janë një kontroll i vetëm, të bashkuar: e ndara i bënte të
+   dukeshin dy fusha, dhe „−" i shenjës ngatërrohej me vendin bosh të numrit. */
+.futja__vlera {
+  display: flex;
+  align-items: center;
+}
+
+/**
+ * Butoni i shenjës. Tastiera numerike e Androidit s'ka minus, prandaj ky është
+ * e vetmja rrugë për pikët e mbylljes në telefon — dhe duhet të jetë aq i madh
+ * sa të shtypet pa shikuar, sepse shtypet në çdo raund.
+ */
+.futja__shenja {
+  width: 2.75rem;
+  min-height: 2.75rem;
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--kufiri-veprues);
+  border-right: 0;
+  border-radius: var(--rreze-3) 0 0 var(--rreze-3);
+  background: var(--siperfaqe-2);
+  color: var(--teksti-zbehte);
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.futja__shenja:hover {
+  border-color: var(--hapur);
+  color: var(--hapur);
+}
+
+/* Negativja është mbyllja e raundit — e njëjta ngjyrë si te tabela. */
+.futja__shenja[aria-pressed='true'],
+.futja__shenja[aria-pressed='true']:hover {
+  background: var(--hapur-zbehte);
+  border-color: var(--hapur);
+  color: var(--hapur);
 }
 
 .futja__emri {
@@ -860,11 +904,11 @@ th.numri {
 }
 
 .futja__njesi input {
-  width: 100%;
+  width: 5rem;
   min-height: 2.75rem;
   padding: 0.4rem 0.6rem;
   border: 1px solid var(--kufiri-veprues);
-  border-radius: var(--rreze-3);
+  border-radius: 0 var(--rreze-3) var(--rreze-3) 0;
   background: var(--siperfaqe);
   color: var(--teksti);
   font: inherit;
@@ -1079,6 +1123,28 @@ th.numri {
   color: var(--teksti-zbehte);
 }
 
+/* Vendi te rreshti — tregon pse radha është kjo dhe jo ajo e tavolinës. */
+.matrica__vendi {
+  display: inline-grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.4rem;
+  border-radius: 50%;
+  background: var(--siperfaqe-2);
+  color: var(--teksti-zbehte);
+  font-family: var(--shkronja-numrat);
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  vertical-align: 0.05em;
+}
+
+.matrica tbody tr:first-child .matrica__vendi {
+  background: var(--hapur-zbehte);
+  color: var(--hapur);
+}
+
 /* Diagonalja s'është krahasim, prandaj nuk merr as ngjyrë as numër me shenjë. */
 .qeliza--vetja {
   background: transparent;
@@ -1116,72 +1182,6 @@ th.numri {
 .legjenda__ngjyra--negativ {
   background: var(--negativ-zbehte);
   box-shadow: inset 0 0 0 1px var(--negativ);
-}
-
-/* ── Grafiku ────────────────────────────────────────────────────────────── */
-
-.grafiku {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-.grafiku__rrjeti {
-  stroke: var(--kufiri);
-  stroke-width: 1;
-}
-
-.grafiku__zeroja {
-  stroke: var(--kufiri-veprues);
-  stroke-width: 1;
-  stroke-dasharray: 3 3;
-}
-
-.grafiku__vija {
-  fill: none;
-  stroke-width: 2.25;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.grafiku__pika {
-  stroke: var(--siperfaqe);
-  stroke-width: 1.5;
-}
-
-.grafiku__teksti {
-  fill: var(--teksti-zbehte);
-  font-size: 10px;
-  font-family: var(--shkronja-numrat);
-}
-
-.grafiku__boshti {
-  text-anchor: end;
-}
-
-.grafiku__legjenda {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 0.9rem;
-  margin: 0.6rem 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.83rem;
-}
-
-.grafiku__legjenda li {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-weight: 650;
-}
-
-.grafiku__shenja {
-  width: 0.85rem;
-  height: 0.25rem;
-  border-radius: 999px;
-  flex: none;
 }
 
 /* ── Njoftimet ──────────────────────────────────────────────────────────── */
@@ -1414,64 +1414,6 @@ th.numri {
   .tabela tr {
     break-inside: avoid;
   }
-}
-
-/* ── Ngjyrat e serive ───────────────────────────────────────────────────── */
-
-/**
- * Deri në tetë lojtarë në një grafik. Dy të parat janë smeraldi e ciani i
- * markës; të tjerat vijnë pas tyre, të ndara mjaftueshëm në ton sa të dallohen
- * edhe nga dikush që nuk i dallon mirë ngjyrat, sepse çdo vijë ka edhe emrin e
- * vet te legjenda dhe pikën e fundit të shënuar.
- *
- * Vlerat rrinë si tokena e jo si atribute `stroke`, që tema e errët t'i
- * ndërrojë pa u prekur SVG-ja — dhe që asnjë atribut `style` të mos jetë i
- * nevojshëm, si te Kujdestaria.
- */
-
-:root {
-  --seria-1: #047857;
-  --seria-2: #0369a1;
-  --seria-3: #b45309;
-  --seria-4: #7c3aed;
-  --seria-5: #be123c;
-  --seria-6: #0f766e;
-  --seria-7: #4338ca;
-  --seria-8: #4d7c0f;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --seria-1: #10b981;
-    --seria-2: #22d3ee;
-    --seria-3: #fbbf24;
-    --seria-4: #c4b5fd;
-    --seria-5: #fb7185;
-    --seria-6: #5eead4;
-    --seria-7: #a5b4fc;
-    --seria-8: #bef264;
-  }
-}
-
-.seria-1 { --seria: var(--seria-1); }
-.seria-2 { --seria: var(--seria-2); }
-.seria-3 { --seria: var(--seria-3); }
-.seria-4 { --seria: var(--seria-4); }
-.seria-5 { --seria: var(--seria-5); }
-.seria-6 { --seria: var(--seria-6); }
-.seria-7 { --seria: var(--seria-7); }
-.seria-8 { --seria: var(--seria-8); }
-
-.grafiku__vija {
-  stroke: var(--seria, var(--hapur));
-}
-
-.grafiku__pika {
-  fill: var(--seria, var(--hapur));
-}
-
-.grafiku__shenja {
-  background: var(--seria, var(--hapur));
 }
 
 /* Hapësira mbi një bllok që vjen pas një liste ose tabele. */

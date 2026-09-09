@@ -7,8 +7,9 @@
  * shënuar me −50 në vend të −40 — dhe një aplikacion që i pranon vetëm
  * kombinimet e lejuara nuk do t'i shënonte dot.
  *
- * Fushat janë `inputMode="numeric"` me `min`/`max` të gjera: tastiera e
- * telefonit del numerike, por edhe pikët negative shkruhen pa luftë.
+ * Shenja ka butonin e vet, dhe kjo nuk është zgjedhje stili: tastiera numerike
+ * e Androidit s'ka minus, prandaj pikët e mbylljes nuk shkruheshin dot në
+ * telefon. Arsyetimi i plotë dhe përpunimi i tekstit rrinë te `fusha.ts`.
  */
 
 import { useEffect, useMemo, useState } from 'react';
@@ -19,6 +20,7 @@ import {
   type GjendjaLojtarit,
   type LlojiMbylljes,
 } from '../pikezimi.ts';
+import { negative, ndrroShenjen as ndrro, numri, pastro } from '../fusha.ts';
 import { Ikona } from '../ikonat.tsx';
 
 type Vlerat = Record<string, string>;
@@ -49,6 +51,10 @@ export function FutjaERaundit({
   const shuma = players.reduce((s, p) => s + (numri(vlerat[p]) ?? 0), 0);
   const sashenuar = players.filter((p) => numri(vlerat[p]) !== null).length;
 
+  function ndrroShenjen(player: string) {
+    caktoVlerat((v) => ({ ...v, [player]: ndrro(v[player]) }));
+  }
+
   function ruaj() {
     const scores: Record<string, number | null> = {};
     for (const player of players) scores[player] = numri(vlerat[player]);
@@ -61,20 +67,33 @@ export function FutjaERaundit({
     <div className="futja">
       <div className="futja__rrjeti">
         {players.map((player) => (
-          <label className="futja__njesi" key={player}>
+          <div className="futja__njesi" key={player}>
             <span className="futja__emri">{player}</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              step="1"
-              placeholder="—"
-              value={vlerat[player] ?? ''}
-              onChange={(e) =>
-                caktoVlerat((v) => ({ ...v, [player]: e.target.value }))
-              }
-              aria-label={`Pikët e ${player} për raundin ${roundNumber}`}
-            />
-          </label>
+            <div className="futja__vlera">
+              <button
+                type="button"
+                className="futja__shenja"
+                aria-pressed={negative(vlerat[player])}
+                onClick={() => ndrroShenjen(player)}
+                aria-label={`Ndërro shenjën e ${player}`}
+              >
+                {negative(vlerat[player]) ? '−' : '+'}
+              </button>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="-?[0-9]*"
+                value={vlerat[player] ?? ''}
+                onChange={(e) =>
+                  caktoVlerat((v) => ({
+                    ...v,
+                    [player]: pastro(e.target.value),
+                  }))
+                }
+                aria-label={`Pikët e ${player} për raundin ${roundNumber}`}
+              />
+            </div>
+          </div>
         ))}
       </div>
 
@@ -295,11 +314,4 @@ function nga(
       return [p, typeof v === 'number' ? String(v) : ''];
     }),
   );
-}
-
-/** Teksti i një fushe si numër, ose `null` nëse s’është shënuar ende. */
-function numri(teksti: string | undefined): number | null {
-  if (teksti === undefined || teksti.trim() === '') return null;
-  const n = Number(teksti);
-  return Number.isFinite(n) ? Math.round(n) : null;
 }
