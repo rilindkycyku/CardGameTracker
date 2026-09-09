@@ -33,7 +33,7 @@ export function Shlyerja({
       </h2>
 
       <div className="tabela-mbeshtjellese">
-        <table className="tabela matrica">
+        <table className="tabela matrica" data-shume={players.length >= 5 || undefined}>
           <caption className="vetem-lexues">
             Diferenca e totaleve, me lojtarët sipas renditjes: qeliza tregon sa
             pikë ka lojtari i rreshtit më shumë ose më pak se lojtari i

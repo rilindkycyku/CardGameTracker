@@ -40,7 +40,10 @@ export function Raundet({
       </h2>
 
       <div className="tabela-mbeshtjellese">
-        <table className="tabela tabela--raundet">
+        <table
+          className="tabela tabela--raundet"
+          data-shume={players.length >= 5 || undefined}
+        >
           <caption className="vetem-lexues">
             Pikët e secilit lojtar raund pas raundi, me totalin në fund.
           </caption>

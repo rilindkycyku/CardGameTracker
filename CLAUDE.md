@@ -4,7 +4,7 @@ Udhëzime për asistentët e IA-së që punojnë në këtë depo. Lexoje para se
 
 Dokumentacioni i projektit është shqip, prandaj edhe ky skedar. Struktura, komentet, commit-et
 dhe teksti në ekran janë shqip — mos e ndërro gjuhën. Përjashtim bëjnë vetëm emrat e fushave të
-të dhënave (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`), për arsyen te pika 5.
+të dhënave (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`), për arsyen te pika 7.
 
 ## Çka është kjo
 
@@ -86,7 +86,29 @@ Dy gjëra rrjedhin prej kësaj dhe nuk guxojnë të hiqen:
   i pari pa luajtur asgjë. Prandaj `raundetELuajtura` nxjerr kontekstin dhe renditja shton kolonën
   „raunde" me një shënim mbi tabelë. Mos e „rregullo" duke ndryshuar totalin.
 
-### 6. Emrat e fushave vijnë nga `logic.json`
+### 6. Futja e raundit optimizohet për gjashtë lojtarë, jo për dy
+
+Ky bllok përdoret dhjetëra herë në një mbrëmje, dhe një grup me gjashtë lojtarë e trefishon punën
+e tij. Tri gjëra e mbajnë të përdorshëm, dhe asnjëra nuk guxon të hiqet pa e zëvendësuar:
+
+- **«Next» i tastierës kalon te lojtari tjetër, dhe te i fundit ruan raundin.** Me gjashtë lojtarë
+  kjo është gjashtë prekje më pak për raund. Pas ruajtjes me tastierë fokusi kthehet te i pari; pas
+  një prekjeje të butonit jo, sepse hapja e tastierës pa u kërkuar do të mbulonte renditjen që
+  përdoruesi sapo shkoi ta shohë.
+- **Rreshti i veprimeve rri `position: sticky` në fund të kartelës.** Me tastierën e hapur ekrani i
+  mbetur është nën gjysmën e telefonit. Prandaj `.kartela--kryesore` ka `overflow: clip` e jo
+  `hidden`: të dyja e presin vijën e theksit njësoj, por `hidden` krijon kontejner rrëshqitjeje dhe
+  ia heq fuqinë `sticky`-t brenda.
+- **Nga pesë lojtarë e tutje shtrëngohen rreshtat dhe tabelat** (`data-shume`). Ulet vetëm ajri:
+  fushat dhe butonat mbeten 2.75rem, sepse ai është kufiri nën të cilin gishti nuk i zë.
+
+Llogaritësi nuk ka çelës „s'hapi / hapi" — dora e thotë. Fushë e zbrazët do të thotë që lojtari
+nuk hapi, prandaj merr dënimin fiks; çdo numër do të thotë që hapi, dhe ai numër është dora.
+Një lojtar që ka hapur e ka mbetur me zero pikë do ta kishte mbyllur vetë raundin, prandaj zeroja
+nuk humb asnjë gjendje të vërtetë. Me gjashtë lojtarë kjo e preu llogaritësin nga 1195px në 569px
+dhe hoqi pesë prekje.
+
+### 7. Emrat e fushave vijnë nga `logic.json`
 
 `test/logic.json` është fleta origjinale e nxjerrë nga Google Sheets-i, dhe çdo numër aty u
 kontrollua kundër formulave të saj. Provat maten kundër tij, jo kundër pritjeve të shpikura.
@@ -100,7 +122,7 @@ automatizuar dhe jo nga tabela: `domina_1.standings` (një rresht nga tre lojtar
 `brigj_4_merged_teams.settlement_matrix` (rreshti i dytë quhet `null`). Totalet e të dyve janë të
 plota dhe provohen normalisht. Mos i „rregullo" ato fusha — janë dëshmi e asaj që erdhi.
 
-### 7. Vlerat dinamike vizatohen me SVG, jo me atribut `style`
+### 8. Vlerat dinamike vizatohen me SVG, jo me atribut `style`
 
 Asnjë atribut `style` nuk shkruhet askund: vlerat që ndryshojnë marrin klasë ose atribut SVG. Kjo
 është zakoni i Kujdestarisë, ku CSP-ja `style-src 'self'` e ndalon atributin `style` fare — dhe
@@ -108,7 +130,7 @@ mbahet edhe këtu, që të dy projektet të mbeten të zëvendësueshëm.
 
 Nëse shton diçka që kërkon stil inline, zgjidhja është një klasë ose një atribut SVG.
 
-### 8. Pa bibliotekë grafikësh, pa bibliotekë rrugëtimi, pa bibliotekë gjendjeje
+### 9. Pa bibliotekë grafikësh, pa bibliotekë rrugëtimi, pa bibliotekë gjendjeje
 
 Varësitë janë tri: `react`, `react-dom`, `idb`. Rrugët janë katër; një `switch` mbi hash-in
 mjafton dhe butoni «prapa» i telefonit punon vetvetiu. Gjendja lexohet nga baza pas çdo shkrimi —
@@ -163,5 +185,8 @@ duken si i njëjti dorëshkrim. Nëse ndërron një token atje, ndërroje edhe k
 - **Matrica renditet sipas renditjes, jo sipas radhës së tavolinës.** Shlyerja shihet kur mbaron
   loja, dhe atëherë lexohet duke nisur nga fituesi. Vendi shkruhet krah emrit te rreshti, që radha
   të mos duket e rastit.
+- **Lojë e re niset nga lojtarët e lojës së fundit**, jo nga tërë lista e grupit: shoqëria është
+  zakonisht e njëjta, prandaj më shpesh nuk ka çka të preket fare. „E fundit" është ajo që del e
+  para te historiku — më e reja sipas datës.
 - **Kolona e parë e tabelës së raundeve rri `sticky`.** Me gjashtë lojtarë tabela del më e gjerë se
   telefoni, dhe pa të humb se cili raund po shihet sapo rrëshqitet.

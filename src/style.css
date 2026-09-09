@@ -327,11 +327,18 @@ h3 {
   box-shadow: var(--hije-2);
 }
 
-/* Kartela kryesore e ekranit — vija e theksit lart, si te „tani" i Kujdestarisë. */
+/**
+ * Kartela kryesore e ekranit — vija e theksit lart, si te „tani" i Kujdestarisë.
+ *
+ * `overflow: clip` e jo `hidden`: të dyja e presin vijën te qoshet e
+ * rrumbullakuara njësoj, por `hidden` krijon një kontejner rrëshqitjeje, dhe ai
+ * ia heq fuqinë `position: sticky` të rreshtit të veprimeve brenda. Me `clip`
+ * nuk ka kontejner, prandaj „Ruaj raundin" mbetet i ngjitur në fund të ekranit.
+ */
 .kartela--kryesore {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow: clip;
 }
 
 .kartela--kryesore::before {
@@ -853,6 +860,21 @@ th.numri {
   background: var(--siperfaqe-2);
 }
 
+/**
+ * Me pesë a më shumë lojtarë rreshtat shtrëngohen.
+ *
+ * Kufijtë e prekjes nuk ulen: fusha dhe butoni i shenjës mbeten 2.75rem, sepse
+ * ai është kufiri nën të cilin gishti nuk e zë. Hiqet vetëm ajri rreth tyre —
+ * mbushja dhe hapësira mes rreshtave.
+ */
+.futja__rrjeti[data-shume] {
+  gap: 0.35rem;
+}
+
+.futja__rrjeti[data-shume] .futja__njesi {
+  padding: 0.2rem 0.3rem 0.2rem 0.75rem;
+}
+
 /* Shenja dhe numri janë një kontroll i vetëm, të bashkuar: e ndara i bënte të
    dukeshin dy fusha, dhe „−" i shenjës ngatërrohej me vendin bosh të numrit. */
 .futja__vlera {
@@ -929,6 +951,27 @@ th.numri {
   appearance: textfield;
 }
 
+/**
+ * Rreshti i veprimeve rri i ngjitur në fund të kartelës.
+ *
+ * Me tastierën e hapur, ekrani i mbetur është nën gjysmën e telefonit. Pa këtë,
+ * „Ruaj raundin" bie poshtë sapo lojtarët kalojnë katër — dhe ai është butoni
+ * që shtypet në çdo raund.
+ */
+.futja__fund {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  gap: 0.55rem;
+  padding-top: 0.55rem;
+  margin-top: -0.1rem;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--siperfaqe) 0.5rem
+  );
+}
+
 .futja__shuma {
   display: flex;
   flex-wrap: wrap;
@@ -949,25 +992,65 @@ th.numri {
 
 .llogaritesi {
   display: grid;
-  gap: 0.85rem;
-  margin-top: 0.9rem;
-  padding: 0.95rem;
+  gap: 0.7rem;
+  margin-top: 0.15rem;
+  padding: 0.85rem;
   border: 1px dashed var(--kufiri-veprues);
   border-radius: var(--rreze-2);
   background: var(--siperfaqe-2);
 }
 
-.llogaritesi__lista {
-  display: grid;
-  gap: 0.5rem;
+/**
+ * Mbyllësi dhe lloji i mbylljes në një rresht të vetëm.
+ *
+ * Më parë ishin dy fusha të plota me nga një etiketë secila, të shtresuara në
+ * telefon — njëqind e dyzet piksela për dy kontrolle. Etiketa tani është një
+ * për të dyja, dhe rreshti bie te lartësia e një kontrolli.
+ */
+.llogaritesi__krye {
+  display: flex;
+  gap: 0.4rem;
 }
 
+.llogaritesi__krye select {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--kufiri-veprues);
+  border-radius: var(--rreze-2);
+  background: var(--siperfaqe);
+  color: var(--teksti);
+  font: inherit;
+  font-weight: 650;
+}
+
+.llogaritesi__krye .celesi {
+  flex: none;
+}
+
+.llogaritesi__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+/**
+ * Një rresht për lojtar: emri, dora, pikët.
+ *
+ * Më parë secili kishte kartelën e vet me çelës «s'hapi / hapi», fushë dhe
+ * rresht shpjegimi — me gjashtë lojtarë llogaritësi dilte mbi një mijë piksela
+ * i gjatë dhe butoni i fundit binte shumë poshtë ekranit. Çelësi u hoq sepse
+ * dora e thotë vetë: bosh do të thotë që s'hapi.
+ */
 .llogaritesi__njesi {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr 5rem 3.2rem;
   align-items: center;
-  gap: 0.5rem 0.75rem;
-  padding: 0.6rem 0.75rem;
+  gap: 0.5rem;
+  padding: 0.25rem 0.6rem;
   border: 1px solid var(--kufiri);
   border-radius: var(--rreze-3);
   background: var(--siperfaqe);
@@ -975,17 +1058,14 @@ th.numri {
 
 .llogaritesi__emri {
   font-weight: 650;
-}
-
-.llogaritesi__gjendja {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .llogaritesi__dora {
-  width: 5.5rem;
-  min-height: 2.5rem;
+  width: 100%;
+  min-height: 2.75rem;
   padding: 0.35rem 0.6rem;
   border: 1px solid var(--kufiri-veprues);
   border-radius: var(--rreze-3);
@@ -998,35 +1078,19 @@ th.numri {
   font-variant-numeric: tabular-nums;
 }
 
-.llogaritesi__dora::-webkit-outer-spin-button,
-.llogaritesi__dora::-webkit-inner-spin-button {
-  appearance: none;
-  margin: 0;
-}
-
-.llogaritesi__dora {
-  appearance: textfield;
-}
-
-.llogaritesi__dora:disabled {
-  opacity: 0.4;
-}
-
-.llogaritesi__rezultati {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding-top: 0.4rem;
-  border-top: 1px dashed var(--kufiri);
+.llogaritesi__dora::placeholder {
+  font-family: system-ui, sans-serif;
+  font-weight: 400;
   font-size: 0.82rem;
   color: var(--teksti-zbehte);
 }
 
+/* Pikët që dalin nga dora — ndryshojnë sa shkruhet, prandaj rrinë krah saj. */
 .llogaritesi__pike {
   font-family: var(--shkronja-numrat);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
+  text-align: right;
   color: var(--teksti);
 }
 
@@ -1361,12 +1425,12 @@ th.numri {
     grid-template-columns: 1fr;
   }
 
+  /* Rreshti i llogaritësit mbetet një rresht edhe këtu: emri, dora, pikët hyjnë
+     brenda 390px, dhe shtrirja në tri rreshta e trefishonte lartësinë e tij. */
   .llogaritesi__njesi {
-    grid-template-columns: 1fr;
-  }
-
-  .llogaritesi__gjendja {
-    justify-content: space-between;
+    grid-template-columns: 1fr 4.5rem 3rem;
+    gap: 0.4rem;
+    padding-inline: 0.5rem;
   }
 }
 
@@ -1512,4 +1576,43 @@ th.numri {
 /* Njësia e lojës humb qoshet e poshtme kur ka renditje nën vete. */
 .lista li:has(.renditja-shkurter) .njesi {
   border-radius: var(--rreze-2) var(--rreze-2) 0 0;
+}
+
+/* ── Dendësia me shumë lojtarë ──────────────────────────────────────────── */
+
+/**
+ * Nga pesë lojtarë e tutje, tabelat shtrëngohen.
+ *
+ * Të dyja rrëshqasin anash edhe ashtu — kolona e parë rri `sticky` te raundet,
+ * dhe matrica ka emrin e rreshtit të ngjitur — por sa më pak të rrëshqitet, aq
+ * më pak humbet lidhja mes numrit dhe emrit që i takon. Këtu ulet vetëm ajri:
+ * asgjë që preket nuk zvogëlohet.
+ */
+.tabela--raundet[data-shume] th,
+.tabela--raundet[data-shume] td {
+  padding-inline: 0.5rem;
+}
+
+.tabela--raundet[data-shume] {
+  font-size: 0.88rem;
+}
+
+.matrica[data-shume] {
+  border-spacing: 2px;
+  font-size: 0.82rem;
+}
+
+.matrica[data-shume] td {
+  padding: 0.45rem 0.4rem;
+}
+
+.matrica[data-shume] th {
+  padding: 0.3rem 0.35rem;
+}
+
+.matrica[data-shume] .matrica__vendi {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-right: 0.3rem;
+  font-size: 0.62rem;
 }

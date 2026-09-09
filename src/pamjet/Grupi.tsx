@@ -150,6 +150,7 @@ export function Grupi({ id }: { id: number }) {
       {hapurLojen && (
         <ZgjedhjaELojtareve
           grupi={grupi}
+          mefundit={lojerat[0]?.selectedPlayers}
           onAnulo={() => hapLojen(false)}
           onNis={async (date, zgjedhur) => {
             const idELojes = await shtoLoje(grupi.id, date, zgjedhur);
@@ -312,14 +313,26 @@ function RenditjaEShkurter({ rreshtat }: { rreshtat: RreshtiRenditjes[] }) {
  */
 function ZgjedhjaELojtareve({
   grupi,
+  mefundit,
   onNis,
   onAnulo,
 }: {
   grupi: TGrupi;
+  /** Kush luajti herën e fundit — nisja e zgjedhjes. */
+  mefundit?: string[];
   onNis: (date: string, zgjedhur: string[]) => void;
   onAnulo: () => void;
 }) {
-  const [zgjedhur, caktoZgjedhur] = useState<string[]>(grupi.playerNames);
+  // Shoqëria është zakonisht e njëjta nga një mbrëmje te tjetra, prandaj
+  // zgjedhja niset nga lojtarët e lojës së fundit e jo nga tërë lista: më
+  // shpesh nuk ka çka të preket fare. Kush u hoq nga grupi ndërkohë bie jashtë,
+  // dhe një grup pa lojëra ende i merr të gjithë.
+  const [zgjedhur, caktoZgjedhur] = useState<string[]>(() => {
+    const meparshmit = (mefundit ?? []).filter((emri) =>
+      grupi.playerNames.includes(emri),
+    );
+    return meparshmit.length >= 2 ? meparshmit : grupi.playerNames;
+  });
   const [date, caktoDaten] = useState(sot());
 
   function ndrysho(lojtari: string) {
@@ -367,7 +380,9 @@ function ZgjedhjaELojtareve({
         </label>
 
         <p className="ndihma">
-          Numri tregon radhën e kolonave. Duhen së paku dy lojtarë.
+          {mefundit && mefundit.length >= 2
+            ? 'Nisur nga lojtarët e lojës së fundit. Numri tregon radhën e kolonave.'
+            : 'Numri tregon radhën e kolonave. Duhen së paku dy lojtarë.'}
         </p>
 
         <div className="veprimet">
