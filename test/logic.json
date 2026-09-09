@@ -1,0 +1,786 @@
+{
+  "description": "Score-tracking and settlement calculator. Each group ('block') records per-round scores for a set of players, sums them into running totals, ranks players by total (ascending), and computes a pairwise settlement matrix.",
+  "algorithm": {
+    "totals": "For each player, sum all entered round scores. total[player] = SUM(round_scores for that player)",
+    "standings": "Sort players ascending by total (lowest total = rank 1). Ties are not specially handled (natural sort order).",
+    "settlement_matrix": "matrix[player_i][player_j] = total[player_i] - total[player_j]. Diagonal is always 0. A positive value means player_i's total exceeds player_j's by that amount; a negative value means the reverse."
+  },
+  "groups": [
+    {
+      "sheet": "Brigj",
+      "id": "brigj_1",
+      "players": [
+        "meri",
+        "lesa",
+        "lila",
+        "rila"
+      ],
+      "rounds": [
+        {
+          "round": 1,
+          "scores": {
+            "meri": -20.0,
+            "lesa": 100.0,
+            "lila": 30.0,
+            "rila": 27.0
+          }
+        },
+        {
+          "round": 2,
+          "scores": {
+            "meri": 14.0,
+            "lesa": 26.0,
+            "lila": -20.0,
+            "rila": 18.0
+          }
+        },
+        {
+          "round": 3,
+          "scores": {
+            "meri": 200.0,
+            "lesa": 142,
+            "lila": 200.0,
+            "rila": -40.0
+          }
+        },
+        {
+          "round": 4,
+          "scores": {
+            "meri": 100.0,
+            "lesa": -20.0,
+            "lila": 10.0,
+            "rila": 100.0
+          }
+        },
+        {
+          "round": 5,
+          "scores": {
+            "meri": 100.0,
+            "lesa": 14.0,
+            "lila": 25.0,
+            "rila": -20.0
+          }
+        },
+        {
+          "round": 6,
+          "scores": {
+            "meri": 100.0,
+            "lesa": 18.0,
+            "lila": 12.0,
+            "rila": -20.0
+          }
+        },
+        {
+          "round": 7,
+          "scores": {
+            "meri": 100.0,
+            "lesa": 100.0,
+            "lila": -20.0,
+            "rila": 26.0
+          }
+        },
+        {
+          "round": 8,
+          "scores": {}
+        }
+      ],
+      "totals": {
+        "meri": 594,
+        "lesa": 380,
+        "lila": 237,
+        "rila": 91
+      },
+      "standings": [
+        {
+          "rank": 1,
+          "player": "rila",
+          "total": 91.0
+        },
+        {
+          "rank": 2,
+          "player": "lila",
+          "total": 237.0
+        },
+        {
+          "rank": 3,
+          "player": "lesa",
+          "total": 380.0
+        },
+        {
+          "rank": 4,
+          "player": "meri",
+          "total": 594.0
+        }
+      ],
+      "settlement_matrix": {
+        "meri": {
+          "meri": 0,
+          "lesa": 214.0,
+          "lila": 357.0,
+          "rila": 503.0
+        },
+        "lesa": {
+          "meri": -214.0,
+          "lesa": 0.0,
+          "lila": 143.0,
+          "rila": 289.0
+        },
+        "lila": {
+          "meri": -357.0,
+          "lesa": -143.0,
+          "lila": 0.0,
+          "rila": 146.0
+        },
+        "rila": {
+          "meri": -503.0,
+          "lesa": -289.0,
+          "lila": -146.0,
+          "rila": 0.0
+        }
+      }
+    },
+    {
+      "sheet": "Brigj",
+      "id": "brigj_2",
+      "players": [
+        "lila",
+        "yllza",
+        "djellza",
+        "lesa",
+        "rila"
+      ],
+      "rounds": [
+        {
+          "round": 1,
+          "scores": {
+            "lila": 4.0,
+            "yllza": 41.0,
+            "djellza": -20.0,
+            "lesa": 38.0,
+            "rila": 36.0
+          }
+        },
+        {
+          "round": 2,
+          "scores": {
+            "lila": 8.0,
+            "yllza": 34.0,
+            "djellza": 15.0,
+            "lesa": 10.0,
+            "rila": -20.0
+          }
+        },
+        {
+          "round": 3,
+          "scores": {
+            "lila": 100.0,
+            "yllza": 10.0,
+            "djellza": 100.0,
+            "lesa": -20.0,
+            "rila": 100.0
+          }
+        },
+        {
+          "round": 4,
+          "scores": {}
+        },
+        {
+          "round": 5,
+          "scores": {}
+        },
+        {
+          "round": 6,
+          "scores": {}
+        },
+        {
+          "round": 7,
+          "scores": {}
+        },
+        {
+          "round": 8,
+          "scores": {}
+        },
+        {
+          "round": 9,
+          "scores": {}
+        },
+        {
+          "round": 10,
+          "scores": {}
+        }
+      ],
+      "totals": {
+        "lila": 112,
+        "yllza": 85,
+        "djellza": 95,
+        "lesa": 28,
+        "rila": 116
+      },
+      "standings": [
+        {
+          "rank": 1,
+          "player": "lesa",
+          "total": 28.0
+        },
+        {
+          "rank": 2,
+          "player": "yllza",
+          "total": 85.0
+        },
+        {
+          "rank": 3,
+          "player": "djellza",
+          "total": 95.0
+        },
+        {
+          "rank": 4,
+          "player": "lila",
+          "total": 112.0
+        },
+        {
+          "rank": 5,
+          "player": "rila",
+          "total": 116.0
+        }
+      ],
+      "settlement_matrix": {
+        "lila": {
+          "lila": 0,
+          "yllza": 27.0,
+          "djellza": 17.0,
+          "lesa": 84.0,
+          "rila": -4.0
+        },
+        "yllza": {
+          "lila": -27.0,
+          "yllza": 0.0,
+          "djellza": -10.0,
+          "lesa": 57.0,
+          "rila": -31.0
+        },
+        "djellza": {
+          "lila": -17.0,
+          "yllza": 10.0,
+          "djellza": 0.0,
+          "lesa": 67.0,
+          "rila": -21.0
+        },
+        "lesa": {
+          "lila": -84.0,
+          "yllza": -57.0,
+          "djellza": -67.0,
+          "lesa": 0.0,
+          "rila": -88.0
+        },
+        "rila": {
+          "lila": 4.0,
+          "yllza": 31.0,
+          "djellza": 21.0,
+          "lesa": 88.0,
+          "rila": 0.0
+        }
+      }
+    },
+    {
+      "sheet": "Brigj",
+      "id": "brigj_3",
+      "players": [
+        "meri",
+        "eri",
+        "Arboni",
+        "gjigji",
+        "Miloti",
+        "rila"
+      ],
+      "rounds": [
+        {
+          "round": 1,
+          "scores": {
+            "meri": 26.0,
+            "eri": 54.0,
+            "Arboni": -50.0,
+            "gjigji": 18.0,
+            "Miloti": 100.0,
+            "rila": 100.0
+          }
+        },
+        {
+          "round": 2,
+          "scores": {
+            "meri": 16.0,
+            "eri": -20.0,
+            "Arboni": 28.0,
+            "gjigji": 20.0,
+            "Miloti": 100.0,
+            "rila": 5.0
+          }
+        },
+        {
+          "round": 3,
+          "scores": {
+            "meri": 37.0,
+            "eri": 100.0,
+            "Arboni": 23.0,
+            "gjigji": 49.0,
+            "Miloti": 100.0,
+            "rila": -20.0
+          }
+        },
+        {
+          "round": 4,
+          "scores": {
+            "meri": 12.0,
+            "eri": 100.0,
+            "Arboni": 20.0,
+            "gjigji": 100.0,
+            "Miloti": -20.0,
+            "rila": 100.0
+          }
+        },
+        {
+          "round": 5,
+          "scores": {
+            "meri": 100.0,
+            "eri": 100.0,
+            "Arboni": 30.0,
+            "gjigji": -20.0,
+            "Miloti": 40.0,
+            "rila": 48.0
+          }
+        },
+        {
+          "round": 6,
+          "scores": {
+            "meri": 100.0,
+            "eri": -20.0,
+            "Arboni": 22.0,
+            "gjigji": 22.0,
+            "Miloti": 21.0,
+            "rila": 10.0
+          }
+        },
+        {
+          "round": 7,
+          "scores": {
+            "meri": 7.0,
+            "eri": 100.0,
+            "Arboni": 13.0,
+            "gjigji": -20.0,
+            "Miloti": 19.0,
+            "rila": 15.0
+          }
+        },
+        {
+          "round": 8,
+          "scores": {
+            "meri": 20.0,
+            "eri": 100.0,
+            "Arboni": -20.0,
+            "gjigji": 5.0,
+            "Miloti": 8.0,
+            "rila": 29.0
+          }
+        },
+        {
+          "round": 9,
+          "scores": {
+            "meri": 200.0,
+            "eri": 200.0,
+            "Arboni": -40.0,
+            "gjigji": 200.0,
+            "Miloti": 200.0,
+            "rila": 200.0
+          }
+        },
+        {
+          "round": 10,
+          "scores": {
+            "meri": 200.0,
+            "eri": -40.0,
+            "Arboni": 200.0,
+            "gjigji": 200.0,
+            "Miloti": 200.0,
+            "rila": 200.0
+          }
+        },
+        {
+          "round": 11,
+          "scores": {
+            "meri": 200.0,
+            "eri": 200.0,
+            "Arboni": -40.0,
+            "gjigji": 200.0,
+            "Miloti": 200.0,
+            "rila": 200.0
+          }
+        },
+        {
+          "round": 12,
+          "scores": {}
+        }
+      ],
+      "totals": {
+        "meri": 918,
+        "eri": 874,
+        "Arboni": 186,
+        "gjigji": 774,
+        "Miloti": 968,
+        "rila": 887
+      },
+      "standings": [
+        {
+          "rank": 1,
+          "player": "Arboni",
+          "total": 186.0
+        },
+        {
+          "rank": 2,
+          "player": "gjigji",
+          "total": 774.0
+        },
+        {
+          "rank": 3,
+          "player": "eri",
+          "total": 874.0
+        },
+        {
+          "rank": 4,
+          "player": "rila",
+          "total": 887.0
+        },
+        {
+          "rank": 5,
+          "player": "meri",
+          "total": 918.0
+        },
+        {
+          "rank": 6,
+          "player": "Miloti",
+          "total": 968.0
+        }
+      ],
+      "settlement_matrix": {
+        "meri": {
+          "meri": 0,
+          "eri": 44.0,
+          "Arboni": 732.0,
+          "gjigji": 144.0,
+          "Miloti": -50.0,
+          "rila": 31.0
+        },
+        "eri": {
+          "meri": -44.0,
+          "eri": 0.0,
+          "Arboni": 688.0,
+          "gjigji": 100.0,
+          "Miloti": -94.0,
+          "rila": -13.0
+        },
+        "Arboni": {
+          "meri": -732.0,
+          "eri": -688.0,
+          "Arboni": 0.0,
+          "gjigji": -588.0,
+          "Miloti": -782.0,
+          "rila": -701.0
+        },
+        "gjigji": {
+          "meri": -144.0,
+          "eri": -100.0,
+          "Arboni": 588.0,
+          "gjigji": 0.0,
+          "Miloti": -194.0,
+          "rila": -113.0
+        },
+        "Miloti": {
+          "meri": 50.0,
+          "eri": 94.0,
+          "Arboni": 782.0,
+          "gjigji": 194.0,
+          "Miloti": 0.0,
+          "rila": 81.0
+        },
+        "rila": {
+          "meri": -31.0,
+          "eri": 13.0,
+          "Arboni": 701.0,
+          "gjigji": 113.0,
+          "Miloti": -81.0,
+          "rila": 0.0
+        }
+      }
+    },
+    {
+      "sheet": "Brigj",
+      "id": "brigj_4_merged_teams",
+      "players": [
+        "meri + mil",
+        "eri + rila"
+      ],
+      "rounds": [
+        {
+          "round": 1,
+          "scores": {}
+        },
+        {
+          "round": 2,
+          "scores": {}
+        },
+        {
+          "round": 3,
+          "scores": {}
+        },
+        {
+          "round": 4,
+          "scores": {}
+        },
+        {
+          "round": 5,
+          "scores": {}
+        },
+        {
+          "round": 6,
+          "scores": {}
+        },
+        {
+          "round": 7,
+          "scores": {}
+        },
+        {
+          "round": 8,
+          "scores": {}
+        }
+      ],
+      "totals": {
+        "meri + mil": 0,
+        "eri + rila": 0
+      },
+      "standings": [
+        {
+          "rank": 1,
+          "player": "meri + mil",
+          "total": 0.0
+        },
+        {
+          "rank": 2,
+          "player": "eri + rila",
+          "total": 0.0
+        }
+      ],
+      "settlement_matrix": {
+        "meri + mil": {
+          "meri + mil": 0,
+          "eri + rila": 0
+        },
+        "null": {
+          "meri + mil": 0,
+          "eri + rila": 0
+        }
+      }
+    },
+    {
+      "sheet": "Brigj",
+      "id": "brigj_5",
+      "players": [
+        "lila",
+        "lesa",
+        "rila"
+      ],
+      "rounds": [
+        {
+          "round": 1,
+          "scores": {
+            "lila": 148,
+            "lesa": -40.0,
+            "rila": 200.0
+          }
+        },
+        {
+          "round": 2,
+          "scores": {
+            "lila": 7.0,
+            "lesa": 15.0,
+            "rila": -20.0
+          }
+        },
+        {
+          "round": 3,
+          "scores": {}
+        },
+        {
+          "round": 4,
+          "scores": {}
+        },
+        {
+          "round": 5,
+          "scores": {}
+        },
+        {
+          "round": 6,
+          "scores": {}
+        }
+      ],
+      "totals": {
+        "lila": 155,
+        "lesa": -25,
+        "rila": 180
+      },
+      "standings": [
+        {
+          "rank": 1,
+          "player": "lesa",
+          "total": -25.0
+        },
+        {
+          "rank": 2,
+          "player": "lila",
+          "total": 155.0
+        },
+        {
+          "rank": 3,
+          "player": "rila",
+          "total": 180.0
+        }
+      ],
+      "settlement_matrix": {
+        "lila": {
+          "lila": 0,
+          "lesa": 180.0,
+          "rila": -25.0
+        },
+        "lesa": {
+          "lila": -180.0,
+          "lesa": 0.0,
+          "rila": -205.0
+        },
+        "rila": {
+          "lila": 25.0,
+          "lesa": 205.0,
+          "rila": 0.0
+        }
+      }
+    },
+    {
+      "sheet": "Domina",
+      "id": "domina_1",
+      "players": [
+        "meri",
+        "vigi",
+        "rila"
+      ],
+      "rounds": [
+        {
+          "round": 1,
+          "scores": {
+            "meri": 21.0,
+            "vigi": null,
+            "rila": 38
+          }
+        },
+        {
+          "round": 2,
+          "scores": {}
+        },
+        {
+          "round": 3,
+          "scores": {}
+        },
+        {
+          "round": 4,
+          "scores": {}
+        },
+        {
+          "round": 5,
+          "scores": {}
+        },
+        {
+          "round": 6,
+          "scores": {}
+        },
+        {
+          "round": 7,
+          "scores": {}
+        },
+        {
+          "round": 8,
+          "scores": {}
+        }
+      ],
+      "totals": {
+        "meri": 21,
+        "vigi": 0,
+        "rila": 38
+      },
+      "standings": [
+        {
+          "rank": 1,
+          "player": "vigi",
+          "total": 0.0
+        }
+      ],
+      "settlement_matrix": {
+        "meri": {
+          "meri": 0,
+          "vigi": 21.0,
+          "rila": -17.0
+        },
+        "vigi": {
+          "meri": -21.0,
+          "vigi": 0.0,
+          "rila": -38.0
+        },
+        "rila": {
+          "meri": 17.0,
+          "vigi": 38.0,
+          "rila": 0.0
+        }
+      }
+    }
+  ],
+  "game": "Kosovo Bridge (Gin Rummy variant)",
+  "scoring_rules": {
+    "objective": "Lowest cumulative total across rounds wins the game. Each player starts a round with 14 cards and must form melds summing to 51+ points to lay down / go out.",
+    "player_states_per_round": {
+      "closed": "Player has not laid down or sold any card to another player this round.",
+      "opened": "Player has laid down at least one meld or sold a card to another player this round."
+    },
+    "round_outcomes": [
+      {
+        "id": "hant",
+        "name": "Hant (cold close)",
+        "condition": "The closing player reaches 51 and closes the round without ever having laid a card or sold a card to anyone.",
+        "closer_score": -40,
+        "others": [
+          {
+            "condition": "other player is still 'closed' (never laid/sold a card)",
+            "score": 200
+          },
+          {
+            "condition": "other player had already 'opened' (laid at least one card)",
+            "score_formula": "2 * sum(point value of cards remaining in that player's hand)"
+          }
+        ]
+      },
+      {
+        "id": "normal_close",
+        "name": "Normal close",
+        "condition": "The closing player had already laid a card or sold a card to someone before closing.",
+        "closer_score": -20,
+        "others": [
+          {
+            "condition": "other player is still 'closed' (never laid/sold a card)",
+            "score": 100
+          },
+          {
+            "condition": "other player had already 'opened' (laid at least one card)",
+            "score_formula": "sum(point value of cards remaining in that player's hand)"
+          }
+        ]
+      }
+    ],
+    "notes": [
+      "The per-round 'scores' values already stored in each group's `rounds` array are the outcomes of applying these rules \u2014 not entered independently.",
+      "Card point values (per rank/suit) were not specified and are not yet encoded here; needed to compute 'sum of cards remaining in hand' from an actual hand rather than from the already-recorded round score."
+    ]
+  }
+}

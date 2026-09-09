@@ -1,0 +1,1480 @@
+/**
+ * Stili — i njëjti sistem si te Kujdestaria.
+ *
+ * Tokenat, paleta, rrezet, hijet dhe forma e kartelave janë marrë ashtu si
+ * janë, që të dy aplikacionet të duken si i njëjti dorëshkrim: sipërfaqe
+ * blu-nate të shtresuara, smeraldi e ciani si dy ngjyrat e theksit, fonti i
+ * sistemit me numra tabelorë.
+ *
+ * Ndryshimi është konteksti. Kujdestaria lexohet; kjo shkruhet — me një dorë,
+ * në telefon, mbi tavolinë, mes bisedës. Prandaj çdo fushë numri është së paku
+ * 2.75rem e lartë, tastiera del numerike, dhe veprimi që përsëritet më shumë
+ * („Ruaj raundin") është buton i plotë me kalimin smerald→cian.
+ *
+ * Tema e errët nuk është shtojcë: mbrëmja është ora kur luhet.
+ */
+
+/* ── Tokenat ────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light dark;
+
+  --sfond: #f1f5f9;
+  --shkelqimi: rgb(4 120 87 / 10%);
+  --siperfaqe: #ffffff;
+  --siperfaqe-2: #f8fafc;
+  --gjurma: #e2e8f0;
+
+  --teksti: #0f172a;
+  /* 5.7:1 mbi sipërfaqe, 5.2:1 mbi sfondin e faqes. */
+  --teksti-zbehte: #5b6779;
+
+  --kufiri: #e2e8f0;
+  /* Kufi i elementeve që klikohen. WCAG 1.4.11 kërkon 3:1; ky arrin 3.6:1
+     mbi të bardhën dhe 3.3:1 mbi sfondin e faqes. */
+  --kufiri-veprues: #7a889e;
+
+  /* 5.9:1 mbi sipërfaqe, 5.2:1 mbi mbushjen e vet të zbehtë. */
+  --theks: #0369a1;
+  --theks-zbehte: #e0f2fe;
+  /* 5.5:1 mbi sipërfaqe, 4.8:1 mbi mbushjen e vet të zbehtë. */
+  --hapur: #047857;
+  --hapur-zbehte: #d1fae5;
+  --theks-shkelqim: rgb(3 105 161 / 22%);
+  --hapur-shkelqim: rgb(4 120 87 / 22%);
+  /* 5.0:1 mbi sipërfaqe, 4.5:1 mbi mbushjen e vet të zbehtë. */
+  --projektim: #b45309;
+  --projektim-zbehte: #fef3c7;
+
+  /* Shenja e matricës. 6.4:1 mbi mbushjen e vet të zbehtë. */
+  --negativ: #b91c1c;
+  --negativ-zbehte: #fee2e2;
+  --zemra: #dc2626;
+
+  /* Bojë mbi sipërfaqe të plotë me ngjyrën e theksit. */
+  --mbi-gjendje: #ffffff;
+
+  --rreze: 16px;
+  --rreze-2: 12px;
+  --rreze-3: 8px;
+  --hije-1: 0 1px 2px rgb(15 23 42 / 5%);
+  --hije-2: 0 1px 2px rgb(15 23 42 / 4%), 0 12px 28px -10px rgb(15 23 42 / 14%);
+  --hapesira: clamp(1rem, 4vw, 1.5rem);
+  --shkronja-numrat: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sfond: #080f1a;
+    --shkelqimi: rgb(16 185 129 / 12%);
+    --siperfaqe: #0f1827;
+    --siperfaqe-2: #162033;
+    --gjurma: #1e2d45;
+
+    --teksti: #f1f5f9;
+    /* 6.9:1 mbi sipërfaqe, 7.5:1 mbi sfond. */
+    --teksti-zbehte: #94a3b8;
+
+    --kufiri: rgb(255 255 255 / 10%);
+    /* 3.2:1 mbi sipërfaqe, 3.5:1 mbi sfond. */
+    --kufiri-veprues: #5a6a80;
+
+    /* 7.3:1 mbi sipërfaqe, 6.7:1 mbi mbushjen e vet të zbehtë. */
+    --theks: #06b6d4;
+    --theks-zbehte: #0d2233;
+    /* 7.0:1 mbi sipërfaqe, 6.1:1 mbi mbushjen e vet të zbehtë. */
+    --hapur: #10b981;
+    --hapur-zbehte: #0d2a20;
+    --theks-shkelqim: rgb(6 182 212 / 32%);
+    --hapur-shkelqim: rgb(16 185 129 / 32%);
+    /* 8.3:1 mbi sipërfaqe, 7.4:1 mbi mbushjen e vet të zbehtë. */
+    --projektim: #f59e0b;
+    --projektim-zbehte: #2a2113;
+
+    /* 6.6:1 mbi mbushjen e vet të zbehtë. */
+    --negativ: #f87171;
+    --negativ-zbehte: #2b1414;
+    --zemra: #ef4444;
+
+    /* Sipërfaqet e ndritshme në temën e errët kërkojnë bojë të errët. */
+    --mbi-gjendje: #06101a;
+
+    --hije-1: 0 1px 2px rgb(0 0 0 / 40%);
+    --hije-2: 0 1px 2px rgb(0 0 0 / 40%), 0 20px 50px -12px rgb(0 0 0 / 75%);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ── Baza ───────────────────────────────────────────────────────────────── */
+
+body {
+  margin: 0;
+  background-color: var(--sfond);
+  background-image: radial-gradient(
+    130% 55% at 50% -8%,
+    var(--shkelqimi),
+    transparent 70%
+  );
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--teksti);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: var(--theks);
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: from-font;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+}
+
+:where(a, button, summary, input, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--theks);
+  outline-offset: 2px;
+}
+
+.faqja {
+  max-width: 47rem;
+  margin-inline: auto;
+  padding-block: clamp(1.25rem, 4vw, 2.25rem) 4rem;
+  padding-left: max(var(--hapesira), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--hapesira), env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4.5vw, 2.2rem);
+}
+
+.vetem-lexues {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.ikona {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+}
+
+.titull-seksioni {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.85rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--teksti-zbehte);
+}
+
+/* Pika e theksit para titullit — e njëjta shenjë si te Kujdestaria. */
+.titull-seksioni::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--hapur);
+  box-shadow: 0 0 10px var(--hapur);
+}
+
+.titull-seksioni__numri {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Kreu ───────────────────────────────────────────────────────────────── */
+
+.kreu {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.9rem;
+}
+
+.marka {
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-top: 0.15rem;
+  flex: none;
+  filter: drop-shadow(0 6px 16px rgb(4 120 87 / 30%));
+}
+
+@media (prefers-color-scheme: dark) {
+  .marka {
+    filter: drop-shadow(0 6px 18px rgb(16 185 129 / 35%));
+  }
+}
+
+.marka__nga {
+  stop-color: var(--hapur);
+}
+
+.marka__deri {
+  stop-color: var(--theks);
+}
+
+.marka__fusha {
+  fill: url(#marka-fusha);
+}
+
+.marka__letrat rect {
+  fill: var(--mbi-gjendje);
+  stroke: url(#marka-fusha);
+  stroke-width: 1.6;
+}
+
+.kreu__mbi {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--teksti-zbehte);
+}
+
+.kreu__titull {
+  margin: 0.15rem 0 0;
+  font-size: clamp(1.5rem, 5.4vw, 2rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.kreu__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.7rem 0 0;
+}
+
+.etiketa {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.65rem;
+  border: 1px solid var(--kufiri);
+  border-radius: 999px;
+  background: var(--siperfaqe);
+  box-shadow: var(--hije-1);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--teksti-zbehte);
+  font-variant-numeric: tabular-nums;
+}
+
+.etiketa .ikona {
+  width: 0.95em;
+  height: 0.95em;
+  opacity: 0.85;
+}
+
+/* Shtegu i kthimit: gjithmonë i pari, sepse telefoni mbahet me një dorë. */
+.shtegu {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  align-self: flex-start;
+  margin-bottom: -0.75rem;
+  padding: 0.35rem 0.7rem 0.35rem 0.45rem;
+  border-radius: 999px;
+  color: var(--teksti-zbehte);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.shtegu:hover {
+  color: var(--teksti);
+  background: var(--siperfaqe);
+}
+
+/* ── Kartelat ───────────────────────────────────────────────────────────── */
+
+.kartela {
+  padding: clamp(1rem, 4vw, 1.4rem);
+  background: var(--siperfaqe);
+  border: 1px solid var(--kufiri);
+  border-radius: var(--rreze);
+  box-shadow: var(--hije-2);
+}
+
+/* Kartela kryesore e ekranit — vija e theksit lart, si te „tani" i Kujdestarisë. */
+.kartela--kryesore {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.kartela--kryesore::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--hapur),
+    var(--theks) 55%,
+    transparent 92%
+  );
+}
+
+/* ── Butonat ────────────────────────────────────────────────────────────── */
+
+.buton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 1.15rem;
+  border: 1px solid var(--kufiri-veprues);
+  border-radius: var(--rreze-2);
+  background: var(--siperfaqe);
+  color: var(--teksti);
+  font: inherit;
+  font-size: 0.93rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease,
+    background-color 0.15s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.buton:hover:not(:disabled) {
+  border-color: var(--hapur);
+  color: var(--hapur);
+  transform: translateY(-2px);
+}
+
+.buton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.buton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buton--kryesor,
+.buton--kryesor:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--hapur), var(--theks));
+  border-color: transparent;
+  color: var(--mbi-gjendje);
+  box-shadow: 0 6px 18px -4px var(--hapur-shkelqim);
+}
+
+.buton--kryesor:hover:not(:disabled) {
+  filter: brightness(1.08);
+  box-shadow: 0 12px 26px -6px var(--hapur-shkelqim);
+}
+
+.buton--rrezik:hover:not(:disabled) {
+  border-color: var(--negativ);
+  color: var(--negativ);
+}
+
+.buton--ikona {
+  width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.buton--ikona .ikona {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+/* Butoni i vogël i rreshtit — mjaftueshëm i madh për gishtin, jo më. */
+.buton--vogel {
+  min-height: 2.25rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.84rem;
+  border-radius: var(--rreze-3);
+}
+
+.buton--i-plote {
+  width: 100%;
+}
+
+.veprimet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.veprimet--fund {
+  justify-content: flex-end;
+}
+
+/* ── Fushat ─────────────────────────────────────────────────────────────── */
+
+.fusha {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.fusha__etiketa {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teksti-zbehte);
+}
+
+.fusha input[type='text'],
+.fusha input[type='number'],
+.fusha input[type='date'],
+.fusha input[type='file'],
+.fusha select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--kufiri-veprues);
+  border-radius: var(--rreze-2);
+  background: var(--siperfaqe);
+  color: var(--teksti);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.fusha input::placeholder {
+  color: var(--teksti-zbehte);
+  opacity: 0.75;
+}
+
+.fusha input[type='number'],
+.fusha input[type='date'] {
+  font-family: var(--shkronja-numrat);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Shigjetat e `number`-it e ngushtojnë fushën pa nevojë në telefon. */
+.fusha input[type='number']::-webkit-outer-spin-button,
+.fusha input[type='number']::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.fusha input[type='number'] {
+  appearance: textfield;
+}
+
+.rreshti-fushave {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: flex-end;
+}
+
+.rreshti-fushave .fusha {
+  flex: 1 1 10rem;
+}
+
+.ndihma {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--teksti-zbehte);
+}
+
+/* ── Lista e grupeve ────────────────────────────────────────────────────── */
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.lista--dysh {
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.njesi {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  background: var(--siperfaqe);
+  border: 1px solid var(--kufiri);
+  border-radius: var(--rreze-2);
+  box-shadow: var(--hije-1);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+a.njesi:hover {
+  border-color: var(--hapur);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -6px var(--hapur-shkelqim);
+}
+
+.njesi__shkronja {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: none;
+  border-radius: var(--rreze-3);
+  background: var(--theks-zbehte);
+  color: var(--theks);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.njesi__shkronja--hapur {
+  background: var(--hapur-zbehte);
+  color: var(--hapur);
+}
+
+.njesi__krye {
+  flex: 1;
+  min-width: 0;
+}
+
+.njesi__emri {
+  display: block;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.njesi__meta {
+  display: block;
+  font-size: 0.83rem;
+  line-height: 1.4;
+  color: var(--teksti-zbehte);
+  text-wrap: pretty;
+}
+
+.njesi__veprimet {
+  display: flex;
+  gap: 0.35rem;
+  flex: none;
+}
+
+/* ── Shenjat e lojtarëve ────────────────────────────────────────────────── */
+
+.shenjat {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shenja-lojtari {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.25rem;
+  padding: 0.3rem 0.5rem 0.3rem 0.75rem;
+  border: 1px solid var(--kufiri);
+  border-radius: 999px;
+  background: var(--siperfaqe);
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.shenja-lojtari__hiq {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--teksti-zbehte);
+  cursor: pointer;
+}
+
+.shenja-lojtari__hiq:hover {
+  background: var(--negativ-zbehte);
+  color: var(--negativ);
+}
+
+.shenja-lojtari__hiq .ikona {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+/* Zgjedhja e lojtarëve para lojës — çelës, jo listë me kuti të vogla. */
+.zgjedhesi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.zgjedhesi__njesi {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--kufiri-veprues);
+  border-radius: 999px;
+  background: var(--siperfaqe);
+  color: var(--teksti-zbehte);
+  font: inherit;
+  font-size: 0.93rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease,
+    background-color 0.15s ease, box-shadow 0.2s ease;
+}
+
+.zgjedhesi__njesi:hover {
+  color: var(--teksti);
+  border-color: var(--hapur);
+}
+
+.zgjedhesi__njesi[aria-pressed='true'],
+.zgjedhesi__njesi[aria-pressed='true']:hover {
+  background: linear-gradient(135deg, var(--hapur), var(--theks));
+  border-color: transparent;
+  color: var(--mbi-gjendje);
+  box-shadow: 0 6px 16px -6px var(--hapur-shkelqim);
+}
+
+/* Numri i radhës brenda çelësit — radha e uljes në tavolinë ka rëndësi. */
+.zgjedhesi__radha {
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 25%);
+  font-family: var(--shkronja-numrat);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Tabelat ────────────────────────────────────────────────────────────── */
+
+.tabela-mbeshtjellese {
+  overflow-x: auto;
+  background: var(--siperfaqe);
+  border: 1px solid var(--kufiri);
+  border-radius: var(--rreze);
+  box-shadow: var(--hije-2);
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.94rem;
+}
+
+.tabela th {
+  text-align: left;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--teksti-zbehte);
+  padding: 0.8rem 0.9rem;
+  background: var(--siperfaqe-2);
+  border-bottom: 2px solid var(--kufiri);
+  white-space: nowrap;
+}
+
+.tabela td {
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--kufiri);
+  white-space: nowrap;
+  vertical-align: middle;
+  transition: background-color 0.15s ease;
+}
+
+.tabela tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.tabela tbody tr:not(.rresht--pare):hover td {
+  background: var(--siperfaqe-2);
+}
+
+.numri {
+  font-family: var(--shkronja-numrat);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: right;
+}
+
+th.numri {
+  text-align: right;
+}
+
+/* Rreshti i parë i renditjes — ai që fitoi. */
+.rresht--pare td {
+  background: var(--hapur-zbehte);
+  font-weight: 700;
+}
+
+.rresht--pare .qeliza-vendi {
+  box-shadow: inset 3px 0 0 var(--hapur);
+}
+
+.qeliza-vendi {
+  font-family: var(--shkronja-numrat);
+  font-variant-numeric: tabular-nums;
+  color: var(--teksti-zbehte);
+  font-weight: 700;
+  width: 1px;
+}
+
+.rresht--pare .qeliza-vendi {
+  color: var(--hapur);
+}
+
+.qeliza-emri {
+  font-weight: 600;
+  width: 99%;
+}
+
+.kurora {
+  margin-left: 0.4rem;
+  color: var(--hapur);
+  vertical-align: -0.15em;
+}
+
+/* ── Raundet ────────────────────────────────────────────────────────────── */
+
+/* Kolona e parë rri e ngjitur: me gjashtë lojtarë tabela rrëshqet anash dhe
+   pa këtë humbet se cili raund po shihet. */
+.tabela--raundet th:first-child,
+.tabela--raundet td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--siperfaqe);
+  border-right: 1px solid var(--kufiri);
+}
+
+.tabela--raundet th:first-child {
+  background: var(--siperfaqe-2);
+}
+
+.tabela--raundet tbody tr:hover td:first-child {
+  background: var(--siperfaqe-2);
+}
+
+.tabela--raundet .rresht--totali td {
+  background: var(--siperfaqe-2);
+  border-top: 2px solid var(--kufiri);
+  font-weight: 800;
+}
+
+.tabela--raundet .rresht--totali td:first-child {
+  background: var(--siperfaqe-2);
+}
+
+.qeliza-raundi {
+  font-family: var(--shkronja-numrat);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--teksti-zbehte);
+}
+
+/* Pikët negative janë mbyllja — ngjyra e bën raundin të lexohet me një shikim. */
+.pike--mbyllje {
+  color: var(--hapur);
+  font-weight: 800;
+}
+
+.qeliza-bosh {
+  color: var(--teksti-zbehte);
+  opacity: 0.5;
+}
+
+.rreshti-veprimeve {
+  width: 1px;
+  white-space: nowrap;
+}
+
+/* ── Futja e raundit ────────────────────────────────────────────────────── */
+
+.futja {
+  display: grid;
+  gap: 0.55rem;
+}
+
+/* Një rresht për lojtar: emri majtas, numri djathtas, gjerësi e plotë në
+   telefon. Rrjeti me `auto-fit` i vë dy për rresht sapo ka vend. */
+.futja__rrjeti {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.55rem;
+}
+
+.futja__njesi {
+  display: grid;
+  grid-template-columns: 1fr 6.5rem;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.5rem 0.45rem 0.85rem;
+  border: 1px solid var(--kufiri);
+  border-radius: var(--rreze-2);
+  background: var(--siperfaqe-2);
+}
+
+.futja__emri {
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.futja__njesi input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--kufiri-veprues);
+  border-radius: var(--rreze-3);
+  background: var(--siperfaqe);
+  color: var(--teksti);
+  font: inherit;
+  font-family: var(--shkronja-numrat);
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.futja__njesi input::-webkit-outer-spin-button,
+.futja__njesi input::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.futja__njesi input {
+  appearance: textfield;
+}
+
+.futja__shuma {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--teksti-zbehte);
+}
+
+.futja__shuma strong {
+  font-family: var(--shkronja-numrat);
+  font-variant-numeric: tabular-nums;
+  color: var(--teksti);
+}
+
+/* ── Llogaritësi ────────────────────────────────────────────────────────── */
+
+.llogaritesi {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 0.9rem;
+  padding: 0.95rem;
+  border: 1px dashed var(--kufiri-veprues);
+  border-radius: var(--rreze-2);
+  background: var(--siperfaqe-2);
+}
+
+.llogaritesi__lista {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.llogaritesi__njesi {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--kufiri);
+  border-radius: var(--rreze-3);
+  background: var(--siperfaqe);
+}
+
+.llogaritesi__emri {
+  font-weight: 650;
+}
+
+.llogaritesi__gjendja {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.llogaritesi__dora {
+  width: 5.5rem;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--kufiri-veprues);
+  border-radius: var(--rreze-3);
+  background: var(--siperfaqe);
+  color: var(--teksti);
+  font: inherit;
+  font-family: var(--shkronja-numrat);
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.llogaritesi__dora::-webkit-outer-spin-button,
+.llogaritesi__dora::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.llogaritesi__dora {
+  appearance: textfield;
+}
+
+.llogaritesi__dora:disabled {
+  opacity: 0.4;
+}
+
+.llogaritesi__rezultati {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed var(--kufiri);
+  font-size: 0.82rem;
+  color: var(--teksti-zbehte);
+}
+
+.llogaritesi__pike {
+  font-family: var(--shkronja-numrat);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--teksti);
+}
+
+/* Çelësi hant / normal. */
+.celesi {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.celesi__njesi {
+  flex: 1;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--kufiri-veprues);
+  border-radius: var(--rreze-2);
+  background: var(--siperfaqe);
+  color: var(--teksti-zbehte);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.celesi__njesi[aria-pressed='true'] {
+  background: linear-gradient(135deg, var(--hapur), var(--theks));
+  border-color: transparent;
+  color: var(--mbi-gjendje);
+}
+
+.celesi__vogel .celesi__njesi {
+  min-height: 2.25rem;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: var(--rreze-3);
+}
+
+/* ── Matrica e shlyerjes ────────────────────────────────────────────────── */
+
+.matrica {
+  border-collapse: separate;
+  border-spacing: 3px;
+  font-size: 0.88rem;
+}
+
+.matrica th {
+  background: transparent;
+  border: 0;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+}
+
+.matrica thead th {
+  text-align: center;
+}
+
+.matrica tbody th {
+  text-align: right;
+  text-transform: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--teksti);
+  letter-spacing: -0.01em;
+  position: sticky;
+  left: 0;
+  background: var(--siperfaqe);
+}
+
+.matrica td {
+  padding: 0.5rem 0.6rem;
+  border: 0;
+  border-radius: var(--rreze-3);
+  text-align: center;
+  font-family: var(--shkronja-numrat);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.qeliza--pozitiv {
+  background: var(--hapur-zbehte);
+  color: var(--hapur);
+}
+
+.qeliza--negativ {
+  background: var(--negativ-zbehte);
+  color: var(--negativ);
+}
+
+.qeliza--zero {
+  background: var(--siperfaqe-2);
+  color: var(--teksti-zbehte);
+}
+
+/* Diagonalja s'është krahasim, prandaj nuk merr as ngjyrë as numër me shenjë. */
+.qeliza--vetja {
+  background: transparent;
+  color: var(--teksti-zbehte);
+  opacity: 0.4;
+}
+
+.legjenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin: 0.75rem 0 0;
+  font-size: 0.82rem;
+  color: var(--teksti-zbehte);
+}
+
+.legjenda__njesi {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legjenda__ngjyra {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 4px;
+  flex: none;
+}
+
+.legjenda__ngjyra--pozitiv {
+  background: var(--hapur-zbehte);
+  box-shadow: inset 0 0 0 1px var(--hapur);
+}
+
+.legjenda__ngjyra--negativ {
+  background: var(--negativ-zbehte);
+  box-shadow: inset 0 0 0 1px var(--negativ);
+}
+
+/* ── Grafiku ────────────────────────────────────────────────────────────── */
+
+.grafiku {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.grafiku__rrjeti {
+  stroke: var(--kufiri);
+  stroke-width: 1;
+}
+
+.grafiku__zeroja {
+  stroke: var(--kufiri-veprues);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.grafiku__vija {
+  fill: none;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.grafiku__pika {
+  stroke: var(--siperfaqe);
+  stroke-width: 1.5;
+}
+
+.grafiku__teksti {
+  fill: var(--teksti-zbehte);
+  font-size: 10px;
+  font-family: var(--shkronja-numrat);
+}
+
+.grafiku__boshti {
+  text-anchor: end;
+}
+
+.grafiku__legjenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.83rem;
+}
+
+.grafiku__legjenda li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 650;
+}
+
+.grafiku__shenja {
+  width: 0.85rem;
+  height: 0.25rem;
+  border-radius: 999px;
+  flex: none;
+}
+
+/* ── Njoftimet ──────────────────────────────────────────────────────────── */
+
+.njoftim {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--rreze-2);
+  font-size: 0.9rem;
+}
+
+.njoftim p {
+  margin: 0;
+}
+
+.njoftim .ikona {
+  margin-top: 0.15rem;
+  flex: none;
+}
+
+.njoftim--kujdes {
+  background: var(--projektim-zbehte);
+  color: var(--projektim);
+}
+
+.njoftim--gabim {
+  background: var(--negativ-zbehte);
+  color: var(--negativ);
+}
+
+.njoftim--mire {
+  background: var(--hapur-zbehte);
+  color: var(--hapur);
+}
+
+/* Gjendja e zbrazët: thotë çfarë të bëhet, jo vetëm që s'ka asgjë. */
+.zbrazet {
+  padding: clamp(1.5rem, 6vw, 2.5rem) 1.25rem;
+  border: 1px dashed var(--kufiri-veprues);
+  border-radius: var(--rreze);
+  text-align: center;
+  color: var(--teksti-zbehte);
+}
+
+.zbrazet__titull {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  color: var(--teksti);
+}
+
+.zbrazet p {
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  text-wrap: pretty;
+}
+
+.zbrazet > :last-child {
+  margin-bottom: 0;
+}
+
+/* ── Detajet ────────────────────────────────────────────────────────────── */
+
+.detaje {
+  background: var(--siperfaqe);
+  border: 1px solid var(--kufiri);
+  border-radius: var(--rreze-2);
+}
+
+.detaje + .detaje {
+  margin-top: 0.5rem;
+}
+
+.detaje__krye {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  color: var(--teksti);
+  font-weight: 650;
+  font-size: 0.94rem;
+  cursor: pointer;
+  list-style: none;
+  border-radius: inherit;
+}
+
+.detaje__krye::-webkit-details-marker {
+  display: none;
+}
+
+.detaje__shigjeta {
+  flex: none;
+  color: var(--teksti-zbehte);
+  transition: transform 0.2s ease;
+}
+
+.detaje[open] .detaje__shigjeta {
+  transform: rotate(180deg);
+}
+
+.detaje__trupi {
+  padding: 0 1rem 1rem;
+}
+
+.detaje__trupi > :first-child {
+  margin-top: 0;
+}
+
+/* ── Fundfaqja ──────────────────────────────────────────────────────────── */
+
+.fundfaqja {
+  font-size: 0.85rem;
+  color: var(--teksti-zbehte);
+  text-align: center;
+}
+
+.fundfaqja p {
+  margin: 0.35rem 0 0;
+}
+
+.zemra {
+  width: 0.95em;
+  height: 0.95em;
+  fill: var(--zemra);
+  vertical-align: -0.12em;
+}
+
+/* ── Hyrja ──────────────────────────────────────────────────────────────── */
+
+.faqja > * {
+  animation: hyr 0.4s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.faqja > :nth-child(2) {
+  animation-delay: 0.04s;
+}
+
+.faqja > :nth-child(n + 3) {
+  animation-delay: 0.08s;
+}
+
+@keyframes hyr {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Ekrane të ngushta ──────────────────────────────────────────────────── */
+
+@media (max-width: 30rem) {
+  .tabela {
+    font-size: 0.9rem;
+  }
+
+  .tabela th,
+  .tabela td {
+    padding-inline: 0.55rem;
+  }
+
+  .veprimet .buton {
+    flex: 1 1 auto;
+  }
+
+  .futja__rrjeti {
+    grid-template-columns: 1fr;
+  }
+
+  .llogaritesi__njesi {
+    grid-template-columns: 1fr;
+  }
+
+  .llogaritesi__gjendja {
+    justify-content: space-between;
+  }
+}
+
+/* ── Shtypja ────────────────────────────────────────────────────────────── */
+
+@media print {
+  :root {
+    --sfond: #fff;
+    --siperfaqe: #fff;
+    --siperfaqe-2: #fff;
+    --teksti: #000;
+    --teksti-zbehte: #333;
+    --kufiri: #bbb;
+    --theks: #000;
+    --theks-zbehte: #eee;
+    --hapur: #000;
+    --hapur-zbehte: #eee;
+    --hije-1: none;
+    --hije-2: none;
+    --hapur-shkelqim: transparent;
+    --theks-shkelqim: transparent;
+  }
+
+  body {
+    background-image: none;
+  }
+
+  .marka {
+    filter: none;
+  }
+
+  .veprimet,
+  .shtegu,
+  .futja,
+  .llogaritesi,
+  .njesi__veprimet,
+  .rreshti-veprimeve {
+    display: none;
+  }
+
+  .tabela-mbeshtjellese {
+    overflow: visible;
+  }
+
+  .tabela tr {
+    break-inside: avoid;
+  }
+}
+
+/* ── Ngjyrat e serive ───────────────────────────────────────────────────── */
+
+/**
+ * Deri në tetë lojtarë në një grafik. Dy të parat janë smeraldi e ciani i
+ * markës; të tjerat vijnë pas tyre, të ndara mjaftueshëm në ton sa të dallohen
+ * edhe nga dikush që nuk i dallon mirë ngjyrat, sepse çdo vijë ka edhe emrin e
+ * vet te legjenda dhe pikën e fundit të shënuar.
+ *
+ * Vlerat rrinë si tokena e jo si atribute `stroke`, që tema e errët t'i
+ * ndërrojë pa u prekur SVG-ja — dhe që asnjë atribut `style` të mos jetë i
+ * nevojshëm, si te Kujdestaria.
+ */
+
+:root {
+  --seria-1: #047857;
+  --seria-2: #0369a1;
+  --seria-3: #b45309;
+  --seria-4: #7c3aed;
+  --seria-5: #be123c;
+  --seria-6: #0f766e;
+  --seria-7: #4338ca;
+  --seria-8: #4d7c0f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --seria-1: #10b981;
+    --seria-2: #22d3ee;
+    --seria-3: #fbbf24;
+    --seria-4: #c4b5fd;
+    --seria-5: #fb7185;
+    --seria-6: #5eead4;
+    --seria-7: #a5b4fc;
+    --seria-8: #bef264;
+  }
+}
+
+.seria-1 { --seria: var(--seria-1); }
+.seria-2 { --seria: var(--seria-2); }
+.seria-3 { --seria: var(--seria-3); }
+.seria-4 { --seria: var(--seria-4); }
+.seria-5 { --seria: var(--seria-5); }
+.seria-6 { --seria: var(--seria-6); }
+.seria-7 { --seria: var(--seria-7); }
+.seria-8 { --seria: var(--seria-8); }
+
+.grafiku__vija {
+  stroke: var(--seria, var(--hapur));
+}
+
+.grafiku__pika {
+  fill: var(--seria, var(--hapur));
+}
+
+.grafiku__shenja {
+  background: var(--seria, var(--hapur));
+}
+
+/* Hapësira mbi një bllok që vjen pas një liste ose tabele. */
+[data-hapesire='lart'] {
+  margin-top: 0.85rem;
+}
