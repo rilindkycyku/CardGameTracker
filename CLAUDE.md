@@ -30,7 +30,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 62 prova, pa framework provash
+npm test          # node --test — 68 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -185,6 +185,10 @@ duken si i njëjti dorëshkrim. Nëse ndërron një token atje, ndërroje edhe k
 - **Matrica renditet sipas renditjes, jo sipas radhës së tavolinës.** Shlyerja shihet kur mbaron
   loja, dhe atëherë lexohet duke nisur nga fituesi. Vendi shkruhet krah emrit te rreshti, që radha
   të mos duket e rastit.
+- **Kutia e emrave pranon disa njëherësh** — «meri, lesa, lila, rila». Ndarësit janë presja,
+  pikëpresja dhe rreshti i ri, kurrë hapësira: emrat me dy fjalë („meri + mil" te fleta e vjetër)
+  duhet të mbeten një i vetëm. Shtimi mes lojës kalon një varg te `onShto`, jo një emër për
+  thirrje — çdo thirrje niset nga e njëjta listë e vjetër dhe do të mbetej vetëm i fundit.
 - **Lojë e re niset nga lojtarët e lojës së fundit**, jo nga tërë lista e grupit: shoqëria është
   zakonisht e njëjta, prandaj më shpesh nuk ka çka të preket fare. „E fundit" është ajo që del e
   para te historiku — më e reja sipas datës.

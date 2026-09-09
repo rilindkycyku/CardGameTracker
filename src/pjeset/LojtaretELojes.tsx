@@ -16,8 +16,9 @@
  *     thjesht pushon së shënuari.
  */
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
+import { ndajEmrat } from '../fusha.ts';
 import { Ikona } from '../ikonat.tsx';
 import type { Grupi } from '../tipet.ts';
 
@@ -33,24 +34,28 @@ export function LojtaretELojes({
   grupi: Grupi | undefined;
   /** Sa raunde ka shënuar secili; kush ka zero mund të hiqet. */
   luajtur: Record<string, number>;
-  /** Shton te loja, dhe te grupi nëse emri është krejt i ri. */
-  onShto: (emri: string, iRiPerGrupin: boolean) => void;
+  /**
+   * Shton te loja, dhe te grupi ata që janë krejt të rinj.
+   *
+   * Merr një varg e jo një emër të vetëm: një shkrim mund të sjellë disa emra,
+   * dhe secili i shtuar veç do ta shkruante lojën me të njëjtën listë të vjetër
+   * në dorë — do të mbetej vetëm i fundit.
+   */
+  onShto: (emrat: string[]) => void;
   onHiq: (emri: string) => void;
 }) {
   const [iRi, caktoTeRin] = useState('');
+  const fusha = useRef<HTMLInputElement>(null);
 
   const teLira = (grupi?.playerNames ?? []).filter(
     (emri) => !players.includes(emri),
   );
 
   function shtoTeRin() {
-    const pastruar = iRi.trim();
+    const rinjte = ndajEmrat(iRi).filter((emri) => !players.includes(emri));
     caktoTeRin('');
-    if (!pastruar || players.includes(pastruar)) return;
-
-    // Emri që s'është te grupi shtohet edhe atje — dikush i ri te shoqëria nuk
-    // duhet futur dy herë.
-    onShto(pastruar, !(grupi?.playerNames ?? []).includes(pastruar));
+    fusha.current?.focus();
+    if (rinjte.length > 0) onShto(rinjte);
   }
 
   return (
@@ -101,7 +106,7 @@ export function LojtaretELojes({
                   type="button"
                   key={emri}
                   className="zgjedhesi__njesi"
-                  onClick={() => onShto(emri, false)}
+                  onClick={() => onShto([emri])}
                 >
                   <Ikona emri="shto" />
                   {emri}
@@ -114,6 +119,7 @@ export function LojtaretELojes({
         <div className="rreshti-fushave" data-hapesire="lart">
           <div className="fusha">
             <input
+              ref={fusha}
               type="text"
               value={iRi}
               placeholder="lojtar krejt i ri"

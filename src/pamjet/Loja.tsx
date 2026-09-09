@@ -112,14 +112,29 @@ export function Loja({ id }: { id: number }) {
     rifresko();
   }
 
-  async function shtoLojtar(emri: string, iRiPerGrupin: boolean) {
-    if (!loja || players.includes(emri)) return;
+  /**
+   * Shton një ose disa lojtarë te loja, dhe te grupi ata që s'i njihte.
+   *
+   * Të gjithë me një shkrim të vetëm: një shkrim për secilin do të nisej nga e
+   * njëjta listë e vjetër dhe do të linte vetëm të fundit.
+   */
+  async function shtoLojtar(emrat: string[]) {
+    if (!loja) return;
 
-    if (iRiPerGrupin && grupi) {
-      await ruajGrup({ ...grupi, playerNames: [...grupi.playerNames, emri] });
+    const rinjte = emrat.filter((emri) => !players.includes(emri));
+    if (rinjte.length === 0) return;
+
+    if (grupi) {
+      const pagrup = rinjte.filter((emri) => !grupi.playerNames.includes(emri));
+      if (pagrup.length > 0) {
+        await ruajGrup({
+          ...grupi,
+          playerNames: [...grupi.playerNames, ...pagrup],
+        });
+      }
     }
 
-    await ruajLoje({ ...loja, selectedPlayers: [...players, emri] });
+    await ruajLoje({ ...loja, selectedPlayers: [...players, ...rinjte] });
     rifresko();
   }
 

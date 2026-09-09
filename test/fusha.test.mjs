@@ -10,7 +10,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { negative, ndrroShenjen, numri, pastro } from '../src/fusha.ts';
+import {
+  emratERinj,
+  ndajEmrat,
+  negative,
+  ndrroShenjen,
+  numri,
+  pastro,
+} from '../src/fusha.ts';
 
 test('shenja ndërrohet në të dy drejtimet', () => {
   assert.equal(ndrroShenjen('20'), '-20');
@@ -85,4 +92,44 @@ test('rrugëtimi i kundërt: shenjë e pastaj shifra, edhe me kursor para minusi
   // Pas saj kursori rri në fund, dhe shifrat shkojnë normalisht pas tij.
   fusha = pastro(fusha + '0');
   assert.equal(numri(fusha), -40);
+});
+
+/* ── Emrat e lojtarëve ──────────────────────────────────────────────────── */
+
+test('emrat ndahen me presje, pikëpresje dhe rreshta të rinj', () => {
+  assert.deepEqual(ndajEmrat('meri, lesa, lila, rila'), ['meri', 'lesa', 'lila', 'rila']);
+  assert.deepEqual(ndajEmrat('meri;lesa'), ['meri', 'lesa']);
+  assert.deepEqual(ndajEmrat('meri\nlesa\r\nlila'), ['meri', 'lesa', 'lila']);
+});
+
+test('hapësira nuk është ndarës — emrat me dy fjalë mbeten një', () => {
+  // Te fleta e vjetër ka skuadra si „meri + mil"; ndarja te hapësira do t'i
+  // bënte tre lojtarë.
+  assert.deepEqual(ndajEmrat('meri + mil, eri + rila'), ['meri + mil', 'eri + rila']);
+});
+
+test('hapësirat e tepërta shtypen, të zbrazëtat bien', () => {
+  assert.deepEqual(ndajEmrat('  meri  ,, lesa  ,  '), ['meri', 'lesa']);
+  assert.deepEqual(ndajEmrat('meri    lila'), ['meri lila']);
+  assert.deepEqual(ndajEmrat(''), []);
+  assert.deepEqual(ndajEmrat('   '), []);
+});
+
+test('i njëjti emër dy herë futet një herë', () => {
+  assert.deepEqual(ndajEmrat('meri, lesa, meri'), ['meri', 'lesa']);
+});
+
+test('emrat që i ka tashmë lista kapërcehen pa gabim', () => {
+  // Ngjitja e tërë shoqërisë për të shtuar një emër duhet të shtojë atë të vetmin.
+  assert.deepEqual(
+    emratERinj('meri, lesa, lila, rila', ['meri', 'lesa', 'lila']),
+    ['rila'],
+  );
+  assert.deepEqual(emratERinj('meri', ['meri']), []);
+});
+
+test('shkronjat e mëdha dallohen — «Lesa» s’është «lesa»', () => {
+  // Te `logic.json` bashkëjetojnë „Arboni" e „meri"; bashkimi i tyre do të
+  // shkrinte dy lojtarë të ndryshëm në një.
+  assert.deepEqual(emratERinj('Lesa', ['lesa']), ['Lesa']);
 });

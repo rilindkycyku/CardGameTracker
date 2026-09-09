@@ -11,7 +11,7 @@
  * listën e sotme të grupit.
  */
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import {
   dataShqip,
@@ -20,6 +20,7 @@ import {
   sot,
   tabelaEPergjithshme,
 } from '../llogaritjet.ts';
+import { emratERinj } from '../fusha.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import {
@@ -414,16 +415,18 @@ function ListaELojtareve({
   onRuajtur: () => void;
 }) {
   const [iRi, caktoTeRin] = useState('');
+  const fusha = useRef<HTMLInputElement>(null);
 
   async function shto() {
-    const pastruar = iRi.trim();
-    if (!pastruar || grupi.playerNames.includes(pastruar)) {
-      caktoTeRin('');
-      return;
-    }
-
-    await ruajGrup({ ...grupi, playerNames: [...grupi.playerNames, pastruar] });
+    const rinjte = emratERinj(iRi, grupi.playerNames);
     caktoTeRin('');
+    fusha.current?.focus();
+    if (rinjte.length === 0) return;
+
+    await ruajGrup({
+      ...grupi,
+      playerNames: [...grupi.playerNames, ...rinjte],
+    });
     onRuajtur();
   }
 
@@ -488,9 +491,10 @@ function ListaELojtareve({
       <div className="rreshti-fushave" data-hapesire="lart">
         <div className="fusha">
           <input
+            ref={fusha}
             type="text"
             value={iRi}
-            placeholder="lojtar i ri"
+            placeholder="lojtar i ri, ose disa me presje"
             onChange={(e) => caktoTeRin(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -498,7 +502,7 @@ function ListaELojtareve({
                 void shto();
               }
             }}
-            aria-label="Emri i lojtarit të ri"
+            aria-label="Emrat e lojtarëve të rinj"
           />
         </div>
         <button

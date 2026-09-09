@@ -8,7 +8,8 @@ Fiton **totali më i vogël**.
 
 ## Çka bën
 
-- **Grupe dhe lojtarë** — shoqëria futet një herë, radha e emrave ruhet.
+- **Grupe dhe lojtarë** — shoqëria futet një herë, e tërë me një shkrim
+  («meri, lesa, lila, rila»), dhe radha e emrave ruhet.
 - **Zgjedhje para lojës** — grupi mund të ketë gjashtë të rregullt dhe sonte të
   luajnë katër.
 - **Shtim mes lojës** — kush ulet te tavolina në raundin e pestë shtohet aty për
@@ -54,7 +55,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 62 prova, pa framework provash
+npm test          # node --test — 68 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i.

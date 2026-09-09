@@ -1,5 +1,5 @@
 /**
- * Teksti i një fushe pikësh, dhe shenja e tij.
+ * Teksti i fushave: pikët me shenjën e tyre, dhe emrat e lojtarëve.
  *
  * Fusha e pikëve është `type="text"` e jo `type="number"`, dhe kjo nuk është
  * rastësi: tastiera `inputMode="numeric"` e Androidit ka vetëm shifra — pa
@@ -47,4 +47,39 @@ export function numri(teksti: string | undefined): number | null {
   if (teksti === undefined || teksti.trim() === '') return null;
   const n = Number(teksti);
   return Number.isFinite(n) ? Math.round(n) : null;
+}
+
+/* ── Emrat e lojtarëve ──────────────────────────────────────────────────── */
+
+/**
+ * Ndan një tekst me shumë emra në emra të veçantë.
+ *
+ * Krijimi i një grupi ishte një emër për prekje: shkruaj, Enter, shkruaj,
+ * Enter — gjashtë herë para se të nisë loja e parë. Tani i njëjti kuti pranon
+ * «meri, lesa, lila, rila» njëherësh, të shkruar ose të ngjitur nga një bisedë.
+ *
+ * Ndarësit janë presja, pikëpresja, tabulatori dhe rreshti i ri — jo hapësira,
+ * sepse emrat me dy fjalë („meri + mil" te fleta e vjetër) duhet të mbeten një
+ * i vetëm. Hapësirat e shumta brenda emrit shtypen në një.
+ */
+export function ndajEmrat(teksti: string): string[] {
+  const dale: string[] = [];
+
+  for (const pjesa of teksti.split(/[,;\n\r\t]+/)) {
+    const emri = pjesa.trim().replace(/\s+/g, ' ');
+    if (emri && !dale.includes(emri)) dale.push(emri);
+  }
+
+  return dale;
+}
+
+/**
+ * Emrat e rinj që duhen shtuar te një listë ekzistuese.
+ *
+ * Ata që i ka tashmë lista kapërcehen pa zhurmë: kur dikush e ngjit sërish
+ * tërë shoqërinë për të shtuar një emër të vetëm, pritja është që të shtohet
+ * ai i vetmi, jo të dalë gabim.
+ */
+export function emratERinj(teksti: string, ekzistuesit: string[]): string[] {
+  return ndajEmrat(teksti).filter((emri) => !ekzistuesit.includes(emri));
 }
