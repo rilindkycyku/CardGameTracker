@@ -11,16 +11,14 @@ import { useState } from 'react';
 import { Ikona, ShenjaEFaqes, Zemra } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import { PanelaEKopjes } from '../pjeset/PanelaEKopjes.tsx';
-import { grupet as lexoGrupet, lojerat, shtoGrup } from '../ruajtja.ts';
+import { grupet as lexoGrupet, numriILojerave, shtoGrup } from '../ruajtja.ts';
 import { shko } from '../rruga.ts';
 
 export function Grupet() {
   const { te_dhenat, rifresko } = useNgarko(async () => {
     const lista = await lexoGrupet();
-    const sa = await Promise.all(
-      lista.map(async (g) => (await lojerat(g.id)).length),
-    );
-    return lista.map((grupi, i) => ({ grupi, lojera: sa[i] ?? 0 }));
+    const sa = await numriILojerave(lista.map((g) => g.id));
+    return lista.map((grupi) => ({ grupi, lojera: sa[grupi.id] ?? 0 }));
   }, []);
 
   const [hapurFormen, hapFormen] = useState(false);

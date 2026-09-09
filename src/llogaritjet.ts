@@ -160,3 +160,107 @@ export function lojeratESortuara(games: Loja[]): Loja[] {
 export function lojtaretEMbetur(grupi: Grupi, selected: string[]): string[] {
   return grupi.playerNames.filter((emri) => !selected.includes(emri));
 }
+
+/* ── Pjesëmarrja e pabarabartë ──────────────────────────────────────────── */
+
+/**
+ * Sa raunde ka shënuar secili lojtar.
+ *
+ * Kur dikush ulet te tavolina në raundin e pestë, totali i tij nis nga zero
+ * ndërsa të tjerët janë me qindra pikë — dhe meqë fiton totali më i vogël, ai
+ * del i pari pa luajtur asgjë. Numri nuk është i gabuar: totali është shuma e
+ * pikëve, pikë. Ajo që mungon është konteksti, prandaj ky funksion e nxjerr atë
+ * dhe faqja e shfaq krah renditjes.
+ */
+export function raundetELuajtura(
+  players: string[],
+  rounds: Raundi[],
+): Record<string, number> {
+  const sa: Record<string, number> = {};
+  for (const player of players) sa[player] = 0;
+
+  for (const raundi of rounds) {
+    for (const player of players) {
+      if (typeof raundi.scores[player] === 'number') {
+        sa[player] = (sa[player] ?? 0) + 1;
+      }
+    }
+  }
+
+  return sa;
+}
+
+/**
+ * A kanë luajtur të gjithë të njëjtin numër raundesh?
+ *
+ * Kur jo, renditja dhe matrica krahasojnë totale të mbledhura mbi baza të
+ * ndryshme — ende të sakta si numra, por jo më si radhë. Faqja e thotë këtë me
+ * fjalë; nuk i ndryshon numrat.
+ */
+export function pjesemarrjeEBarabarte(
+  players: string[],
+  rounds: Raundi[],
+): boolean {
+  const sa = raundetELuajtura(players, rounds);
+  const vlerat = players.map((player) => sa[player] ?? 0);
+
+  return vlerat.every((v) => v === vlerat[0]);
+}
+
+/** Një vijë e grafikut: pikat e një lojtari, nga hyrja e tij deri te dalja. */
+export type Seria = {
+  player: string;
+  /** Vendi i lojtarit te lista — mban të njëjtën ngjyrë edhe kur seritë hiqen. */
+  ngjyra: number;
+  pikat: { roundNumber: number; total: number }[];
+};
+
+/**
+ * Seritë e grafikut, secila e prerë te raundet që lojtari i luajti vërtet.
+ *
+ * Një lojtar që hyri te raundi i pestë nuk duhet të ketë vijë të sheshtë mbi
+ * zeron nga raundi i parë: aty ai nuk po humbte, aty ai nuk ishte fare. Vija e
+ * tij nis nga raundi para të parit të vetin, me total zero, që të ketë prej nga
+ * të ngjitet — dhe mbaron te raundi i fundit ku shënoi, që dikush i larguar në
+ * mes të mos duket sikur qëndroi deri në fund.
+ *
+ * Për lojën e zakonshme, ku të gjithë luajnë çdo raund, kjo jep pikërisht atë
+ * që jepte më parë: nga raundi 0 me zero, deri te i fundit.
+ */
+export function seriteEGrafikut(players: string[], rounds: Raundi[]): Seria[] {
+  const rrjedha = totaletKumulative(players, rounds);
+  const luajtur = sipasRadhes(rounds).filter((r) => eshteIMbushur(players, r));
+
+  return players.map((player, ngjyra) => {
+    const iPari = luajtur.findIndex(
+      (r) => typeof r.scores[player] === 'number',
+    );
+
+    if (iPari === -1) return { player, ngjyra, pikat: [] };
+
+    let iFundit = iPari;
+    for (let i = luajtur.length - 1; i > iPari; i--) {
+      if (typeof luajtur[i]!.scores[player] === 'number') {
+        iFundit = i;
+        break;
+      }
+    }
+
+    // Pika e nisjes: raundi para të parit të vetin. Kur lojtari ishte aty që nga
+    // fillimi, ai raund është „0" — nisja e përbashkët e të gjithëve.
+    const nisja = {
+      roundNumber: iPari === 0 ? 0 : rrjedha[iPari - 1]!.roundNumber,
+      total: 0,
+    };
+
+    const pikat = [nisja];
+    for (let i = iPari; i <= iFundit; i++) {
+      pikat.push({
+        roundNumber: rrjedha[i]!.roundNumber,
+        total: rrjedha[i]!.totals[player] ?? 0,
+      });
+    }
+
+    return { player, ngjyra, pikat };
+  });
+}

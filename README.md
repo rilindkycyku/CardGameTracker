@@ -12,9 +12,13 @@ Fiton **totali më i vogël**.
 - **Grupe dhe lojtarë** — shoqëria futet një herë, radha e emrave ruhet.
 - **Zgjedhje para lojës** — grupi mund të ketë gjashtë të rregullt dhe sonte të
   luajnë katër.
+- **Shtim mes lojës** — kush ulet te tavolina në raundin e pestë shtohet aty për
+  aty, nga grupi ose si emër krejt i ri; raundet e shkuara nuk i preken dhe
+  totali i tij nis nga hera e parë që shënon.
 - **Futje e raundit** — një numër për lojtar, ose përmes llogaritësit
   hant/normal.
-- **Renditja** — ngjitshëm sipas totalit, i pari është ai me më pak pikë.
+- **Renditja** — ngjitshëm sipas totalit, i pari është ai me më pak pikë. Kur
+  nuk kanë luajtur të gjithë njësoj, shtohet kolona „raunde" dhe një shënim.
 - **Grafiku** — një vijë për lojtar, totali kumulativ raund pas raundi.
 - **Shlyerja** — matrica N×N e diferencave, `matrica[i][j] = total[i] − total[j]`.
 - **Historik sipas ditës** — një grup ka shumë lojëra, edhe dy të njëjtën ditë.
@@ -48,7 +52,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 40 prova, pa framework provash
+npm test          # node --test — 50 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i.
@@ -70,7 +74,7 @@ src/
   style.css           sistemi i stilit
   pamjet/             Grupet · Grupi · Loja
   pjeset/             Renditja · Raundet · Grafiku · Shlyerja
-                      FutjaERaundit · PanelaEKopjes
+                      FutjaERaundit · LojtaretELojes · PanelaEKopjes
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it

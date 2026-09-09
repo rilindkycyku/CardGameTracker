@@ -16,15 +16,18 @@ import { useState } from 'react';
 import {
   dataShqip,
   matricaEShlyerjes,
+  pjesemarrjeEBarabarte,
+  raundetELuajtura,
   raundiNeVijim,
   renditja,
+  seriteEGrafikut,
   totalet,
-  totaletKumulative,
 } from '../llogaritjet.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import { FutjaERaundit } from '../pjeset/FutjaERaundit.tsx';
 import { Grafiku } from '../pjeset/Grafiku.tsx';
+import { LojtaretELojes } from '../pjeset/LojtaretELojes.tsx';
 import { Raundet } from '../pjeset/Raundet.tsx';
 import { Renditja } from '../pjeset/Renditja.tsx';
 import { Shlyerja } from '../pjeset/Shlyerja.tsx';
@@ -33,6 +36,8 @@ import {
   loja as lexoLojen,
   grupi as lexoGrupin,
   raundet as lexoRaundet,
+  ruajGrup,
+  ruajLoje,
   ruajRaund,
   shtoRaund,
 } from '../ruajtja.ts';
@@ -82,8 +87,17 @@ export function Loja({ id }: { id: number }) {
   const totalat = totalet(players, raundet);
   const rreshtat = renditja(players, totalat);
   const matrica = matricaEShlyerjes(players, totalat);
-  const rrjedha = totaletKumulative(players, raundet);
+  const serite = seriteEGrafikut(players, raundet);
+  const luajtur = raundetELuajtura(players, raundet);
   const iRadhes = raundiNeVijim(raundet);
+
+  // Kolona „raunde" te renditja del vetëm kur ka çka të tregojë. Raundet e
+  // pashënuara nuk numërohen: një fletë me raunde bosh në fund nuk është
+  // pjesëmarrje e pabarabartë.
+  const barabarte = pjesemarrjeEBarabarte(
+    players,
+    raundet.filter((r) => players.some((p) => typeof r.scores[p] === 'number')),
+  );
 
   const raundiQeRedaktohet =
     dukeRedaktuar === null
@@ -97,6 +111,27 @@ export function Loja({ id }: { id: number }) {
     } else {
       await shtoRaund(id, iRadhes, scores);
     }
+    rifresko();
+  }
+
+  async function shtoLojtar(emri: string, iRiPerGrupin: boolean) {
+    if (!loja || players.includes(emri)) return;
+
+    if (iRiPerGrupin && grupi) {
+      await ruajGrup({ ...grupi, playerNames: [...grupi.playerNames, emri] });
+    }
+
+    await ruajLoje({ ...loja, selectedPlayers: [...players, emri] });
+    rifresko();
+  }
+
+  async function hiqLojtar(emri: string) {
+    if (!loja) return;
+
+    await ruajLoje({
+      ...loja,
+      selectedPlayers: players.filter((p) => p !== emri),
+    });
     rifresko();
   }
 
@@ -167,6 +202,14 @@ export function Loja({ id }: { id: number }) {
         </div>
       </section>
 
+      <LojtaretELojes
+        players={players}
+        grupi={grupi}
+        luajtur={luajtur}
+        onShto={shtoLojtar}
+        onHiq={hiqLojtar}
+      />
+
       {raundet.length === 0 ? (
         <div className="zbrazet">
           <p className="zbrazet__titull">Ende asnjë raund</p>
@@ -177,7 +220,7 @@ export function Loja({ id }: { id: number }) {
         </div>
       ) : (
         <>
-          <Renditja rreshtat={rreshtat} />
+          <Renditja rreshtat={rreshtat} luajtur={barabarte ? null : luajtur} />
 
           <Raundet
             players={players}
@@ -192,7 +235,7 @@ export function Loja({ id }: { id: number }) {
             onFshi={fshi}
           />
 
-          <Grafiku players={players} rrjedha={rrjedha} />
+          <Grafiku serite={serite} />
 
           <Shlyerja players={players} matrica={matrica} />
         </>

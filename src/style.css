@@ -1478,3 +1478,30 @@ th.numri {
 [data-hapesire='lart'] {
   margin-top: 0.85rem;
 }
+
+/* Hapësira nën një njoftim që paraprin një tabelë. */
+[data-hapesire='posht'] {
+  margin-bottom: 0.85rem;
+}
+
+/* Numri i raundeve brenda shenjës së lojtarit, dhe numri te kreu i detajeve. */
+.shenja-lojtari__numri,
+.detaje__numri {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding-inline: 0.3rem;
+  border-radius: 999px;
+  background: var(--siperfaqe-2);
+  color: var(--teksti-zbehte);
+  font-family: var(--shkronja-numrat);
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.detaje__numri {
+  margin-left: 0.5rem;
+  vertical-align: 0.05em;
+}

@@ -8,11 +8,12 @@
  * vijnë nga tokenat, jo nga atribute `style`, prandaj tema e errët i ndërron
  * vetë.
  *
- * Vijat nisin nga raundi 0 me total 0: pa atë pikë të përbashkët, raundi i parë
- * do të dukej si nisje nga lartësi të ndryshme.
+ * Secila vijë mbulon vetëm raundet që lojtari i luajti vërtet (shih
+ * `seriteEGrafikut`). Boshti horizontal është i përbashkët: raundet ndahen në
+ * vende të barabarta dhe vija fillon te vendi i vet, jo te skaji i majtë.
  */
 
-import type { HapiKumulativ } from '../llogaritjet.ts';
+import type { Seria } from '../llogaritjet.ts';
 import { Ikona } from '../ikonat.tsx';
 
 /** Kufijtë e vizatimit brenda `viewBox`-it. */
@@ -26,17 +27,16 @@ const POSHTE = 22;
 /** Sa seri ka paleta te `style.css`. Lojtari i nëntë e nis nga e para. */
 const NGJYRA = 8;
 
-export function Grafiku({
-  players,
-  rrjedha,
-}: {
-  players: string[];
-  rrjedha: HapiKumulativ[];
-}) {
-  if (rrjedha.length === 0) return null;
+export function Grafiku({ serite }: { serite: Seria[] }) {
+  const vizatohen = serite.filter((s) => s.pikat.length > 1);
+  if (vizatohen.length === 0) return null;
 
-  const hapat = [{ roundNumber: 0, totals: zero(players) }, ...rrjedha];
-  const vlerat = hapat.flatMap((h) => players.map((p) => h.totals[p] ?? 0));
+  // Boshti horizontal: çdo raund që shfaqet te ndonjë seri, plus nisja.
+  const raundet = [
+    ...new Set(vizatohen.flatMap((s) => s.pikat.map((p) => p.roundNumber))),
+  ].sort((a, b) => a - b);
+
+  const vlerat = vizatohen.flatMap((s) => s.pikat.map((p) => p.total));
 
   // Boshti gjithmonë e përfshin zeron: pa të, një lojë ku të gjithë janë në
   // minus do të dukej sikur nisi nga një bazë tjetër.
@@ -46,16 +46,21 @@ export function Grafiku({
   const larte = maxi + hapesira;
   const poshte = mini - hapesira;
 
-  const x = (i: number) =>
-    MAJTAS +
-    (hapat.length === 1
-      ? 0
-      : (i / (hapat.length - 1)) * (GJERESIA - MAJTAS - DJATHTAS));
+  const x = (roundNumber: number) => {
+    const i = raundet.indexOf(roundNumber);
+    return (
+      MAJTAS +
+      (raundet.length <= 1
+        ? 0
+        : (i / (raundet.length - 1)) * (GJERESIA - MAJTAS - DJATHTAS))
+    );
+  };
 
   const y = (v: number) =>
     LART + ((larte - v) / (larte - poshte)) * (LARTESIA - LART - POSHTE);
 
   const shkalla = shkallaEBoshtit(poshte, larte);
+  const hapiIEtiketave = Math.max(1, Math.ceil((raundet.length - 1) / 8));
 
   return (
     <section>
@@ -69,7 +74,7 @@ export function Grafiku({
           className="grafiku"
           viewBox={`0 0 ${GJERESIA} ${LARTESIA}`}
           role="img"
-          aria-label={pershkrimi(players, rrjedha)}
+          aria-label={pershkrimi(vizatohen)}
         >
           {shkalla.map((v) => (
             <g key={v}>
@@ -90,34 +95,37 @@ export function Grafiku({
             </g>
           ))}
 
-          {hapat.map((hapi, i) =>
+          {raundet.map((raundi, i) =>
             // Numri i raundit shënohet sa herë ka vend; me shumë raunde
             // shënohen vetëm disa, që të mos mbivendosen.
-            i > 0 && (i === hapat.length - 1 || i % hapiIEtiketave(hapat.length) === 0) ? (
+            raundi > 0 && (i === raundet.length - 1 || i % hapiIEtiketave === 0) ? (
               <text
-                key={hapi.roundNumber}
+                key={raundi}
                 className="grafiku__teksti"
-                x={x(i)}
+                x={x(raundi)}
                 y={LARTESIA - 6}
                 textAnchor="middle"
               >
-                {hapi.roundNumber}
+                {raundi}
               </text>
             ) : null,
           )}
 
-          {players.map((player, nr) => (
-            <g key={player} className={`seria-${(nr % NGJYRA) + 1}`}>
+          {vizatohen.map((seria) => (
+            <g key={seria.player} className={`seria-${(seria.ngjyra % NGJYRA) + 1}`}>
               <path
                 className="grafiku__vija"
-                d={hapat
-                  .map((hapi, i) => `${i === 0 ? 'M' : 'L'}${x(i)} ${y(hapi.totals[player] ?? 0)}`)
+                d={seria.pikat
+                  .map(
+                    (pika, i) =>
+                      `${i === 0 ? 'M' : 'L'}${x(pika.roundNumber)} ${y(pika.total)}`,
+                  )
                   .join(' ')}
               />
               <circle
                 className="grafiku__pika"
-                cx={x(hapat.length - 1)}
-                cy={y(hapat.at(-1)!.totals[player] ?? 0)}
+                cx={x(seria.pikat.at(-1)!.roundNumber)}
+                cy={y(seria.pikat.at(-1)!.total)}
                 r="3.2"
               />
             </g>
@@ -125,25 +133,16 @@ export function Grafiku({
         </svg>
 
         <ul className="grafiku__legjenda">
-          {players.map((player, nr) => (
-            <li key={player} className={`seria-${(nr % NGJYRA) + 1}`}>
+          {vizatohen.map((seria) => (
+            <li key={seria.player} className={`seria-${(seria.ngjyra % NGJYRA) + 1}`}>
               <span className="grafiku__shenja" />
-              {player}
+              {seria.player}
             </li>
           ))}
         </ul>
       </div>
     </section>
   );
-}
-
-function zero(players: string[]): Record<string, number> {
-  return Object.fromEntries(players.map((p) => [p, 0]));
-}
-
-/** Sa raunde kalohen mes dy etiketave të boshtit horizontal. */
-function hapiIEtiketave(sa: number): number {
-  return Math.max(1, Math.ceil((sa - 1) / 8));
 }
 
 /**
@@ -166,14 +165,12 @@ function shkallaEBoshtit(poshte: number, larte: number): number[] {
   return vlerat.sort((a, b) => a - b);
 }
 
-/** Përshkrimi për lexuesin e ekranit — grafiku vetë s'i thotë dot këto. */
-function pershkrimi(players: string[], rrjedha: HapiKumulativ[]): string {
-  const fundi = rrjedha.at(-1);
-  if (!fundi) return 'Grafik i zbrazët.';
+/** Përshkrimi për lexuesin e ekranit — grafiku vetë s’i thotë dot këto. */
+function pershkrimi(serite: Seria[]): string {
+  const rreshtat = serite.map((seria) => {
+    const fundi = seria.pikat.at(-1)!;
+    return `${seria.player} ${fundi.total} te raundi ${fundi.roundNumber}`;
+  });
 
-  const totalet = players
-    .map((p) => `${p} ${fundi.totals[p] ?? 0}`)
-    .join(', ');
-
-  return `Totalet raund pas raundi, deri te raundi ${fundi.roundNumber}. Në fund: ${totalet}.`;
+  return `Totalet raund pas raundi. Në fund: ${rreshtat.join(', ')}.`;
 }

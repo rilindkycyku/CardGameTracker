@@ -21,7 +21,7 @@ import {
   fshiLoje,
   grupi as lexoGrupin,
   lojerat as lexoLojerat,
-  raundet as lexoRaundet,
+  numriIRaundeve,
   ruajGrup,
   shtoLoje,
 } from '../ruajtja.ts';
@@ -34,15 +34,9 @@ export function Grupi({ id }: { id: number }) {
     if (!grupi) return { grupi: null, lojerat: [] as Loja[], raunde: {} };
 
     const lista = await lexoLojerat(id);
-    const numrat = await Promise.all(
-      lista.map(async (l) => [l.id, (await lexoRaundet(l.id)).length] as const),
-    );
+    const raunde = await numriIRaundeve(lista.map((l) => l.id));
 
-    return {
-      grupi,
-      lojerat: lojeratESortuara(lista),
-      raunde: Object.fromEntries(numrat) as Record<number, number>,
-    };
+    return { grupi, lojerat: lojeratESortuara(lista), raunde };
   }, [id]);
 
   const [hapurLojen, hapLojen] = useState(false);

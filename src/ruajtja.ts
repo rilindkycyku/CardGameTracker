@@ -169,6 +169,53 @@ export async function fshiRaund(id: number): Promise<void> {
   await (await db()).delete('rounds', id);
 }
 
+/* ── Numërimet ──────────────────────────────────────────────────────────── */
+
+/**
+ * Sa lojëra ka secili grup, dhe sa raunde ka secila lojë.
+ *
+ * Ekranet e listave i duan vetëm numrat. Leximi i vetë regjistrave do të
+ * shpaketonte çdo objekt `scores` të çdo raundi vetëm që të matej gjatësia e
+ * vargut — dhe një mbrëmje e vetme ka dhjetëra raunde. `index.count()` e nxjerr
+ * numrin nga vetë indeksi, pa i prekur regjistrat.
+ *
+ * Të gjitha numërimet hyjnë në një transaksion të vetëm, jo në një për çdo
+ * çelës, sepse hapja e transaksionit është pjesa e shtrenjtë.
+ */
+/** Sa lojëra ka secili nga këta grupe. */
+export async function numriILojerave(
+  groupIds: number[],
+): Promise<Record<number, number>> {
+  if (groupIds.length === 0) return {};
+
+  const tx = (await db()).transaction('games', 'readonly');
+  const index = tx.store.index('groupId');
+
+  const cifte = await Promise.all(
+    groupIds.map(async (id) => [id, await index.count(id)] as const),
+  );
+
+  await tx.done;
+  return Object.fromEntries(cifte);
+}
+
+/** Sa raunde ka secila nga këto lojëra. */
+export async function numriIRaundeve(
+  gameIds: number[],
+): Promise<Record<number, number>> {
+  if (gameIds.length === 0) return {};
+
+  const tx = (await db()).transaction('rounds', 'readonly');
+  const index = tx.store.index('gameId');
+
+  const cifte = await Promise.all(
+    gameIds.map(async (id) => [id, await index.count(id)] as const),
+  );
+
+  await tx.done;
+  return Object.fromEntries(cifte);
+}
+
 /* ── Kopja rezervë ──────────────────────────────────────────────────────── */
 
 /** Gjithçka që ka baza, për ta shkruar në skedar. */

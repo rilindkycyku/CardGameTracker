@@ -30,7 +30,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 40 prova, pa framework provash
+npm test          # node --test — 50 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -71,7 +71,28 @@ dhe matrica shkruhen mbi atë listë, kurrë mbi `playerNames` të grupit.
 Prandaj shtimi, heqja ose riemërtimi i një lojtari sot nuk e prek asnjë lojë të djeshme. Mos e
 lidh asnjë ekran lojës me listën e sotme të grupit.
 
-### 5. Emrat e fushave vijnë nga `logic.json`
+### 5. Lista e lojës ndryshon edhe pasi loja ka nisur
+
+Dikush vjen te raundi i pestë; dikush ngrihet e ikën. `selectedPlayers` i një loje pranon shtim dhe
+heqje mes rrugës, dhe kjo nuk prek asnjë raund: lojtari i ri thjesht s'ka pikë te raundet e
+shkuara, dhe qeliza e zbrazët nuk numërohet si zero.
+
+Dy gjëra rrjedhin prej kësaj dhe nuk guxojnë të hiqen:
+
+- **Hiqet vetëm ai që s'ka shënuar ende.** Kush ka pikë te ndonjë raund mbetet te loja — pikët e
+  tij janë pjesë e historikut të asaj mbrëmjeje dhe heqja do t'i linte pa kolonë. Kush ikën para
+  fundit thjesht pushon së shënuari.
+- **Pjesëmarrja e pabarabartë tregohet, nuk fshihet.** Totali mbetet shuma e pikëve — rregulli i
+  `logic.json`-it nuk preket — por meqë fiton totali më i vogël, kush hyri te raundi i fundit del
+  i pari pa luajtur asgjë. Prandaj `raundetELuajtura` nxjerr kontekstin dhe renditja shton kolonën
+  „raunde" me një shënim mbi tabelë. Mos e „rregullo" duke ndryshuar totalin.
+
+Grafiku ndjek të njëjtin rregull: `seriteEGrafikut` e pret secilën vijë te raundet që lojtari i
+luajti vërtet. Një vijë e sheshtë mbi zeron nga raundi i parë do të thoshte „po luante dhe s'po
+merrte pikë", kurse e vërteta është „nuk ishte aty". Kur luajnë të gjithë, kjo jep pikërisht atë
+që jepte më parë, dhe një provë e mban të matur.
+
+### 6. Emrat e fushave vijnë nga `logic.json`
 
 `test/logic.json` është fleta origjinale e nxjerrë nga Google Sheets-i, dhe çdo numër aty u
 kontrollua kundër formulave të saj. Provat maten kundër tij, jo kundër pritjeve të shpikura.
@@ -85,7 +106,7 @@ automatizuar dhe jo nga tabela: `domina_1.standings` (një rresht nga tre lojtar
 `brigj_4_merged_teams.settlement_matrix` (rreshti i dytë quhet `null`). Totalet e të dyve janë të
 plota dhe provohen normalisht. Mos i „rregullo" ato fusha — janë dëshmi e asaj që erdhi.
 
-### 6. Vlerat dinamike vizatohen me SVG, jo me atribut `style`
+### 7. Vlerat dinamike vizatohen me SVG, jo me atribut `style`
 
 Grafiku është SVG i shkruar me dorë, ngjyrat vijnë nga tokenat `--seria-N` përmes klasave. Kjo
 është zakoni i Kujdestarisë, ku CSP-ja `style-src 'self'` e ndalon atributin `style` fare — dhe
@@ -93,7 +114,7 @@ mbahet edhe këtu, që të dy projektet të mbeten të zëvendësueshëm.
 
 Nëse shton diçka që kërkon stil inline, zgjidhja është një klasë ose një atribut SVG.
 
-### 7. Pa bibliotekë grafikësh, pa bibliotekë rrugëtimi, pa bibliotekë gjendjeje
+### 8. Pa bibliotekë grafikësh, pa bibliotekë rrugëtimi, pa bibliotekë gjendjeje
 
 Varësitë janë tri: `react`, `react-dom`, `idb`. Grafiku me bosht e legjendë është nën dyqind
 rreshta; Chart.js-i do të shtonte mbi njëqind kilobajt. Rrugët janë katër; një `switch` mbi hash-in
@@ -132,5 +153,8 @@ duken si i njëjti dorëshkrim. Nëse ndërron një token atje, ndërroje edhe k
   `preventDefault` e `stopPropagation` — pa to, fshirja hap njëkohësisht edhe lojën.
 - **Kthimi i një kopjeje e zëvendëson tërë bazën**, prandaj `lexoKopjen` kontrollon edhe lidhjet
   `groupId`/`gameId`: një skedar gjysmak do ta fshinte pikërisht atë që duhej të shpëtonte.
+- **Numërimet e listave shkojnë përmes `index.count()`**, jo duke lexuar regjistrat. `numriILojerave`
+  dhe `numriIRaundeve` e nxjerrin numrin nga vetë indeksi, brenda një transaksioni të vetëm — pa to,
+  ekrani i grupeve shpaketonte çdo objekt `scores` të çdo raundi vetëm që të matte një gjatësi.
 - **Kolona e parë e tabelës së raundeve rri `sticky`.** Me gjashtë lojtarë tabela del më e gjerë se
   telefoni, dhe pa të humb se cili raund po shihet sapo rrëshqitet.
