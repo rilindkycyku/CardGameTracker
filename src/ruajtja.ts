@@ -199,17 +199,23 @@ export async function numriILojerave(
   return Object.fromEntries(cifte);
 }
 
-/** Sa raunde ka secila nga këto lojëra. */
-export async function numriIRaundeve(
+/**
+ * Raundet e disa lojërave njëherësh, të ndara sipas lojës.
+ *
+ * Historiku i grupit tregon renditjen përfundimtare të secilës mbrëmje, prandaj
+ * i duhen vetë raundet e jo vetëm sa janë. Leximi bëhet brenda një transaksioni
+ * të vetëm: hapja e transaksionit është pjesa e shtrenjtë, jo vetë kërkesat.
+ */
+export async function raundetELojerave(
   gameIds: number[],
-): Promise<Record<number, number>> {
+): Promise<Record<number, Raundi[]>> {
   if (gameIds.length === 0) return {};
 
   const tx = (await db()).transaction('rounds', 'readonly');
   const index = tx.store.index('gameId');
 
   const cifte = await Promise.all(
-    gameIds.map(async (id) => [id, await index.count(id)] as const),
+    gameIds.map(async (id) => [id, await index.getAll(id)] as const),
   );
 
   await tx.done;

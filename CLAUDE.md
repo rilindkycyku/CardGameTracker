@@ -4,7 +4,7 @@ Udhëzime për asistentët e IA-së që punojnë në këtë depo. Lexoje para se
 
 Dokumentacioni i projektit është shqip, prandaj edhe ky skedar. Struktura, komentet, commit-et
 dhe teksti në ekran janë shqip — mos e ndërro gjuhën. Përjashtim bëjnë vetëm emrat e fushave të
-të dhënave (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`), për arsyen te pika 5.
+të dhënave (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`), për arsyen te pika 7.
 
 ## Çka është kjo
 
@@ -30,25 +30,24 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 50 prova, pa framework provash
+npm test          # node --test — 68 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
 
 ## Rregullat e arkitekturës
 
-### 1. `llogaritjet.ts` dhe `pikezimi.ts` nuk njohin as bazën, as React-in, as `window`-in
+### 1. `llogaritjet.ts`, `pikezimi.ts` dhe `fusha.ts` nuk njohin as bazën, as React-in, as `window`-in
 
-Të dyja importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
-zgjat dyqind milisekonda dhe nuk ka çka të prishet mes provës dhe kodit.
+Të treja importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
+zgjat treqind milisekonda dhe nuk ka çka të prishet mes provës dhe kodit.
 
-Logjika e re shkon në njërin nga këta dy skedarë, me prova. Mos fut `import` të bazës, të React-it
-apo të ndonjë API-je të shfletuesit në to.
+Logjika e re shkon në njërin nga këta tre skedarë, me prova. Mos fut `import` të bazës, të
+React-it apo të ndonjë API-je të shfletuesit në to.
 
 ### 2. Asnjë vlerë e derivuar nuk ruhet
 
-Në bazë shkruhen vetëm pikët e futura. Totalet, renditja, matrica dhe rrjedha e grafikut
-llogariten sa herë lexohen.
+Në bazë shkruhen vetëm pikët e futura. Totalet, renditja dhe matrica llogariten sa herë lexohen.
 
 Kjo nuk është kursim vendi — është e vetmja mënyrë që redaktimi i raundit të tretë në raundin e
 dhjetë të mos lërë prapa një total të ngrirë diku. Nëse shton një vlerë të derivuar, mos e ruaj.
@@ -87,12 +86,29 @@ Dy gjëra rrjedhin prej kësaj dhe nuk guxojnë të hiqen:
   i pari pa luajtur asgjë. Prandaj `raundetELuajtura` nxjerr kontekstin dhe renditja shton kolonën
   „raunde" me një shënim mbi tabelë. Mos e „rregullo" duke ndryshuar totalin.
 
-Grafiku ndjek të njëjtin rregull: `seriteEGrafikut` e pret secilën vijë te raundet që lojtari i
-luajti vërtet. Një vijë e sheshtë mbi zeron nga raundi i parë do të thoshte „po luante dhe s'po
-merrte pikë", kurse e vërteta është „nuk ishte aty". Kur luajnë të gjithë, kjo jep pikërisht atë
-që jepte më parë, dhe një provë e mban të matur.
+### 6. Futja e raundit optimizohet për gjashtë lojtarë, jo për dy
 
-### 6. Emrat e fushave vijnë nga `logic.json`
+Ky bllok përdoret dhjetëra herë në një mbrëmje, dhe një grup me gjashtë lojtarë e trefishon punën
+e tij. Tri gjëra e mbajnë të përdorshëm, dhe asnjëra nuk guxon të hiqet pa e zëvendësuar:
+
+- **«Next» i tastierës kalon te lojtari tjetër, dhe te i fundit ruan raundin.** Me gjashtë lojtarë
+  kjo është gjashtë prekje më pak për raund. Pas ruajtjes me tastierë fokusi kthehet te i pari; pas
+  një prekjeje të butonit jo, sepse hapja e tastierës pa u kërkuar do të mbulonte renditjen që
+  përdoruesi sapo shkoi ta shohë.
+- **Rreshti i veprimeve rri `position: sticky` në fund të kartelës.** Me tastierën e hapur ekrani i
+  mbetur është nën gjysmën e telefonit. Prandaj `.kartela--kryesore` ka `overflow: clip` e jo
+  `hidden`: të dyja e presin vijën e theksit njësoj, por `hidden` krijon kontejner rrëshqitjeje dhe
+  ia heq fuqinë `sticky`-t brenda.
+- **Nga pesë lojtarë e tutje shtrëngohen rreshtat dhe tabelat** (`data-shume`). Ulet vetëm ajri:
+  fushat dhe butonat mbeten 2.75rem, sepse ai është kufiri nën të cilin gishti nuk i zë.
+
+Llogaritësi nuk ka çelës „s'hapi / hapi" — dora e thotë. Fushë e zbrazët do të thotë që lojtari
+nuk hapi, prandaj merr dënimin fiks; çdo numër do të thotë që hapi, dhe ai numër është dora.
+Një lojtar që ka hapur e ka mbetur me zero pikë do ta kishte mbyllur vetë raundin, prandaj zeroja
+nuk humb asnjë gjendje të vërtetë. Me gjashtë lojtarë kjo e preu llogaritësin nga 1195px në 569px
+dhe hoqi pesë prekje.
+
+### 7. Emrat e fushave vijnë nga `logic.json`
 
 `test/logic.json` është fleta origjinale e nxjerrë nga Google Sheets-i, dhe çdo numër aty u
 kontrollua kundër formulave të saj. Provat maten kundër tij, jo kundër pritjeve të shpikura.
@@ -106,18 +122,17 @@ automatizuar dhe jo nga tabela: `domina_1.standings` (një rresht nga tre lojtar
 `brigj_4_merged_teams.settlement_matrix` (rreshti i dytë quhet `null`). Totalet e të dyve janë të
 plota dhe provohen normalisht. Mos i „rregullo" ato fusha — janë dëshmi e asaj që erdhi.
 
-### 7. Vlerat dinamike vizatohen me SVG, jo me atribut `style`
+### 8. Vlerat dinamike vizatohen me SVG, jo me atribut `style`
 
-Grafiku është SVG i shkruar me dorë, ngjyrat vijnë nga tokenat `--seria-N` përmes klasave. Kjo
+Asnjë atribut `style` nuk shkruhet askund: vlerat që ndryshojnë marrin klasë ose atribut SVG. Kjo
 është zakoni i Kujdestarisë, ku CSP-ja `style-src 'self'` e ndalon atributin `style` fare — dhe
 mbahet edhe këtu, që të dy projektet të mbeten të zëvendësueshëm.
 
 Nëse shton diçka që kërkon stil inline, zgjidhja është një klasë ose një atribut SVG.
 
-### 8. Pa bibliotekë grafikësh, pa bibliotekë rrugëtimi, pa bibliotekë gjendjeje
+### 9. Pa bibliotekë grafikësh, pa bibliotekë rrugëtimi, pa bibliotekë gjendjeje
 
-Varësitë janë tri: `react`, `react-dom`, `idb`. Grafiku me bosht e legjendë është nën dyqind
-rreshta; Chart.js-i do të shtonte mbi njëqind kilobajt. Rrugët janë katër; një `switch` mbi hash-in
+Varësitë janë tri: `react`, `react-dom`, `idb`. Rrugët janë katër; një `switch` mbi hash-in
 mjafton dhe butoni «prapa» i telefonit punon vetvetiu. Gjendja lexohet nga baza pas çdo shkrimi —
 baza është lokale, një lexim i tërë është disa milisekonda, dhe një cache që del jashtë sinkronie
 do të ishte rrezik pa përfitim.
@@ -153,8 +168,29 @@ duken si i njëjti dorëshkrim. Nëse ndërron një token atje, ndërroje edhe k
   `preventDefault` e `stopPropagation` — pa to, fshirja hap njëkohësisht edhe lojën.
 - **Kthimi i një kopjeje e zëvendëson tërë bazën**, prandaj `lexoKopjen` kontrollon edhe lidhjet
   `groupId`/`gameId`: një skedar gjysmak do ta fshinte pikërisht atë që duhej të shpëtonte.
-- **Numërimet e listave shkojnë përmes `index.count()`**, jo duke lexuar regjistrat. `numriILojerave`
-  dhe `numriIRaundeve` e nxjerrin numrin nga vetë indeksi, brenda një transaksioni të vetëm — pa to,
-  ekrani i grupeve shpaketonte çdo objekt `scores` të çdo raundi vetëm që të matte një gjatësi.
+- **Leximet e listave hyjnë në një transaksion të vetëm.** `numriILojerave` e nxjerr numrin nga vetë
+  indeksi, pa i prekur regjistrat. Ekrani i grupit i lexon raundet vërtet, sepse tregon renditjen e
+  secilës mbrëmje — por përmes `raundetELojerave`, një transaksion për tërë grupin e jo një për çdo
+  lojë.
+- **Fusha e pikëve është `type="text"`, dhe shenja ka butonin e vet.** Tastiera `inputMode="numeric"`
+  e Androidit ka vetëm shifra — pa minus — prandaj pikët e mbylljes (−20, −40) nuk shkruheshin dot
+  fare në telefon. `pastro()` te `fusha.ts` e njeh minusin kudo qoftë e jo vetëm në krye, sepse kur
+  shenja shtypet para shifrave kursori bie para tij dhe teksti del „4−". Mos e kthe në `type="number"`:
+  ajo e hedh poshtë „−"-in e vetëm para se të vijnë shifrat.
+- **Një lojë e hapur e paluajtur nuk renditet fare.** Të gjitha totalet zero i bëjnë të gjithë të
+  barabartë, dhe `renditja` do t'ia jepte vendin e parë të parit të listës — një fitore e fituar nga
+  radha e emrave. Prandaj `renditjaELojes` dhe `tabelaEPergjithshme` i kapërcejnë lojërat pa asnjë
+  pikë, dhe brenda një loje marrin vetëm ata që shënuan. Kjo është edhe arsyeja pse renditja e
+  `brigj_4_merged_teams` te `logic.json` nuk provohet dot kundër tabelës: fleta e rendit, kjo jo.
+- **Matrica renditet sipas renditjes, jo sipas radhës së tavolinës.** Shlyerja shihet kur mbaron
+  loja, dhe atëherë lexohet duke nisur nga fituesi. Vendi shkruhet krah emrit te rreshti, që radha
+  të mos duket e rastit.
+- **Kutia e emrave pranon disa njëherësh** — «meri, lesa, lila, rila». Ndarësit janë presja,
+  pikëpresja dhe rreshti i ri, kurrë hapësira: emrat me dy fjalë („meri + mil" te fleta e vjetër)
+  duhet të mbeten një i vetëm. Shtimi mes lojës kalon një varg te `onShto`, jo një emër për
+  thirrje — çdo thirrje niset nga e njëjta listë e vjetër dhe do të mbetej vetëm i fundit.
+- **Lojë e re niset nga lojtarët e lojës së fundit**, jo nga tërë lista e grupit: shoqëria është
+  zakonisht e njëjta, prandaj më shpesh nuk ka çka të preket fare. „E fundit" është ajo që del e
+  para te historiku — më e reja sipas datës.
 - **Kolona e parë e tabelës së raundeve rri `sticky`.** Me gjashtë lojtarë tabela del më e gjerë se
   telefoni, dhe pa të humb se cili raund po shihet sapo rrëshqitet.

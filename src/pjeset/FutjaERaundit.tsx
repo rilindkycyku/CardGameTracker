@@ -1,17 +1,27 @@
 /**
  * Futja e një raundi — me dorë, ose përmes llogaritësit.
  *
- * Fushat me numra mbeten gjithmonë burimi i vërtetë. Llogaritësi vetëm i
- * mbush ato, dhe pastaj mund të preken ende me dorë. Kjo nuk është zbukurim:
- * te fletët e vjetra ka raunde që nuk dalin nga rregullat — një mbyllje e
- * shënuar me −50 në vend të −40 — dhe një aplikacion që i pranon vetëm
- * kombinimet e lejuara nuk do t'i shënonte dot.
+ * Ky bllok përdoret më shumë se çdo tjetër: dhjetëra herë në një mbrëmje, nga
+ * dikush që mban letrat me dorën tjetër. Prandaj çdo prekje e kursyer këtu
+ * vlen më shumë se një ekran i tërë diku tjetër.
  *
- * Fushat janë `inputMode="numeric"` me `min`/`max` të gjera: tastiera e
- * telefonit del numerike, por edhe pikët negative shkruhen pa luftë.
+ * Tri gjëra e mbajnë të shpejtë:
+ *
+ *   • «Next» i tastierës kalon te lojtari tjetër, dhe te i fundit e ruan
+ *     raundin. Me gjashtë lojtarë kjo është gjashtë prekje më pak për raund,
+ *     dhe dora nuk lëviz nga tastiera.
+ *   • Rreshti i veprimeve rri i ngjitur në fund të kartelës. Me tastierën e
+ *     hapur, ekrani i mbetur është nën gjysmën e telefonit — pa këtë, butoni
+ *     „Ruaj" bie poshtë çdo here që lojtarët janë shumë.
+ *   • Pikët preken ende me dorë pas llogaritësit: te fleta origjinale ka një
+ *     raund me mbyllës −50, që nuk e jep asnjë nga dy mbylljet, dhe një
+ *     aplikacion që pranon vetëm kombinimet e lejuara nuk do ta shënonte dot.
+ *
+ * Shenja ka butonin e vet sepse tastiera numerike e Androidit s'ka minus;
+ * arsyetimi i plotë dhe përpunimi i tekstit rrinë te `fusha.ts`.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   piketERaundit,
@@ -19,9 +29,13 @@ import {
   type GjendjaLojtarit,
   type LlojiMbylljes,
 } from '../pikezimi.ts';
+import { negative, ndrroShenjen as ndrro, numri, pastro } from '../fusha.ts';
 import { Ikona } from '../ikonat.tsx';
 
 type Vlerat = Record<string, string>;
+
+/** Nga sa lojtarë e tutje shtrëngohen rreshtat. */
+const SHUME = 5;
 
 export function FutjaERaundit({
   players,
@@ -39,6 +53,7 @@ export function FutjaERaundit({
 }) {
   const [vlerat, caktoVlerat] = useState<Vlerat>(() => nga(players, fillestare));
   const [hapurLlogaritesi, hapLlogaritesin] = useState(false);
+  const fushat = useRef<(HTMLInputElement | null)[]>([]);
 
   // Kur ndërrohet raundi që redaktohet, fushat duhet të ndjekin atë e jo të
   // mbajnë pikët e raundit të mëparshëm.
@@ -48,72 +63,76 @@ export function FutjaERaundit({
 
   const shuma = players.reduce((s, p) => s + (numri(vlerat[p]) ?? 0), 0);
   const sashenuar = players.filter((p) => numri(vlerat[p]) !== null).length;
+  const shume = players.length >= SHUME;
 
-  function ruaj() {
+  /**
+   * Ruan raundin.
+   *
+   * `rifokuso` vjen vetëm nga tastiera. Pas një prekjeje të butonit fokusi rri
+   * ku është: hapja e tastierës pa u kërkuar do ta mbulonte gjysmën e ekranit
+   * pikërisht kur përdoruesi po shikon renditjen e sapondryshuar.
+   */
+  function ruaj(rifokuso = false) {
+    if (sashenuar === 0) return;
+
     const scores: Record<string, number | null> = {};
     for (const player of players) scores[player] = numri(vlerat[player]);
     onRuaj(scores);
-    if (!fillestare) caktoVlerat(nga(players, null));
+
+    if (!fillestare) {
+      caktoVlerat(nga(players, null));
+      if (rifokuso) fushat.current[0]?.focus();
+    }
     hapLlogaritesin(false);
+  }
+
+  /** «Next» shkon te lojtari tjetër; te i fundit ruan raundin. */
+  function neTaste(e: React.KeyboardEvent, i: number) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+
+    const tjetra = fushat.current[i + 1];
+    if (tjetra) tjetra.focus();
+    else ruaj(true);
   }
 
   return (
     <div className="futja">
-      <div className="futja__rrjeti">
-        {players.map((player) => (
-          <label className="futja__njesi" key={player}>
+      <div className="futja__rrjeti" data-shume={shume || undefined}>
+        {players.map((player, i) => (
+          <div className="futja__njesi" key={player}>
             <span className="futja__emri">{player}</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              step="1"
-              placeholder="—"
-              value={vlerat[player] ?? ''}
-              onChange={(e) =>
-                caktoVlerat((v) => ({ ...v, [player]: e.target.value }))
-              }
-              aria-label={`Pikët e ${player} për raundin ${roundNumber}`}
-            />
-          </label>
+            <div className="futja__vlera">
+              <button
+                type="button"
+                className="futja__shenja"
+                aria-pressed={negative(vlerat[player])}
+                onClick={() => ndrroShenjen(player)}
+                aria-label={`Ndërro shenjën e ${player}`}
+              >
+                {negative(vlerat[player]) ? '−' : '+'}
+              </button>
+              <input
+                ref={(el) => {
+                  fushat.current[i] = el;
+                }}
+                type="text"
+                inputMode="numeric"
+                pattern="-?[0-9]*"
+                enterKeyHint={i === players.length - 1 ? 'done' : 'next'}
+                value={vlerat[player] ?? ''}
+                onChange={(e) =>
+                  caktoVlerat((v) => ({
+                    ...v,
+                    [player]: pastro(e.target.value),
+                  }))
+                }
+                onKeyDown={(e) => neTaste(e, i)}
+                aria-label={`Pikët e ${player} për raundin ${roundNumber}`}
+              />
+            </div>
+          </div>
         ))}
-      </div>
-
-      <p className="futja__shuma">
-        <span>
-          {sashenuar} nga {players.length} të shënuar
-        </span>
-        <span>
-          shuma e raundit <strong>{shuma}</strong>
-        </span>
-      </p>
-
-      <div className="veprimet">
-        <button
-          type="button"
-          className="buton buton--kryesor"
-          onClick={ruaj}
-          disabled={sashenuar === 0}
-        >
-          <Ikona emri="ruaj" />
-          {fillestare ? 'Ruaj ndryshimet' : `Ruaj raundin ${roundNumber}`}
-        </button>
-
-        <button
-          type="button"
-          className="buton"
-          aria-expanded={hapurLlogaritesi}
-          onClick={() => hapLlogaritesin((h) => !h)}
-        >
-          <Ikona emri="llogaritesi" />
-          Llogaritësi
-        </button>
-
-        {onAnulo && (
-          <button type="button" className="buton" onClick={onAnulo}>
-            <Ikona emri="anulo" />
-            Anulo
-          </button>
-        )}
       </div>
 
       {hapurLlogaritesi && (
@@ -129,15 +148,65 @@ export function FutjaERaundit({
           }}
         />
       )}
+
+      <div className="futja__fund">
+        <p className="futja__shuma">
+          <span>
+            {sashenuar} nga {players.length} të shënuar
+          </span>
+          <span>
+            shuma <strong>{shuma}</strong>
+          </span>
+        </p>
+
+        <div className="veprimet">
+          <button
+            type="button"
+            className="buton buton--kryesor"
+            onClick={() => ruaj()}
+            disabled={sashenuar === 0}
+          >
+            <Ikona emri="ruaj" />
+            {fillestare ? 'Ruaj ndryshimet' : `Ruaj raundin ${roundNumber}`}
+          </button>
+
+          <button
+            type="button"
+            className="buton"
+            aria-expanded={hapurLlogaritesi}
+            onClick={() => hapLlogaritesin((h) => !h)}
+          >
+            <Ikona emri="llogaritesi" />
+            Llogaritësi
+          </button>
+
+          {onAnulo && (
+            <button type="button" className="buton" onClick={onAnulo}>
+              <Ikona emri="anulo" />
+              Anulo
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
+
+  function ndrroShenjen(player: string) {
+    caktoVlerat((v) => ({ ...v, [player]: ndrro(v[player]) }));
+  }
 }
 
 /**
  * Llogaritësi: kush mbylli, si e mbylli, dhe çfarë i mbeti secilit në dorë.
  *
- * Dora pyetet vetëm për ata që kishin hapur — dënimi i atij që s'hapi është
- * fiks (+100 ose +200) dhe dora e tij nuk hyn fare në llogari.
+ * Nuk ka çelës „s'hapi / hapi", dhe kjo është vetë pyetja e hequr: dora e thotë.
+ * Fushë e zbrazët do të thotë që lojtari nuk hapi fare, prandaj merr dënimin
+ * fiks (+100 ose +200); çdo numër do të thotë që hapi, dhe ai numër është dora
+ * e tij. Një lojtar që ka hapur e ka mbetur me zero pikë në dorë do ta kishte
+ * mbyllur vetë raundin, prandaj zeroja nuk humb asnjë gjendje të vërtetë.
+ *
+ * Me gjashtë lojtarë kjo e pret llogaritësin përgjysmë dhe heq pesë prekje —
+ * më parë secili kërkonte një çelës para se t'i shkruhej dora.
  */
 function Llogaritesi({
   players,
@@ -148,8 +217,18 @@ function Llogaritesi({
 }) {
   const [mbyllesi, caktoMbyllesin] = useState(players[0] ?? '');
   const [lloji, caktoLlojin] = useState<LlojiMbylljes>('normal');
-  const [gjendjet, caktoGjendjet] = useState<Record<string, GjendjaLojtarit>>(
-    () => Object.fromEntries(players.map((p) => [p, { mbyllur: true, dora: 0 }])),
+  const [duart, caktoDuart] = useState<Record<string, string>>({});
+
+  const gjendjet: Record<string, GjendjaLojtarit> = useMemo(
+    () =>
+      Object.fromEntries(
+        players.map((player) => {
+          const dora = Number(duart[player] ?? '');
+          const hapi = Number.isFinite(dora) && dora > 0;
+          return [player, { mbyllur: !hapi, dora: hapi ? dora : 0 }];
+        }),
+      ),
+    [players, duart],
   );
 
   const pike = useMemo(
@@ -157,111 +236,79 @@ function Llogaritesi({
     [players, mbyllesi, lloji, gjendjet],
   );
 
-  function ndrysho(player: string, ndryshimi: Partial<GjendjaLojtarit>) {
-    caktoGjendjet((g) => ({
-      ...g,
-      [player]: { ...(g[player] ?? { mbyllur: true, dora: 0 }), ...ndryshimi },
-    }));
-  }
+  const tjeret = players.filter((player) => player !== mbyllesi);
 
   return (
     <div className="llogaritesi">
       <div className="fusha">
-        <span className="fusha__etiketa">Kush e mbylli</span>
-        <select
-          value={mbyllesi}
-          onChange={(e) => caktoMbyllesin(e.target.value)}
-          aria-label="Lojtari që mbylli raundin"
-        >
-          {players.map((player) => (
-            <option key={player} value={player}>
-              {player}
-            </option>
-          ))}
-        </select>
-      </div>
+        <span className="fusha__etiketa">Kush e mbylli, dhe si</span>
+        <div className="llogaritesi__krye">
+          <select
+            value={mbyllesi}
+            onChange={(e) => caktoMbyllesin(e.target.value)}
+            aria-label="Lojtari që mbylli raundin"
+          >
+            {players.map((player) => (
+              <option key={player} value={player}>
+                {player}
+              </option>
+            ))}
+          </select>
 
-      <div className="fusha">
-        <span className="fusha__etiketa">Si e mbylli</span>
-        <div className="celesi">
-          <button
-            type="button"
-            className="celesi__njesi"
-            aria-pressed={lloji === 'normal'}
-            onClick={() => caktoLlojin('normal')}
-          >
-            Normal · −20
-          </button>
-          <button
-            type="button"
-            className="celesi__njesi"
-            aria-pressed={lloji === 'hant'}
-            onClick={() => caktoLlojin('hant')}
-          >
-            Hant · −40
-          </button>
+          <div className="celesi">
+            <button
+              type="button"
+              className="celesi__njesi"
+              aria-pressed={lloji === 'normal'}
+              onClick={() => caktoLlojin('normal')}
+            >
+              Normal
+            </button>
+            <button
+              type="button"
+              className="celesi__njesi"
+              aria-pressed={lloji === 'hant'}
+              onClick={() => caktoLlojin('hant')}
+            >
+              Hant
+            </button>
+          </div>
         </div>
-        <p className="ndihma">
-          {lloji === 'hant'
-            ? 'Mbylli pa hedhur e pa shitur asnjë letër. Të tjerët që s’hapën marrin 200, të hapurit dorën dyfish.'
-            : 'Kishte hapur para se të mbyllte. Të tjerët që s’hapën marrin 100, të hapurit dorën një herë.'}
-        </p>
       </div>
 
-      <div className="llogaritesi__lista">
-        {players
-          .filter((player) => player !== mbyllesi)
-          .map((player) => {
-            const gjendja = gjendjet[player] ?? { mbyllur: true, dora: 0 };
+      <p className="ndihma">
+        Mbyllësi merr {lloji === 'hant' ? '−40' : '−20'}. Lëre bosh atë që s’hapi —
+        merr {lloji === 'hant' ? '200' : '100'}.
+      </p>
 
-            return (
-              <div className="llogaritesi__njesi" key={player}>
-                <span className="llogaritesi__emri">{player}</span>
-
-                <div className="llogaritesi__gjendja">
-                  <div className="celesi celesi__vogel">
-                    <button
-                      type="button"
-                      className="celesi__njesi"
-                      aria-pressed={gjendja.mbyllur}
-                      onClick={() => ndrysho(player, { mbyllur: true })}
-                    >
-                      S’hapi
-                    </button>
-                    <button
-                      type="button"
-                      className="celesi__njesi"
-                      aria-pressed={!gjendja.mbyllur}
-                      onClick={() => ndrysho(player, { mbyllur: false })}
-                    >
-                      Hapi
-                    </button>
-                  </div>
-
-                  <input
-                    className="llogaritesi__dora"
-                    type="number"
-                    inputMode="numeric"
-                    min="0"
-                    step="1"
-                    placeholder="dora"
-                    disabled={gjendja.mbyllur}
-                    value={gjendja.mbyllur ? '' : String(gjendja.dora || '')}
-                    onChange={(e) =>
-                      ndrysho(player, { dora: Number(e.target.value) || 0 })
-                    }
-                    aria-label={`Pikët në dorë të ${player}`}
-                  />
-                </div>
-
-                <p className="llogaritesi__rezultati">
-                  <span>{shpjegimi(lloji, gjendja)}</span>
-                  <span className="llogaritesi__pike">{pike[player]}</span>
-                </p>
-              </div>
-            );
-          })}
-      </div>
+      <ul className="llogaritesi__lista">
+        {tjeret.map((player) => (
+          <li className="llogaritesi__njesi" key={player}>
+            <span className="llogaritesi__emri">{player}</span>
+            <input
+              className="llogaritesi__dora"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              placeholder="s’hapi"
+              value={duart[player] ?? ''}
+              onChange={(e) =>
+                caktoDuart((d) => ({
+                  ...d,
+                  [player]: e.target.value.replace(/[^0-9]/g, ''),
+                }))
+              }
+              aria-label={`Pikët në dorë të ${player}`}
+            />
+            <span
+              className="llogaritesi__pike"
+              title={shpjegimi(lloji, gjendjet[player]!)}
+            >
+              {pike[player]}
+            </span>
+          </li>
+        ))}
+      </ul>
 
       <p className="futja__shuma">
         <span>
@@ -295,11 +342,4 @@ function nga(
       return [p, typeof v === 'number' ? String(v) : ''];
     }),
   );
-}
-
-/** Teksti i një fushe si numër, ose `null` nëse s’është shënuar ende. */
-function numri(teksti: string | undefined): number | null {
-  if (teksti === undefined || teksti.trim() === '') return null;
-  const n = Number(teksti);
-  return Number.isFinite(n) ? Math.round(n) : null;
 }

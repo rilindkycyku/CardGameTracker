@@ -2,14 +2,14 @@
 
 Numërues pikësh për **bridzhin kosovar**, varianti i xhin-ramit që luhet me 14
 letra dhe mbyllet me 51 pikë. Zëvendëson fletën e Google Sheets-it: shënon
-pikët e secilit raund dhe nxjerr vetë totalet, renditjen, grafikun dhe
-shlyerjen.
+pikët e secilit raund dhe nxjerr vetë totalet, renditjen dhe shlyerjen.
 
 Fiton **totali më i vogël**.
 
 ## Çka bën
 
-- **Grupe dhe lojtarë** — shoqëria futet një herë, radha e emrave ruhet.
+- **Grupe dhe lojtarë** — shoqëria futet një herë, e tërë me një shkrim
+  («meri, lesa, lila, rila»), dhe radha e emrave ruhet.
 - **Zgjedhje para lojës** — grupi mund të ketë gjashtë të rregullt dhe sonte të
   luajnë katër.
 - **Shtim mes lojës** — kush ulet te tavolina në raundin e pestë shtohet aty për
@@ -19,9 +19,12 @@ Fiton **totali më i vogël**.
   hant/normal.
 - **Renditja** — ngjitshëm sipas totalit, i pari është ai me më pak pikë. Kur
   nuk kanë luajtur të gjithë njësoj, shtohet kolona „raunde" dhe një shënim.
-- **Grafiku** — një vijë për lojtar, totali kumulativ raund pas raundi.
-- **Shlyerja** — matrica N×N e diferencave, `matrica[i][j] = total[i] − total[j]`.
-- **Historik sipas ditës** — një grup ka shumë lojëra, edhe dy të njëjtën ditë.
+- **Shlyerja** — matrica N×N e diferencave, `matrica[i][j] = total[i] − total[j]`,
+  me lojtarët sipas renditjes.
+- **Historik sipas ditës** — një grup ka shumë lojëra, edhe dy të njëjtën ditë,
+  secila me renditjen e vet përfundimtare aty për aty.
+- **Të përgjithshmet** — një tabelë për tërë grupin: lojëra, fitore dhe totali
+  mesatar për lojë, e llogaritur nga vetë raundet.
 - **Redaktim dhe fshirje** — çdo raund ndryshohet pas ruajtjes; gjithçka
   rillogaritet vetvetiu.
 - **Kopje rezervë** — nxjerrja dhe kthimi i tërë historikut si një skedar JSON.
@@ -52,7 +55,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 50 prova, pa framework provash
+npm test          # node --test — 68 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i.
@@ -69,15 +72,17 @@ src/
   pikezimi.ts         rregullat hant/normal — pa DOM, pa bazë
   ruajtja.ts          IndexedDB përmes `idb`
   kopja.ts            nxjerrja dhe leximi i kopjes rezervë
+  fusha.ts            teksti i fushës së pikëve dhe shenja e tij
   ngarko.ts           lexo-nga-baza si hook
   ikonat.tsx          ikonat SVG inline
   style.css           sistemi i stilit
   pamjet/             Grupet · Grupi · Loja
-  pjeset/             Renditja · Raundet · Grafiku · Shlyerja
+  pjeset/             Renditja · Raundet · Shlyerja · TabelaEPergjithshme
                       FutjaERaundit · LojtaretELojes · PanelaEKopjes
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it
+  fusha.test.mjs         futja e pikëve negative pa tastierë me minus
   pikezimi.test.mjs      rregullat — kundër raundeve të vërteta
   kopja.test.mjs         nxjerrja dhe refuzimi i skedarëve të dëmtuar
   logic.json             fleta origjinale, si burim provash

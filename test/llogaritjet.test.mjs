@@ -23,7 +23,6 @@ import {
   totalet,
   renditja,
   matricaEShlyerjes,
-  totaletKumulative,
   eshteIMbushur,
   raundiNeVijim,
   sipasRadhes,
@@ -32,7 +31,8 @@ import {
   lojeratESortuara,
   raundetELuajtura,
   pjesemarrjeEBarabarte,
-  seriteEGrafikut,
+  tabelaEPergjithshme,
+  renditjaELojes,
 } from '../src/llogaritjet.ts';
 
 const burimi = JSON.parse(
@@ -124,41 +124,6 @@ test('një qelizë e zbrazët nuk numërohet si zero e futur', () => {
   assert.equal(dala.vigi, 0);
   assert.equal(dala.meri, 21);
   assert.equal(dala.rila, 38);
-});
-
-test('totalet kumulative i kapërcejnë raundet e pashënuara', () => {
-  const grupi = burimi.groups.find((g) => g.id === 'brigj_5');
-  const rrjedha = totaletKumulative(grupi.players, raundetE(grupi));
-
-  // Fleta ka gjashtë raunde, por vetëm dy janë mbushur.
-  assert.equal(rrjedha.length, 2);
-  assert.deepEqual(rrjedha[0], {
-    roundNumber: 1,
-    totals: { lila: 148, lesa: -40, rila: 200 },
-  });
-  assert.deepEqual(rrjedha[1], {
-    roundNumber: 2,
-    totals: { lila: 155, lesa: -25, rila: 180 },
-  });
-});
-
-test('hapi i fundit i rrjedhës është totali përfundimtar', () => {
-  for (const grupi of burimi.groups) {
-    const raundet = raundetE(grupi);
-    const rrjedha = totaletKumulative(grupi.players, raundet);
-    if (rrjedha.length === 0) continue;
-
-    assert.deepEqual(
-      rrjedha.at(-1).totals,
-      totalet(grupi.players, raundet),
-      `rrjedha e ${grupi.id}`,
-    );
-  }
-});
-
-test('një grup pa asnjë pikë të futur nuk jep asnjë hap grafiku', () => {
-  const grupi = burimi.groups.find((g) => g.id === 'brigj_4_merged_teams');
-  assert.deepEqual(totaletKumulative(grupi.players, raundetE(grupi)), []);
 });
 
 test('eshteIMbushur dallon raundin e shënuar nga vendi i lirë', () => {
@@ -280,73 +245,139 @@ test('totali nuk ndryshon nga hyrja e vonë — mbetet shuma e pikëve', () => {
   assert.equal(renditja(HYRI_VONE.players, t)[0].player, 'rila');
 });
 
-test('vija e një lojtari nis nga raundi para hyrjes së tij, jo nga zeroja', () => {
-  const serite = seriteEGrafikut(HYRI_VONE.players, HYRI_VONE.rounds);
-  const rila = serite.find((s) => s.player === 'rila');
 
-  // Pa këtë, `rila` do të dukej si vijë e sheshtë mbi zero nga raundi i parë —
-  // sikur po luante dhe s'po merrte pikë.
-  assert.deepEqual(rila.pikat, [
-    { roundNumber: 2, total: 0 },
-    { roundNumber: 3, total: -20 },
+/* ── Tabela e përgjithshme e grupit ─────────────────────────────────────── */
+
+/** Tri mbrëmje të një grupi, si blloqet e njëpasnjëshme te fleta e vjetër. */
+const TRI_MBREMJE = [
+  {
+    selectedPlayers: ['lesa', 'lila', 'rila'],
+    raundet: [
+      { id: 1, gameId: 1, roundNumber: 1, scores: { lesa: -20, lila: 100, rila: 50 } },
+    ],
+  },
+  {
+    selectedPlayers: ['lesa', 'lila', 'rila'],
+    raundet: [
+      { id: 2, gameId: 2, roundNumber: 1, scores: { lesa: 100, lila: -20, rila: 60 } },
+    ],
+  },
+  {
+    selectedPlayers: ['lesa', 'lila'],
+    raundet: [
+      { id: 3, gameId: 3, roundNumber: 1, scores: { lesa: -20, lila: 40 } },
+    ],
+  },
+];
+
+test('tabela e përgjithshme mbledh lojërat, fitoret dhe mesataren', () => {
+  const tabela = tabelaEPergjithshme(TRI_MBREMJE);
+
+  assert.deepEqual(tabela, [
+    { player: 'lesa', lojera: 3, fitore: 2, totali: 60, mesatarja: 20 },
+    { player: 'lila', lojera: 3, fitore: 1, totali: 120, mesatarja: 40 },
+    { player: 'rila', lojera: 2, fitore: 0, totali: 110, mesatarja: 55 },
   ]);
 });
 
-test('vija e një lojtari mbaron te raundi i fundit ku shënoi', () => {
-  const raundet = [
-    { id: 1, gameId: 1, roundNumber: 1, scores: { a: 10, b: 20 } },
-    { id: 2, gameId: 1, roundNumber: 2, scores: { a: 30, b: 40 } },
-    { id: 3, gameId: 1, roundNumber: 3, scores: { a: 50 } },
-  ];
-  const serite = seriteEGrafikut(['a', 'b'], raundet);
+test('radha është sipas fitoreve, pastaj sipas mesatares më të vogël', () => {
+  const tabela = tabelaEPergjithshme([
+    {
+      selectedPlayers: ['a', 'b', 'c'],
+      raundet: [{ id: 1, gameId: 1, roundNumber: 1, scores: { a: -20, b: 10, c: 90 } }],
+    },
+    {
+      selectedPlayers: ['a', 'b', 'c'],
+      raundet: [{ id: 2, gameId: 2, roundNumber: 1, scores: { a: 90, b: -20, c: 10 } }],
+    },
+  ]);
 
-  assert.deepEqual(serite.find((s) => s.player === 'b').pikat, [
-    { roundNumber: 0, total: 0 },
-    { roundNumber: 1, total: 20 },
-    { roundNumber: 2, total: 60 },
+  // `a` dhe `b` kanë nga një fitore; `b` ka mesatare më të vogël, prandaj i pari.
+  assert.deepEqual(tabela.map((r) => [r.player, r.fitore, r.mesatarja]), [
+    ['b', 1, -5],
+    ['a', 1, 35],
+    ['c', 0, 50],
   ]);
 });
 
-test('lojtari i shtuar por që s’ka luajtur ende nuk ka vijë', () => {
-  const serite = seriteEGrafikut(
-    ['a', 'b'],
-    [{ id: 1, gameId: 1, roundNumber: 1, scores: { a: 10 } }],
-  );
+test('një lojë pa asnjë pikë nuk i jep fitore askujt', () => {
+  // Të gjitha totalet zero do ta bënin „fitues" të parin e listës pa u luajtur
+  // asnjë letër.
+  const tabela = tabelaEPergjithshme([
+    { selectedPlayers: ['a', 'b'], raundet: [] },
+    {
+      selectedPlayers: ['a', 'b'],
+      raundet: [{ id: 1, gameId: 1, roundNumber: 1, scores: { a: null, b: null } }],
+    },
+  ]);
 
-  assert.deepEqual(serite.find((s) => s.player === 'b').pikat, []);
+  assert.deepEqual(tabela, []);
 });
 
-test('ngjyra e serisë ndjek vendin te lista, jo radhën e vizatimit', () => {
-  // Kur një seri hiqet nga grafiku sepse është e zbrazët, të tjerat nuk guxojnë
-  // të ndërrojnë ngjyrë.
-  const serite = seriteEGrafikut(HYRI_VONE.players, HYRI_VONE.rounds);
+test('kush u shtua e nuk luajti nuk e merr atë lojë', () => {
+  const tabela = tabelaEPergjithshme([
+    {
+      selectedPlayers: ['a', 'b', 'c'],
+      raundet: [{ id: 1, gameId: 1, roundNumber: 1, scores: { a: -20, b: 30 } }],
+    },
+  ]);
 
-  assert.deepEqual(
-    serite.map((s) => [s.player, s.ngjyra]),
-    [['meri', 0], ['lesa', 1], ['rila', 2]],
-  );
+  assert.deepEqual(tabela.map((r) => r.player), ['a', 'b']);
+  // Dhe nuk e fiton dot me zero pikë, edhe pse zeroja është më e vogël se −20.
+  assert.equal(tabela[0].player, 'a');
 });
 
-test('kur luajnë të gjithë, seritë janë ato që ishin: nga raundi 0 deri në fund', () => {
-  for (const grupi of burimi.groups) {
+test('mesatarja mbetet e pandarë, që ta rrumbullakosë ekrani', () => {
+  const tabela = tabelaEPergjithshme([
+    { selectedPlayers: ['a'], raundet: [{ id: 1, gameId: 1, roundNumber: 1, scores: { a: 106 } }] },
+    { selectedPlayers: ['a'], raundet: [{ id: 2, gameId: 2, roundNumber: 1, scores: { a: 181 } }] },
+  ]);
+
+  assert.equal(tabela[0].mesatarja, 143.5);
+});
+
+test('grupi pa asnjë lojë jep tabelë të zbrazët', () => {
+  assert.deepEqual(tabelaEPergjithshme([]), []);
+});
+
+test('renditja e një loje merr vetëm ata që shënuan', () => {
+  const rend = renditjaELojes(
+    ['lesa', 'lila', 'rila'],
+    [{ id: 1, gameId: 1, roundNumber: 1, scores: { lesa: -20, lila: 100 } }],
+  );
+
+  assert.deepEqual(rend, [
+    { rank: 1, player: 'lesa', total: -20 },
+    { rank: 2, player: 'lila', total: 100 },
+  ]);
+});
+
+test('renditja e një loje të panisur është e zbrazët, jo e barabartë', () => {
+  assert.deepEqual(renditjaELojes(['a', 'b'], []), []);
+});
+
+test('renditja e lojës përputhet me atë të `logic.json`-it', () => {
+  // E njëjta llogari si brenda lojës, vetëm e thirrur nga historiku i grupit.
+  for (const grupi of ME_RENDITJE_TE_PLOTE) {
     const raundet = raundetE(grupi);
-    const rrjedha = totaletKumulative(grupi.players, raundet);
-    if (rrjedha.length === 0) continue;
-    if (!pjesemarrjeEBarabarte(grupi.players, raundet.filter((r) =>
-      grupi.players.some((p) => typeof r.scores[p] === 'number')))) continue;
-
-    for (const seria of seriteEGrafikut(grupi.players, raundet)) {
-      assert.deepEqual(
-        seria.pikat,
-        [
-          { roundNumber: 0, total: 0 },
-          ...rrjedha.map((h) => ({
-            roundNumber: h.roundNumber,
-            total: h.totals[seria.player],
-          })),
-        ],
-        `${grupi.id}: seria e ${seria.player}`,
-      );
+    if (!raundet.some((r) => grupi.players.some((p) => typeof r.scores[p] === 'number'))) {
+      continue;
     }
+
+    assert.deepEqual(
+      renditjaELojes(grupi.players, raundet),
+      grupi.standings,
+      `renditja e ${grupi.id}`,
+    );
   }
+});
+
+test('një lojë e hapur e paluajtur nuk renditet, edhe pse fleta e rendit', () => {
+  // `brigj_4_merged_teams` s'ka asnjë pikë, por `logic.json` i jep të dyja
+  // skuadrat me 0 dhe „meri + mil" të parë — vend i fituar nga radha e listës,
+  // jo nga loja. Këtu ajo lojë thjesht nuk ka renditje.
+  const grupi = burimi.groups.find((g) => g.id === 'brigj_4_merged_teams');
+
+  assert.deepEqual(grupi.standings.map((r) => r.total), [0, 0]);
+  assert.deepEqual(renditjaELojes(grupi.players, raundetE(grupi)), []);
 });

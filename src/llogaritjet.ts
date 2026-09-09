@@ -81,42 +81,6 @@ export function matricaEShlyerjes(
   return matrica;
 }
 
-/** Një pikë e grafikut: totali i secilit lojtar pas atij raundi. */
-export type HapiKumulativ = {
-  roundNumber: number;
-  totals: Record<string, number>;
-};
-
-/**
- * Totalet e mbledhura raund pas raundi, për grafikun.
- *
- * Merren vetëm raundet që kanë të paktën një pikë të futur: raundet e zbrazëta
- * në fund të fletës janë vende të lira për t'u mbushur, jo raunde me zero.
- */
-export function totaletKumulative(
-  players: string[],
-  rounds: Raundi[],
-): HapiKumulativ[] {
-  const rrjedha: HapiKumulativ[] = [];
-  const running: Record<string, number> = {};
-  for (const player of players) running[player] = 0;
-
-  for (const raundi of sipasRadhes(rounds)) {
-    if (!eshteIMbushur(players, raundi)) continue;
-
-    for (const player of players) {
-      const pike = raundi.scores[player];
-      if (typeof pike === 'number' && Number.isFinite(pike)) {
-        running[player] = (running[player] ?? 0) + pike;
-      }
-    }
-
-    rrjedha.push({ roundNumber: raundi.roundNumber, totals: { ...running } });
-  }
-
-  return rrjedha;
-}
-
 /** A ka ky raund së paku një pikë të futur për ndonjë prej lojtarëve? */
 export function eshteIMbushur(players: string[], raundi: Raundi): boolean {
   return players.some((player) => typeof raundi.scores[player] === 'number');
@@ -207,60 +171,97 @@ export function pjesemarrjeEBarabarte(
   return vlerat.every((v) => v === vlerat[0]);
 }
 
-/** Një vijë e grafikut: pikat e një lojtari, nga hyrja e tij deri te dalja. */
-export type Seria = {
+/* ── Tabela e përgjithshme e grupit ─────────────────────────────────────── */
+
+/** Një rresht i tabelës së përgjithshme: një lojtar, mbi të gjitha lojërat. */
+export type RreshtiPergjithshem = {
   player: string;
-  /** Vendi i lojtarit te lista — mban të njëjtën ngjyrë edhe kur seritë hiqen. */
-  ngjyra: number;
-  pikat: { roundNumber: number; total: number }[];
+  /** Sa lojëra ka luajtur — jo sa herë është shënuar te lista. */
+  lojera: number;
+  /** Në sa prej tyre ka dalë i pari. */
+  fitore: number;
+  /** Shuma e totaleve të të gjitha lojërave. */
+  totali: number;
+  /** Totali mesatar për lojë. I pandarë, që ta rrumbullakosë vetë ekrani. */
+  mesatarja: number;
 };
 
 /**
- * Seritë e grafikut, secila e prerë te raundet që lojtari i luajti vërtet.
+ * Përmbledhja e një grupi mbi të gjitha lojërat e tij.
  *
- * Një lojtar që hyri te raundi i pestë nuk duhet të ketë vijë të sheshtë mbi
- * zeron nga raundi i parë: aty ai nuk po humbte, aty ai nuk ishte fare. Vija e
- * tij nis nga raundi para të parit të vetin, me total zero, që të ketë prej nga
- * të ngjitet — dhe mbaron te raundi i fundit ku shënoi, që dikush i larguar në
- * mes të mos duket sikur qëndroi deri në fund.
+ * Fleta e vjetër e kishte një bllok renditjeje për çdo mbrëmje dhe asgjë që
+ * t'i lidhte; kush kishte fituar më shumë mbahej mend me gojë. Kjo është ajo
+ * llogari, e bërë nga vetë raundet.
  *
- * Për lojën e zakonshme, ku të gjithë luajnë çdo raund, kjo jep pikërisht atë
- * që jepte më parë: nga raundi 0 me zero, deri te i fundit.
+ * Dy kufij e mbajnë të ndershme:
+ *
+ *   • Numërohen vetëm lojërat me së paku një pikë të shënuar. Një lojë e hapur
+ *     e pa nisur ka të gjitha totalet zero, të gjithë të barabartë — dhe do t'i
+ *     jepte fitoren të parit të listës pa u luajtur asnjë letër.
+ *
+ *   • Brenda një loje merren vetëm ata që shënuan. Kush u shtua te tavolina e
+ *     u ngrit pa luajtur nuk e ka atë lojë as te „lojëra", as te mesatarja —
+ *     dhe nuk e fiton dot atë me zero pikë.
+ *
+ * Radha: më shumë fitore i pari, dhe kur fitoret janë të barabarta, mesatarja
+ * më e vogël — sepse fiton totali më i vogël. Barazimi i plotë e mban radhën e
+ * paraqitjes, si te `renditja`.
  */
-export function seriteEGrafikut(players: string[], rounds: Raundi[]): Seria[] {
-  const rrjedha = totaletKumulative(players, rounds);
-  const luajtur = sipasRadhes(rounds).filter((r) => eshteIMbushur(players, r));
+export function tabelaEPergjithshme(
+  lojerat: { selectedPlayers: string[]; raundet: Raundi[] }[],
+): RreshtiPergjithshem[] {
+  const mbledhur = new Map<
+    string,
+    { lojera: number; fitore: number; totali: number }
+  >();
 
-  return players.map((player, ngjyra) => {
-    const iPari = luajtur.findIndex(
-      (r) => typeof r.scores[player] === 'number',
-    );
+  for (const loja of lojerat) {
+    const luajtur = raundetELuajtura(loja.selectedPlayers, loja.raundet);
+    const shenuan = loja.selectedPlayers.filter((p) => (luajtur[p] ?? 0) > 0);
+    if (shenuan.length === 0) continue;
 
-    if (iPari === -1) return { player, ngjyra, pikat: [] };
+    const totalat = totalet(shenuan, loja.raundet);
+    const fituesi = renditja(shenuan, totalat)[0]?.player;
 
-    let iFundit = iPari;
-    for (let i = luajtur.length - 1; i > iPari; i--) {
-      if (typeof luajtur[i]!.scores[player] === 'number') {
-        iFundit = i;
-        break;
-      }
+    for (const player of shenuan) {
+      const rreshti = mbledhur.get(player) ?? {
+        lojera: 0,
+        fitore: 0,
+        totali: 0,
+      };
+
+      rreshti.lojera += 1;
+      rreshti.totali += totalat[player] ?? 0;
+      if (player === fituesi) rreshti.fitore += 1;
+
+      mbledhur.set(player, rreshti);
     }
+  }
 
-    // Pika e nisjes: raundi para të parit të vetin. Kur lojtari ishte aty që nga
-    // fillimi, ai raund është „0" — nisja e përbashkët e të gjithëve.
-    const nisja = {
-      roundNumber: iPari === 0 ? 0 : rrjedha[iPari - 1]!.roundNumber,
-      total: 0,
-    };
+  return [...mbledhur.entries()]
+    .map(([player, r]) => ({
+      player,
+      lojera: r.lojera,
+      fitore: r.fitore,
+      totali: r.totali,
+      mesatarja: r.totali / r.lojera,
+    }))
+    .sort((a, b) => b.fitore - a.fitore || a.mesatarja - b.mesatarja);
+}
 
-    const pikat = [nisja];
-    for (let i = iPari; i <= iFundit; i++) {
-      pikat.push({
-        roundNumber: rrjedha[i]!.roundNumber,
-        total: rrjedha[i]!.totals[player] ?? 0,
-      });
-    }
+/**
+ * Renditja përfundimtare e një loje, për ta parë pa e hapur atë.
+ *
+ * Merren vetëm lojtarët që shënuan — njësoj si te tabela e përgjithshme, dhe
+ * për të njëjtën arsye.
+ */
+export function renditjaELojes(
+  selectedPlayers: string[],
+  raundet: Raundi[],
+): RreshtiRenditjes[] {
+  const luajtur = raundetELuajtura(selectedPlayers, raundet);
+  const shenuan = selectedPlayers.filter((p) => (luajtur[p] ?? 0) > 0);
+  if (shenuan.length === 0) return [];
 
-    return { player, ngjyra, pikat };
-  });
+  return renditja(shenuan, totalet(shenuan, raundet));
 }

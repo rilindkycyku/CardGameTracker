@@ -11,9 +11,16 @@
  * listën e sotme të grupit.
  */
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
-import { dataShqip, lojeratESortuara, sot } from '../llogaritjet.ts';
+import {
+  dataShqip,
+  lojeratESortuara,
+  renditjaELojes,
+  sot,
+  tabelaEPergjithshme,
+} from '../llogaritjet.ts';
+import { emratERinj } from '../fusha.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import {
@@ -21,20 +28,32 @@ import {
   fshiLoje,
   grupi as lexoGrupin,
   lojerat as lexoLojerat,
-  numriIRaundeve,
+  raundetELojerave,
   ruajGrup,
   shtoLoje,
 } from '../ruajtja.ts';
+import { TabelaEPergjithshme } from '../pjeset/TabelaEPergjithshme.tsx';
 import { shko } from '../rruga.ts';
-import type { Grupi as TGrupi, Loja } from '../tipet.ts';
+import type {
+  Grupi as TGrupi,
+  Loja,
+  Raundi,
+  RreshtiRenditjes,
+} from '../tipet.ts';
 
 export function Grupi({ id }: { id: number }) {
   const { te_dhenat, rifresko } = useNgarko(async () => {
     const grupi = await lexoGrupin(id);
-    if (!grupi) return { grupi: null, lojerat: [] as Loja[], raunde: {} };
+    if (!grupi) {
+      return {
+        grupi: null,
+        lojerat: [] as Loja[],
+        raunde: {} as Record<number, Raundi[]>,
+      };
+    }
 
     const lista = await lexoLojerat(id);
-    const raunde = await numriIRaundeve(lista.map((l) => l.id));
+    const raunde = await raundetELojerave(lista.map((l) => l.id));
 
     return { grupi, lojerat: lojeratESortuara(lista), raunde };
   }, [id]);
@@ -51,6 +70,13 @@ export function Grupi({ id }: { id: number }) {
   }
 
   const { grupi, lojerat, raunde } = te_dhenat;
+
+  const pergjithshmet = tabelaEPergjithshme(
+    lojerat.map((loja) => ({
+      selectedPlayers: loja.selectedPlayers,
+      raundet: raunde[loja.id] ?? [],
+    })),
+  );
 
   if (!grupi) {
     return (
@@ -125,6 +151,7 @@ export function Grupi({ id }: { id: number }) {
       {hapurLojen && (
         <ZgjedhjaELojtareve
           grupi={grupi}
+          mefundit={lojerat[0]?.selectedPlayers}
           onAnulo={() => hapLojen(false)}
           onNis={async (date, zgjedhur) => {
             const idELojes = await shtoLoje(grupi.id, date, zgjedhur);
@@ -132,6 +159,13 @@ export function Grupi({ id }: { id: number }) {
           }}
         />
       )}
+
+      <TabelaEPergjithshme
+        rreshtat={pergjithshmet}
+        lojera={
+          lojerat.filter((loja) => (raunde[loja.id] ?? []).length > 0).length
+        }
+      />
 
       <section>
         <h2 className="titull-seksioni">
@@ -159,9 +193,10 @@ export function Grupi({ id }: { id: number }) {
                   <span className="njesi__krye">
                     <span className="njesi__emri">{dataShqip(loja.date)}</span>
                     <span className="njesi__meta">
-                      {loja.selectedPlayers.join(', ')} ·{' '}
-                      {raunde[loja.id] ?? 0}{' '}
-                      {(raunde[loja.id] ?? 0) === 1 ? 'raund' : 'raunde'}
+                      {(raunde[loja.id] ?? []).length}{' '}
+                      {(raunde[loja.id] ?? []).length === 1 ? 'raund' : 'raunde'}
+                      {' · '}
+                      {loja.selectedPlayers.length} lojtarë
                     </span>
                   </span>
                   <span className="njesi__veprimet">
@@ -175,7 +210,7 @@ export function Grupi({ id }: { id: number }) {
                         e.stopPropagation();
                         if (
                           window.confirm(
-                            `Të fshihet loja e ${dataShqip(loja.date)} me ${raunde[loja.id] ?? 0} raunde?`,
+                            `Të fshihet loja e ${dataShqip(loja.date)} me ${(raunde[loja.id] ?? []).length} raunde?`,
                           )
                         ) {
                           await fshiLoje(loja.id);
@@ -190,6 +225,13 @@ export function Grupi({ id }: { id: number }) {
                     </button>
                   </span>
                 </a>
+
+                <RenditjaEShkurter
+                  rreshtat={renditjaELojes(
+                    loja.selectedPlayers,
+                    raunde[loja.id] ?? [],
+                  )}
+                />
               </li>
             ))}
           </ul>
@@ -239,6 +281,32 @@ export function Grupi({ id }: { id: number }) {
 }
 
 /**
+ * Renditja përfundimtare e një mbrëmjeje, brenda historikut.
+ *
+ * Blloku i shkurtër i fletës së vjetër: vend, emër, total. Rri jashtë lidhjes
+ * së njësisë, sepse një listë brenda një `<a>`-je do të bënte tërë tabelën një
+ * cak të vetëm klikimi.
+ */
+function RenditjaEShkurter({ rreshtat }: { rreshtat: RreshtiRenditjes[] }) {
+  if (rreshtat.length === 0) return null;
+
+  return (
+    <ol className="renditja-shkurter">
+      {rreshtat.map((rreshti) => (
+        <li
+          key={rreshti.player}
+          className={rreshti.rank === 1 ? 'renditja-shkurter--pare' : undefined}
+        >
+          <span className="renditja-shkurter__vendi">{rreshti.rank}</span>
+          <span className="renditja-shkurter__emri">{rreshti.player}</span>
+          <span className="renditja-shkurter__totali">{rreshti.total}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/**
  * Zgjedhja e lojtarëve para se të nisë loja.
  *
  * Grupi mund të ketë gjashtë të rregullt dhe sonte të luajnë katër. Numri mbi
@@ -246,14 +314,26 @@ export function Grupi({ id }: { id: number }) {
  */
 function ZgjedhjaELojtareve({
   grupi,
+  mefundit,
   onNis,
   onAnulo,
 }: {
   grupi: TGrupi;
+  /** Kush luajti herën e fundit — nisja e zgjedhjes. */
+  mefundit?: string[];
   onNis: (date: string, zgjedhur: string[]) => void;
   onAnulo: () => void;
 }) {
-  const [zgjedhur, caktoZgjedhur] = useState<string[]>(grupi.playerNames);
+  // Shoqëria është zakonisht e njëjta nga një mbrëmje te tjetra, prandaj
+  // zgjedhja niset nga lojtarët e lojës së fundit e jo nga tërë lista: më
+  // shpesh nuk ka çka të preket fare. Kush u hoq nga grupi ndërkohë bie jashtë,
+  // dhe një grup pa lojëra ende i merr të gjithë.
+  const [zgjedhur, caktoZgjedhur] = useState<string[]>(() => {
+    const meparshmit = (mefundit ?? []).filter((emri) =>
+      grupi.playerNames.includes(emri),
+    );
+    return meparshmit.length >= 2 ? meparshmit : grupi.playerNames;
+  });
   const [date, caktoDaten] = useState(sot());
 
   function ndrysho(lojtari: string) {
@@ -301,7 +381,9 @@ function ZgjedhjaELojtareve({
         </label>
 
         <p className="ndihma">
-          Numri tregon radhën e kolonave. Duhen së paku dy lojtarë.
+          {mefundit && mefundit.length >= 2
+            ? 'Nisur nga lojtarët e lojës së fundit. Numri tregon radhën e kolonave.'
+            : 'Numri tregon radhën e kolonave. Duhen së paku dy lojtarë.'}
         </p>
 
         <div className="veprimet">
@@ -333,16 +415,18 @@ function ListaELojtareve({
   onRuajtur: () => void;
 }) {
   const [iRi, caktoTeRin] = useState('');
+  const fusha = useRef<HTMLInputElement>(null);
 
   async function shto() {
-    const pastruar = iRi.trim();
-    if (!pastruar || grupi.playerNames.includes(pastruar)) {
-      caktoTeRin('');
-      return;
-    }
-
-    await ruajGrup({ ...grupi, playerNames: [...grupi.playerNames, pastruar] });
+    const rinjte = emratERinj(iRi, grupi.playerNames);
     caktoTeRin('');
+    fusha.current?.focus();
+    if (rinjte.length === 0) return;
+
+    await ruajGrup({
+      ...grupi,
+      playerNames: [...grupi.playerNames, ...rinjte],
+    });
     onRuajtur();
   }
 
@@ -407,9 +491,10 @@ function ListaELojtareve({
       <div className="rreshti-fushave" data-hapesire="lart">
         <div className="fusha">
           <input
+            ref={fusha}
             type="text"
             value={iRi}
-            placeholder="lojtar i ri"
+            placeholder="lojtar i ri, ose disa me presje"
             onChange={(e) => caktoTeRin(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -417,7 +502,7 @@ function ListaELojtareve({
                 void shto();
               }
             }}
-            aria-label="Emri i lojtarit të ri"
+            aria-label="Emrat e lojtarëve të rinj"
           />
         </div>
         <button

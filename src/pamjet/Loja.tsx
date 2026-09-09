@@ -1,32 +1,31 @@
 /**
- * Ekrani i një loje — futja e raundit, renditja, grafiku dhe shlyerja.
+ * Ekrani i një loje — futja e raundit, renditja, raundet dhe shlyerja.
  *
  * Renditja e blloqeve ndjek atë që pyetet më shpesh gjatë lojës: para së
  * gjithash futja e raundit të radhës, sepse ajo bëhet dhjetëra herë në mbrëmje;
- * pastaj kush prin; pastaj tabela e plotë; grafiku dhe shlyerja në fund, sepse
- * ato shihen kur mbaron loja.
+ * pastaj kush prin; pastaj tabela e plotë; shlyerja në fund, sepse ajo shihet
+ * kur mbaron loja.
  *
  * Asnjë total nuk ruhet. Sa herë ndryshon një raund, gjithçka rillogaritet nga
  * raundet — prandaj redaktimi i raundit të tretë në raundin e dhjetë e rregullon
- * vetvetiu edhe renditjen, edhe grafikun, edhe matricën.
+ * vetvetiu edhe renditjen, edhe matricën.
  */
 
 import { useState } from 'react';
 
 import {
   dataShqip,
+  eshteIMbushur,
   matricaEShlyerjes,
   pjesemarrjeEBarabarte,
   raundetELuajtura,
   raundiNeVijim,
   renditja,
-  seriteEGrafikut,
   totalet,
 } from '../llogaritjet.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import { FutjaERaundit } from '../pjeset/FutjaERaundit.tsx';
-import { Grafiku } from '../pjeset/Grafiku.tsx';
 import { LojtaretELojes } from '../pjeset/LojtaretELojes.tsx';
 import { Raundet } from '../pjeset/Raundet.tsx';
 import { Renditja } from '../pjeset/Renditja.tsx';
@@ -87,7 +86,6 @@ export function Loja({ id }: { id: number }) {
   const totalat = totalet(players, raundet);
   const rreshtat = renditja(players, totalat);
   const matrica = matricaEShlyerjes(players, totalat);
-  const serite = seriteEGrafikut(players, raundet);
   const luajtur = raundetELuajtura(players, raundet);
   const iRadhes = raundiNeVijim(raundet);
 
@@ -96,7 +94,7 @@ export function Loja({ id }: { id: number }) {
   // pjesëmarrje e pabarabartë.
   const barabarte = pjesemarrjeEBarabarte(
     players,
-    raundet.filter((r) => players.some((p) => typeof r.scores[p] === 'number')),
+    raundet.filter((r) => eshteIMbushur(players, r)),
   );
 
   const raundiQeRedaktohet =
@@ -114,14 +112,29 @@ export function Loja({ id }: { id: number }) {
     rifresko();
   }
 
-  async function shtoLojtar(emri: string, iRiPerGrupin: boolean) {
-    if (!loja || players.includes(emri)) return;
+  /**
+   * Shton një ose disa lojtarë te loja, dhe te grupi ata që s'i njihte.
+   *
+   * Të gjithë me një shkrim të vetëm: një shkrim për secilin do të nisej nga e
+   * njëjta listë e vjetër dhe do të linte vetëm të fundit.
+   */
+  async function shtoLojtar(emrat: string[]) {
+    if (!loja) return;
 
-    if (iRiPerGrupin && grupi) {
-      await ruajGrup({ ...grupi, playerNames: [...grupi.playerNames, emri] });
+    const rinjte = emrat.filter((emri) => !players.includes(emri));
+    if (rinjte.length === 0) return;
+
+    if (grupi) {
+      const pagrup = rinjte.filter((emri) => !grupi.playerNames.includes(emri));
+      if (pagrup.length > 0) {
+        await ruajGrup({
+          ...grupi,
+          playerNames: [...grupi.playerNames, ...pagrup],
+        });
+      }
     }
 
-    await ruajLoje({ ...loja, selectedPlayers: [...players, emri] });
+    await ruajLoje({ ...loja, selectedPlayers: [...players, ...rinjte] });
     rifresko();
   }
 
@@ -214,8 +227,8 @@ export function Loja({ id }: { id: number }) {
         <div className="zbrazet">
           <p className="zbrazet__titull">Ende asnjë raund</p>
           <p>
-            Shëno pikët e raundit të parë më lart. Renditja, grafiku dhe
-            shlyerja dalin vetë sapo të ketë numra.
+            Shëno pikët e raundit të parë më lart. Renditja dhe shlyerja dalin
+            vetë sapo të ketë numra.
           </p>
         </div>
       ) : (
@@ -235,9 +248,10 @@ export function Loja({ id }: { id: number }) {
             onFshi={fshi}
           />
 
-          <Grafiku serite={serite} />
-
-          <Shlyerja players={players} matrica={matrica} />
+          <Shlyerja
+            players={rreshtat.map((rreshti) => rreshti.player)}
+            matrica={matrica}
+          />
         </>
       )}
     </div>

@@ -6,8 +6,9 @@
  * telefon para çdo loje do të ishte pengesa që e lë aplikacionin pa përdorur.
  */
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
+import { emratERinj } from '../fusha.ts';
 import { Ikona, ShenjaEFaqes, Zemra } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import { PanelaEKopjes } from '../pjeset/PanelaEKopjes.tsx';
@@ -135,15 +136,15 @@ function FormaEGrupit({
   const [emri, caktoEmrin] = useState('');
   const [lojtaret, caktoLojtaret] = useState<string[]>([]);
   const [iRi, caktoTeRin] = useState('');
+  const fusha = useRef<HTMLInputElement>(null);
 
+  /** Pranon një emër ose të gjithë njëherësh: «meri, lesa, lila, rila». */
   function shtoLojtarin() {
-    const pastruar = iRi.trim();
-    if (!pastruar || lojtaret.includes(pastruar)) {
-      caktoTeRin('');
-      return;
-    }
-    caktoLojtaret((l) => [...l, pastruar]);
+    const rinjte = emratERinj(iRi, lojtaret);
     caktoTeRin('');
+    // Fokusi mbetet te fusha, që emri tjetër të shkruhet pa u prekur ekrani.
+    fusha.current?.focus();
+    if (rinjte.length > 0) caktoLojtaret((l) => [...l, ...rinjte]);
   }
 
   async function ruaj() {
@@ -178,9 +179,10 @@ function FormaEGrupit({
           <div className="rreshti-fushave">
             <div className="fusha">
               <input
+                ref={fusha}
                 type="text"
                 value={iRi}
-                placeholder="emri i lojtarit"
+                placeholder="meri, lesa, lila…"
                 onChange={(e) => caktoTeRin(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -188,7 +190,7 @@ function FormaEGrupit({
                     shtoLojtarin();
                   }
                 }}
-                aria-label="Emri i lojtarit të ri"
+                aria-label="Emrat e lojtarëve"
               />
             </div>
             <button
@@ -202,7 +204,8 @@ function FormaEGrupit({
             </button>
           </div>
           <p className="ndihma">
-            Radha ruhet — kështu ulen rreth tavolinës. Duhen së paku dy.
+            Shkruaji të gjithë njëherësh, të ndarë me presje. Radha ruhet —
+            kështu ulen rreth tavolinës. Duhen së paku dy.
           </p>
         </div>
 
