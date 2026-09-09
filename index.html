@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="sq">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- `viewport-fit=cover` bashkë me `env(safe-area-inset-*)` te CSS-i, që
+         faqja e instaluar në iPhone të mos hyjë nën qoshet e rrumbullakuara. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#047857" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#080f1a" media="(prefers-color-scheme: dark)" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2310b981'/%3E%3Cstop offset='100%25' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cg fill='white'%3E%3Crect x='7' y='8' width='9' height='14' rx='2' transform='rotate(-12 11.5 15)'/%3E%3Crect x='15' y='10' width='9' height='14' rx='2' transform='rotate(9 19.5 17)'/%3E%3C/g%3E%3C/svg%3E"
+    />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Bridzh" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Bridzh" />
+
+    <title>Bridzh — pikët e mbrëmjes</title>
+    <meta
+      name="description"
+      content="Numërues pikësh për bridzhin kosovar: raundet, totalet, renditja dhe shlyerja. Punon pa internet, të dhënat rrinë në telefon."
+    />
+    <!-- Aplikacion personal me të dhëna vetëm lokale: s'ka çka të indeksohet. -->
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
