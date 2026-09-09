@@ -170,3 +170,98 @@ export function pjesemarrjeEBarabarte(
 
   return vlerat.every((v) => v === vlerat[0]);
 }
+
+/* ── Tabela e përgjithshme e grupit ─────────────────────────────────────── */
+
+/** Një rresht i tabelës së përgjithshme: një lojtar, mbi të gjitha lojërat. */
+export type RreshtiPergjithshem = {
+  player: string;
+  /** Sa lojëra ka luajtur — jo sa herë është shënuar te lista. */
+  lojera: number;
+  /** Në sa prej tyre ka dalë i pari. */
+  fitore: number;
+  /** Shuma e totaleve të të gjitha lojërave. */
+  totali: number;
+  /** Totali mesatar për lojë. I pandarë, që ta rrumbullakosë vetë ekrani. */
+  mesatarja: number;
+};
+
+/**
+ * Përmbledhja e një grupi mbi të gjitha lojërat e tij.
+ *
+ * Fleta e vjetër e kishte një bllok renditjeje për çdo mbrëmje dhe asgjë që
+ * t'i lidhte; kush kishte fituar më shumë mbahej mend me gojë. Kjo është ajo
+ * llogari, e bërë nga vetë raundet.
+ *
+ * Dy kufij e mbajnë të ndershme:
+ *
+ *   • Numërohen vetëm lojërat me së paku një pikë të shënuar. Një lojë e hapur
+ *     e pa nisur ka të gjitha totalet zero, të gjithë të barabartë — dhe do t'i
+ *     jepte fitoren të parit të listës pa u luajtur asnjë letër.
+ *
+ *   • Brenda një loje merren vetëm ata që shënuan. Kush u shtua te tavolina e
+ *     u ngrit pa luajtur nuk e ka atë lojë as te „lojëra", as te mesatarja —
+ *     dhe nuk e fiton dot atë me zero pikë.
+ *
+ * Radha: më shumë fitore i pari, dhe kur fitoret janë të barabarta, mesatarja
+ * më e vogël — sepse fiton totali më i vogël. Barazimi i plotë e mban radhën e
+ * paraqitjes, si te `renditja`.
+ */
+export function tabelaEPergjithshme(
+  lojerat: { selectedPlayers: string[]; raundet: Raundi[] }[],
+): RreshtiPergjithshem[] {
+  const mbledhur = new Map<
+    string,
+    { lojera: number; fitore: number; totali: number }
+  >();
+
+  for (const loja of lojerat) {
+    const luajtur = raundetELuajtura(loja.selectedPlayers, loja.raundet);
+    const shenuan = loja.selectedPlayers.filter((p) => (luajtur[p] ?? 0) > 0);
+    if (shenuan.length === 0) continue;
+
+    const totalat = totalet(shenuan, loja.raundet);
+    const fituesi = renditja(shenuan, totalat)[0]?.player;
+
+    for (const player of shenuan) {
+      const rreshti = mbledhur.get(player) ?? {
+        lojera: 0,
+        fitore: 0,
+        totali: 0,
+      };
+
+      rreshti.lojera += 1;
+      rreshti.totali += totalat[player] ?? 0;
+      if (player === fituesi) rreshti.fitore += 1;
+
+      mbledhur.set(player, rreshti);
+    }
+  }
+
+  return [...mbledhur.entries()]
+    .map(([player, r]) => ({
+      player,
+      lojera: r.lojera,
+      fitore: r.fitore,
+      totali: r.totali,
+      mesatarja: r.totali / r.lojera,
+    }))
+    .sort((a, b) => b.fitore - a.fitore || a.mesatarja - b.mesatarja);
+}
+
+/**
+ * Renditja përfundimtare e një loje, për ta parë pa e hapur atë.
+ *
+ * Merren vetëm lojtarët që shënuan — njësoj si te tabela e përgjithshme, dhe
+ * për të njëjtën arsye.
+ */
+export function renditjaELojes(
+  selectedPlayers: string[],
+  raundet: Raundi[],
+): RreshtiRenditjes[] {
+  const luajtur = raundetELuajtura(selectedPlayers, raundet);
+  const shenuan = selectedPlayers.filter((p) => (luajtur[p] ?? 0) > 0);
+  if (shenuan.length === 0) return [];
+
+  return renditja(shenuan, totalet(shenuan, raundet));
+}

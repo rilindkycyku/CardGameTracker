@@ -31,6 +31,8 @@ import {
   lojeratESortuara,
   raundetELuajtura,
   pjesemarrjeEBarabarte,
+  tabelaEPergjithshme,
+  renditjaELojes,
 } from '../src/llogaritjet.ts';
 
 const burimi = JSON.parse(
@@ -243,3 +245,139 @@ test('totali nuk ndryshon nga hyrja e vonë — mbetet shuma e pikëve', () => {
   assert.equal(renditja(HYRI_VONE.players, t)[0].player, 'rila');
 });
 
+
+/* ── Tabela e përgjithshme e grupit ─────────────────────────────────────── */
+
+/** Tri mbrëmje të një grupi, si blloqet e njëpasnjëshme te fleta e vjetër. */
+const TRI_MBREMJE = [
+  {
+    selectedPlayers: ['lesa', 'lila', 'rila'],
+    raundet: [
+      { id: 1, gameId: 1, roundNumber: 1, scores: { lesa: -20, lila: 100, rila: 50 } },
+    ],
+  },
+  {
+    selectedPlayers: ['lesa', 'lila', 'rila'],
+    raundet: [
+      { id: 2, gameId: 2, roundNumber: 1, scores: { lesa: 100, lila: -20, rila: 60 } },
+    ],
+  },
+  {
+    selectedPlayers: ['lesa', 'lila'],
+    raundet: [
+      { id: 3, gameId: 3, roundNumber: 1, scores: { lesa: -20, lila: 40 } },
+    ],
+  },
+];
+
+test('tabela e përgjithshme mbledh lojërat, fitoret dhe mesataren', () => {
+  const tabela = tabelaEPergjithshme(TRI_MBREMJE);
+
+  assert.deepEqual(tabela, [
+    { player: 'lesa', lojera: 3, fitore: 2, totali: 60, mesatarja: 20 },
+    { player: 'lila', lojera: 3, fitore: 1, totali: 120, mesatarja: 40 },
+    { player: 'rila', lojera: 2, fitore: 0, totali: 110, mesatarja: 55 },
+  ]);
+});
+
+test('radha është sipas fitoreve, pastaj sipas mesatares më të vogël', () => {
+  const tabela = tabelaEPergjithshme([
+    {
+      selectedPlayers: ['a', 'b', 'c'],
+      raundet: [{ id: 1, gameId: 1, roundNumber: 1, scores: { a: -20, b: 10, c: 90 } }],
+    },
+    {
+      selectedPlayers: ['a', 'b', 'c'],
+      raundet: [{ id: 2, gameId: 2, roundNumber: 1, scores: { a: 90, b: -20, c: 10 } }],
+    },
+  ]);
+
+  // `a` dhe `b` kanë nga një fitore; `b` ka mesatare më të vogël, prandaj i pari.
+  assert.deepEqual(tabela.map((r) => [r.player, r.fitore, r.mesatarja]), [
+    ['b', 1, -5],
+    ['a', 1, 35],
+    ['c', 0, 50],
+  ]);
+});
+
+test('një lojë pa asnjë pikë nuk i jep fitore askujt', () => {
+  // Të gjitha totalet zero do ta bënin „fitues" të parin e listës pa u luajtur
+  // asnjë letër.
+  const tabela = tabelaEPergjithshme([
+    { selectedPlayers: ['a', 'b'], raundet: [] },
+    {
+      selectedPlayers: ['a', 'b'],
+      raundet: [{ id: 1, gameId: 1, roundNumber: 1, scores: { a: null, b: null } }],
+    },
+  ]);
+
+  assert.deepEqual(tabela, []);
+});
+
+test('kush u shtua e nuk luajti nuk e merr atë lojë', () => {
+  const tabela = tabelaEPergjithshme([
+    {
+      selectedPlayers: ['a', 'b', 'c'],
+      raundet: [{ id: 1, gameId: 1, roundNumber: 1, scores: { a: -20, b: 30 } }],
+    },
+  ]);
+
+  assert.deepEqual(tabela.map((r) => r.player), ['a', 'b']);
+  // Dhe nuk e fiton dot me zero pikë, edhe pse zeroja është më e vogël se −20.
+  assert.equal(tabela[0].player, 'a');
+});
+
+test('mesatarja mbetet e pandarë, që ta rrumbullakosë ekrani', () => {
+  const tabela = tabelaEPergjithshme([
+    { selectedPlayers: ['a'], raundet: [{ id: 1, gameId: 1, roundNumber: 1, scores: { a: 106 } }] },
+    { selectedPlayers: ['a'], raundet: [{ id: 2, gameId: 2, roundNumber: 1, scores: { a: 181 } }] },
+  ]);
+
+  assert.equal(tabela[0].mesatarja, 143.5);
+});
+
+test('grupi pa asnjë lojë jep tabelë të zbrazët', () => {
+  assert.deepEqual(tabelaEPergjithshme([]), []);
+});
+
+test('renditja e një loje merr vetëm ata që shënuan', () => {
+  const rend = renditjaELojes(
+    ['lesa', 'lila', 'rila'],
+    [{ id: 1, gameId: 1, roundNumber: 1, scores: { lesa: -20, lila: 100 } }],
+  );
+
+  assert.deepEqual(rend, [
+    { rank: 1, player: 'lesa', total: -20 },
+    { rank: 2, player: 'lila', total: 100 },
+  ]);
+});
+
+test('renditja e një loje të panisur është e zbrazët, jo e barabartë', () => {
+  assert.deepEqual(renditjaELojes(['a', 'b'], []), []);
+});
+
+test('renditja e lojës përputhet me atë të `logic.json`-it', () => {
+  // E njëjta llogari si brenda lojës, vetëm e thirrur nga historiku i grupit.
+  for (const grupi of ME_RENDITJE_TE_PLOTE) {
+    const raundet = raundetE(grupi);
+    if (!raundet.some((r) => grupi.players.some((p) => typeof r.scores[p] === 'number'))) {
+      continue;
+    }
+
+    assert.deepEqual(
+      renditjaELojes(grupi.players, raundet),
+      grupi.standings,
+      `renditja e ${grupi.id}`,
+    );
+  }
+});
+
+test('një lojë e hapur e paluajtur nuk renditet, edhe pse fleta e rendit', () => {
+  // `brigj_4_merged_teams` s'ka asnjë pikë, por `logic.json` i jep të dyja
+  // skuadrat me 0 dhe „meri + mil" të parë — vend i fituar nga radha e listës,
+  // jo nga loja. Këtu ajo lojë thjesht nuk ka renditje.
+  const grupi = burimi.groups.find((g) => g.id === 'brigj_4_merged_teams');
+
+  assert.deepEqual(grupi.standings.map((r) => r.total), [0, 0]);
+  assert.deepEqual(renditjaELojes(grupi.players, raundetE(grupi)), []);
+});

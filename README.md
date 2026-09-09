@@ -20,7 +20,10 @@ Fiton **totali më i vogël**.
   nuk kanë luajtur të gjithë njësoj, shtohet kolona „raunde" dhe një shënim.
 - **Shlyerja** — matrica N×N e diferencave, `matrica[i][j] = total[i] − total[j]`,
   me lojtarët sipas renditjes.
-- **Historik sipas ditës** — një grup ka shumë lojëra, edhe dy të njëjtën ditë.
+- **Historik sipas ditës** — një grup ka shumë lojëra, edhe dy të njëjtën ditë,
+  secila me renditjen e vet përfundimtare aty për aty.
+- **Të përgjithshmet** — një tabelë për tërë grupin: lojëra, fitore dhe totali
+  mesatar për lojë, e llogaritur nga vetë raundet.
 - **Redaktim dhe fshirje** — çdo raund ndryshohet pas ruajtjes; gjithçka
   rillogaritet vetvetiu.
 - **Kopje rezervë** — nxjerrja dhe kthimi i tërë historikut si një skedar JSON.
@@ -51,7 +54,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 52 prova, pa framework provash
+npm test          # node --test — 62 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i.
@@ -73,7 +76,7 @@ src/
   ikonat.tsx          ikonat SVG inline
   style.css           sistemi i stilit
   pamjet/             Grupet · Grupi · Loja
-  pjeset/             Renditja · Raundet · Shlyerja
+  pjeset/             Renditja · Raundet · Shlyerja · TabelaEPergjithshme
                       FutjaERaundit · LojtaretELojes · PanelaEKopjes
 
 test/

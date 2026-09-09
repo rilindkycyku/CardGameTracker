@@ -13,7 +13,13 @@
 
 import { useState } from 'react';
 
-import { dataShqip, lojeratESortuara, sot } from '../llogaritjet.ts';
+import {
+  dataShqip,
+  lojeratESortuara,
+  renditjaELojes,
+  sot,
+  tabelaEPergjithshme,
+} from '../llogaritjet.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import {
@@ -21,20 +27,32 @@ import {
   fshiLoje,
   grupi as lexoGrupin,
   lojerat as lexoLojerat,
-  numriIRaundeve,
+  raundetELojerave,
   ruajGrup,
   shtoLoje,
 } from '../ruajtja.ts';
+import { TabelaEPergjithshme } from '../pjeset/TabelaEPergjithshme.tsx';
 import { shko } from '../rruga.ts';
-import type { Grupi as TGrupi, Loja } from '../tipet.ts';
+import type {
+  Grupi as TGrupi,
+  Loja,
+  Raundi,
+  RreshtiRenditjes,
+} from '../tipet.ts';
 
 export function Grupi({ id }: { id: number }) {
   const { te_dhenat, rifresko } = useNgarko(async () => {
     const grupi = await lexoGrupin(id);
-    if (!grupi) return { grupi: null, lojerat: [] as Loja[], raunde: {} };
+    if (!grupi) {
+      return {
+        grupi: null,
+        lojerat: [] as Loja[],
+        raunde: {} as Record<number, Raundi[]>,
+      };
+    }
 
     const lista = await lexoLojerat(id);
-    const raunde = await numriIRaundeve(lista.map((l) => l.id));
+    const raunde = await raundetELojerave(lista.map((l) => l.id));
 
     return { grupi, lojerat: lojeratESortuara(lista), raunde };
   }, [id]);
@@ -51,6 +69,13 @@ export function Grupi({ id }: { id: number }) {
   }
 
   const { grupi, lojerat, raunde } = te_dhenat;
+
+  const pergjithshmet = tabelaEPergjithshme(
+    lojerat.map((loja) => ({
+      selectedPlayers: loja.selectedPlayers,
+      raundet: raunde[loja.id] ?? [],
+    })),
+  );
 
   if (!grupi) {
     return (
@@ -133,6 +158,13 @@ export function Grupi({ id }: { id: number }) {
         />
       )}
 
+      <TabelaEPergjithshme
+        rreshtat={pergjithshmet}
+        lojera={
+          lojerat.filter((loja) => (raunde[loja.id] ?? []).length > 0).length
+        }
+      />
+
       <section>
         <h2 className="titull-seksioni">
           <Ikona emri="kalendari" />
@@ -159,9 +191,10 @@ export function Grupi({ id }: { id: number }) {
                   <span className="njesi__krye">
                     <span className="njesi__emri">{dataShqip(loja.date)}</span>
                     <span className="njesi__meta">
-                      {loja.selectedPlayers.join(', ')} ·{' '}
-                      {raunde[loja.id] ?? 0}{' '}
-                      {(raunde[loja.id] ?? 0) === 1 ? 'raund' : 'raunde'}
+                      {(raunde[loja.id] ?? []).length}{' '}
+                      {(raunde[loja.id] ?? []).length === 1 ? 'raund' : 'raunde'}
+                      {' · '}
+                      {loja.selectedPlayers.length} lojtarë
                     </span>
                   </span>
                   <span className="njesi__veprimet">
@@ -175,7 +208,7 @@ export function Grupi({ id }: { id: number }) {
                         e.stopPropagation();
                         if (
                           window.confirm(
-                            `Të fshihet loja e ${dataShqip(loja.date)} me ${raunde[loja.id] ?? 0} raunde?`,
+                            `Të fshihet loja e ${dataShqip(loja.date)} me ${(raunde[loja.id] ?? []).length} raunde?`,
                           )
                         ) {
                           await fshiLoje(loja.id);
@@ -190,6 +223,13 @@ export function Grupi({ id }: { id: number }) {
                     </button>
                   </span>
                 </a>
+
+                <RenditjaEShkurter
+                  rreshtat={renditjaELojes(
+                    loja.selectedPlayers,
+                    raunde[loja.id] ?? [],
+                  )}
+                />
               </li>
             ))}
           </ul>
@@ -235,6 +275,32 @@ export function Grupi({ id }: { id: number }) {
         </details>
       </section>
     </div>
+  );
+}
+
+/**
+ * Renditja përfundimtare e një mbrëmjeje, brenda historikut.
+ *
+ * Blloku i shkurtër i fletës së vjetër: vend, emër, total. Rri jashtë lidhjes
+ * së njësisë, sepse një listë brenda një `<a>`-je do të bënte tërë tabelën një
+ * cak të vetëm klikimi.
+ */
+function RenditjaEShkurter({ rreshtat }: { rreshtat: RreshtiRenditjes[] }) {
+  if (rreshtat.length === 0) return null;
+
+  return (
+    <ol className="renditja-shkurter">
+      {rreshtat.map((rreshti) => (
+        <li
+          key={rreshti.player}
+          className={rreshti.rank === 1 ? 'renditja-shkurter--pare' : undefined}
+        >
+          <span className="renditja-shkurter__vendi">{rreshti.rank}</span>
+          <span className="renditja-shkurter__emri">{rreshti.player}</span>
+          <span className="renditja-shkurter__totali">{rreshti.total}</span>
+        </li>
+      ))}
+    </ol>
   );
 }
 

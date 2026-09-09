@@ -1447,3 +1447,69 @@ th.numri {
   margin-left: 0.5rem;
   vertical-align: 0.05em;
 }
+
+/* ── Renditja e shkurtër te historiku ───────────────────────────────────── */
+
+/**
+ * Blloku i renditjes nën çdo lojë të historikut — vend, emër, total, ashtu si
+ * te fleta e vjetër.
+ *
+ * Rri i mbështjellë brenda së njëjtës njësi me lidhjen e lojës, por jashtë
+ * saj: një listë brenda një `<a>`-je do ta bënte tërë bllokun një cak të vetëm
+ * klikimi, dhe emrat do të lexoheshin si lidhje pa qenë.
+ */
+.renditja-shkurter {
+  list-style: none;
+  margin: -0.35rem 0 0;
+  padding: 0.6rem 0.85rem 0.7rem;
+  border: 1px solid var(--kufiri);
+  border-top: 0;
+  border-radius: 0 0 var(--rreze-2) var(--rreze-2);
+  background: var(--siperfaqe-2);
+  display: grid;
+  gap: 0.15rem;
+  font-size: 0.88rem;
+}
+
+.renditja-shkurter li {
+  display: grid;
+  grid-template-columns: 1.4rem 1fr auto;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.renditja-shkurter__vendi {
+  font-family: var(--shkronja-numrat);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--teksti-zbehte);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.renditja-shkurter__emri {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.renditja-shkurter__totali {
+  font-family: var(--shkronja-numrat);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fituesi i mbrëmjes — e njëjta shenjë si te renditja e plotë. */
+.renditja-shkurter--pare {
+  font-weight: 700;
+}
+
+.renditja-shkurter--pare .renditja-shkurter__vendi,
+.renditja-shkurter--pare .renditja-shkurter__totali {
+  color: var(--hapur);
+}
+
+/* Njësia e lojës humb qoshet e poshtme kur ka renditje nën vete. */
+.lista li:has(.renditja-shkurter) .njesi {
+  border-radius: var(--rreze-2) var(--rreze-2) 0 0;
+}

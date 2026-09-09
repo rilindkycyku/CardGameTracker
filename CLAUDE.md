@@ -30,7 +30,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 52 prova, pa framework provash
+npm test          # node --test — 62 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -146,14 +146,20 @@ duken si i njëjti dorëshkrim. Nëse ndërron një token atje, ndërroje edhe k
   `preventDefault` e `stopPropagation` — pa to, fshirja hap njëkohësisht edhe lojën.
 - **Kthimi i një kopjeje e zëvendëson tërë bazën**, prandaj `lexoKopjen` kontrollon edhe lidhjet
   `groupId`/`gameId`: një skedar gjysmak do ta fshinte pikërisht atë që duhej të shpëtonte.
-- **Numërimet e listave shkojnë përmes `index.count()`**, jo duke lexuar regjistrat. `numriILojerave`
-  dhe `numriIRaundeve` e nxjerrin numrin nga vetë indeksi, brenda një transaksioni të vetëm — pa to,
-  ekrani i grupeve shpaketonte çdo objekt `scores` të çdo raundi vetëm që të matte një gjatësi.
+- **Leximet e listave hyjnë në një transaksion të vetëm.** `numriILojerave` e nxjerr numrin nga vetë
+  indeksi, pa i prekur regjistrat. Ekrani i grupit i lexon raundet vërtet, sepse tregon renditjen e
+  secilës mbrëmje — por përmes `raundetELojerave`, një transaksion për tërë grupin e jo një për çdo
+  lojë.
 - **Fusha e pikëve është `type="text"`, dhe shenja ka butonin e vet.** Tastiera `inputMode="numeric"`
   e Androidit ka vetëm shifra — pa minus — prandaj pikët e mbylljes (−20, −40) nuk shkruheshin dot
   fare në telefon. `pastro()` te `fusha.ts` e njeh minusin kudo qoftë e jo vetëm në krye, sepse kur
   shenja shtypet para shifrave kursori bie para tij dhe teksti del „4−". Mos e kthe në `type="number"`:
   ajo e hedh poshtë „−"-in e vetëm para se të vijnë shifrat.
+- **Një lojë e hapur e paluajtur nuk renditet fare.** Të gjitha totalet zero i bëjnë të gjithë të
+  barabartë, dhe `renditja` do t'ia jepte vendin e parë të parit të listës — një fitore e fituar nga
+  radha e emrave. Prandaj `renditjaELojes` dhe `tabelaEPergjithshme` i kapërcejnë lojërat pa asnjë
+  pikë, dhe brenda një loje marrin vetëm ata që shënuan. Kjo është edhe arsyeja pse renditja e
+  `brigj_4_merged_teams` te `logic.json` nuk provohet dot kundër tabelës: fleta e rendit, kjo jo.
 - **Matrica renditet sipas renditjes, jo sipas radhës së tavolinës.** Shlyerja shihet kur mbaron
   loja, dhe atëherë lexohet duke nisur nga fituesi. Vendi shkruhet krah emrit te rreshti, që radha
   të mos duket e rastit.
