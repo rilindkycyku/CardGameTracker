@@ -10,11 +10,13 @@
  * smerald, që raundi të lexohet me një shikim pa u kërkuar minusi.
  */
 
+import { memo } from 'react';
+
 import { sipasRadhes } from '../llogaritjet.ts';
 import type { Raundi } from '../tipet.ts';
 import { Ikona } from '../ikonat.tsx';
 
-export function Raundet({
+function RaundetBrenda({
   players,
   raundet,
   totalet,
@@ -129,3 +131,12 @@ export function Raundet({
     </section>
   );
 }
+
+/**
+ * Tabela e raundeve del me qindra qeliza te një mbrëmje e gjatë, prandaj rri pas `memo`.
+ *
+ * Kjo punon vetëm sepse `Loja` i mban vlerat e derivuara te `useMemo`: pa
+ * identitet të qëndrueshëm, krahasimi i hyrjeve do të dështonte çdo herë dhe
+ * mbështjellja nuk do të kursente kurrgjë.
+ */
+export const Raundet = memo(RaundetBrenda);

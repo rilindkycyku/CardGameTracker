@@ -11,17 +11,14 @@
  * vetvetiu edhe renditjen, edhe matricën.
  */
 
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import {
   dataShqip,
-  eshteIMbushur,
   matricaEShlyerjes,
-  pjesemarrjeEBarabarte,
-  raundetELuajtura,
+  permbledhja,
   raundiNeVijim,
   renditja,
-  totalet,
 } from '../llogaritjet.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
@@ -44,6 +41,14 @@ import {
 } from '../ruajtja.ts';
 import { shko } from '../rruga.ts';
 
+/**
+ * Lista boshe si konstante, e jo si `[]` te trupi.
+ *
+ * Hyrjet e `useMemo`-s krahasohen sipas identitetit; një `[]` i re te çdo
+ * vizatim do t'i shkarkonte të gjitha memo-t sa pritet leximi i parë.
+ */
+const BOSH: never[] = [];
+
 export function Loja({ id }: { id: number }) {
   const { te_dhenat, rifresko } = useNgarko(async () => {
     const loja = await lexoLojen(id);
@@ -59,6 +64,78 @@ export function Loja({ id }: { id: number }) {
 
   const [dukeRedaktuar, caktoRedaktimin] = useState<number | null>(null);
 
+  /*
+   * Nga këtu e poshtë, hook-et rrinë të gjitha mbi kthimet e para.
+   *
+   * Kjo nuk është stil: React-i i numëron hook-et sipas radhës, dhe një
+   * `useMemo` nën një `return` të kushtëzuar thirret vetëm pasi të dhënat kanë
+   * mbërritur. Vizatimi i dytë atëherë ka më shumë hook-e se i pari, dhe React-i
+   * bie me gabimin #310 — ekrani i lojës nuk hapet fare. Ndodhi pikërisht ashtu.
+   */
+  const loja = te_dhenat?.loja ?? null;
+  const grupi = te_dhenat?.grupi ?? null;
+  const raundet = te_dhenat?.raundet ?? BOSH;
+  const players = loja?.selectedPlayers ?? BOSH;
+
+  /*
+   * Të gjitha vlerat e derivuara nga një kalim i vetëm mbi raundet.
+   *
+   * `useMemo` nuk është për shpejtësinë e mbledhjes — ajo është dhjetëra
+   * mikrosekonda. Është për identitetin: pa të, `rreshtat` e `matrica` dalin
+   * objekte të reja te çdo vizatim, dhe atëherë `memo` mbi tabelat nuk kap
+   * kurrgjë. Me të, hapja e një `<details>`-i ose kalimi te redaktimi nuk e
+   * rivizaton tabelën e raundeve me qindra qeliza.
+   */
+  const { totalat, rreshtat, rendituar, matrica, luajtur, barabarte } = useMemo(() => {
+    const p = permbledhja(players, raundet);
+    const rreshtatERenditur = renditja(players, p.totalet);
+
+    return {
+      totalat: p.totalet,
+      rreshtat: rreshtatERenditur,
+      // Shlyerja lexohet duke nisur nga fituesi, prandaj radha e saj vjen nga
+      // renditja. Mbahet brenda memo-s, që hyrja e `Shlyerja`-s të mos dalë
+      // varg i re te çdo vizatim.
+      rendituar: rreshtatERenditur.map((rreshti) => rreshti.player),
+      matrica: matricaEShlyerjes(players, p.totalet),
+      luajtur: p.luajtur,
+      barabarte: p.barabarte,
+    };
+  }, [players, raundet]);
+
+  const iRadhes = useMemo(() => raundiNeVijim(raundet), [raundet]);
+
+  const pamja = useMemo(
+    () =>
+      loja ? pamjaELojes(grupi?.name ?? 'Bridzh', loja, totalat, raundet.length) : null,
+    [grupi?.name, loja, totalat, raundet.length],
+  );
+
+  const raundiQeRedaktohet =
+    dukeRedaktuar === null
+      ? null
+      : (raundet.find((r) => r.id === dukeRedaktuar) ?? null);
+
+  // Identiteti i qëndrueshëm i këtyre dyve është kushti që `memo` mbi
+  // `Raundet` të kapë diçka: një shigjetë e shkruar brenda JSX-it do të dilte
+  // funksion i re te çdo vizatim dhe krahasimi i hyrjeve do të dështonte.
+  const redakto = useCallback((idERaundit: number) => {
+    caktoRedaktimin((tani) => (tani === idERaundit ? null : idERaundit));
+  }, []);
+
+  const fshi = useCallback(
+    async (idERaundit: number) => {
+      const raundi = raundet.find((r) => r.id === idERaundit);
+      if (!raundi) return;
+      if (!window.confirm(`Të fshihet raundi ${raundi.roundNumber}?`)) return;
+
+      await fshiRaund(idERaundit);
+      caktoRedaktimin((tani) => (tani === idERaundit ? null : tani));
+      rifresko();
+    },
+    [raundet, rifresko],
+  );
+
   if (te_dhenat === null) {
     return (
       <div className="faqja">
@@ -67,7 +144,7 @@ export function Loja({ id }: { id: number }) {
     );
   }
 
-  if (!te_dhenat.loja) {
+  if (!loja) {
     return (
       <div className="faqja">
         <a className="shtegu" href="#/">
@@ -81,28 +158,6 @@ export function Loja({ id }: { id: number }) {
       </div>
     );
   }
-
-  const { loja, grupi, raundet } = te_dhenat;
-  const players = loja.selectedPlayers;
-
-  const totalat = totalet(players, raundet);
-  const rreshtat = renditja(players, totalat);
-  const matrica = matricaEShlyerjes(players, totalat);
-  const luajtur = raundetELuajtura(players, raundet);
-  const iRadhes = raundiNeVijim(raundet);
-
-  // Kolona „raunde" te renditja del vetëm kur ka çka të tregojë. Raundet e
-  // pashënuara nuk numërohen: një fletë me raunde bosh në fund nuk është
-  // pjesëmarrje e pabarabartë.
-  const barabarte = pjesemarrjeEBarabarte(
-    players,
-    raundet.filter((r) => eshteIMbushur(players, r)),
-  );
-
-  const raundiQeRedaktohet =
-    dukeRedaktuar === null
-      ? null
-      : (raundet.find((r) => r.id === dukeRedaktuar) ?? null);
 
   async function ruaj(scores: Record<string, number | null>) {
     if (raundiQeRedaktohet) {
@@ -147,16 +202,6 @@ export function Loja({ id }: { id: number }) {
       ...loja,
       selectedPlayers: players.filter((p) => p !== emri),
     });
-    rifresko();
-  }
-
-  async function fshi(idERaundit: number) {
-    const raundi = raundet.find((r) => r.id === idERaundit);
-    if (!raundi) return;
-    if (!window.confirm(`Të fshihet raundi ${raundi.roundNumber}?`)) return;
-
-    await fshiRaund(idERaundit);
-    if (dukeRedaktuar === idERaundit) caktoRedaktimin(null);
     rifresko();
   }
 
@@ -219,22 +264,14 @@ export function Loja({ id }: { id: number }) {
 
       <LojtaretELojes
         players={players}
-        grupi={grupi}
+        grupi={grupi ?? undefined}
         luajtur={luajtur}
         onShto={shtoLojtar}
         onHiq={hiqLojtar}
       />
 
-      {players.length > 0 && (
-        <Ndarja
-          pamja={pamjaELojes(
-            grupi?.name ?? 'Bridzh',
-            loja,
-            totalat,
-            raundet.length,
-          )}
-          rreshtat={rreshtat}
-        />
+      {players.length > 0 && pamja && (
+        <Ndarja pamja={pamja} rreshtat={rreshtat} />
       )}
 
       {raundet.length === 0 ? (
@@ -254,18 +291,11 @@ export function Loja({ id }: { id: number }) {
             raundet={raundet}
             totalet={totalat}
             dukeRedaktuar={dukeRedaktuar}
-            onRedakto={(idERaundit) =>
-              caktoRedaktimin((tani) =>
-                tani === idERaundit ? null : idERaundit,
-              )
-            }
+            onRedakto={redakto}
             onFshi={fshi}
           />
 
-          <Shlyerja
-            players={rreshtat.map((rreshti) => rreshti.player)}
-            matrica={matrica}
-          />
+          <Shlyerja players={rendituar} matrica={matrica} />
         </>
       )}
     </div>

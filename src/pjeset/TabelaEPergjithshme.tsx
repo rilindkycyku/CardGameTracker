@@ -16,10 +16,12 @@
  * hyn te telefoni pa rrëshqitur anash.
  */
 
+import { memo } from 'react';
+
 import type { RreshtiPergjithshem } from '../llogaritjet.ts';
 import { Ikona } from '../ikonat.tsx';
 
-export function TabelaEPergjithshme({
+function TabelaEPergjithshmeBrenda({
   rreshtat,
   lojera,
 }: {
@@ -87,3 +89,12 @@ export function TabelaEPergjithshme({
     </section>
   );
 }
+
+/**
+ * Tabela e grupit varet vetëm nga rreshtat e vet, prandaj rri pas `memo`.
+ *
+ * Kjo punon vetëm sepse `Loja` i mban vlerat e derivuara te `useMemo`: pa
+ * identitet të qëndrueshëm, krahasimi i hyrjeve do të dështonte çdo herë dhe
+ * mbështjellja nuk do të kursente kurrgjë.
+ */
+export const TabelaEPergjithshme = memo(TabelaEPergjithshmeBrenda);

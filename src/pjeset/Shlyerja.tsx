@@ -15,9 +15,11 @@
  * emrit te rreshti, që radha të mos duket e rastit.
  */
 
+import { memo } from 'react';
+
 import { Ikona } from '../ikonat.tsx';
 
-export function Shlyerja({
+function ShlyerjaBrenda({
   players,
   matrica,
 }: {
@@ -96,3 +98,12 @@ export function Shlyerja({
     </section>
   );
 }
+
+/**
+ * Matrica është O(lojtarë²) qeliza, prandaj rri pas `memo`.
+ *
+ * Kjo punon vetëm sepse `Loja` i mban vlerat e derivuara te `useMemo`: pa
+ * identitet të qëndrueshëm, krahasimi i hyrjeve do të dështonte çdo herë dhe
+ * mbështjellja nuk do të kursente kurrgjë.
+ */
+export const Shlyerja = memo(ShlyerjaBrenda);

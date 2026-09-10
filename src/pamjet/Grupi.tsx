@@ -11,7 +11,7 @@
  * listën e sotme të grupit.
  */
 
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import {
   dataShqip,
@@ -41,6 +41,9 @@ import type {
   RreshtiRenditjes,
 } from '../tipet.ts';
 
+/** Lista boshe si konstante — identiteti i qëndrueshëm i duhet `useMemo`-s. */
+const BOSH: never[] = [];
+
 export function Grupi({ id }: { id: number }) {
   const { te_dhenat, rifresko } = useNgarko(async () => {
     const grupi = await lexoGrupin(id);
@@ -61,6 +64,42 @@ export function Grupi({ id }: { id: number }) {
   const [hapurLojen, hapLojen] = useState(false);
   const [hapurLojtaret, hapLojtaret] = useState(false);
 
+  // Hook-et rrinë mbi kthimet e para: React-i i numëron sipas radhës, dhe një
+  // `useMemo` nën një `return` të kushtëzuar e rrëzon vizatimin e dytë.
+  const grupi = te_dhenat?.grupi ?? null;
+  const lojerat = te_dhenat?.lojerat ?? BOSH;
+  const raunde = te_dhenat?.raunde ?? null;
+
+  /*
+   * Tabela e grupit dhe renditja e secilës mbrëmje, të dyja nga një vend.
+   *
+   * Ekrani i grupit lexon raundet e të gjitha lojërave — dyzet mbrëmje me
+   * tridhjetë raunde janë mbi një mijë regjistra — dhe pa këtë, çdo shkronjë e
+   * shkruar te kutia e emrit të lojtarit i rillogaritte të gjitha nga e para
+   * bashkë me dyzet nënpemë React-i.
+   *
+   * Renditja e secilës lojë dilte më parë brenda JSX-it, te `.map()`. Atje
+   * llogaritej sërish te çdo vizatim, dhe rezultati as nuk mund të mbahej.
+   */
+  const { pergjithshmet, renditjet } = useMemo(() => {
+    const raundetELojes = (loja: Loja) => raunde?.[loja.id] ?? BOSH;
+
+    return {
+      pergjithshmet: tabelaEPergjithshme(
+        lojerat.map((loja) => ({
+          selectedPlayers: loja.selectedPlayers,
+          raundet: raundetELojes(loja),
+        })),
+      ),
+      renditjet: new Map(
+        lojerat.map((loja) => [
+          loja.id,
+          renditjaELojes(loja.selectedPlayers, raundetELojes(loja)),
+        ]),
+      ),
+    };
+  }, [lojerat, raunde]);
+
   if (te_dhenat === null) {
     return (
       <div className="faqja">
@@ -68,15 +107,6 @@ export function Grupi({ id }: { id: number }) {
       </div>
     );
   }
-
-  const { grupi, lojerat, raunde } = te_dhenat;
-
-  const pergjithshmet = tabelaEPergjithshme(
-    lojerat.map((loja) => ({
-      selectedPlayers: loja.selectedPlayers,
-      raundet: raunde[loja.id] ?? [],
-    })),
-  );
 
   if (!grupi) {
     return (
@@ -163,7 +193,7 @@ export function Grupi({ id }: { id: number }) {
       <TabelaEPergjithshme
         rreshtat={pergjithshmet}
         lojera={
-          lojerat.filter((loja) => (raunde[loja.id] ?? []).length > 0).length
+          lojerat.filter((loja) => (raunde?.[loja.id] ?? BOSH).length > 0).length
         }
       />
 
@@ -193,8 +223,8 @@ export function Grupi({ id }: { id: number }) {
                   <span className="njesi__krye">
                     <span className="njesi__emri">{dataShqip(loja.date)}</span>
                     <span className="njesi__meta">
-                      {(raunde[loja.id] ?? []).length}{' '}
-                      {(raunde[loja.id] ?? []).length === 1 ? 'raund' : 'raunde'}
+                      {(raunde?.[loja.id] ?? BOSH).length}{' '}
+                      {(raunde?.[loja.id] ?? BOSH).length === 1 ? 'raund' : 'raunde'}
                       {' · '}
                       {loja.selectedPlayers.length} lojtarë
                     </span>
@@ -210,7 +240,7 @@ export function Grupi({ id }: { id: number }) {
                         e.stopPropagation();
                         if (
                           window.confirm(
-                            `Të fshihet loja e ${dataShqip(loja.date)} me ${(raunde[loja.id] ?? []).length} raunde?`,
+                            `Të fshihet loja e ${dataShqip(loja.date)} me ${(raunde?.[loja.id] ?? BOSH).length} raunde?`,
                           )
                         ) {
                           await fshiLoje(loja.id);
@@ -226,12 +256,7 @@ export function Grupi({ id }: { id: number }) {
                   </span>
                 </a>
 
-                <RenditjaEShkurter
-                  rreshtat={renditjaELojes(
-                    loja.selectedPlayers,
-                    raunde[loja.id] ?? [],
-                  )}
-                />
+                <RenditjaEShkurter rreshtat={renditjet.get(loja.id) ?? BOSH} />
               </li>
             ))}
           </ul>

@@ -152,19 +152,14 @@ export function Ikona({
 }
 
 /**
- * Shenja e aplikacionit: dy letra të mbivendosura, me kalimin smerald→cian të
- * Kujdestarisë. Kalimi rri si `<linearGradient>` e jo si `background-image`,
- * që të ndjekë qoshet e rrumbullakuara pa u prerë.
+ * Shenja e aplikacionit: dy letra të mbivendosura mbi një fushë të plotë.
+ *
+ * Fusha ishte kalim smerald→cian; tani është ngjyrë e plotë, sepse gjithë
+ * sistemi u hoq nga kalimet. Ngjyra vjen nga tokeni, prandaj ndjek temën.
  */
 export function ShenjaEFaqes() {
   return (
     <svg className="marka" viewBox="0 0 44 44" role="img" aria-label="Bridzh">
-      <defs>
-        <linearGradient id="marka-fusha" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" className="marka__nga" />
-          <stop offset="100%" className="marka__deri" />
-        </linearGradient>
-      </defs>
       <rect className="marka__fusha" width="44" height="44" rx="12" />
       <g className="marka__letrat">
         <rect x="10.5" y="12" width="12.5" height="18" rx="2.6" transform="rotate(-12 16.75 21)" />

@@ -20,19 +20,20 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import {
-  totalet,
-  renditja,
-  matricaEShlyerjes,
-  eshteIMbushur,
-  raundiNeVijim,
-  sipasRadhes,
   dataShqip,
-  sot,
+  eshteIMbushur,
   lojeratESortuara,
-  raundetELuajtura,
+  matricaEShlyerjes,
+  permbledhja,
   pjesemarrjeEBarabarte,
-  tabelaEPergjithshme,
+  raundetELuajtura,
+  raundiNeVijim,
+  renditja,
   renditjaELojes,
+  sipasRadhes,
+  sot,
+  tabelaEPergjithshme,
+  totalet,
 } from '../src/llogaritjet.ts';
 
 const burimi = JSON.parse(
@@ -380,4 +381,67 @@ test('një lojë e hapur e paluajtur nuk renditet, edhe pse fleta e rendit', () 
 
   assert.deepEqual(grupi.standings.map((r) => r.total), [0, 0]);
   assert.deepEqual(renditjaELojes(grupi.players, raundetE(grupi)), []);
+});
+
+
+/* ── Një kalim i vetëm mbi raundet ──────────────────────────────────────── */
+
+test('permbledhja jep të njëjtat numra si tri thirrjet e vjetra', () => {
+  const players = ['meri', 'eri', 'Arboni', 'gjigji'];
+  const raundet = [
+    { id: 1, gameId: 1, roundNumber: 1, scores: { meri: 22, eri: 14, Arboni: -20, gjigji: 18 } },
+    { id: 2, gameId: 1, roundNumber: 2, scores: { meri: 20, eri: 20, Arboni: -2 } },
+    { id: 3, gameId: 1, roundNumber: 3, scores: {} },
+    { id: 4, gameId: 1, roundNumber: 4, scores: { meri: 0, eri: null, gjigji: 5 } },
+  ];
+
+  const p = permbledhja(players, raundet);
+
+  assert.deepEqual(p.totalet, totalet(players, raundet));
+  assert.deepEqual(p.luajtur, raundetELuajtura(players, raundet));
+  assert.equal(p.barabarte, pjesemarrjeEBarabarte(players, raundet));
+
+  // Dhe numrat vetë, të shkruar me dorë: zeroja shënohet, `null`-i jo.
+  assert.deepEqual(p.totalet, { meri: 42, eri: 34, Arboni: -22, gjigji: 23 });
+  assert.deepEqual(p.luajtur, { meri: 3, eri: 2, Arboni: 2, gjigji: 2 });
+  assert.equal(p.barabarte, false);
+});
+
+test('filtrimi i raundeve bosh nuk e ndryshon pjesëmarrjen', () => {
+  /*
+   * Ekrani i lojës filtronte raundet bosh para se të pyetej për pjesëmarrjen.
+   * Ai kalim u hoq, sepse nuk mund ta ndryshonte përgjigjen: një raund pa asnjë
+   * pikë nuk i shton njërit numërimin. Kjo provë e mban atë arsyetim të matur —
+   * nëse dikush e prek numërimin, ajo bie.
+   */
+  const players = ['meri', 'eri', 'Arboni'];
+
+  const rastet = [
+    [],
+    [{ id: 1, gameId: 1, roundNumber: 1, scores: {} }],
+    [
+      { id: 1, gameId: 1, roundNumber: 1, scores: { meri: 10, eri: 10, Arboni: 10 } },
+      { id: 2, gameId: 1, roundNumber: 2, scores: {} },
+      { id: 3, gameId: 1, roundNumber: 3, scores: { meri: null, eri: null, Arboni: null } },
+    ],
+    [
+      { id: 1, gameId: 1, roundNumber: 1, scores: { meri: 10 } },
+      { id: 2, gameId: 1, roundNumber: 2, scores: {} },
+      { id: 3, gameId: 1, roundNumber: 3, scores: { eri: 5, Arboni: 5 } },
+    ],
+  ];
+
+  for (const raundet of rastet) {
+    const pa_filtër = pjesemarrjeEBarabarte(players, raundet);
+    const me_filtër = pjesemarrjeEBarabarte(
+      players,
+      raundet.filter((r) => eshteIMbushur(players, r)),
+    );
+
+    assert.equal(pa_filtër, me_filtër, JSON.stringify(raundet));
+    assert.deepEqual(
+      raundetELuajtura(players, raundet),
+      raundetELuajtura(players, raundet.filter((r) => eshteIMbushur(players, r))),
+    );
+  }
 });
