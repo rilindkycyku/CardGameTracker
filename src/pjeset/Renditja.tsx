@@ -11,10 +11,12 @@
  * pa këtë kolonë tabela do ta thoshte të kundërtën pa e ditur.
  */
 
+import { memo } from 'react';
+
 import type { RreshtiRenditjes } from '../tipet.ts';
 import { Ikona } from '../ikonat.tsx';
 
-export function Renditja({
+function RenditjaBrenda({
   rreshtat,
   luajtur,
 }: {
@@ -88,3 +90,12 @@ export function Renditja({
     </section>
   );
 }
+
+/**
+ * Renditja rivizatohet vetëm kur ndryshojnë rreshtat, prandaj rri pas `memo`.
+ *
+ * Kjo punon vetëm sepse `Loja` i mban vlerat e derivuara te `useMemo`: pa
+ * identitet të qëndrueshëm, krahasimi i hyrjeve do të dështonte çdo herë dhe
+ * mbështjellja nuk do të kursente kurrgjë.
+ */
+export const Renditja = memo(RenditjaBrenda);

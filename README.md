@@ -30,13 +30,14 @@ Fiton **totali më i vogël**.
 - **Pikët drejtpërdrejt** — kush rri rreth tavolinës i shikon pikët në
   telefonin e vet, dhe raundi i ri del vetë. Lidhja bëhet drejt mes telefonave
   me një kanal WebRTC, në dy mënyra:
-  - **Pa server** (parazgjedhja) — sinjalizimi kalon nëpër dy kode QR dhe
-    kamerën e telefonit, prandaj server nuk duhet as për t'u lidhur. Kërkon që
-    telefonat të rrinë te e njëjta rrjetë.
-  - **Me kod** — një kod i vetëm tetëkarakterësh, që diktohet me zë ose
-    skanohet një herë. Punon edhe nëpër rrjeta të ndryshme, por i duhet
-    internet dhe një server i huaj për t'i lidhur pajisjet. Nuk niset vetë
-    kurrë, dhe ekrani e thotë çka del nga pajisja.
+  - **Pa server** — sinjalizimi kalon nëpër dy kode QR dhe kamerën e
+    telefonit, prandaj server nuk duhet as për t'u lidhur. Kërkon që telefonat
+    të rrinë te e njëjta rrjetë.
+  - **Me kod** (parazgjedhja) — një kod i vetëm tetëkarakterësh, që diktohet
+    me zë ose skanohet një herë. Punon edhe nëpër rrjeta të ndryshme, sepse
+    shoqëria rrallë rri te i njëjti wifi — por i duhet internet dhe një server
+    i huaj për t'i lidhur pajisjet. Lidhja kërkon butonin, dhe ekrani e thotë
+    çka del nga pajisja.
 - **Ose një fotografi e çastit** — rezultati shkon brenda vetë adresës dhe
   adresa bëhet kod QR. Punon edhe atje ku rrjeta i ndan pajisjet nga
   njëra-tjetra, dhe edhe nëpër mesazh.
@@ -71,7 +72,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 122 prova, pa framework provash
+npm test          # node --test — 124 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i.
@@ -84,7 +85,9 @@ src/
   App.tsx             shpërndarja e rrugëve
   rruga.ts            rrugëtimi me hash
   tipet.ts            tipet e të dhënave
-  llogaritjet.ts      totalet, renditja, matrica, rrjedha — pa DOM, pa bazë
+  llogaritjet.ts      totalet, renditja, matrica, rrjedha — pa DOM, pa bazë;
+                      `permbledhja` i jep totalet, raundet e luajtura dhe
+                      barazinë e pjesëmarrjes me një kalim të vetëm
   pikezimi.ts         rregullat hant/normal — pa DOM, pa bazë
   ruajtja.ts          IndexedDB përmes `idb`
   kopja.ts            nxjerrja dhe leximi i kopjes rezervë
@@ -124,6 +127,16 @@ Arsyetimi pas zgjidhjeve rri te [`CLAUDE.md`](CLAUDE.md).
 
 ## Stili
 
-Sistemi vizual është ai i [Kujdestarisë](https://github.com/rilindkycyku/kujdestaria):
-të njëjtat tokena, e njëjta paletë blu-nate me smerald e cian, i njëjti font
-sistemi me numra tabelorë, të njëjtat kartela dhe tabela.
+Paleta, kartelat dhe tabelat vijnë nga
+[Kujdestaria](https://github.com/rilindkycyku/kujdestaria) — e njëjta paletë
+blu-nate me smerald e cian, dhe numrat tabelorë te kolonat. Dy gjëra ndryshojnë
+me qëllim:
+
+- **Fonti është [Quicksand](https://fonts.google.com/specimen/Quicksand)**, e
+  vendosur brenda paketës te `public/shkronja/`. Nuk merret nga Google Fonts
+  gjatë hapjes: faqja duhet të hapet e plotë pa internet.
+- **Asnjë kalim ngjyre.** Veprimi kryesor, çelësat e shtypur dhe shenja e faqes
+  marrin ngjyrë të plotë; sfondi rri i sheshtë.
+
+Kontrasti mbetet **WCAG AA** në dritë e në terr: teksti mbi veprimin kryesor
+del 5.5:1 dhe 7.6:1, dhe kufijtë e kontrolleve mbi 3:1 sipas WCAG 1.4.11.

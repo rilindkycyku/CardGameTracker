@@ -19,9 +19,15 @@ Tri gjëra e përcaktojnë çdo vendim këtu:
    thotë edhe se kopja rezervë nuk është shtojcë — është dalja e vetme e të dhënave.
 
    Ka **një shmangje të vetme**, dhe rri e rrethuar: mënyra „me kod" e lidhjes së drejtpërdrejtë
-   (`lidhjaMeServer.ts`) përdor një server sinjalizimi të huaj. Nuk niset kurrë vetë, nuk është e
-   parazgjedhur, dhe ekrani i thotë hapur çka del nga pajisja para se të shtypet butoni. Të dhënat
-   e lojës nuk shkruhen te asnjë server edhe atëherë. Kushtet e plota te pika 7.
+   (`lidhjaMeServer.ts`) përdor një server sinjalizimi të huaj. Të dhënat e lojës nuk shkruhen te
+   asnjë server edhe atëherë, dhe ekrani i thotë hapur çka del nga pajisja para se të shtypet
+   butoni.
+
+   **Ajo mënyrë tani rri e parazgjedhur, me kërkesë të pronarit të projektit**: shoqëria zakonisht
+   nuk luan te i njëjti wifi, dhe mënyra pa server atëherë nuk lidhet fare. Pra rruga e parë e
+   ekranit prek një server, dhe pika 1 mbetet e plotë vetëm për bazën e të dhënave e për
+   fotografinë. Kjo është zgjedhje e pronarit, e jo rrjedhojë e kodit — mos e ndërro pa e pyetur.
+   Kushtet që mbeten te pika 7.
 2. **Përdoruesi po mban letrat me dorën tjetër.** Çdo fushë numri është së paku 2.75rem, tastiera
    del numerike, dhe blloku që përdoret dhjetëra herë në mbrëmje („Ruaj raundin") rri i pari.
    Ekrani i ngushtë vjen i pari; kompjuteri pas.
@@ -35,7 +41,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 122 prova, pa framework provash
+npm test          # node --test — 124 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -206,10 +212,10 @@ Punon edhe kur telefonat nuk janë te i njëjti wifi, dhe edhe kur rrjeta i ndan
 Kjo shmangje pranohet vetëm nën këto kushte, dhe nëse dikush e prek një prej tyre, shmangja nuk
 qëndron më:
 
-- **Nuk është e parazgjedhur, dhe nuk niset vetë kurrë.** `Drejtperdrejt` hapet te «Pa server», dhe
-  mënyra me kod kërkon dy prekje: zgjedhjen e çelësit dhe pastaj butonin. **Mos shto rënie
-  automatike te serveri** kur mënyra pa server dështon — një kalim i heshtur te serveri është
-  pikërisht ajo që pika 1 ndalon.
+- **Nuk niset vetë, dhe nuk ka rënie automatike.** `Drejtperdrejt` hapet te «Me kod» (zgjedhje e
+  pronarit), por lidhja ende kërkon butonin: pa të, çdo hapje e një loje do të ngrinte një lidhje
+  që nuk i kërkoi kush. **Mos shto rënie automatike mes mënyrave** — kush zgjedh «Pa server» nuk
+  guxon të kalojë te serveri pa e ditur, dhe anasjelltas.
 - **Ekrani e thotë çka del nga pajisja, para butonit.** Te serveri i sinjalizimit shkojnë kodi dhe
   adresat ICE (pra edhe IP-ja); te relenjat TURN, dhe vetëm kur lidhja e drejtpërdrejtë dështon,
   kalojnë bajtet e kanalit — të kriptuara me DTLS, prandaj relenja nuk i lexon pikët. Pikët nuk
@@ -306,15 +312,28 @@ sinjalizimi lokal gjatë provave të mënyrës me kod. Mos i shto te varësitë 
 
 ## Sistemi vizual
 
-Tokenat, paleta, rrezet, hijet, kartelat dhe tabelat janë marrë nga
-[Kujdestaria](https://github.com/rilindkycyku/kujdestaria) ashtu si janë, që të dy aplikacionet të
-duken si i njëjti dorëshkrim. Nëse ndërron një token atje, ndërroje edhe këtu.
+Paleta, rrezet, hijet, kartelat dhe tabelat vijnë nga
+[Kujdestaria](https://github.com/rilindkycyku/kujdestaria), por **dy gjëra u ndanë me qëllim, me
+kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti dorëshkrim:
 
-- Dy ngjyra theksi: smeraldi (`--hapur`) dhe ciani (`--theks`). Veprimi kryesor merr kalimin
-  smerald→cian.
+- **Fonti është Quicksand**, e vendosur brenda paketës te `public/shkronja/`, e jo fonti i
+  sistemit. Nuk merret nga Google Fonts gjatë hapjes: faqja duhet të hapet e plotë pa internet, dhe
+  një kërkesë te një host i huaj do të thoshte edhe se dikush tjetër e mëson kur luajmë. Dy
+  nënbashkësi mjaftojnë; `unicode-range` bën që vetëm `latin` të shkarkohet për tekstin shqip.
+  `preload` te `index.html` e shkurton pritjen. Nëse shton shkronja të tjera, kontrollo se
+  `unicode-range` i mbulon.
+- **Asnjë kalim ngjyre.** Nuk ka `linear-gradient` as `radial-gradient` askund — një provë e
+  thjeshtë është `grep -c gradient src/style.css`, dhe duhet të jepë zero. Veprimi kryesor, çelësat
+  e shtypur, vija e theksit e kartelës dhe shenja e faqes marrin ngjyrë të plotë (`--hapur`).
+  Sfondi i faqes rri i sheshtë. Kontrasti u rimatur pas heqjes: teksti mbi veprimin kryesor del
+  5.5:1 në dritë e 7.6:1 në terr.
+
+- Dy ngjyra theksi: smeraldi (`--hapur`) dhe ciani (`--theks`). Veprimi kryesor merr smeraldin e
+  plotë.
 - Tema e errët nuk është shtojcë: mbrëmja është ora kur luhet.
-- Fonti mbetet ai i sistemit; ndjesia merret nga pesha, hapësira e shkronjave dhe numrat tabelorë
-  (`--shkronja-numrat`).
+- Teksti është Quicksand me peshë 500 (`--shkronja`); numrat e kolonave mbeten monospace
+  (`--shkronja-numrat`), sepse te një tabelë pikësh shifrat duhet të bien mbi njëra-tjetrën dhe
+  Quicksand-i i ka proporcionale.
 - Ikonat janë SVG inline te `ikonat.tsx`, jo emoji: emoji-t vizatohen nga fonti i sistemit, dalin
   me ngjyra e madhësi të ndryshme dhe nuk e marrin ngjyrën e tekstit përreth.
 - `--kufiri-veprues` (≥3:1 sipas WCAG 1.4.11) për çdo gjë që klikohet; `--kufiri` është vetëm
@@ -381,6 +400,23 @@ duken si i njëjti dorëshkrim. Nëse ndërron një token atje, ndërroje edhe k
 - **Reja publike e PeerJS-it nuk u provua as ajo.** Egresi i makinës së provave nuk e lëshon
   `0.peerjs.com`, prandaj mënyra me kod u provua kundër një `peerjs-server` lokal. Ajo që u provua
   është tërë rruga e aplikacionit; ajo që mbetet e paprovuar është vetëm arritja te ai host.
+- **Hook-et rrinë mbi kthimet e para, te `Loja` e te `Grupi`.** React-i i numëron sipas radhës: një
+  `useMemo` nën `if (te_dhenat === null) return …` thirret vetëm pasi të dhënat mbërrijnë, prandaj
+  vizatimi i dytë ka më shumë hook-e se i pari dhe React-i bie me gabimin **#310** — ekrani nuk
+  hapet fare. Ndodhi pikërisht ashtu gjatë kësaj pune, dhe u kap nga një provë me shfletues që
+  numëron fushat dhe lexon konsolën. Vlerat lexohen me `te_dhenat?.…` dhe me konstanten `BOSH`.
+- **`memo` mbi tabelat punon vetëm bashkë me `useMemo` mbi hyrjet.** `Raundet`, `Shlyerja`,
+  `Renditja` e `TabelaEPergjithshme` rrinë pas `memo`, dhe kjo kap diçka vetëm sepse `rreshtat`,
+  `matrica`, `rendituar` e `luajtur` mbahen te një `useMemo` i vetëm, dhe `onRedakto`/`onFshi` te
+  `useCallback`. Nëse dikush e kthen ndonjërën te trupi i vizatimit — një shigjetë brenda JSX-it,
+  ose `rreshtat.map(...)` te vendi i hyrjes — mbështjellja bëhet peshë e kotë.
+- **Numrat e matur, që të mos „optimizohet" ajo që është e shpejtë.** Mbledhja e pikëve për një
+  mbrëmje me gjashtë lojtarë e njëzet raunde: **0.025 ms**. Leximi i raundeve nga IndexedDB:
+  **0.7 ms**. Shkrim plus rilexim: **1.2 ms**. Ruajtja e një raundi, e matur brenda faqes nga
+  shtypja e butonit deri te rreshti i re te DOM-i, me 30 raunde e 8 lojtarë: **26 ms**. Hapja e
+  ekranit të lojës: **82 ms**; e ekranit të grupit me dyzet mbrëmje: **113 ms**. Një shkronjë te
+  fusha: **7 ms**. Pra logjika nuk është pengesë, dhe një matje me Playwright që tregon 140 ms për
+  ruajtjen mat kryesisht kostot e vetë Playwright-it — mate brenda faqes.
 - **`<details>` është çelës, edhe te provat.** Një `click()` mbi titullin e panelit e mbyll atë po
   aq lehtë sa e hap, dhe atëherë etiketa e gjendjes rri te pema por e fshehur — `waitForSelector`
   pret pa fund për diçka që ekziston. Prova e mënyrës me kod e lexon `details.open` para se të

@@ -23,23 +23,69 @@ export function sipasRadhes(rounds: Raundi[]): Raundi[] {
  * Një qelizë e zbrazët nuk është zero e futur me dorë, por raund që s'është
  * shënuar ende; të dyja mblidhen njësoj, prandaj `null` thjesht kapërcehet.
  */
-export function totalet(
-  players: string[],
-  rounds: Raundi[],
-): Record<string, number> {
-  const totals: Record<string, number> = {};
-  for (const player of players) totals[player] = 0;
+/** Ajo që një kalim i vetëm mbi raundet e jep. */
+export type Permbledhja = {
+  /** Shuma e pikëve për secilin lojtar. Qeliza e zbrazët nuk numërohet zero. */
+  totalet: Record<string, number>;
+  /** Sa raunde ka shënuar secili. */
+  luajtur: Record<string, number>;
+  /** A kanë shënuar të gjithë të njëjtin numër raundesh? */
+  barabarte: boolean;
+};
+
+/**
+ * Totalet, raundet e luajtura dhe barazia e pjesëmarrjes — me një kalim.
+ *
+ * Ekrani i lojës i donte të tri, dhe më parë i merrte veç: `totalet`,
+ * `raundetELuajtura`, dhe `pjesemarrjeEBarabarte` që brenda e thërriste sërish
+ * `raundetELuajtura` mbi një listë të filtruar. Katër kalime mbi të njëjtat
+ * raunde, ku një mjafton.
+ *
+ * Filtri i atij kalimi të katërt — `raundet.filter(eshteIMbushur)` — nuk mund
+ * ta ndryshonte kurrë përgjigjen: një raund pa asnjë pikë nuk i shton njërit
+ * numërimin, prandaj heqja e tij i lë të gjitha numërimet ashtu si ishin. Prova
+ * `filtrimi i raundeve bosh nuk e ndryshon pjesëmarrjen` e mban këtë të matur.
+ *
+ * Ky është i vetmi vend te projekti që i mbledh pikët. `totalet` dhe
+ * `raundetELuajtura` rrinë si dritare mbi këtë — dy kopje të të njëjtës mbledhje
+ * do të dilnin jashtë sinkronie pikërisht atje ku numri duhet të jetë i njëjti.
+ */
+export function permbledhja(players: string[], rounds: Raundi[]): Permbledhja {
+  const totalet: Record<string, number> = {};
+  const luajtur: Record<string, number> = {};
+
+  for (const player of players) {
+    totalet[player] = 0;
+    luajtur[player] = 0;
+  }
 
   for (const raundi of rounds) {
     for (const player of players) {
       const pike = raundi.scores[player];
-      if (typeof pike === 'number' && Number.isFinite(pike)) {
-        totals[player] = (totals[player] ?? 0) + pike;
-      }
+      if (typeof pike !== 'number') continue;
+
+      luajtur[player] = (luajtur[player] ?? 0) + 1;
+      // `Number.isFinite` mbron nga `Infinity` e `NaN` që mund të hyjnë nga një
+      // kopje rezervë e prishur; numërimi i raundeve i njeh gjithsesi si pikë.
+      if (Number.isFinite(pike)) totalet[player] = (totalet[player] ?? 0) + pike;
     }
   }
 
-  return totals;
+  const numrat = players.map((player) => luajtur[player] ?? 0);
+
+  return {
+    totalet,
+    luajtur,
+    barabarte: numrat.every((v) => v === numrat[0]),
+  };
+}
+
+/** Vetëm totalet. Dritare mbi `permbledhja`, që mbledhja të rrijë në një vend. */
+export function totalet(
+  players: string[],
+  rounds: Raundi[],
+): Record<string, number> {
+  return permbledhja(players, rounds).totalet;
 }
 
 /**
@@ -140,18 +186,7 @@ export function raundetELuajtura(
   players: string[],
   rounds: Raundi[],
 ): Record<string, number> {
-  const sa: Record<string, number> = {};
-  for (const player of players) sa[player] = 0;
-
-  for (const raundi of rounds) {
-    for (const player of players) {
-      if (typeof raundi.scores[player] === 'number') {
-        sa[player] = (sa[player] ?? 0) + 1;
-      }
-    }
-  }
-
-  return sa;
+  return permbledhja(players, rounds).luajtur;
 }
 
 /**
@@ -165,10 +200,7 @@ export function pjesemarrjeEBarabarte(
   players: string[],
   rounds: Raundi[],
 ): boolean {
-  const sa = raundetELuajtura(players, rounds);
-  const vlerat = players.map((player) => sa[player] ?? 0);
-
-  return vlerat.every((v) => v === vlerat[0]);
+  return permbledhja(players, rounds).barabarte;
 }
 
 /* ── Tabela e përgjithshme e grupit ─────────────────────────────────────── */

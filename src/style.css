@@ -14,13 +14,48 @@
  * Tema e errët nuk është shtojcë: mbrëmja është ora kur luhet.
  */
 
+/* ── Shkronjat ──────────────────────────────────────────────────────────── */
+
+/**
+ * Quicksand, e vendosur brenda paketës.
+ *
+ * Nuk merret nga Google Fonts gjatë hapjes: faqja duhet të hapet e plotë pa
+ * internet, dhe një kërkesë te një host i huaj do të thoshte edhe se dikush
+ * tjetër e mëson kur luajmë. Dy nënbashkësi mjaftojnë — `latin` mban `ë` e `ç`
+ * bashkë me thonjëzat, vizën e gjatë dhe minusin; `latin-ext` mbetet për
+ * gjithçka tjetër që mund të shkruajë dikush te një emër.
+ *
+ * `swap` e lë tekstin të lexohet me shkronjat e sistemit sa pritet skedari, dhe
+ * `preload` te `index.html` e shkurton atë pritje.
+ */
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/shkronja/quicksand-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/shkronja/quicksand-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
 /* ── Tokenat ────────────────────────────────────────────────────────────── */
 
 :root {
   color-scheme: light dark;
 
   --sfond: #f1f5f9;
-  --shkelqimi: rgb(4 120 87 / 10%);
   --siperfaqe: #ffffff;
   --siperfaqe-2: #f8fafc;
   --gjurma: #e2e8f0;
@@ -40,8 +75,6 @@
   /* 5.5:1 mbi sipërfaqe, 4.8:1 mbi mbushjen e vet të zbehtë. */
   --hapur: #047857;
   --hapur-zbehte: #d1fae5;
-  --theks-shkelqim: rgb(3 105 161 / 22%);
-  --hapur-shkelqim: rgb(4 120 87 / 22%);
   /* 5.0:1 mbi sipërfaqe, 4.5:1 mbi mbushjen e vet të zbehtë. */
   --projektim: #b45309;
   --projektim-zbehte: #fef3c7;
@@ -60,6 +93,10 @@
   --hije-1: 0 1px 2px rgb(15 23 42 / 5%);
   --hije-2: 0 1px 2px rgb(15 23 42 / 4%), 0 12px 28px -10px rgb(15 23 42 / 14%);
   --hapesira: clamp(1rem, 4vw, 1.5rem);
+  --shkronja: 'Quicksand', system-ui, -apple-system, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  /* Numrat e kolonave rrinë monospace: te një tabelë pikësh shifrat duhet të
+     bien mbi njëra-tjetrën, dhe Quicksand-i i ka të gjera e proporcionale. */
   --shkronja-numrat: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
     monospace;
 }
@@ -67,7 +104,6 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --sfond: #080f1a;
-    --shkelqimi: rgb(16 185 129 / 12%);
     --siperfaqe: #0f1827;
     --siperfaqe-2: #162033;
     --gjurma: #1e2d45;
@@ -86,8 +122,6 @@
     /* 7.0:1 mbi sipërfaqe, 6.1:1 mbi mbushjen e vet të zbehtë. */
     --hapur: #10b981;
     --hapur-zbehte: #0d2a20;
-    --theks-shkelqim: rgb(6 182 212 / 32%);
-    --hapur-shkelqim: rgb(16 185 129 / 32%);
     /* 8.3:1 mbi sipërfaqe, 7.4:1 mbi mbushjen e vet të zbehtë. */
     --projektim: #f59e0b;
     --projektim-zbehte: #2a2113;
@@ -116,18 +150,14 @@
 body {
   margin: 0;
   background-color: var(--sfond);
-  background-image: radial-gradient(
-    130% 55% at 50% -8%,
-    var(--shkelqimi),
-    transparent 70%
-  );
-  background-repeat: no-repeat;
-  background-attachment: fixed;
   color: var(--teksti);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
+  font-family: var(--shkronja);
   font-size: 1rem;
-  line-height: 1.55;
+  /* Quicksand-i i ka shkronjat e gjera dhe x-in e lartë: një rresht më i hapur
+     e mban tekstin të palodhshëm, dhe pesha 500 e mban të lexueshëm te ekrani i
+     vogël pa dalë e trashë. */
+  font-weight: 500;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -142,6 +172,16 @@ h1,
 h2,
 h3 {
   font-weight: 700;
+}
+
+/*
+ * Quicksand-i vjen me një bark të gjerë dhe qoshe të rrumbullakuara, prandaj
+ * shtrëngimi i një fonti sistemi e mbledh tepër. Titujt mbahen me shtrëngim të
+ * lehtë dhe peshë të plotë, që të mos dalin të butë.
+ */
+.kreu__titull,
+.zbrazet__titull {
+  letter-spacing: -0.015em;
 }
 
 :where(a, button, summary, input, select, [tabindex]):focus-visible {
@@ -223,25 +263,10 @@ h3 {
   height: 2.75rem;
   margin-top: 0.15rem;
   flex: none;
-  filter: drop-shadow(0 6px 16px rgb(4 120 87 / 30%));
-}
-
-@media (prefers-color-scheme: dark) {
-  .marka {
-    filter: drop-shadow(0 6px 18px rgb(16 185 129 / 35%));
-  }
-}
-
-.marka__nga {
-  stop-color: var(--hapur);
-}
-
-.marka__deri {
-  stop-color: var(--theks);
 }
 
 .marka__fusha {
-  fill: url(#marka-fusha);
+  fill: var(--hapur);
 }
 
 .marka__letrat rect {
@@ -262,9 +287,8 @@ h3 {
 .kreu__titull {
   margin: 0.15rem 0 0;
   font-size: clamp(1.5rem, 5.4vw, 2rem);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.035em;
+  font-weight: 700;
+  line-height: 1.15;
   text-wrap: balance;
 }
 
@@ -346,12 +370,7 @@ h3 {
   position: absolute;
   inset: 0 0 auto;
   height: 3px;
-  background: linear-gradient(
-    90deg,
-    var(--hapur),
-    var(--theks) 55%,
-    transparent 92%
-  );
+  background: var(--hapur);
 }
 
 /* ── Butonat ────────────────────────────────────────────────────────────── */
@@ -393,15 +412,15 @@ h3 {
 
 .buton--kryesor,
 .buton--kryesor:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--hapur), var(--theks));
-  border-color: transparent;
+  background: var(--hapur);
+  border-color: var(--hapur);
   color: var(--mbi-gjendje);
-  box-shadow: 0 6px 18px -4px var(--hapur-shkelqim);
+  box-shadow: var(--hije-1);
 }
 
 .buton--kryesor:hover:not(:disabled) {
-  filter: brightness(1.08);
-  box-shadow: 0 12px 26px -6px var(--hapur-shkelqim);
+  filter: brightness(1.06);
+  box-shadow: var(--hije-2);
 }
 
 .buton--rrezik:hover:not(:disabled) {
@@ -546,7 +565,7 @@ h3 {
 a.njesi:hover {
   border-color: var(--hapur);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px -6px var(--hapur-shkelqim);
+  box-shadow: var(--hije-2);
 }
 
 .njesi__shkronja {
@@ -671,10 +690,10 @@ a.njesi:hover {
 
 .zgjedhesi__njesi[aria-pressed='true'],
 .zgjedhesi__njesi[aria-pressed='true']:hover {
-  background: linear-gradient(135deg, var(--hapur), var(--theks));
-  border-color: transparent;
+  background: var(--hapur);
+  border-color: var(--hapur);
   color: var(--mbi-gjendje);
-  box-shadow: 0 6px 16px -6px var(--hapur-shkelqim);
+  box-shadow: var(--hije-1);
 }
 
 /* Numri i radhës brenda çelësit — radha e uljes në tavolinë ka rëndësi. */
@@ -965,11 +984,10 @@ th.numri {
   gap: 0.55rem;
   padding-top: 0.55rem;
   margin-top: -0.1rem;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    var(--siperfaqe) 0.5rem
-  );
+  /* Rreshti rri `sticky` mbi tabelën: një sipërfaqe e plotë me vijë mbi e ndan
+     më qartë se një tretje, dhe pa kalim nuk ka çka të dalë shirit i turbullt. */
+  background: var(--siperfaqe);
+  border-top: 1px solid var(--kufiri);
 }
 
 .futja__shuma {
@@ -1117,8 +1135,8 @@ th.numri {
 }
 
 .celesi__njesi[aria-pressed='true'] {
-  background: linear-gradient(135deg, var(--hapur), var(--theks));
-  border-color: transparent;
+  background: var(--hapur);
+  border-color: var(--hapur);
   color: var(--mbi-gjendje);
 }
 
@@ -1450,12 +1468,6 @@ th.numri {
     --hapur-zbehte: #eee;
     --hije-1: none;
     --hije-2: none;
-    --hapur-shkelqim: transparent;
-    --theks-shkelqim: transparent;
-  }
-
-  body {
-    background-image: none;
   }
 
   .marka {
