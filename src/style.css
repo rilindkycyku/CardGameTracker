@@ -1616,3 +1616,233 @@ th.numri {
   margin-right: 0.3rem;
   font-size: 0.62rem;
 }
+
+/* ── Ndarja e rezultatit ────────────────────────────────────────────────── */
+
+.ndarja {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.ndarja__krye {
+  flex: 1 1 11rem;
+  min-width: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+/**
+ * Kodi QR.
+ *
+ * Sfondi mbetet i bardhë edhe në temën e errët, dhe pikat të zeza: skanuesi
+ * pret të errët mbi të çelët, dhe një kod i përmbysur nuk lexohet nga shumë
+ * telefona. Prandaj këtu ngjyrat nuk vijnë nga tokenat e temës.
+ */
+.qr {
+  display: block;
+  width: 9.5rem;
+  height: 9.5rem;
+  flex: none;
+  border-radius: var(--rreze-3);
+  box-shadow: var(--hije-1);
+}
+
+.qr__sfondi {
+  fill: #ffffff;
+}
+
+.qr__pikat {
+  fill: #000000;
+}
+
+@media (max-width: 22rem) {
+  .ndarja {
+    justify-content: center;
+  }
+}
+
+/* ── Lidhja e drejtpërdrejtë ────────────────────────────────────────────── */
+
+.drejtperdrejt {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.drejtperdrejt__gjendja {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.drejtperdrejt__gjendja .buton {
+  margin-left: auto;
+}
+
+/**
+ * Etiketa e gjendjes kur ka dikë që shikon.
+ *
+ * Ngjyra nuk është zbukurim: paneli e ka një pyetjeje të vetme — «po arrijnë
+ * pikët te tjetri apo jo» — dhe përgjigja duhet të lexohet me një sy.
+ */
+.etiketa--hapur {
+  border-color: var(--hapur);
+  color: var(--hapur);
+}
+
+/**
+ * Kodi i ftesës rri i madh dhe i centruar.
+ *
+ * Ftesa mban një gishtëz DTLS dhe kredencialet ICE, prandaj del rreth dyqind
+ * karaktere — 57 module kur kandidati është emër mDNS, si te telefoni. Dhe këtë
+ * kod duhet ta lexojë kamera e një telefoni tjetër nga ekrani i këtij, që është
+ * rasti më i vështirë i skanimit: ekran i ndritshëm, kënd i shtrembër, dorë që
+ * dridhet.
+ *
+ * Prandaj kufiri është 18rem e jo 15rem: me zonën e qetë dalin 65 module, pra
+ * 4.4 piksela për modul në vend të 3.7. Nën tri piksela skanimi nga ekran në
+ * ekran nis të dështojë, dhe 18rem hyn edhe te paneli i një telefoni 390px.
+ */
+.ftesa {
+  display: flex;
+  justify-content: center;
+}
+
+.qr--madh {
+  width: 100%;
+  max-width: 18rem;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+/**
+ * Hapat e shkëmbimit.
+ *
+ * Rrinë të shkruar sepse hapi i dytë nuk merret me mend: skanova kodin, dhe
+ * tani pse më del një kod tjetër? Numri rri brenda një rrethi, që radha të
+ * lexohet si radhë e jo si listë.
+ */
+.hapat {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: hapi;
+}
+
+.hapat li {
+  display: grid;
+  grid-template-columns: 1.55rem 1.15rem 1fr;
+  align-items: start;
+  gap: 0.55rem;
+  font-size: 0.85rem;
+  color: var(--teksti-zbehte);
+}
+
+.hapat li::before {
+  counter-increment: hapi;
+  content: counter(hapi);
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 999px;
+  background: var(--siperfaqe-2);
+  border: 1px solid var(--kufiri-veprues);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--teksti);
+  font-variant-numeric: tabular-nums;
+}
+
+.hapat .ikona {
+  margin-top: 0.15rem;
+  color: var(--theks);
+}
+
+.hapat strong {
+  color: var(--teksti);
+}
+
+/**
+ * Adresa si tekst.
+ *
+ * Rri e dukshme sepse është rruga rezervë: kur kamera nuk e kap kodin, lidhja
+ * dërgohet si mesazh. Numrat tabelorë nuk i duhen — është adresë, jo numër —
+ * por gjerësia e plotë i duhet, që zgjedhja me gisht t'i marrë të tërën.
+ */
+.lidhja {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.lidhja__tekst {
+  width: 100%;
+  font-size: 0.78rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/** `<details>` brenda një `<details>`-i: pa sfond të dytë e pa kufi të dytë. */
+.detaje--brenda {
+  background: none;
+  border-color: var(--kufiri);
+}
+
+.detaje--brenda > .detaje__krye {
+  padding: 0.6rem 0;
+  font-size: 0.85rem;
+}
+
+.detaje--brenda > .detaje__trupi {
+  padding: 0 0 0.6rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+/* ── Mënyrat e lidhjes ──────────────────────────────────────────────────── */
+
+.menyrat {
+  display: grid;
+  gap: 0.85rem;
+}
+
+/**
+ * Kodi i bashkimit.
+ *
+ * Tregohet i madh dhe me numra tabelorë sepse puna e tij është pikërisht të
+ * lexohet nga larg dhe të diktohet me zë. Hapësira mes shkronjave i ndan
+ * karakteret që ngjajnë; alfabeti i hoqi `I`, `L`, `O` e `U`, dhe kjo e mbaron
+ * punën.
+ */
+.kodi {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--kufiri-veprues);
+  border-radius: var(--rreze-2);
+  background: var(--siperfaqe-2);
+  font-family: var(--shkronja-numrat);
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--teksti);
+  overflow-wrap: anywhere;
+}
+
+.kodi-fusha {
+  font-family: var(--shkronja-numrat);
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 22rem) {
+  .kodi {
+    font-size: 1.35rem;
+    letter-spacing: 0.08em;
+  }
+}

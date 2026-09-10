@@ -4,7 +4,7 @@ Udhëzime për asistentët e IA-së që punojnë në këtë depo. Lexoje para se
 
 Dokumentacioni i projektit është shqip, prandaj edhe ky skedar. Struktura, komentet, commit-et
 dhe teksti në ekran janë shqip — mos e ndërro gjuhën. Përjashtim bëjnë vetëm emrat e fushave të
-të dhënave (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`), për arsyen te pika 7.
+të dhënave (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`), për arsyen te pika 8.
 
 ## Çka është kjo
 
@@ -17,6 +17,11 @@ Tri gjëra e përcaktojnë çdo vendim këtu:
 1. **Nuk ka server.** IndexedDB dhe asgjë tjetër. Loja luhet rreth tavolinës, jo çdo mbrëmje ka
    internet të mirë, dhe historiku i një shoqërie nuk ka pse të rrijë te dikush tjetër. Kjo do të
    thotë edhe se kopja rezervë nuk është shtojcë — është dalja e vetme e të dhënave.
+
+   Ka **një shmangje të vetme**, dhe rri e rrethuar: mënyra „me kod" e lidhjes së drejtpërdrejtë
+   (`lidhjaMeServer.ts`) përdor një server sinjalizimi të huaj. Nuk niset kurrë vetë, nuk është e
+   parazgjedhur, dhe ekrani i thotë hapur çka del nga pajisja para se të shtypet butoni. Të dhënat
+   e lojës nuk shkruhen te asnjë server edhe atëherë. Kushtet e plota te pika 7.
 2. **Përdoruesi po mban letrat me dorën tjetër.** Çdo fushë numri është së paku 2.75rem, tastiera
    del numerike, dhe blloku që përdoret dhjetëra herë në mbrëmje („Ruaj raundin") rri i pari.
    Ekrani i ngushtë vjen i pari; kompjuteri pas.
@@ -30,20 +35,26 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 68 prova, pa framework provash
+npm test          # node --test — 122 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
 
 ## Rregullat e arkitekturës
 
-### 1. `llogaritjet.ts`, `pikezimi.ts` dhe `fusha.ts` nuk njohin as bazën, as React-in, as `window`-in
+### 1. Logjika rri te module që nuk njohin as bazën, as React-in, as `window`-in
 
-Të treja importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
-zgjat treqind milisekonda dhe nuk ka çka të prishet mes provës dhe kodit.
+`llogaritjet.ts`, `pikezimi.ts`, `fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts`
+dhe `kodi.ts` importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
+zgjat nën një sekondë dhe nuk ka çka të prishet mes provës dhe kodit.
 
-Logjika e re shkon në njërin nga këta tre skedarë, me prova. Mos fut `import` të bazës, të
-React-it apo të ndonjë API-je të shfletuesit në to.
+`lidhja.ts`, `lidhjaMeServer.ts` dhe `ruajtja.ts` nuk hyjnë te kjo listë me qëllim: e para njeh
+`RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e treta bazën. Logjika e tyre e
+provueshme është nxjerrë jashtë — te `sinjalizimi.ts`, `kodi.ts` dhe `kopja.ts` — dhe ajo që mbetet
+provohet me shfletues.
+
+Logjika e re shkon te një prej tyre, ose te një modul i ri i të njëjtit lloj, me prova. Mos fut
+`import` të bazës, të React-it apo të ndonjë API-je të shfletuesit në to.
 
 ### 2. Asnjë vlerë e derivuar nuk ruhet
 
@@ -108,7 +119,149 @@ Një lojtar që ka hapur e ka mbetur me zero pikë do ta kishte mbyllur vetë ra
 nuk humb asnjë gjendje të vërtetë. Me gjashtë lojtarë kjo e preu llogaritësin nga 1195px në 569px
 dhe hoqi pesë prekje.
 
-### 7. Emrat e fushave vijnë nga `logic.json`
+### 7. Rezultati shpërndahet tri rrugë, dhe parazgjedhja nuk ka server
+
+Kush rri rreth tavolinës do t'i shohë pikët në telefonin e vet. Ka tri rrugë, dhe secila mbulon atë
+që tjetra nuk mundet:
+
+- **E drejtpërdrejtë, pa server** (`lidhja.ts`, `sinjalizimi.ts`): një kanal WebRTC mes telefonave
+  të së njëjtës rrjetë, me sinjalizimin nëpër dy kode QR. Parazgjedhja, dhe e vetmja që nuk
+  kontakton kurrë asnjë server.
+- **E drejtpërdrejtë, me kod** (`lidhjaMeServer.ts`, `kodi.ts`): i njëjti kanal WebRTC, por
+  sinjalizimi kalon nëpër një server të huaj, prandaj mjafton një kod tetëkarakterësh. Shmangja e
+  vetme nga pika 1, dhe rri me kushte — më poshtë.
+- **Fotografia e çastit** (`ndarja.ts`): gjendja shkruhet te vetë adresa, adresa bëhet kod QR, dhe
+  kush e skanon hap `#/shiko/<paketë>`. Rri sepse e para ka një kufi që nuk varet nga kodi — një
+  rrjetë që i ndan klientët nga njëri-tjetri (AP isolation, wifi hoteli, „rrjeta e mysafirëve") e
+  bllokon lidhjen fare. Atëherë fotografia është e vetmja, dhe punon edhe kur telefonat nuk janë
+  fare në të njëjtin wifi.
+
+Katër rrugë — `#/shiko/`, `#/lidhu/`, `#/pergjigje/` dhe `#/bashkohu/` — nuk lexojnë as shkruajnë
+në bazë fare.
+Prandaj hapen edhe në një telefon që nuk e ka pasur kurrë aplikacionin: pikërisht ai që sapo skanoi
+kodin. Një provë me shfletues e mban këtë të matur duke kontrolluar se `indexedDB.databases()` te
+ana që shikon rri e zbrazët.
+
+Ajo që kalon nëpër kanal është pikërisht paketa e `ndarja.ts` — të njëjtat bajte të fotografisë —
+dhe `PamjaERezultatit` është një vend i vetëm vizatimi për të dyja. Dy kopje do të dilnin jashtë
+sinkronie pikërisht atje ku numri duhet të jetë i njëjti.
+
+#### Sinjalizimi kalon nëpër kamerën e telefonit
+
+WebRTC-ja kërkon që të dy anët t'i njohin kredencialet e njëra-tjetrës, dhe kjo bëhet zakonisht me
+një server sinjalizimi. Server nuk ka, prandaj sinjali kalon nga jashtë — dy kode QR:
+
+1. Strehuesi tregon ftesën. Kush shikon e skanon me **kamerën e telefonit**, jo me aplikacionin, dhe
+   kamera hap `#/lidhu/<paketë>`.
+2. Ai ekran tregon një kod të dytë. Strehuesi e skanon me kamerën e vet, dhe kamera hap
+   `#/pergjigje/<paketë>` **në një skedë të dytë**.
+3. Skeda e dytë e kalon paketën te skeda e lojës me `BroadcastChannel`, merr pohimin dhe thotë
+   „mbyllu".
+
+Hapi i tretë ekziston sepse skeda e lojës nuk guxon të lëvizë: ajo mban `RTCPeerConnection`-in, dhe
+një navigim do ta vriste pikërisht lidhjen që po ndërtohej. Kamera nuk di t'ia dorëzojë tekstin një
+skede që rri hapur.
+
+Hapat rrinë të shkruar me numra te ekrani. Hapi i dytë nuk merret me mend — *skanova kodin, dhe tani
+pse më del një kod tjetër?* — dhe pa fjalë njeriu ngec atje.
+
+#### Gjërat që nuk guxojnë të hiqen
+
+- **`iceServers` rri i zbrazët.** Pa STUN e pa TURN mblidhen vetëm kandidatë `typ host`, prandaj
+  asnjë server nuk kontaktohet dhe lidhja del vetëm brenda së njëjtës rrjetë. Kjo nuk është kufizim
+  i pranuar me hall — është pika 1 e mbajtur: pikët nuk kalojnë nëpër asnjë pajisje tjetër. Prandaj
+  `sinjaliNgaSdp` i heq kandidatët `srflx` e `relay` (do të kërkonin serverin që nuk ka) dhe ata TCP
+  me portë 9 (të pavlefshëm pa të).
+- **Nga SDP-ja mbahen gjashtë fusha, pjesa tjetër rindërtohet.** SDP-ja e Chrome-it del mbi një mijë
+  bajte dhe pothuajse e tëra është tekst i njëjtë çdo herë; `sdpNgaSinjali` e shkruan atë fjalë për
+  fjalë. Nga 1200 bajte bien nën 250 — pra një kod QR që skanohet. Nëse i prek fushat, prova
+  `SDP-ja e rindërtuar i mban të gjitha fushat që kanë kuptim` e lexon rindërtimin sërish dhe
+  krahason.
+- **Çdo fushë kontrollohet me alfabet të ngushtë kur shpaketohet.** Sinjali vjen nga kushdo që të
+  tregon një kod QR, dhe një rresht i futur brenda një adrese — `\r\n` pastaj një kandidat `relay`
+  që shpik një server — do t'i çonte pikët atje. Prandaj nuk kalon asnjë karakter që SDP-ja e lexon
+  si ndarës. Mos e zbut `ADRESA`, `ICE` as `MID`.
+- **Paketa ka nënshkrim** (`nenshkrimi()` te `paketa.ts`, FNV-1a me bazë 36). Te fotografia, pa të
+  një adresë e prerë lexohej ende dhe totali i lojtarit të fundit dilte 105 → 0, pra ai dilte
+  fitues; meqë ajo pamje shërben për t'u shlyer mes vete, një numër i gabuar në heshtje është më i
+  keq se një lidhje që thotë hapur „nuk lexohem". Te sinjali arsyeja është tjetër dhe përfundimi i
+  njëjti: një gishtëz DTLS e prerë e lë lidhjen të dështojë pa shpjegim. Mos e hiq, dhe mos i shto
+  fusha paketës pa e futur në nënshkrim.
+- **Përgjigja mban `ref`** — `ufrag`-un e ftesës që i përgjigjet. Pa të, një përgjigje e vjetër, kodi
+  i mbetur i hapur në ekranin e dikujt, do të aplikohej mbi ftesën e re dhe lidhja do të vdiste në
+  heshtje.
+- **Ftesa e radhës përgatitet te `dc.onopen`, e jo sa pranohet përgjigja.** Përndryshe kodi QR
+  ndërrohet nën hundën e atij që po e skanon.
+- **Rruga me dorë rri jashtë kushtit të ftesës.** Brenda tij ajo zhduket pikërisht kur duhet: kur
+  përgatitja e ftesës dështon dhe kodi QR nuk del fare, ngjitja e kodit është e vetmja rrugë e
+  mbetur.
+
+#### Mënyra e dytë: kodi i shkurtër, dhe kushtet e shmangjes
+
+Shkëmbimi pa server kërkon dy skanime, sepse gishtëza DTLS dhe kredencialet ICE nuk hyjnë te tetë
+karaktere dhe duhet të kalojnë nga jashtë. Me një server sinjalizimi mes vete, të dyja anët i marrin
+ato nga serveri, dhe mbetet vetëm një emër i shkurtër — një skanim, ose një kod i diktuar me zë.
+Punon edhe kur telefonat nuk janë te i njëjti wifi, dhe edhe kur rrjeta i ndan klientët.
+
+Kjo shmangje pranohet vetëm nën këto kushte, dhe nëse dikush e prek një prej tyre, shmangja nuk
+qëndron më:
+
+- **Nuk është e parazgjedhur, dhe nuk niset vetë kurrë.** `Drejtperdrejt` hapet te «Pa server», dhe
+  mënyra me kod kërkon dy prekje: zgjedhjen e çelësit dhe pastaj butonin. **Mos shto rënie
+  automatike te serveri** kur mënyra pa server dështon — një kalim i heshtur te serveri është
+  pikërisht ajo që pika 1 ndalon.
+- **Ekrani e thotë çka del nga pajisja, para butonit.** Te serveri i sinjalizimit shkojnë kodi dhe
+  adresat ICE (pra edhe IP-ja); te relenjat TURN, dhe vetëm kur lidhja e drejtpërdrejtë dështon,
+  kalojnë bajtet e kanalit — të kriptuara me DTLS, prandaj relenja nuk i lexon pikët. Pikët nuk
+  ruhen te asnjë server. I njëjti shënim rri edhe te `#/bashkohu`, sepse kush skanon një kod nuk e
+  ka lexuar tekstin te ana tjetër.
+- **PeerJS-i ngarkohet vetëm kur mënyra niset** (`await import('peerjs')`). Kush nuk e prek fare nuk
+  e shkarkon fare: `index.html` nuk e përmend chunk-un, dhe një provë me shfletues e kontrollon se
+  nuk kërkohet as kur zgjedhet çelësi — vetëm pas butonit. Ky është kushti nën të cilin varësia e
+  katërt qëndron.
+- **Gjithçka që njeh PeerJS-in rri te një skedar.** `lidhjaMeServer.ts` është i vetmi që e importon;
+  komponentët njohin vetëm klasat e tij. Kështu shmangja nuk përhapet, dhe heqja e mënyrës do të
+  ishte heqja e një skedari.
+- **Kodi ka tetë karaktere, jo gjashtë.** Emrat te reja publike e PeerJS-it rrinë në një hapësirë të
+  përbashkët publike, prandaj kush e gjen emrin i shikon pikët. Tetë karaktere nga tridhjetë e dy
+  janë dyzet bita; gjashtë do të kishin qenë njësoj të lehta për t'u qëlluar sa për t'u shkruar.
+  Emri mban edhe parathënjen `bridzh-`, që të mos përplaset me emrat e aplikacioneve të tjera te ajo
+  hapësirë.
+- **Alfabeti është Crockford base32** — pa `I`, `L`, `O`, `U` — dhe leximi i kthen ngatërresat
+  prapa (`O`→`0`, `I`/`L`→`1`), sepse kodi diktohet me zë dhe shkruhet me nxitim. Vija dhe shkronjat
+  e vogla nuk pengojnë.
+
+`VITE_PEER_SERVER` (si `host:porta/shtegu`) e ndërron serverin gjatë ndërtimit. E zbrazët — dhe
+kështu rri te prodhimi — do të thotë reja publike. Ekziston sepse reja publike nuk kapet nga makina
+e provave, dhe pa të e tërë kjo mënyrë do të shkonte e paprovuar; dhe sepse kush nuk do t'ia besojë
+lidhjen një serveri të huaj mund të ngrejë të vetin. Prova me shfletues ngre një `peerjs-server`
+lokal dhe kalon nëpër tërë rrugën; ndërtimi i prodhimit kontrollohet se nuk mban asnjë gjurmë të
+adresës së provave.
+
+#### Kodi QR
+
+I shkruar me dorë te `qr.ts` — mënyra „byte", niveli L, versionet 1–20 — sepse rregulli i varësive
+vlen edhe këtu. Një kod QR i gabuar nuk duket i gabuar, thjesht nuk lexohet, prandaj
+`test/qr.test.mjs` mban matrica të ngrira që u vizatuan dhe u lexuan me `zxing-cpp`, një dekodues
+krejt i pavarur. Gjatë zhvillimit u kontrollua i tërë intervali 1–20 njësoj: njëzet e katër tekste,
+mes tyre UTF-8 shumëbajtësh, u lexuan të gjitha saktë. Nëse i prek bitet e koduesit, riverifikoji
+ashtu — jo me sy.
+
+Kodi i mënyrës me kod është shumë më i shpërndarë: adresa `#/bashkohu/<kod>` është 43 karaktere,
+pra 29 module dhe 7.8 piksela për modul — `zxing-cpp` e lexon edhe te një e pesta e madhësisë. Kjo
+është përfitimi i dytë i atij mënyre, pas kodit të diktueshëm.
+
+Ftesa e mënyrës pa server merr `qr--madh`, me kufi 18rem e jo 15rem. Ftesa del rreth 240 karaktere — 57 module kur
+kandidati është emër mDNS, si te telefoni — dhe këtë kod duhet ta lexojë kamera e një telefoni tjetër
+nga ekrani i këtij: ekran i ndritshëm, kënd i shtrembër, dorë që dridhet. Me zonën e qetë dalin 65
+module, pra 4.4 piksela për modul te 18rem në vend të 3.7. E vizatuar ashtu, `zxing-cpp` e lexon
+edhe kur zvogëlohet në 1.5 piksela për modul, edhe me turbullim, edhe me kontrast 15%.
+
+Sfondi i kodit mbetet i bardhë edhe në temën e errët, dhe pikat të zeza: skanuesi pret të errët mbi
+të çelët, dhe një kod i përmbysur nuk lexohet nga shumë telefona. Kjo është e vetmja ngjyrë te
+projekti që nuk vjen nga tokenat.
+
+### 8. Emrat e fushave vijnë nga `logic.json`
 
 `test/logic.json` është fleta origjinale e nxjerrë nga Google Sheets-i, dhe çdo numër aty u
 kontrollua kundër formulave të saj. Provat maten kundër tij, jo kundër pritjeve të shpikura.
@@ -122,7 +275,7 @@ automatizuar dhe jo nga tabela: `domina_1.standings` (një rresht nga tre lojtar
 `brigj_4_merged_teams.settlement_matrix` (rreshti i dytë quhet `null`). Totalet e të dyve janë të
 plota dhe provohen normalisht. Mos i „rregullo" ato fusha — janë dëshmi e asaj që erdhi.
 
-### 8. Vlerat dinamike vizatohen me SVG, jo me atribut `style`
+### 9. Vlerat dinamike vizatohen me SVG, jo me atribut `style`
 
 Asnjë atribut `style` nuk shkruhet askund: vlerat që ndryshojnë marrin klasë ose atribut SVG. Kjo
 është zakoni i Kujdestarisë, ku CSP-ja `style-src 'self'` e ndalon atributin `style` fare — dhe
@@ -130,14 +283,26 @@ mbahet edhe këtu, që të dy projektet të mbeten të zëvendësueshëm.
 
 Nëse shton diçka që kërkon stil inline, zgjidhja është një klasë ose një atribut SVG.
 
-### 9. Pa bibliotekë grafikësh, pa bibliotekë rrugëtimi, pa bibliotekë gjendjeje
+### 10. Pa bibliotekë grafikësh, pa bibliotekë rrugëtimi, pa bibliotekë gjendjeje
 
-Varësitë janë tri: `react`, `react-dom`, `idb`. Rrugët janë katër; një `switch` mbi hash-in
+Varësitë janë katër: `react`, `react-dom`, `idb` dhe `peerjs` — pa bibliotekë kodesh QR, dhe pa
+bibliotekë WebRTC-je për mënyrën e parazgjedhur, që rri e shkruar me dorë.
+
+`peerjs` është e katërta dhe e vetmja që hyri pas rregullit, prandaj mban kushte: ngarkohet vetëm me
+kërkesë, e prek vetëm një skedar, dhe mbulon vetëm mënyrën që përdoruesi zgjedh me dorë (pika 7).
+Nëse ndonjë prej tyre bie, bie edhe arsyeja pse rri.
+
+Rrugët janë pak; një `switch` mbi hash-in
 mjafton dhe butoni «prapa» i telefonit punon vetvetiu. Gjendja lexohet nga baza pas çdo shkrimi —
 baza është lokale, një lexim i tërë është disa milisekonda, dhe një cache që del jashtë sinkronie
 do të ishte rrezik pa përfitim.
 
 Mos shto framework, mos shto bibliotekë komponentësh, mos shto bibliotekë grafikësh.
+
+Për zhvillim përdoren dëshmitarë që **nuk hyjnë te aplikacioni** dhe nuk rrinë te `package.json`:
+`segno`, `zxing-cpp` e `pillow` për koduesin QR, dhe `npx peer` (`peerjs-server`) si server
+sinjalizimi lokal gjatë provave të mënyrës me kod. Mos i shto te varësitë — `peer` sjell me vete
+`express` me dobësi të njohura, dhe një depo e klonuar nuk ka pse t'i marrë.
 
 ## Sistemi vizual
 
@@ -194,3 +359,29 @@ duken si i njëjti dorëshkrim. Nëse ndërron një token atje, ndërroje edhe k
   para te historiku — më e reja sipas datës.
 - **Kolona e parë e tabelës së raundeve rri `sticky`.** Me gjashtë lojtarë tabela del më e gjerë se
   telefoni, dhe pa të humb se cili raund po shihet sapo rrëshqitet.
+- **Përgjigja e lidhjes mbërrin nga dy rrugë njëherësh** — `BroadcastChannel` dhe ngjarja `storage` —
+  prandaj `pergjigju()` e shkruan gjendjen **para** `await`-it. Me shkrimin pas tij, thirrja e dytë e
+  gjente `#pritja`-n ende të plotë, shkruheshin dy përshkrime mbi të njëjtën lidhje, e dyta kërcente,
+  dhe kapja e gabimit rrëzonte një lidhje që ishte e mirë. Dilte një herë në tri te prova me
+  shfletues; mos e zhvendos atë shkrim pas `await`-it.
+- **Lidhjet e hapura mbahen veç ftesës që pret.** `#hapFtese` e mbyll ftesën e papërgjigjur, dhe ajo
+  thirret nga `dc.onopen` — pa këtë ndarje do të mbyllte pikërisht lidhjen që sapo u hap.
+- **Një kod i skanuar merr gjithmonë përgjigje me fjalë.** Kur nuk ka ftesë të hapur, kodi është i
+  vjetër gjithsesi; pa mesazh, njeriu ngjit kodin, shtyp «Lidhu», dhe nuk ndodh kurrgjë.
+- **Lidhja nis me kërkesë, jo me hapjen e ekranit.** `<details>` vetëm i fsheh fëmijët, prandaj
+  paneli rri i montuar edhe i mbyllur — dhe pa çelësin `nisur` çdo hapje e një loje do të ngrinte një
+  `RTCPeerConnection` që nuk i kërkoi kush. Po ashtu, lidhja jeton sa rri hapur ajo skedë.
+- **Kandidatët e telefonit janë emra mDNS**, jo IP: `<uuid>.local`. Ata zgjidhen mes pajisjeve të së
+  njëjtës rrjetë, prandaj punojnë — por i shtojnë ftesës dyzet karaktere, dhe kjo është arsyeja pse
+  gishtëza paketohet si bajte e jo si heks.
+- **Nuk u provua me dy telefona të vërtetë.** Prova me shfletues i ngre të dy anët në të njëjtën
+  makinë, prandaj ICE-ja lidhet mbi `192.0.2.2` e mDNS-i zgjidhet brenda së njëjtës Chrome. Rruga e
+  parë kur diçka nuk punon në wifi të vërtetë është `chrome://webrtc-internals`, dhe dyshimi i parë
+  është ndarja e klientëve nga rrjeta.
+- **Reja publike e PeerJS-it nuk u provua as ajo.** Egresi i makinës së provave nuk e lëshon
+  `0.peerjs.com`, prandaj mënyra me kod u provua kundër një `peerjs-server` lokal. Ajo që u provua
+  është tërë rruga e aplikacionit; ajo që mbetet e paprovuar është vetëm arritja te ai host.
+- **`<details>` është çelës, edhe te provat.** Një `click()` mbi titullin e panelit e mbyll atë po
+  aq lehtë sa e hap, dhe atëherë etiketa e gjendjes rri te pema por e fshehur — `waitForSelector`
+  pret pa fund për diçka që ekziston. Prova e mënyrës me kod e lexon `details.open` para se të
+  klikojë.
