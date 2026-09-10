@@ -4,7 +4,7 @@ Udhëzime për asistentët e IA-së që punojnë në këtë depo. Lexoje para se
 
 Dokumentacioni i projektit është shqip, prandaj edhe ky skedar. Struktura, komentet, commit-et
 dhe teksti në ekran janë shqip — mos e ndërro gjuhën. Përjashtim bëjnë vetëm emrat e fushave të
-të dhënave (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`), për arsyen te pika 7.
+të dhënave (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`), për arsyen te pika 8.
 
 ## Çka është kjo
 
@@ -30,20 +30,21 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 68 prova, pa framework provash
+npm test          # node --test — 94 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
 
 ## Rregullat e arkitekturës
 
-### 1. `llogaritjet.ts`, `pikezimi.ts` dhe `fusha.ts` nuk njohin as bazën, as React-in, as `window`-in
+### 1. Logjika rri te module që nuk njohin as bazën, as React-in, as `window`-in
 
-Të treja importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
-zgjat treqind milisekonda dhe nuk ka çka të prishet mes provës dhe kodit.
+`llogaritjet.ts`, `pikezimi.ts`, `fusha.ts`, `qr.ts` dhe `ndarja.ts` importohen drejtpërdrejt nga
+`node --test`, pa bundler dhe pa DOM — prandaj `npm test` zgjat nën një sekondë dhe nuk ka çka të
+prishet mes provës dhe kodit.
 
-Logjika e re shkon në njërin nga këta tre skedarë, me prova. Mos fut `import` të bazës, të
-React-it apo të ndonjë API-je të shfletuesit në to.
+Logjika e re shkon te një prej tyre, ose te një modul i ri i të njëjtit lloj, me prova. Mos fut
+`import` të bazës, të React-it apo të ndonjë API-je të shfletuesit në to.
 
 ### 2. Asnjë vlerë e derivuar nuk ruhet
 
@@ -108,7 +109,39 @@ Një lojtar që ka hapur e ka mbetur me zero pikë do ta kishte mbyllur vetë ra
 nuk humb asnjë gjendje të vërtetë. Me gjashtë lojtarë kjo e preu llogaritësin nga 1195px në 569px
 dhe hoqi pesë prekje.
 
-### 7. Emrat e fushave vijnë nga `logic.json`
+### 7. Ndarja e rezultatit shkon brenda adresës, sepse server nuk ka
+
+Dy telefona në të njëjtin wifi nuk kapen dot drejtpërdrejt nga shfletuesi: WebRTC-ja kërkon një
+server sinjalizimi, dhe gjithçka tjetër rri brenda një pajisjeje. Prandaj pamja e drejtpërdrejtë
+është e pamundur pa thyer pikën 1, dhe rruga e zgjedhur është fotografia e çastit: gjendja shkruhet
+te vetë adresa, adresa bëhet kod QR, dhe kush e skanon hap `#/shiko/<paketë>` — vetëm-lexim, pa
+lexuar as pa shkruar në bazë. Hapet edhe në një telefon që nuk e ka pasur kurrë aplikacionin.
+
+Tri gjëra e mbajnë të përdorshme:
+
+- **Paketohen vetëm emrat dhe totalet, jo raundet.** Matrica është `total[i] − total[j]` dhe
+  renditja del nga totalet, prandaj nuk humbet asgjë që tregohet. Raundet do t'i shumëfishonin
+  bajtet, dhe një kod QR i dendur nuk skanohet nga ekrani i një telefoni në gjysmëdritë. Një lojë
+  me gjashtë lojtarë zë nën dyqind karaktere — një provë e mban këtë kufi.
+- **Paketa ka nënshkrim** (`nenshkrimi()`, FNV-1a me bazë 36). Pa të, një adresë e prerë lexohej
+  ende dhe totali i lojtarit të fundit dilte 105 → 0, pra ai dilte fitues. Meqë kjo pamje shërben
+  për t'u shlyer mes vete, një numër i gabuar në heshtje është më i keq se një lidhje që thotë
+  hapur „nuk lexohem". Mos e hiq, dhe mos i shto fusha paketës pa e futur në nënshkrim.
+- **Pamja e thotë hapur sa raunde mban.** Është fotografi, jo lidhje e drejtpërdrejtë; pa atë
+  shënim dikush shikon numra të vjetër duke besuar se janë të çastit.
+
+Kodi QR është i shkruar me dorë te `qr.ts` — mënyra „byte", niveli L, versionet 1–20 — sepse
+rregulli i varësive vlen edhe këtu. Një kod QR i gabuar nuk duket i gabuar, thjesht nuk lexohet,
+prandaj `test/qr.test.mjs` mban matrica të ngrira që u vizatuan dhe u lexuan me `zxing-cpp`, një
+dekodues krejt i pavarur. Gjatë zhvillimit u kontrollua i tërë intervali 1–20 njësoj: njëzet e
+katër tekste, mes tyre UTF-8 shumëbajtësh, u lexuan të gjitha saktë. Nëse i prek bitet e koduesit,
+riverifikoji ashtu — jo me sy.
+
+Sfondi i kodit mbetet i bardhë edhe në temën e errët, dhe pikat të zeza: skanuesi pret të errët mbi
+të çelët, dhe një kod i përmbysur nuk lexohet nga shumë telefona. Kjo është e vetmja ngjyrë te
+projekti që nuk vjen nga tokenat.
+
+### 8. Emrat e fushave vijnë nga `logic.json`
 
 `test/logic.json` është fleta origjinale e nxjerrë nga Google Sheets-i, dhe çdo numër aty u
 kontrollua kundër formulave të saj. Provat maten kundër tij, jo kundër pritjeve të shpikura.
@@ -122,7 +155,7 @@ automatizuar dhe jo nga tabela: `domina_1.standings` (një rresht nga tre lojtar
 `brigj_4_merged_teams.settlement_matrix` (rreshti i dytë quhet `null`). Totalet e të dyve janë të
 plota dhe provohen normalisht. Mos i „rregullo" ato fusha — janë dëshmi e asaj që erdhi.
 
-### 8. Vlerat dinamike vizatohen me SVG, jo me atribut `style`
+### 9. Vlerat dinamike vizatohen me SVG, jo me atribut `style`
 
 Asnjë atribut `style` nuk shkruhet askund: vlerat që ndryshojnë marrin klasë ose atribut SVG. Kjo
 është zakoni i Kujdestarisë, ku CSP-ja `style-src 'self'` e ndalon atributin `style` fare — dhe
@@ -130,14 +163,17 @@ mbahet edhe këtu, që të dy projektet të mbeten të zëvendësueshëm.
 
 Nëse shton diçka që kërkon stil inline, zgjidhja është një klasë ose një atribut SVG.
 
-### 9. Pa bibliotekë grafikësh, pa bibliotekë rrugëtimi, pa bibliotekë gjendjeje
+### 10. Pa bibliotekë grafikësh, pa bibliotekë rrugëtimi, pa bibliotekë gjendjeje
 
-Varësitë janë tri: `react`, `react-dom`, `idb`. Rrugët janë katër; një `switch` mbi hash-in
+Varësitë janë tri: `react`, `react-dom`, `idb` — pa bibliotekë kodesh QR. Rrugët janë pak; një `switch` mbi hash-in
 mjafton dhe butoni «prapa» i telefonit punon vetvetiu. Gjendja lexohet nga baza pas çdo shkrimi —
 baza është lokale, një lexim i tërë është disa milisekonda, dhe një cache që del jashtë sinkronie
 do të ishte rrezik pa përfitim.
 
 Mos shto framework, mos shto bibliotekë komponentësh, mos shto bibliotekë grafikësh.
+
+Për zhvillim përdoren dy paketa Python që **nuk hyjnë te aplikacioni**: `segno` dhe `zxing-cpp`,
+vetëm si dëshmitarë të pavarur për koduesin QR.
 
 ## Sistemi vizual
 

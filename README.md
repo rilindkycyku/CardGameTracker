@@ -27,6 +27,9 @@ Fiton **totali më i vogël**.
   mesatar për lojë, e llogaritur nga vetë raundet.
 - **Redaktim dhe fshirje** — çdo raund ndryshohet pas ruajtjes; gjithçka
   rillogaritet vetvetiu.
+- **Shpërndarje me kod QR** — kush rri rreth tavolinës e skanon dhe i shikon
+  pikët në telefonin e vet, vetëm-lexim. Pa server: rezultati shkon brenda
+  vetë adresës, prandaj hapet edhe në një telefon që nuk e ka aplikacionin.
 - **Kopje rezervë** — nxjerrja dhe kthimi i tërë historikut si një skedar JSON.
 
 Punon pa internet. Të dhënat rrinë vetëm në shfletuesin e pajisjes.
@@ -55,7 +58,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 68 prova, pa framework provash
+npm test          # node --test — 94 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i.
@@ -73,18 +76,23 @@ src/
   ruajtja.ts          IndexedDB përmes `idb`
   kopja.ts            nxjerrja dhe leximi i kopjes rezervë
   fusha.ts            teksti i fushës së pikëve dhe shenja e tij
+  qr.ts               kodues QR i shkruar me dorë (byte, niveli L, v1–20)
+  ndarja.ts           rezultati i paketuar brenda një adrese
   ngarko.ts           lexo-nga-baza si hook
   ikonat.tsx          ikonat SVG inline
   style.css           sistemi i stilit
-  pamjet/             Grupet · Grupi · Loja
+  pamjet/             Grupet · Grupi · Loja · Shiko
   pjeset/             Renditja · Raundet · Shlyerja · TabelaEPergjithshme
                       FutjaERaundit · LojtaretELojes · PanelaEKopjes
+                      Ndarja · KodiQR
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it
   fusha.test.mjs         futja e pikëve negative pa tastierë me minus
   pikezimi.test.mjs      rregullat — kundër raundeve të vërteta
   kopja.test.mjs         nxjerrja dhe refuzimi i skedarëve të dëmtuar
+  qr.test.mjs            matrica të ngrira, të verifikuara me një dekodues
+  ndarja.test.mjs        paketimi, dhe refuzimi i adresave të prera
   logic.json             fleta origjinale, si burim provash
 ```
 

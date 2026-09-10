@@ -27,9 +27,11 @@ import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import { FutjaERaundit } from '../pjeset/FutjaERaundit.tsx';
 import { LojtaretELojes } from '../pjeset/LojtaretELojes.tsx';
+import { Ndarja } from '../pjeset/Ndarja.tsx';
 import { Raundet } from '../pjeset/Raundet.tsx';
 import { Renditja } from '../pjeset/Renditja.tsx';
 import { Shlyerja } from '../pjeset/Shlyerja.tsx';
+import { pamjaELojes } from '../ndarja.ts';
 import {
   fshiRaund,
   loja as lexoLojen,
@@ -222,6 +224,18 @@ export function Loja({ id }: { id: number }) {
         onShto={shtoLojtar}
         onHiq={hiqLojtar}
       />
+
+      {raundet.length > 0 && (
+        <Ndarja
+          pamja={pamjaELojes(
+            grupi?.name ?? 'Bridzh',
+            loja,
+            totalat,
+            raundet.length,
+          )}
+          rreshtat={rreshtat}
+        />
+      )}
 
       {raundet.length === 0 ? (
         <div className="zbrazet">

@@ -1616,3 +1616,49 @@ th.numri {
   margin-right: 0.3rem;
   font-size: 0.62rem;
 }
+
+/* ── Ndarja e rezultatit ────────────────────────────────────────────────── */
+
+.ndarja {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.ndarja__krye {
+  flex: 1 1 11rem;
+  min-width: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+/**
+ * Kodi QR.
+ *
+ * Sfondi mbetet i bardhë edhe në temën e errët, dhe pikat të zeza: skanuesi
+ * pret të errët mbi të çelët, dhe një kod i përmbysur nuk lexohet nga shumë
+ * telefona. Prandaj këtu ngjyrat nuk vijnë nga tokenat e temës.
+ */
+.qr {
+  display: block;
+  width: 9.5rem;
+  height: 9.5rem;
+  flex: none;
+  border-radius: var(--rreze-3);
+  box-shadow: var(--hije-1);
+}
+
+.qr__sfondi {
+  fill: #ffffff;
+}
+
+.qr__pikat {
+  fill: #000000;
+}
+
+@media (max-width: 22rem) {
+  .ndarja {
+    justify-content: center;
+  }
+}

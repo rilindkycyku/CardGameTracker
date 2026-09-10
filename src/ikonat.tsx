@@ -87,6 +87,18 @@ const SHTIGJET: Record<string, JSX.Element> = {
     </>
   ),
   shigjeta: <path d="M6.5 9.75 12 15.25l5.5-5.5" />,
+  ndaj: (
+    <>
+      <path d="M12 15.5V4m0 0 3.6 3.6M12 4 8.4 7.6" />
+      <path d="M5 13.5V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4.5" />
+    </>
+  ),
+  sy: (
+    <>
+      <path d="M2.4 12S6.2 5.6 12 5.6 21.6 12 21.6 12 17.8 18.4 12 18.4 2.4 12 2.4 12Z" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
   info: (
     <>
       <circle cx="12" cy="12" r="8.4" />
