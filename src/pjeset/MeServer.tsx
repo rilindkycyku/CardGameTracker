@@ -1,0 +1,175 @@
+/**
+ * Lidhja me kod të shkurtër — ana e atij që mban pikët.
+ *
+ * Mënyra e dytë, dhe e vetmja te tërë aplikacioni që kontakton një server.
+ * Prandaj nuk niset vetë kurrë: hyn vetëm pasi përdoruesi lexon çka del nga
+ * pajisja dhe shtyp butonin. Teksti para butonit nuk është shkurtuar me qëllim
+ * — kush e zgjedh duhet ta dijë çka zgjodhi.
+ *
+ * Përfitimi është një hap në vend të tre: një kod tetëkarakterësh diktohet me zë
+ * ose skanohet një herë, dhe nuk kërkohet kod prapa. Punon edhe kur telefonat
+ * nuk janë te i njëjti wifi.
+ */
+
+import { useEffect, useRef, useState } from 'react';
+
+import { Ikona } from '../ikonat.tsx';
+import { adresaEBashkimit, shfaqKodin } from '../kodi.ts';
+import {
+  StrehuesiMeKod,
+  type GjendjaEStrehuesitMeKod,
+} from '../lidhjaMeServer.ts';
+import { KodiQR } from './KodiQR.tsx';
+
+export function MeServer({ paketa }: { paketa: string }) {
+  const strehuesi = useRef<StrehuesiMeKod | null>(null);
+  const [gjendja, caktoGjendjen] = useState<GjendjaEStrehuesitMeKod>({
+    kodi: null,
+    vizitore: 0,
+    gabimi: null,
+  });
+  const [nisur, caktoNisjen] = useState(false);
+  const [kopjuar, caktoKopjuar] = useState(false);
+
+  const eTanishmja = useRef(paketa);
+  eTanishmja.current = paketa;
+
+  useEffect(() => {
+    if (!nisur) return;
+
+    const iRi = new StrehuesiMeKod(eTanishmja.current, caktoGjendjen);
+    strehuesi.current = iRi;
+    void iRi.nis();
+
+    return () => {
+      iRi.mbyll();
+      strehuesi.current = null;
+      caktoGjendjen({ kodi: null, vizitore: 0, gabimi: null });
+    };
+  }, [nisur]);
+
+  useEffect(() => {
+    strehuesi.current?.transmeto(paketa);
+  }, [paketa]);
+
+  const adresa = gjendja.kodi
+    ? adresaEBashkimit(window.location.href, gjendja.kodi)
+    : null;
+
+  async function kopjo() {
+    if (!adresa) return;
+
+    try {
+      await navigator.clipboard.writeText(adresa);
+      caktoKopjuar(true);
+      window.setTimeout(() => caktoKopjuar(false), 2500);
+    } catch {
+      caktoKopjuar(false);
+    }
+  }
+
+  if (!nisur) {
+    return (
+      <div className="drejtperdrejt">
+        <p className="ndihma">
+          Një kod i vetëm, pa kod prapa: diktoje me zë ose lëre të skanohet një
+          herë. Punon edhe kur telefonat nuk janë te i njëjti wifi.
+        </p>
+
+        <p className="njoftim njoftim--kujdes">
+          <Ikona emri="kujdes" />
+          <span>
+            Kjo mënyrë përdor një server të huaj për t'i lidhur pajisjet
+            (<strong>peerjs.com</strong>), prandaj i duhet internet. Atje shkon
+            kodi i lidhjes dhe adresa e rrjetës e telefonit.{' '}
+            <strong>Pikët nuk ruhen te asnjë server</strong> — kanali mbetet mes
+            dy telefonave dhe është i kriptuar. Vetëm kur lidhja e drejtpërdrejtë
+            dështon, bajtet e kriptuara kalojnë nëpër një relenjë të tyre, që nuk
+            i lexon dot.
+          </span>
+        </p>
+
+        <div className="veprimet">
+          <button
+            type="button"
+            className="buton"
+            onClick={() => caktoNisjen(true)}
+          >
+            <Ikona emri="drejtperdrejt" />
+            Nis me kod
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="drejtperdrejt">
+      <div className="drejtperdrejt__gjendja">
+        <span
+          className={
+            gjendja.vizitore > 0 ? 'etiketa etiketa--hapur' : 'etiketa'
+          }
+        >
+          <Ikona emri="drejtperdrejt" />
+          {gjendja.vizitore === 0
+            ? 'Askush ende'
+            : `${gjendja.vizitore} ${gjendja.vizitore === 1 ? 'shikon' : 'shikojnë'}`}
+        </span>
+
+        <button
+          type="button"
+          className="buton buton--vogel"
+          onClick={() => caktoNisjen(false)}
+        >
+          <Ikona emri="anulo" />
+          Ndalo
+        </button>
+      </div>
+
+      {gjendja.gabimi && (
+        <p className="njoftim njoftim--gabim">
+          <Ikona emri="kujdes" />
+          <span>{gjendja.gabimi}</span>
+        </p>
+      )}
+
+      {gjendja.kodi === null || adresa === null ? (
+        <p className="ndihma">Duke marrë kodin…</p>
+      ) : (
+        <>
+          <p className="kodi" data-kodi={gjendja.kodi}>
+            {shfaqKodin(gjendja.kodi)}
+          </p>
+
+          <p className="ndihma">
+            Te telefoni tjetër: hap aplikacionin, shtyp «Bashkohu me kod» dhe
+            shkruaje. Ose skanoje kodin më poshtë — një herë, pa kod prapa.
+          </p>
+
+          <div className="ftesa">
+            <KodiQR
+              teksti={adresa}
+              klasa="qr qr--madh"
+              pershkrimi={`Kod QR që bashkohet me kodin ${shfaqKodin(gjendja.kodi)}`}
+            />
+          </div>
+
+          <div className="veprimet">
+            <button type="button" className="buton buton--vogel" onClick={kopjo}>
+              <Ikona emri="ndaj" />
+              {kopjuar ? 'U kopjua' : 'Kopjo lidhjen'}
+            </button>
+          </div>
+
+          <p className="njoftim njoftim--kujdes">
+            <Ikona emri="info" />
+            <span>
+              Kush e di kodin i shikon pikët. Kodi vlen sa rri hapur kjo skedë.
+            </span>
+          </p>
+        </>
+      )}
+    </div>
+  );
+}

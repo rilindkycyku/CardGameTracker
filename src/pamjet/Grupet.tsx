@@ -114,6 +114,32 @@ export function Grupet() {
         )}
       </section>
 
+      {/*
+        Hyrja e atij që vjen vetëm të shikojë.
+        Pa të, kodi i shkurtër do të ishte i papërdorshëm pa skanuar një kod QR —
+        dhe pikërisht diktimi me zë është arsyeja pse ai kod ekziston.
+      */}
+      <details className="detaje">
+        <summary className="detaje__krye">
+          <span>Bashkohu me kod</span>
+          <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+        </summary>
+
+        <div className="detaje__trupi">
+          <p className="ndihma">
+            Nëse dikush tjetër mban pikët dhe ta dha një kod, hyr me të dhe
+            shiko pikët drejtpërdrejt.
+          </p>
+
+          <div className="veprimet" data-hapesire="lart">
+            <a className="buton" href="#/bashkohu">
+              <Ikona emri="drejtperdrejt" />
+              Fut kodin
+            </a>
+          </div>
+        </div>
+      </details>
+
       <PanelaEKopjes onKthyer={rifresko} />
 
       <footer className="fundfaqja">

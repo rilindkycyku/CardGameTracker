@@ -29,8 +29,14 @@ Fiton **totali më i vogël**.
   rillogaritet vetvetiu.
 - **Pikët drejtpërdrejt** — kush rri rreth tavolinës i shikon pikët në
   telefonin e vet, dhe raundi i ri del vetë. Lidhja bëhet drejt mes telefonave
-  të së njëjtës rrjetë me një kanal WebRTC; sinjalizimi kalon nëpër dy kode QR
-  dhe kamerën e telefonit, prandaj server nuk duhet as për t'u lidhur.
+  me një kanal WebRTC, në dy mënyra:
+  - **Pa server** (parazgjedhja) — sinjalizimi kalon nëpër dy kode QR dhe
+    kamerën e telefonit, prandaj server nuk duhet as për t'u lidhur. Kërkon që
+    telefonat të rrinë te e njëjta rrjetë.
+  - **Me kod** — një kod i vetëm tetëkarakterësh, që diktohet me zë ose
+    skanohet një herë. Punon edhe nëpër rrjeta të ndryshme, por i duhet
+    internet dhe një server i huaj për t'i lidhur pajisjet. Nuk niset vetë
+    kurrë, dhe ekrani e thotë çka del nga pajisja.
 - **Ose një fotografi e çastit** — rezultati shkon brenda vetë adresës dhe
   adresa bëhet kod QR. Punon edhe atje ku rrjeta i ndan pajisjet nga
   njëra-tjetra, dhe edhe nëpër mesazh.
@@ -65,7 +71,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 111 prova, pa framework provash
+npm test          # node --test — 122 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i.
@@ -85,16 +91,20 @@ src/
   fusha.ts            teksti i fushës së pikëve dhe shenja e tij
   qr.ts               kodues QR i shkruar me dorë (byte, niveli L, v1–20)
   paketa.ts           base64 i sigurt për adresa, dhe nënshkrimi
+  kodi.ts             kodi tetëkarakterësh i bashkimit — pa DOM, pa rrjetë
   ndarja.ts           rezultati i paketuar brenda një adrese
   sinjalizimi.ts      SDP-ja e ngjeshur brenda një adrese — pa DOM, pa WebRTC
   lidhja.ts           kanali WebRTC dhe rruga e sinjalit mes skedave
+  lidhjaMeServer.ts   mënyra me kod, e vetmja që prek një server
   ngarko.ts           lexo-nga-baza si hook
   ikonat.tsx          ikonat SVG inline
   style.css           sistemi i stilit
   pamjet/             Grupet · Grupi · Loja · Shiko · Lidhu · Pergjigja
+                      Bashkohu
   pjeset/             Renditja · Raundet · Shlyerja · TabelaEPergjithshme
                       FutjaERaundit · LojtaretELojes · PanelaEKopjes
-                      Ndarja · Drejtperdrejt · PamjaERezultatit · KodiQR
+                      Ndarja · Drejtperdrejt · PaServer · MeServer
+                      PamjaERezultatit · KodiQR
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it
@@ -105,6 +115,7 @@ test/
   ndarja.test.mjs        paketimi, dhe refuzimi i adresave të prera
   sinjalizimi.test.mjs   SDP-ja e ngjeshur — kundër SDP-ve të vërteta, dhe
                          refuzimi i rreshtave të futur brenda një adrese
+  kodi.test.mjs          kodi i bashkimit, dhe shkronjat që ngatërrohen
   logic.json             fleta origjinale, si burim provash
   sdp.json               SDP të vërteta të Chromium-it, si burim provash
 ```
