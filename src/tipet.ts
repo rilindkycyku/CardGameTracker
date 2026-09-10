@@ -7,6 +7,19 @@
  * është shqip; skema jo, që të mos këputet lidhja me burimin.
  */
 
+/**
+ * Çka luhet atë mbrëmje.
+ *
+ * `bridzh` është numëruesi i pikëve — ai me të cilin nisi gjithçka. `magarec`
+ * është loja e shkronjave: kush e humb raundin merr një shkronjë, dhe kush e
+ * mbush fjalën „MAGAREC" e humb mbrëmjen. Dy lojëra të ndryshme, i njëjti grup
+ * dhe e njëjta tavolinë — prandaj rrinë te e njëjta bazë e jo te dy aplikacione.
+ *
+ * Emri i fushës është shqip sepse nuk vjen nga `logic.json`-i: ai skedar njeh
+ * vetëm bridzhin, dhe kontrata me të janë vetëm katër emrat e tij.
+ */
+export type LlojiILojes = 'bridzh' | 'magarec';
+
 /** Një shoqëri që luan bashkë rregullisht. Radha e `playerNames` ka kuptim. */
 export type Grupi = {
   id: number;
@@ -32,9 +45,21 @@ export type Loja = {
   selectedPlayers: string[];
   /** Ora e krijimit — ndan dy lojëra të së njëjtës ditë dhe u jep radhën. */
   createdAt: number;
+  /**
+   * Çka u luajt. Mungon te lojërat e shkruara para se të vinte magareci, dhe
+   * atëherë lexohet `bridzh` — `llojiILojes()` e bën këtë leximin e vetëm.
+   */
+  lloji?: LlojiILojes;
 };
 
-/** Një raund brenda një loje: një numër për secilin lojtar, ose asgjë ende. */
+/**
+ * Një raund brenda një loje: një numër për secilin lojtar, ose asgjë ende.
+ *
+ * Te magareci i njëjti varg mban shkronjat: humbësi i raundit merr `1`, të
+ * tjerët `0`. Kështu totali është numri i shkronjave, renditja mbetet ajo që
+ * është — fiton më i vogli — dhe raundet, kopja rezervë e ndarja e rezultatit
+ * nuk kanë nevojë për një rrugë të dytë.
+ */
 export type Raundi = {
   id: number;
   gameId: number;

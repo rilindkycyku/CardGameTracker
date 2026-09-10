@@ -44,6 +44,26 @@ test('kopja e nxjerrë lexohet pa humbje', () => {
   assert.deepEqual(dala.kopja.rounds, [RAUNDI]);
 });
 
+test('lloji i lojës mbijeton kthimin', () => {
+  const magarec = { ...LOJA, id: 2, lloji: 'magarec' };
+  const dala = lexoKopjen(teksti(ndertoKopjen([GRUPI], [LOJA, magarec], [RAUNDI])));
+
+  assert.equal(dala.ok, true);
+  // Loja e vjetër del ashtu si hyri — pa fushë, e jo me një `undefined` të
+  // shtuar rrugës — dhe ajo e re e mban llojin e vet.
+  assert.deepEqual(dala.kopja.games, [LOJA, magarec]);
+});
+
+test('lloji i panjohur refuzohet, jo lexohet si bridzh', () => {
+  // Do të vinte nga një version më i ri. I vizatuar si bridzh, shkronjat e tij
+  // do të dilnin pikë pa e thënë kush.
+  const i_huaj = { ...LOJA, lloji: 'domina' };
+  const dala = lexoKopjen(teksti(ndertoKopjen([GRUPI], [i_huaj], [])));
+
+  assert.equal(dala.ok, false);
+  assert.match(dala.gabimi, /lloji/i);
+});
+
 test('kopja mban formatin, versionin dhe kohën e nxjerrjes', () => {
   const kopja = ndertoKopjen([], [], [], new Date('2026-03-08T21:15:00Z'));
 

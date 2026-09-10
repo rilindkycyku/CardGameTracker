@@ -9,7 +9,7 @@
  * Vetë leximi nuk prek as bazën as `window`-in, që të provohet drejtpërdrejt.
  */
 
-import type { Grupi, Kopja, Loja, Raundi } from './tipet.ts';
+import type { Grupi, Kopja, LlojiILojes, Loja, Raundi } from './tipet.ts';
 
 export const FORMATI = 'cardgametracker';
 export const VERSIONI_I_KOPJES = 1;
@@ -48,6 +48,19 @@ function eshteVarg(v: unknown): v is unknown[] {
 
 function eshteNumer(v: unknown): v is number {
   return typeof v === 'number' && Number.isFinite(v);
+}
+
+/**
+ * Lloji i një loje të kopjes: `bridzh`, `magarec`, ose mungon.
+ *
+ * Mungesa është e ligjshme — lojërat e shkruara para se të vinte magareci nuk e
+ * kanë fushën, dhe lexohen bridzh. Një vlerë e panjohur jo: ajo do të vinte nga
+ * një version më i ri, dhe vizatimi i saj si bridzh do t'i tregonte shkronjat si
+ * pikë pa e thënë kush. Prandaj kopja refuzohet e tëra, si te çdo fushë tjetër.
+ */
+function llojiIKopjes(v: unknown): LlojiILojes | null | undefined {
+  if (v === undefined || v === null) return undefined;
+  return v === 'bridzh' || v === 'magarec' ? v : null;
 }
 
 /**
@@ -114,13 +127,27 @@ export function lexoKopjen(teksti: string): Lexuar {
     ) {
       return { ok: false, gabimi: 'Një lojë e kopjes është e dëmtuar.' };
     }
-    games.push({
+
+    const lloji = llojiIKopjes(l.lloji);
+    if (lloji === null) {
+      return {
+        ok: false,
+        gabimi: `Loja e ${l.date} është e një lloji që nuk njihet (${String(l.lloji)}).`,
+      };
+    }
+
+    const loja: Loja = {
       id: l.id,
       groupId: l.groupId,
       date: l.date,
       selectedPlayers: l.selectedPlayers.map(String),
       createdAt: eshteNumer(l.createdAt) ? l.createdAt : 0,
-    });
+    };
+    // Fusha shkruhet vetëm kur vjen: një lojë e vjetër del nga kopja ashtu si
+    // hyri, pa një `lloji: undefined` të shtuar rrugës.
+    if (lloji) loja.lloji = lloji;
+
+    games.push(loja);
   }
 
   const rounds: Raundi[] = [];

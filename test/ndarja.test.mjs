@@ -18,9 +18,11 @@ import {
   tekstiINdarjes,
   VERSIONI,
 } from '../src/ndarja.ts';
+import { ne64Tekst, nenshkruaj } from '../src/paketa.ts';
 
 const PAMJA = {
   grupi: 'Brigj',
+  lloji: 'bridzh',
   data: '2026-03-08',
   raunde: 7,
   totalet: [
@@ -80,7 +82,49 @@ test('versioni i panjohur refuzohet', () => {
   const i_huaj = paketo(PAMJA).replace(/^./, '');
   assert.equal(shpaketo(i_huaj), null);
   // Dhe versioni rri i shkruar te paketa, që kjo provë të ketë kuptim.
-  assert.equal(VERSIONI, 1);
+  assert.equal(VERSIONI, 2);
+});
+
+test('magareci paketohet si magarec, jo si bridzh', () => {
+  // Numri është i njëjti bajt te të dyja lojërat — pikë a shkronja — prandaj
+  // pa këtë fushë ana që shikon do t'i vizatonte shkronjat si pikë.
+  const pamja = {
+    grupi: 'Brigj',
+    lloji: 'magarec',
+    data: '2026-09-10',
+    raunde: 9,
+    totalet: [['meri', 7], ['eri', 2]],
+  };
+
+  assert.deepEqual(shpaketo(paketo(pamja)), pamja);
+});
+
+test('adresa e versionit të parë lexohet ende, si bridzh', () => {
+  // Ajo adresë rri te një bisedë e dje; versioni 1 nuk e mbante llojin sepse
+  // atëherë kishte vetëm bridzh.
+  const trupi = '1|Brigj|2026-03-08|7|meri:594,lesa:380';
+  const i_vjeter = ne64Tekst(nenshkruaj(trupi));
+
+  assert.deepEqual(shpaketo(i_vjeter), {
+    grupi: 'Brigj',
+    lloji: 'bridzh',
+    data: '2026-03-08',
+    raunde: 7,
+    totalet: [['meri', 594], ['lesa', 380]],
+  });
+});
+
+test('adresa e versionit të parë e prerë refuzohet ende', () => {
+  const plote = ne64Tekst(nenshkruaj('1|Brigj|2026-03-08|7|meri:594,lesa:105'));
+
+  for (const sa of [1, 2, 3, 4, 8]) {
+    assert.equal(shpaketo(plote.slice(0, -sa)), null, `−${sa} karaktere`);
+  }
+});
+
+test('lloji i panjohur brenda paketës refuzohet', () => {
+  const trupi = '2|x|Brigj|2026-03-08|7|meri:594';
+  assert.equal(shpaketo(ne64Tekst(nenshkruaj(trupi))), null);
 });
 
 test('data e formës së gabuar refuzohet', () => {
@@ -103,10 +147,24 @@ test('pamja e një loje merr totalet e lojtarëve të saj', () => {
 
   assert.deepEqual(pamjaELojes('Brigj', loja, { meri: 594, lesa: 380 }, 7), {
     grupi: 'Brigj',
+    lloji: 'bridzh',
     data: '2026-03-08',
     raunde: 7,
     totalet: [['meri', 594], ['lesa', 380]],
   });
+});
+
+test('pamja e një loje magareci e mban llojin e saj', () => {
+  const loja = {
+    id: 2,
+    groupId: 1,
+    date: '2026-09-10',
+    selectedPlayers: ['meri', 'lesa'],
+    createdAt: 0,
+    lloji: 'magarec',
+  };
+
+  assert.equal(pamjaELojes('Brigj', loja, { meri: 7, lesa: 3 }, 10).lloji, 'magarec');
 });
 
 test('adresa e pamjes nuk dyfishon pjerrësa', () => {
@@ -139,11 +197,29 @@ test('teksti i ndarjes i mban emrat dhe totalet', () => {
   assert.match(teksti, /2\. meri 594/);
 });
 
+test('teksti i magarecit shkruan fjalën, jo numrin', () => {
+  // «3» nuk thotë asgjë vetëm; «MAG» e thotë sa i ka mbetur.
+  const teksti = tekstiINdarjes(
+    { ...PAMJA, lloji: 'magarec', raunde: 10 },
+    [
+      { rank: 1, player: 'rila', total: 0 },
+      { rank: 2, player: 'meri', total: 3 },
+      { rank: 3, player: 'lumi', total: 7 },
+    ],
+  );
+
+  assert.match(teksti, /Magarec/);
+  assert.match(teksti, /1\. rila —/);
+  assert.match(teksti, /2\. meri MAG/);
+  assert.match(teksti, /3\. lumi MAGAREC/);
+});
+
 test('paketa e një loje me gjashtë lojtarë mbetet e shkurtër', () => {
   // Nën dyqind bajt do të thotë kod QR nën versionin 10, që skanohet ende nga
   // ekrani i një telefoni. Raundet do ta shumëfishonin këtë.
   const gjashte = {
     grupi: 'Brigj',
+    lloji: 'bridzh',
     data: '2026-03-08',
     raunde: 11,
     totalet: [
@@ -163,6 +239,7 @@ test('adresa e prerë refuzohet, jo lexohet me numra të gabuar', () => {
   // lidhje që thotë hapur «nuk lexohem».
   const pamja = {
     grupi: 'Brigj',
+    lloji: 'bridzh',
     data: '2026-09-10',
     raunde: 2,
     totalet: [['meri', 42], ['Miloti', 200], ['rila', 105]],
@@ -178,7 +255,13 @@ test('adresa e prerë refuzohet, jo lexohet me numra të gabuar', () => {
 test('një total i ndryshuar me dorë refuzohet', () => {
   // Nënshkrimi nuk mbron nga dashakeqi — kushdo e rillogarit — por e kap
   // ndryshimin e rastit, atë që bëhet duke redaktuar adresën me gisht.
-  const pamja = { grupi: 'A', data: '2026-01-01', raunde: 1, totalet: [['a', 10]] };
+  const pamja = {
+    grupi: 'A',
+    lloji: 'bridzh',
+    data: '2026-01-01',
+    raunde: 1,
+    totalet: [['a', 10]],
+  };
   const plote = paketo(pamja);
 
   let ndryshuar = null;

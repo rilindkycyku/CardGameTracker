@@ -6,6 +6,10 @@ pikët e secilit raund dhe nxjerr vetë totalet, renditjen dhe shlyerjen.
 
 Fiton **totali më i vogël**.
 
+Mban edhe **magarecin** — lojën e shkronjave të skedës tjetër të asaj flete:
+kush e humb raundin merr një shkronjë, dhe kush e mbush fjalën „MAGAREC" e humb
+mbrëmjen.
+
 ## Çka bën
 
 - **Grupe dhe lojtarë** — shoqëria futet një herë, e tërë me një shkrim
@@ -17,6 +21,10 @@ Fiton **totali më i vogël**.
   totali i tij nis nga hera e parë që shënon.
 - **Futje e raundit** — një numër për lojtar, ose përmes llogaritësit
   hant/normal.
+- **Magarec** — para lojës zgjidhet çka luhet. Te magareci raundi ka një pyetje
+  të vetme: kush e humbi. Prekja e emrit e ruan raundin, shkronja shkon te ai, e
+  rrjeti M-A-G-A-R-E-C tregon ku janë të gjithë. Kur dikujt i mbushet fjala,
+  mbrëmja mbaron.
 - **Renditja** — ngjitshëm sipas totalit, i pari është ai me më pak pikë. Kur
   nuk kanë luajtur të gjithë njësoj, shtohet kolona „raunde" dhe një shënim.
 - **Shlyerja** — matrica N×N e diferencave, `matrica[i][j] = total[i] − total[j]`,
@@ -65,6 +73,19 @@ Llogaritësi i zbaton këto rregulla, por fushat e numrave mbeten gjithmonë të
 redaktueshme: te fletët e vjetra ka raunde që nuk dalin nga rregullat, dhe një
 aplikacion që pranon vetëm kombinimet e lejuara nuk do t’i shënonte dot.
 
+## Rregullat e magarecit
+
+Një shkronjë për raund, dhe shtatë shkronja e mbarojnë mbrëmjen:
+
+| | |
+| --- | --- |
+| **E humbi raundin** | merr shkronjën e radhës nga „MAGAREC" |
+| **E mbushi fjalën** | e humbi mbrëmjen; loja mbaron aty |
+
+Shkronjat nuk ruhen askund: raundi shkruhet si `1` për humbësin e `0` për të
+tjerët, dhe fjala del nga numri. Prandaj fshirja ose ndërrimi i një raundi të
+mesit i rinumëron vetvetiu të gjitha shkronjat pas tij.
+
 ## Komandat
 
 ```bash
@@ -72,7 +93,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 124 prova, pa framework provash
+npm test          # node --test — 150 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i.
@@ -89,6 +110,7 @@ src/
                       `permbledhja` i jep totalet, raundet e luajtura dhe
                       barazinë e pjesëmarrjes me një kalim të vetëm
   pikezimi.ts         rregullat hant/normal — pa DOM, pa bazë
+  magareci.ts         shkronjat, fjala dhe magareci i mbrëmjes — pa DOM, pa bazë
   ruajtja.ts          IndexedDB përmes `idb`
   kopja.ts            nxjerrja dhe leximi i kopjes rezervë
   fusha.ts            teksti i fushës së pikëve dhe shenja e tij
@@ -108,11 +130,14 @@ src/
                       FutjaERaundit · LojtaretELojes · PanelaEKopjes
                       Ndarja · Drejtperdrejt · PaServer · MeServer
                       PamjaERezultatit · KodiQR
+                      FutjaEMagarecit · RrjetiIMagarecit · RaundetEMagarecit
+                      PergjithshmetEMagarecit
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it
   fusha.test.mjs         futja e pikëve negative pa tastierë me minus
   pikezimi.test.mjs      rregullat — kundër raundeve të vërteta
+  magareci.test.mjs      shkronjat, fjala e mbushur dhe tabela e grupit
   kopja.test.mjs         nxjerrja dhe refuzimi i skedarëve të dëmtuar
   qr.test.mjs            matrica të ngrira, të verifikuara me një dekodues
   ndarja.test.mjs        paketimi, dhe refuzimi i adresave të prera

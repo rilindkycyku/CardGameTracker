@@ -20,6 +20,8 @@
  * matin drejtpërdrejt.
  */
 
+import { llojiILojes } from './llogaritjet.ts';
+import { fjalaE } from './magareci.ts';
 import {
   fushat,
   ne64Tekst,
@@ -27,12 +29,20 @@ import {
   nga64Tekst,
   rrenjaEFaqes,
 } from './paketa.ts';
-import type { Loja, RreshtiRenditjes } from './tipet.ts';
+import type { LlojiILojes, Loja, RreshtiRenditjes } from './tipet.ts';
 
 /** Ajo që kalon nga një telefon te tjetri. */
 export type Pamja = {
   /** Emri i grupit. */
   grupi: string;
+  /**
+   * Çka u luajt.
+   *
+   * Numri është i njëjti bajt te të dyja lojërat — pikë te bridzhi, shkronja te
+   * magareci — prandaj pa këtë fushë ana që shikon nuk ka nga ta dijë se `3`
+   * do të thotë „MAG". Kjo është arsyeja e vetme pse paketa u bë versioni 2.
+   */
+  lloji: LlojiILojes;
   /** Data e lojës, `YYYY-MM-DD`. */
   data: string;
   /** Sa raunde ishin shënuar kur u ndau. */
@@ -42,10 +52,16 @@ export type Pamja = {
 };
 
 /** Versioni i paketës — që një adresë e vjetër të njihet si e vjetër. */
-export const VERSIONI = 1;
+export const VERSIONI = 2;
 
 /** Sa fusha ka trupi, pa nënshkrimin. */
-const FUSHA = 5;
+const FUSHA = 6;
+
+/** Sa fusha kishte versioni i parë, ai pa lloj. */
+const FUSHA_1 = 5;
+
+/** Lloji brenda paketës rri një shkronjë: çdo bajt është pikë te kodi QR. */
+const SHENJA: Record<LlojiILojes, string> = { bridzh: 'b', magarec: 'm' };
 
 /* ── Paketimi ───────────────────────────────────────────────────────────── */
 
@@ -53,7 +69,7 @@ const FUSHA = 5;
  * Pamja si tekst i shkurtër, i sigurt për një adresë.
  *
  * Formati është me ndarës e jo JSON, sepse çdo bajt kthehet në pika të kodit
- * QR: `1|grupi|data|raunde|emri:total,emri:total`. Emrat kalojnë nëpër
+ * QR: `2|b|grupi|data|raunde|emri:total,emri:total`. Emrat kalojnë nëpër
  * `encodeURIComponent`, që një presje ose dy pika brenda emrit të mos e këpusë
  * ndarjen — te fleta e vjetër ka skuadra si „meri + mil".
  */
@@ -64,6 +80,7 @@ export function paketo(pamja: Pamja): string {
 
   const trupi = [
     VERSIONI,
+    SHENJA[pamja.lloji],
     encodeURIComponent(pamja.grupi),
     pamja.data,
     pamja.raunde,
@@ -73,19 +90,31 @@ export function paketo(pamja: Pamja): string {
   return ne64Tekst(nenshkruaj(trupi));
 }
 
-/** Lexon një paketë. Kthen `null` për çdo gjë që nuk del e plotë. */
+/**
+ * Lexon një paketë. Kthen `null` për çdo gjë që nuk del e plotë.
+ *
+ * Lexohen dy versione. I pari nuk e mbante llojin, sepse kur u shkrua kishte
+ * vetëm bridzh — prandaj lexohet bridzh, e nuk refuzohet: adresa e ndarë dje te
+ * një bisedë nuk ka pse të vdesë sot. Versioni vendos vetëm sa fusha të priten;
+ * nënshkrimi kontrollohet mbi tërë trupin gjithsesi, si më parë.
+ */
 export function shpaketo(kodi: string): Pamja | null {
   const teksti = nga64Tekst(kodi);
   if (teksti === null) return null;
 
-  const pjeset = fushat(teksti, FUSHA);
+  const version = Number(teksti.split('|', 1)[0]);
+  if (version !== VERSIONI && version !== 1) return null;
+
+  const pjeset = fushat(teksti, version === 1 ? FUSHA_1 : FUSHA);
   if (!pjeset) return null;
 
-  const [version, grupi, data, raunde, totalet] = pjeset as [
-    string, string, string, string, string,
-  ];
+  const [, ...trupi] = pjeset;
+  const shenja = version === 1 ? 'b' : trupi.shift();
+  const [grupi, data, raunde, totalet] = trupi as [string, string, string, string];
 
-  if (Number(version) !== VERSIONI) return null;
+  const lloji = shenja === 'm' ? 'magarec' : shenja === 'b' ? 'bridzh' : null;
+  if (lloji === null) return null;
+
   if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return null;
 
   const saRaunde = Number(raunde);
@@ -113,6 +142,7 @@ export function shpaketo(kodi: string): Pamja | null {
   try {
     return {
       grupi: decodeURIComponent(grupi),
+      lloji,
       data,
       raunde: saRaunde,
       totalet: cifte,
@@ -131,6 +161,7 @@ export function pamjaELojes(
 ): Pamja {
   return {
     grupi: emriIGrupit,
+    lloji: llojiILojes(loja),
     data: loja.date,
     raunde: saRaunde,
     totalet: loja.selectedPlayers.map((emri) => [emri, totalat[emri] ?? 0]),
@@ -142,11 +173,26 @@ export function adresaEPamjes(rrenja: string, pamja: Pamja): string {
   return `${rrenjaEFaqes(rrenja)}/#/shiko/${paketo(pamja)}`;
 }
 
-/** Teksti që shoqëron ndarjen, kur telefoni ka «Share». */
+/**
+ * Teksti që shoqëron ndarjen, kur telefoni ka «Share».
+ *
+ * Te magareci numri nuk thotë asgjë vetëm — `3` lexohet „MAG" — prandaj aty
+ * shkruhet fjala. Kush s'ka marrë ende asnjë shkronjë del me një vizë, që
+ * rreshti të mos mbetet gjysmak.
+ */
 export function tekstiINdarjes(pamja: Pamja, rreshtat: RreshtiRenditjes[]): string {
-  const kreu = `${pamja.grupi} · ${pamja.data} · ${pamja.raunde} raunde`;
+  const magarec = pamja.lloji === 'magarec';
+  const kreu = [
+    pamja.grupi,
+    magarec ? 'Magarec' : null,
+    pamja.data,
+    `${pamja.raunde} raunde`,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
   const lista = rreshtat
-    .map((r) => `${r.rank}. ${r.player} ${r.total}`)
+    .map((r) => `${r.rank}. ${r.player} ${magarec ? fjalaE(r.total) || '—' : r.total}`)
     .join('\n');
 
   return `${kreu}\n${lista}`;

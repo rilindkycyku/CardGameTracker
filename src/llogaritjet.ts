@@ -10,7 +10,13 @@
  * `node --test`, pa bundler.
  */
 
-import type { Grupi, Loja, Raundi, RreshtiRenditjes } from './tipet.ts';
+import type {
+  Grupi,
+  LlojiILojes,
+  Loja,
+  Raundi,
+  RreshtiRenditjes,
+} from './tipet.ts';
 
 /** Raundet sipas numrit, që rrjedha e totaleve të mos varet nga radha e leximit. */
 export function sipasRadhes(rounds: Raundi[]): Raundi[] {
@@ -157,6 +163,18 @@ export function dataShqip(date: string): string {
 export function sot(tani: Date = new Date()): string {
   const dy = (n: number) => String(n).padStart(2, '0');
   return `${tani.getFullYear()}-${dy(tani.getMonth() + 1)}-${dy(tani.getDate())}`;
+}
+
+/**
+ * Çka u luajt atë mbrëmje.
+ *
+ * Lojërat e shkruara para se të vinte magareci nuk e kanë fushën fare, prandaj
+ * mungesa lexohet `bridzh`. Ky është vendi i vetëm ku bëhet ai lexim: një
+ * `loja.lloji ?? 'bridzh'` i shpërndarë nëpër ekrane do të harrohej pikërisht
+ * atje ku ndryshon vizatimi.
+ */
+export function llojiILojes(loja: { lloji?: LlojiILojes }): LlojiILojes {
+  return loja.lloji === 'magarec' ? 'magarec' : 'bridzh';
 }
 
 /** Lojërat e një grupi, më e reja e para. */

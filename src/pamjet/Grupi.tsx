@@ -15,11 +15,13 @@ import { useMemo, useRef, useState } from 'react';
 
 import {
   dataShqip,
+  llojiILojes,
   lojeratESortuara,
   renditjaELojes,
   sot,
   tabelaEPergjithshme,
 } from '../llogaritjet.ts';
+import { FJALA, fjalaE, pergjithshmetEMagarecit } from '../magareci.ts';
 import { emratERinj } from '../fusha.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
@@ -32,10 +34,12 @@ import {
   ruajGrup,
   shtoLoje,
 } from '../ruajtja.ts';
+import { PergjithshmetEMagarecit } from '../pjeset/PergjithshmetEMagarecit.tsx';
 import { TabelaEPergjithshme } from '../pjeset/TabelaEPergjithshme.tsx';
 import { shko } from '../rruga.ts';
 import type {
   Grupi as TGrupi,
+  LlojiILojes,
   Loja,
   Raundi,
   RreshtiRenditjes,
@@ -81,16 +85,26 @@ export function Grupi({ id }: { id: number }) {
    * Renditja e secilës lojë dilte më parë brenda JSX-it, te `.map()`. Atje
    * llogaritej sërish te çdo vizatim, dhe rezultati as nuk mund të mbahej.
    */
-  const { pergjithshmet, renditjet } = useMemo(() => {
+  const { pergjithshmet, magarecat, saLuajtura, renditjet } = useMemo(() => {
     const raundetELojes = (loja: Loja) => raunde?.[loja.id] ?? BOSH;
-
-    return {
-      pergjithshmet: tabelaEPergjithshme(
-        lojerat.map((loja) => ({
+    const luajtura = lojerat.filter((loja) => raundetELojes(loja).length > 0);
+    const eLlojit = (lloji: LlojiILojes) =>
+      luajtura
+        .filter((loja) => llojiILojes(loja) === lloji)
+        .map((loja) => ({
           selectedPlayers: loja.selectedPlayers,
           raundet: raundetELojes(loja),
-        })),
-      ),
+        }));
+
+    const bridzhi = eLlojit('bridzh');
+    const magarecet = eLlojit('magarec');
+
+    return {
+      // Dy tabela e jo një: aty mblidhen pikë me qindra, këtu shkronja nga zero
+      // në shtatë, dhe një mesatare mbi të dyja do të ishte numër pa kuptim.
+      pergjithshmet: tabelaEPergjithshme(bridzhi),
+      magarecat: pergjithshmetEMagarecit(magarecet),
+      saLuajtura: { bridzh: bridzhi.length, magarec: magarecet.length },
       renditjet: new Map(
         lojerat.map((loja) => [
           loja.id,
@@ -182,20 +196,18 @@ export function Grupi({ id }: { id: number }) {
         <ZgjedhjaELojtareve
           grupi={grupi}
           mefundit={lojerat[0]?.selectedPlayers}
+          llojiIFundit={lojerat[0] ? llojiILojes(lojerat[0]) : 'bridzh'}
           onAnulo={() => hapLojen(false)}
-          onNis={async (date, zgjedhur) => {
-            const idELojes = await shtoLoje(grupi.id, date, zgjedhur);
+          onNis={async (date, zgjedhur, lloji) => {
+            const idELojes = await shtoLoje(grupi.id, date, zgjedhur, lloji);
             shko(`/loja/${idELojes}`);
           }}
         />
       )}
 
-      <TabelaEPergjithshme
-        rreshtat={pergjithshmet}
-        lojera={
-          lojerat.filter((loja) => (raunde?.[loja.id] ?? BOSH).length > 0).length
-        }
-      />
+      <TabelaEPergjithshme rreshtat={pergjithshmet} lojera={saLuajtura.bridzh} />
+
+      <PergjithshmetEMagarecit rreshtat={magarecat} lojera={saLuajtura.magarec} />
 
       <section>
         <h2 className="titull-seksioni">
@@ -227,6 +239,12 @@ export function Grupi({ id }: { id: number }) {
                       {(raunde?.[loja.id] ?? BOSH).length === 1 ? 'raund' : 'raunde'}
                       {' · '}
                       {loja.selectedPlayers.length} lojtarë
+                      {llojiILojes(loja) === 'magarec' && (
+                        <>
+                          {' · '}
+                          <span className="njesi__lloji">{FJALA}</span>
+                        </>
+                      )}
                     </span>
                   </span>
                   <span className="njesi__veprimet">
@@ -256,7 +274,10 @@ export function Grupi({ id }: { id: number }) {
                   </span>
                 </a>
 
-                <RenditjaEShkurter rreshtat={renditjet.get(loja.id) ?? BOSH} />
+                <RenditjaEShkurter
+                  rreshtat={renditjet.get(loja.id) ?? BOSH}
+                  lloji={llojiILojes(loja)}
+                />
               </li>
             ))}
           </ul>
@@ -312,7 +333,13 @@ export function Grupi({ id }: { id: number }) {
  * së njësisë, sepse një listë brenda një `<a>`-je do të bënte tërë tabelën një
  * cak të vetëm klikimi.
  */
-function RenditjaEShkurter({ rreshtat }: { rreshtat: RreshtiRenditjes[] }) {
+function RenditjaEShkurter({
+  rreshtat,
+  lloji,
+}: {
+  rreshtat: RreshtiRenditjes[];
+  lloji: LlojiILojes;
+}) {
   if (rreshtat.length === 0) return null;
 
   return (
@@ -324,7 +351,17 @@ function RenditjaEShkurter({ rreshtat }: { rreshtat: RreshtiRenditjes[] }) {
         >
           <span className="renditja-shkurter__vendi">{rreshti.rank}</span>
           <span className="renditja-shkurter__emri">{rreshti.player}</span>
-          <span className="renditja-shkurter__totali">{rreshti.total}</span>
+          <span className="renditja-shkurter__totali">
+            {/*
+              Te magareci numri i vetëm nuk thotë asgjë: «3» lexohet „MAG", dhe
+              fjala e plotë do të thotë se ai e humbi atë mbrëmje. Kush s'ka
+              marrë asnjë shkronjë del me një vizë e jo me zero, që rreshti të
+              lexohet si fjalë e jo si pikë.
+            */}
+            {lloji === 'magarec'
+              ? fjalaE(rreshti.total) || '—'
+              : rreshti.total}
+          </span>
         </li>
       ))}
     </ol>
@@ -340,13 +377,16 @@ function RenditjaEShkurter({ rreshtat }: { rreshtat: RreshtiRenditjes[] }) {
 function ZgjedhjaELojtareve({
   grupi,
   mefundit,
+  llojiIFundit,
   onNis,
   onAnulo,
 }: {
   grupi: TGrupi;
   /** Kush luajti herën e fundit — nisja e zgjedhjes. */
   mefundit?: string[];
-  onNis: (date: string, zgjedhur: string[]) => void;
+  /** Çka u luajt herën e fundit — nisja e çelësit, për të njëjtën arsye. */
+  llojiIFundit: LlojiILojes;
+  onNis: (date: string, zgjedhur: string[], lloji: LlojiILojes) => void;
   onAnulo: () => void;
 }) {
   // Shoqëria është zakonisht e njëjta nga një mbrëmje te tjetra, prandaj
@@ -360,6 +400,9 @@ function ZgjedhjaELojtareve({
     return meparshmit.length >= 2 ? meparshmit : grupi.playerNames;
   });
   const [date, caktoDaten] = useState(sot());
+  // Njësoj si lista e lojtarëve: shoqëria e nis mbrëmjen aty ku e la, prandaj
+  // çelësi nis te loja e fundit e grupit.
+  const [lloji, caktoLlojin] = useState<LlojiILojes>(llojiIFundit);
 
   function ndrysho(lojtari: string) {
     caktoZgjedhur((z) =>
@@ -375,6 +418,28 @@ function ZgjedhjaELojtareve({
       </h2>
 
       <div className="futja">
+        <div className="fusha">
+          <span className="fusha__etiketa">Çka luhet</span>
+          <div className="celesi" role="group" aria-label="Lloji i lojës">
+            <button
+              type="button"
+              className="celesi__njesi"
+              aria-pressed={lloji === 'bridzh'}
+              onClick={() => caktoLlojin('bridzh')}
+            >
+              Bridzh
+            </button>
+            <button
+              type="button"
+              className="celesi__njesi"
+              aria-pressed={lloji === 'magarec'}
+              onClick={() => caktoLlojin('magarec')}
+            >
+              {FJALA}
+            </button>
+          </div>
+        </div>
+
         <div className="zgjedhesi">
           {grupi.playerNames.map((lojtari) => {
             const radha = zgjedhur.indexOf(lojtari);
@@ -406,6 +471,10 @@ function ZgjedhjaELojtareve({
         </label>
 
         <p className="ndihma">
+          {lloji === 'magarec'
+            ? `Kush e humb raundin merr një shkronjë; kush e mbush ${FJALA}-in e humb mbrëmjen.`
+            : 'Pikët shënohen për raund, dhe fiton totali më i vogël.'}
+          {' '}
           {mefundit && mefundit.length >= 2
             ? 'Nisur nga lojtarët e lojës së fundit. Numri tregon radhën e kolonave.'
             : 'Numri tregon radhën e kolonave. Duhen së paku dy lojtarë.'}
@@ -416,7 +485,7 @@ function ZgjedhjaELojtareve({
             type="button"
             className="buton buton--kryesor"
             disabled={zgjedhur.length < 2 || !date}
-            onClick={() => onNis(date, zgjedhur)}
+            onClick={() => onNis(date, zgjedhur, lloji)}
           >
             <Ikona emri="luaj" />
             Nis lojën

@@ -13,7 +13,7 @@
 
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 
-import type { Grupi, Loja, Raundi } from './tipet.ts';
+import type { Grupi, LlojiILojes, Loja, Raundi } from './tipet.ts';
 
 const EMRI = 'cardgametracker';
 const VERSIONI = 1;
@@ -114,16 +114,25 @@ export async function loja(id: number): Promise<Loja | undefined> {
   return (await db()).get('games', id);
 }
 
+/**
+ * Nis një lojë të re.
+ *
+ * `lloji` shkruhet gjithmonë, edhe kur është `bridzh`: lojërat e vjetra e kanë
+ * fushën që mungon dhe lexohen bridzh gjithsesi, por një lojë e re që e thotë
+ * vetë çka është nuk varet nga ai lexim.
+ */
 export async function shtoLoje(
   groupId: number,
   date: string,
   selectedPlayers: string[],
+  lloji: LlojiILojes = 'bridzh',
 ): Promise<number> {
   const id = await (await db()).add('games', {
     groupId,
     date,
     selectedPlayers,
     createdAt: Date.now(),
+    lloji,
   } as Loja);
   return id as number;
 }
