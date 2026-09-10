@@ -1,19 +1,25 @@
 /**
- * Ndarja e rezultatit — kodi QR dhe lidhja.
+ * Shpërndarja e rezultatit — dy rrugë, sepse asnjëra nuk mjafton vetëm.
  *
- * Kush rri rreth tavolinës i skanon një herë dhe i shikon pikët në telefonin e
- * vet. Kjo është fotografi e çastit, jo lidhje e drejtpërdrejtë: dy telefona në
- * të njëjtin wifi nuk kapen dot nga shfletuesi pa një server sinjalizimi, dhe
- * ky aplikacion nuk ka server. Prandaj teksti nën kod e thotë hapur se sa
- * raunde mban — që askush të mos shikojë numra të vjetër duke besuar se janë të
- * çastit.
+ * E para është e drejtpërdrejtë: një kanal WebRTC mes telefonave të së njëjtës
+ * rrjetë, dhe pikët dalin vetë pas çdo raundi. Kjo është ajo që duhet gjatë
+ * lojës — kush shikon nuk ka pse të kërkojë kod të re çdo herë.
+ *
+ * E dyta është fotografia brenda adresës. Rri sepse e para ka një kufi që nuk
+ * varet nga kodi: një rrjetë që i ndan klientët nga njëri-tjetri e bllokon
+ * lidhjen fare, dhe atëherë fotografia është e vetmja. Punon edhe kur telefonat
+ * nuk janë fare në të njëjtin wifi.
+ *
+ * E drejtpërdrejta rri e para sepse është ajo që kërkohet gjatë lojës; e dyta
+ * rri e mbledhur.
  */
 
 import { useState } from 'react';
 
-import { adresaEPamjes, tekstiINdarjes, type Pamja } from '../ndarja.ts';
+import { adresaEPamjes, paketo, tekstiINdarjes, type Pamja } from '../ndarja.ts';
 import type { RreshtiRenditjes } from '../tipet.ts';
 import { Ikona } from '../ikonat.tsx';
+import { Drejtperdrejt } from './Drejtperdrejt.tsx';
 import { KodiQR } from './KodiQR.tsx';
 
 export function Ndarja({
@@ -50,34 +56,46 @@ export function Ndarja({
   return (
     <details className="detaje">
       <summary className="detaje__krye">
-        <span>Shpërnda rezultatin</span>
+        <span>Pikët drejtpërdrejt</span>
         <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
       </summary>
 
       <div className="detaje__trupi">
-        <div className="ndarja">
-          <KodiQR
-            teksti={adresa}
-            pershkrimi={`Kod QR që hap rezultatin e ${pamja.grupi}, ${pamja.raunde} raunde`}
-          />
+        <Drejtperdrejt paketa={paketo(pamja)} />
 
-          <div className="ndarja__krye">
-            <p className="ndihma">
-              Skanoje me telefonin tjetër dhe rezultati hapet vetëm-lexim. Mban{' '}
-              <strong>
-                {pamja.raunde} {pamja.raunde === 1 ? 'raund' : 'raunde'}
-              </strong>{' '}
-              — pas raundeve të reja shfaqe sërish.
-            </p>
+        <details className="detaje detaje--brenda">
+          <summary className="detaje__krye">
+            <span>Ose dërgo një fotografi të çastit</span>
+            <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+          </summary>
 
-            <div className="veprimet">
-              <button type="button" className="buton" onClick={ndaj}>
-                <Ikona emri="ndaj" />
-                {kopjuar ? 'U kopjua' : 'Ndaj lidhjen'}
-              </button>
+          <div className="detaje__trupi">
+            <div className="ndarja">
+              <KodiQR
+                teksti={adresa}
+                pershkrimi={`Kod QR që hap rezultatin e ${pamja.grupi}, ${pamja.raunde} raunde`}
+              />
+
+              <div className="ndarja__krye">
+                <p className="ndihma">
+                  Punon edhe pa u lidhur telefonat mes vete — edhe nëpër mesazh.
+                  Mban{' '}
+                  <strong>
+                    {pamja.raunde} {pamja.raunde === 1 ? 'raund' : 'raunde'}
+                  </strong>{' '}
+                  dhe nuk përditësohet vetë.
+                </p>
+
+                <div className="veprimet">
+                  <button type="button" className="buton" onClick={ndaj}>
+                    <Ikona emri="ndaj" />
+                    {kopjuar ? 'U kopjua' : 'Ndaj lidhjen'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </details>
       </div>
     </details>
   );

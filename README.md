@@ -27,9 +27,16 @@ Fiton **totali më i vogël**.
   mesatar për lojë, e llogaritur nga vetë raundet.
 - **Redaktim dhe fshirje** — çdo raund ndryshohet pas ruajtjes; gjithçka
   rillogaritet vetvetiu.
-- **Shpërndarje me kod QR** — kush rri rreth tavolinës e skanon dhe i shikon
-  pikët në telefonin e vet, vetëm-lexim. Pa server: rezultati shkon brenda
-  vetë adresës, prandaj hapet edhe në një telefon që nuk e ka aplikacionin.
+- **Pikët drejtpërdrejt** — kush rri rreth tavolinës i shikon pikët në
+  telefonin e vet, dhe raundi i ri del vetë. Lidhja bëhet drejt mes telefonave
+  të së njëjtës rrjetë me një kanal WebRTC; sinjalizimi kalon nëpër dy kode QR
+  dhe kamerën e telefonit, prandaj server nuk duhet as për t'u lidhur.
+- **Ose një fotografi e çastit** — rezultati shkon brenda vetë adresës dhe
+  adresa bëhet kod QR. Punon edhe atje ku rrjeta i ndan pajisjet nga
+  njëra-tjetra, dhe edhe nëpër mesazh.
+
+  Të dyja hapen edhe në një telefon që nuk e ka aplikacionin, dhe asnjëra nuk
+  lexon as shkruan në bazën e tij.
 - **Kopje rezervë** — nxjerrja dhe kthimi i tërë historikut si një skedar JSON.
 
 Punon pa internet. Të dhënat rrinë vetëm në shfletuesin e pajisjes.
@@ -58,7 +65,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 94 prova, pa framework provash
+npm test          # node --test — 111 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i.
@@ -77,14 +84,17 @@ src/
   kopja.ts            nxjerrja dhe leximi i kopjes rezervë
   fusha.ts            teksti i fushës së pikëve dhe shenja e tij
   qr.ts               kodues QR i shkruar me dorë (byte, niveli L, v1–20)
+  paketa.ts           base64 i sigurt për adresa, dhe nënshkrimi
   ndarja.ts           rezultati i paketuar brenda një adrese
+  sinjalizimi.ts      SDP-ja e ngjeshur brenda një adrese — pa DOM, pa WebRTC
+  lidhja.ts           kanali WebRTC dhe rruga e sinjalit mes skedave
   ngarko.ts           lexo-nga-baza si hook
   ikonat.tsx          ikonat SVG inline
   style.css           sistemi i stilit
-  pamjet/             Grupet · Grupi · Loja · Shiko
+  pamjet/             Grupet · Grupi · Loja · Shiko · Lidhu · Pergjigja
   pjeset/             Renditja · Raundet · Shlyerja · TabelaEPergjithshme
                       FutjaERaundit · LojtaretELojes · PanelaEKopjes
-                      Ndarja · KodiQR
+                      Ndarja · Drejtperdrejt · PamjaERezultatit · KodiQR
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it
@@ -93,7 +103,10 @@ test/
   kopja.test.mjs         nxjerrja dhe refuzimi i skedarëve të dëmtuar
   qr.test.mjs            matrica të ngrira, të verifikuara me një dekodues
   ndarja.test.mjs        paketimi, dhe refuzimi i adresave të prera
+  sinjalizimi.test.mjs   SDP-ja e ngjeshur — kundër SDP-ve të vërteta, dhe
+                         refuzimi i rreshtave të futur brenda një adrese
   logic.json             fleta origjinale, si burim provash
+  sdp.json               SDP të vërteta të Chromium-it, si burim provash
 ```
 
 Arsyetimi pas zgjidhjeve rri te [`CLAUDE.md`](CLAUDE.md).

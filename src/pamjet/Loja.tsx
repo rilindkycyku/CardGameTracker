@@ -225,7 +225,7 @@ export function Loja({ id }: { id: number }) {
         onHiq={hiqLojtar}
       />
 
-      {raundet.length > 0 && (
+      {players.length > 0 && (
         <Ndarja
           pamja={pamjaELojes(
             grupi?.name ?? 'Bridzh',

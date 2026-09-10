@@ -13,7 +13,16 @@ import { kodiQR } from '../qr.ts';
 /** Zona e qetë: katër module bosh anash, si e kërkon standardi. */
 const ZONA = 4;
 
-export function KodiQR({ teksti, pershkrimi }: { teksti: string; pershkrimi: string }) {
+export function KodiQR({
+  teksti,
+  pershkrimi,
+  klasa = 'qr',
+}: {
+  teksti: string;
+  pershkrimi: string;
+  /** `qr--madh` për ftesën: modulet e saj janë më të vogla dhe duhen skanuar. */
+  klasa?: string;
+}) {
   const pikat = kodiQR(teksti);
 
   if (!pikat) {
@@ -44,7 +53,7 @@ export function KodiQR({ teksti, pershkrimi }: { teksti: string; pershkrimi: str
 
   return (
     <svg
-      className="qr"
+      className={klasa}
       viewBox={`0 0 ${gjithsej} ${gjithsej}`}
       role="img"
       aria-label={pershkrimi}
