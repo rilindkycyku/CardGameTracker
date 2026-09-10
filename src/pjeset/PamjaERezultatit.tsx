@@ -9,12 +9,19 @@
  * Renditja dhe shlyerja llogaritjen e kanë të njëjtën me atë të lojës —
  * `renditja` dhe `matricaEShlyerjes`, pa kopje të dytë — sepse matrica është
  * `total[i] − total[j]` dhe totalet i mban paketa.
+ *
+ * Magareci vizatohet me rrjetin e vet dhe pa shlyerje: aty numri është shkronjë
+ * e jo pikë, prandaj një diferencë mes dy lojtarëve nuk do të thoshte asgjë që
+ * shlyhet. Rrjeti i plotë del nga po ato totale — shkronja është vetë totali —
+ * prandaj paketa nuk u bë as një bajt më e gjatë për të.
  */
 
 import { dataShqip, matricaEShlyerjes, renditja } from '../llogaritjet.ts';
+import { FJALA, rreshtatEMagarecit } from '../magareci.ts';
 import type { Pamja } from '../ndarja.ts';
 import { Ikona, ShenjaEFaqes } from '../ikonat.tsx';
 import { Renditja } from './Renditja.tsx';
+import { RrjetiIMagarecit, ShenjaEMagarecit } from './RrjetiIMagarecit.tsx';
 import { Shlyerja } from './Shlyerja.tsx';
 
 /** Blloku i gabimit, i njëjti për një adresë të prerë e për një ftesë të prerë. */
@@ -54,8 +61,7 @@ export function PamjaERezultatit({
 }) {
   const emrat = pamja.totalet.map(([emri]) => emri);
   const totalat = Object.fromEntries(pamja.totalet);
-  const rreshtat = renditja(emrat, totalat);
-  const matrica = matricaEShlyerjes(emrat, totalat);
+  const magarec = pamja.lloji === 'magarec';
 
   return (
     <>
@@ -73,17 +79,52 @@ export function PamjaERezultatit({
               <Ikona emri="shlyerja" />
               {pamja.raunde} {pamja.raunde === 1 ? 'raund' : 'raunde'}
             </span>
+            {magarec && (
+              <span className="etiketa etiketa--hapur">
+                <Ikona emri="luaj" />
+                {FJALA}
+              </span>
+            )}
           </p>
         </div>
       </header>
 
       {njoftimi}
 
+      {magarec ? (
+        <>
+          <ShenjaEMagarecit
+            magareci={
+              rreshtatEMagarecit(emrat, totalat).find((r) => r.magarec)?.player
+              ?? null
+            }
+          />
+          <RrjetiIMagarecit players={emrat} shkronjat={totalat} />
+        </>
+      ) : (
+        <PjesaEBridzhit emrat={emrat} totalat={totalat} />
+      )}
+    </>
+  );
+}
+
+/** Renditja dhe shlyerja e bridzhit — i njëjti vizatim si te ekrani i lojës. */
+function PjesaEBridzhit({
+  emrat,
+  totalat,
+}: {
+  emrat: string[];
+  totalat: Record<string, number>;
+}) {
+  const rreshtat = renditja(emrat, totalat);
+
+  return (
+    <>
       <Renditja rreshtat={rreshtat} />
 
       <Shlyerja
         players={rreshtat.map((rreshti) => rreshti.player)}
-        matrica={matrica}
+        matrica={matricaEShlyerjes(emrat, totalat)}
       />
     </>
   );

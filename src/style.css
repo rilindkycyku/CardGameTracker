@@ -1006,7 +1006,139 @@ th.numri {
   color: var(--teksti);
 }
 
+/* ── Magareci ───────────────────────────────────────────────────────────── */
+
+/**
+ * Butonat e humbësit.
+ *
+ * Raundi i magarecit ka një pyetje të vetme — kush e humbi — prandaj futja e tij
+ * është një rresht butonash e jo fusha numrash. Butoni rri i tërë i prekshëm
+ * dhe mbi 3rem i lartë: shtypet dhjetëra herë në mbrëmje, nga dikush që mban
+ * letrat me dorën tjetër, dhe një prekje e gabuar këtu i jep shkronjën tjetrit.
+ */
+.magareci-futja {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.55rem;
+}
+
+/* Si te bridzhi: nga pesë lojtarë e tutje ulet vetëm ajri, jo caku i prekjes. */
+.magareci-futja[data-shume] {
+  gap: 0.35rem;
+}
+
+.magareci-futja__njesi {
+  display: grid;
+  gap: 0.15rem;
+  min-height: 3.25rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--kufiri-veprues);
+  border-radius: var(--rreze-2);
+  background: var(--siperfaqe-2);
+  color: var(--teksti);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.magareci-futja__njesi:hover {
+  border-color: var(--hapur);
+  background: var(--siperfaqe);
+}
+
+/* Humbësi i raundit që po redaktohet — i njëjti theks si te çdo çelës i shtypur. */
+.magareci-futja__njesi[aria-pressed='true'],
+.magareci-futja__njesi[aria-pressed='true']:hover {
+  background: var(--hapur-zbehte);
+  border-color: var(--hapur);
+}
+
+.magareci-futja__emri {
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Fjala e tij deri tani, dhe e zbehtë pas saj shkronja që do të marrë. */
+.magareci-futja__fjala {
+  display: flex;
+  gap: 0.12em;
+  font-family: var(--shkronja-numrat);
+  font-size: 0.86rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  min-height: 1.2em;
+}
+
+.magareci-futja__marre {
+  color: var(--projektim);
+}
+
+.magareci-futja__tjetra {
+  color: var(--teksti-zbehte);
+  opacity: 0.5;
+}
+
+/**
+ * Rrjeti i shkronjave.
+ *
+ * Shkronjat rrinë të centruara e jo djathtas: këtu qeliza nuk mban shifra që
+ * duhet të bien mbi njëra-tjetrën, mban një shkronjë të vetme.
+ */
+.tabela--magarec th.numri,
+.tabela--magarec td.numri {
+  text-align: center;
+}
+
+.tabela--magarec .qeliza-raundi {
+  letter-spacing: 0.12em;
+}
+
+/**
+ * Ngjyra e ndan afrimin nga fundi.
+ *
+ * Shkronjat e marra marrin ngjyrën e paralajmërimit, dhe e shtata — ajo që e
+ * mbyll fjalën — atë të humbjes. Kjo është e kundërta e bridzhit, ku theksi
+ * smerald i takon vendit të parë: këtu numri i madh nuk është epërsi, është
+ * mbrëmja e humbur.
+ */
+.tabela--magarec td.shkronja--marre,
+.tabela--magarec tbody tr:hover td.shkronja--marre {
+  background: var(--projektim-zbehte);
+  color: var(--projektim);
+  font-weight: 800;
+}
+
+.tabela--magarec td.shkronja--fundi,
+.tabela--magarec tbody tr:hover td.shkronja--fundi,
+.tabela--magarec .rresht--totali td.shkronja--fundi {
+  background: var(--negativ-zbehte);
+  color: var(--negativ);
+  font-weight: 800;
+}
+
+/* Kolona e atij që e mbushi fjalën. */
+.tabela--magarec th.kolona--magarec {
+  color: var(--negativ);
+}
+
+/* Shkronja te lista e raundeve — e njëjta ngjyrë, pa mbushjen e rrjetit. */
+.tabela .shkronja--marre {
+  color: var(--projektim);
+  font-weight: 800;
+}
+
+/* Shenja e llojit te historiku i grupit. */
+.njesi__lloji {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--hapur);
+}
+
 /* ── Llogaritësi ────────────────────────────────────────────────────────── */
+
 
 .llogaritesi {
   display: grid;

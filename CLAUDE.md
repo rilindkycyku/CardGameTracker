@@ -12,6 +12,11 @@ të dhënave (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`), për a
 del*. Zëvendëson një fletë Google Sheets-i që mbahej me dorë për bridzhin kosovar, varianti i
 xhin-ramit që luhet me 14 letra dhe mbyllet me 51 pikë.
 
+Ajo fletë ka edhe një skedë të dytë — **Magarec** — dhe tani e ka edhe aplikacioni: kush e humb
+raundin merr një shkronjë, dhe kush e mbush fjalën „MAGAREC" e humb mbrëmjen. Rregullat te
+[pika 11](#11-magareci-është-lojë-e-dytë-jo-aplikacion-i-dytë); ajo që vlen këtu është se të dyja
+janë e njëjta tavolinë, i njëjti grup dhe e njëjta bazë.
+
 Tri gjëra e përcaktojnë çdo vendim këtu:
 
 1. **Nuk ka server.** IndexedDB dhe asgjë tjetër. Loja luhet rreth tavolinës, jo çdo mbrëmje ka
@@ -41,7 +46,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 124 prova, pa framework provash
+npm test          # node --test — 150 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -50,8 +55,8 @@ npm test          # node --test — 124 prova, pa framework provash
 
 ### 1. Logjika rri te module që nuk njohin as bazën, as React-in, as `window`-in
 
-`llogaritjet.ts`, `pikezimi.ts`, `fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts`
-dhe `kodi.ts` importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
+`llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`,
+`sinjalizimi.ts` dhe `kodi.ts` importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
 zgjat nën një sekondë dhe nuk ka çka të prishet mes provës dhe kodit.
 
 `lidhja.ts`, `lidhjaMeServer.ts` dhe `ruajtja.ts` nuk hyjnë te kjo listë me qëllim: e para njeh
@@ -151,6 +156,11 @@ ana që shikon rri e zbrazët.
 Ajo që kalon nëpër kanal është pikërisht paketa e `ndarja.ts` — të njëjtat bajte të fotografisë —
 dhe `PamjaERezultatit` është një vend i vetëm vizatimi për të dyja. Dy kopje do të dilnin jashtë
 sinkronie pikërisht atje ku numri duhet të jetë i njëjti.
+
+Paketa është te versioni **2**, dhe fusha e shtuar është një shkronjë: `b` a `m`, lloji i lojës.
+Pa të ana që shikon nuk ka nga ta dijë se `3` do të thotë „MAG" e jo tri pikë — numri është i njëjti
+bajt te të dyja lojërat. Versioni 1 lexohet ende dhe lexohet bridzh: një adresë e ndarë dje te një
+bisedë nuk ka pse të vdesë sot, dhe atëherë kishte vetëm bridzh gjithsesi.
 
 #### Sinjalizimi kalon nëpër kamerën e telefonit
 
@@ -276,6 +286,10 @@ Prandaj `playerNames`, `selectedPlayers`, `roundNumber` e `scores` mbeten anglis
 me atë skedar. Gjithçka tjetër — emrat e moduleve, e funksioneve, e komponentëve, komentet dhe
 teksti në ekran — është shqip.
 
+Fushat e reja janë shqip, sepse nuk janë pjesë e asaj kontrate: `lloji` te `Loja` e thotë çka u
+luajt atë mbrëmje. Ai skedar njeh vetëm bridzhin, prandaj lista e emrave anglisht mbetet ajo që
+është dhe nuk zgjatet.
+
 Dy fusha të `logic.json`-it nuk përdoren dot, sepse dolën të cunguara nga nxjerrja e
 automatizuar dhe jo nga tabela: `domina_1.standings` (një rresht nga tre lojtarë) dhe
 `brigj_4_merged_teams.settlement_matrix` (rreshti i dytë quhet `null`). Totalet e të dyve janë të
@@ -309,6 +323,44 @@ Për zhvillim përdoren dëshmitarë që **nuk hyjnë te aplikacioni** dhe nuk r
 `segno`, `zxing-cpp` e `pillow` për koduesin QR, dhe `npx peer` (`peerjs-server`) si server
 sinjalizimi lokal gjatë provave të mënyrës me kod. Mos i shto te varësitë — `peer` sjell me vete
 `express` me dobësi të njohura, dhe një depo e klonuar nuk ka pse t'i marrë.
+
+### 11. Magareci është lojë e dytë, jo aplikacion i dytë
+
+Fleta e vjetër kishte një skedë „Magarec" krah atyre të bridzhit: shkronjat M-A-G-A-R-E-C poshtë
+njëra-tjetrës, emrat përsipër, dhe një shenjë te qeliza sa herë dikush humbte raundin. Kush e mbush
+fjalën e humb mbrëmjen. Kjo është e tërë loja, dhe `magareci.ts` është ajo fletë e bërë llogari.
+
+E njëjta tavolinë, i njëjti grup, e njëjta bazë — prandaj magareci nuk solli as skemë të re, as
+ekran të dytë:
+
+- **Raundi i magarecit është një raund si çdo tjetër.** Humbësi merr `1`, të tjerët `0`, te i njëjti
+  `scores`. Prandaj totali është numri i shkronjave, „fiton totali më i vogël" mbetet fjalë për
+  fjalë e vërtetë, dhe raundet, redaktimi, kopja rezervë e ndarja e rezultatit punojnë ashtu si
+  punonin. Mos i shto një vend të vetin shkronjës.
+- **Zeroja e të tjerëve nuk është qelizë e zbrazët.** Kush ishte te tavolina e luajti atë raund; e
+  zbrazëta do të thoshte „nuk ishte". Pa këtë dallim `raundetELuajtura` do t'i numëronte të gjithë
+  sikur të kishin ardhur vonë, dhe renditja do të nxirrte shënimin e pjesëmarrjes së pabarabartë te
+  çdo mbrëmje. Prova `zeroja e të tjerëve nuk është qelizë e zbrazët` e mban këtë të matur.
+- **Shkronjat nuk ruhen, si asnjë vlerë e derivuar** (pika 2). Fjala del nga numri, dhe shkronja e
+  një raundi del nga sa herë e kishte humbur ai lojtar deri atje — prandaj fshirja e raundit të dytë
+  i rinumëron vetvetiu të gjitha ato që vijnë pas.
+- **Një shkronjë për raund, dhe loja mbaron kur mbushet fjala.** Ekrani nuk pranon raund të ri pasi
+  dikush e ka mbushur: një shkronjë më shumë nuk do të thoshte asgjë, dhe fleta do të gënjente.
+  Redaktimi mbetet i hapur nga lista — atje rregullohet një prekje e gabuar.
+- **Futja është një prekje, jo një buton „Ruaj".** Raundi ka një pyetje të vetme; prekja e emrit e
+  ruan. Butoni e thotë edhe fjalën e atij lojtari deri tani dhe shkronjën që do të marrë, sepse pa të
+  duhet lexuar rrjeti poshtë para çdo prekjeje.
+- **Ngjyra shkon në të kundërt.** Te bridzhi theksi smerald i takon vendit të parë; këtu shkronjat e
+  marra janë të verdha e shkronja e shtatë e kuqe. Numri i madh nuk është epërsi, është mbrëmja e
+  humbur.
+- **Tabelat e grupit rrinë dy.** Pikët me qindra dhe shkronjat nga zero në shtatë nuk mblidhen te e
+  njëjta mesatare. Mos i bashko.
+- **Shlyerje nuk ka.** `total[i] − total[j]` mbi shkronja nuk shlyhet me para; matrica nuk vizatohet
+  fare te magareci.
+
+Lojërat e shkruara para tij nuk e kanë fushën `lloji` dhe lexohen bridzh — `llojiILojes()` është
+vendi i vetëm ku bëhet ai lexim. Një vlerë e panjohur te një kopje rezervë refuzohet e nuk lexohet
+bridzh: do të vinte nga një version më i ri, dhe shkronjat e tij do të dilnin pikë pa e thënë kush.
 
 ## Sistemi vizual
 
@@ -346,6 +398,10 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   kuqe. Meqë fiton totali më i vogël, një `+214` jeshil do të thotë „ka 214 pikë më shumë", pra
   është ana që paguan — jo që prin. Legjenda nën tabelë e thotë këtë me fjalë pikërisht që ngjyra
   të mos lexohet si vend.
+- **Te magareci numri krah emrit është shkronjë, jo raund.** `LojtaretELojes` e merr atë numër për
+  të vendosur kush hiqet nga loja, dhe te magareci secili shënon `0` te çdo raund — pra raundet e
+  luajtura do t'ua ndalnin heqjen të gjithëve. Prandaj aty i kalohen shkronjat: kush ka marrë
+  shkronja mbetet te loja, kush u ngrit pa marrë asnjë hiqet.
 - **`dataShqip` e ndan datën me dorë.** `new Date('2026-01-08')` lexohet si UTC dhe në Kosovë do të
   jepte 7 janar. Mos e zëvendëso me `Date`.
 - **Butoni i fshirjes rri brenda një lidhjeje** te historiku i grupit, prandaj i duhen

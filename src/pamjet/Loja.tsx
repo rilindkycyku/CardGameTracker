@@ -1,6 +1,13 @@
 /**
  * Ekrani i një loje — futja e raundit, renditja, raundet dhe shlyerja.
  *
+ * Dy lojëra ndajnë këtë ekran, dhe ndajnë gjithçka që rri rreth raundit: të
+ * dhënat, lojtarët mes lojës, ndarjen e rezultatit, redaktimin dhe fshirjen.
+ * Ajo që ndryshon është vetëm çka shënohet — gjashtë numra te bridzhi, një emër
+ * te magareci — dhe çka vizatohet poshtë. Prandaj `lloji` e ndan vizatimin te
+ * dy vende e jo ekranin te dy skedarë: një kopje e dytë e kësaj do të dilte
+ * jashtë sinkronie te pikërisht ato pjesë që janë të njëjta.
+ *
  * Renditja e blloqeve ndjek atë që pyetet më shpesh gjatë lojës: para së
  * gjithash futja e raundit të radhës, sepse ajo bëhet dhjetëra herë në mbrëmje;
  * pastaj kush prin; pastaj tabela e plotë; shlyerja në fund, sepse ajo shihet
@@ -15,18 +22,33 @@ import { useCallback, useMemo, useState } from 'react';
 
 import {
   dataShqip,
+  llojiILojes,
   matricaEShlyerjes,
   permbledhja,
   raundiNeVijim,
   renditja,
 } from '../llogaritjet.ts';
+import {
+  FJALA,
+  humbesiIRaundit,
+  magareci as kushDoliMagarec,
+  raundetEMagarecit,
+  raundiIHumbjes,
+  shkronjat as shkronjatE,
+} from '../magareci.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
+import { FutjaEMagarecit } from '../pjeset/FutjaEMagarecit.tsx';
 import { FutjaERaundit } from '../pjeset/FutjaERaundit.tsx';
 import { LojtaretELojes } from '../pjeset/LojtaretELojes.tsx';
 import { Ndarja } from '../pjeset/Ndarja.tsx';
+import { RaundetEMagarecit } from '../pjeset/RaundetEMagarecit.tsx';
 import { Raundet } from '../pjeset/Raundet.tsx';
 import { Renditja } from '../pjeset/Renditja.tsx';
+import {
+  RrjetiIMagarecit,
+  ShenjaEMagarecit,
+} from '../pjeset/RrjetiIMagarecit.tsx';
 import { Shlyerja } from '../pjeset/Shlyerja.tsx';
 import { pamjaELojes } from '../ndarja.ts';
 import {
@@ -48,6 +70,9 @@ import { shko } from '../rruga.ts';
  * vizatim do t'i shkarkonte të gjitha memo-t sa pritet leximi i parë.
  */
 const BOSH: never[] = [];
+
+/** E njëjta arsye si te `BOSH`, për numrat e shkronjave. */
+const BOSH_NUMRA: Record<string, number> = {};
 
 export function Loja({ id }: { id: number }) {
   const { te_dhenat, rifresko } = useNgarko(async () => {
@@ -76,6 +101,8 @@ export function Loja({ id }: { id: number }) {
   const grupi = te_dhenat?.grupi ?? null;
   const raundet = te_dhenat?.raundet ?? BOSH;
   const players = loja?.selectedPlayers ?? BOSH;
+  const lloji = llojiILojes(loja ?? {});
+  const magarec = lloji === 'magarec';
 
   /*
    * Të gjitha vlerat e derivuara nga një kalim i vetëm mbi raundet.
@@ -105,10 +132,51 @@ export function Loja({ id }: { id: number }) {
 
   const iRadhes = useMemo(() => raundiNeVijim(raundet), [raundet]);
 
+  /*
+   * Vlerat e magarecit, të veçuara nga ato të bridzhit.
+   *
+   * Rrinë te një `useMemo` i vetin dhe jo te ai i mësipërmi sepse llogariten
+   * vetëm kur loja është magarec — dhe sepse hyrjet e `RrjetiIMagarecit`-it e
+   * të `RaundetEMagarecit`-it duhen me identitet të qëndrueshëm, njësoj si ato
+   * të tabelave të bridzhit.
+   */
+  const { magareciILojes, raundetMeShkronja } = useMemo(
+    () => ({
+      magareciILojes: magarec ? kushDoliMagarec(players, raundet) : null,
+      raundetMeShkronja: magarec ? raundetEMagarecit(players, raundet) : BOSH,
+    }),
+    [magarec, players, raundet],
+  );
+
+  /*
+   * Sa shkronja kishte secili para raundit që po shënohet.
+   *
+   * Kur një raund i vjetër po redaktohet, ai nuk hyn te numërimi: përndryshe
+   * butoni i humbësit të tij do të tregonte shkronjën e radhës sikur ai raund
+   * të kishte ndodhur dy herë.
+   */
+  const shkronjatPara = useMemo(() => {
+    if (!magarec) return BOSH_NUMRA;
+
+    const perpara =
+      dukeRedaktuar === null
+        ? raundet
+        : raundet.filter((r) => r.id !== dukeRedaktuar);
+
+    return shkronjatE(players, perpara);
+  }, [magarec, players, raundet, dukeRedaktuar]);
+
   const pamja = useMemo(
     () =>
-      loja ? pamjaELojes(grupi?.name ?? 'Bridzh', loja, totalat, raundet.length) : null,
-    [grupi?.name, loja, totalat, raundet.length],
+      loja
+        ? pamjaELojes(
+            grupi?.name ?? (magarec ? 'Magarec' : 'Bridzh'),
+            loja,
+            totalat,
+            raundet.length,
+          )
+        : null,
+    [grupi?.name, loja, magarec, totalat, raundet.length],
   );
 
   const raundiQeRedaktohet =
@@ -237,35 +305,91 @@ export function Loja({ id }: { id: number }) {
               <Ikona emri="shlyerja" />
               {raundet.length} {raundet.length === 1 ? 'raund' : 'raunde'}
             </span>
+            {magarec && (
+              <span className="etiketa etiketa--hapur">
+                <Ikona emri="luaj" />
+                {FJALA}
+              </span>
+            )}
           </p>
         </div>
       </header>
 
       <section>
         <h2 className="titull-seksioni">
-          <Ikona emri={raundiQeRedaktohet ? 'redakto' : 'shto'} />
+          <Ikona
+            emri={
+              raundiQeRedaktohet
+                ? 'redakto'
+                : magarec && magareciILojes
+                  ? 'kujdes'
+                  : 'shto'
+            }
+          />
           {raundiQeRedaktohet
             ? `Raundi ${raundiQeRedaktohet.roundNumber}`
-            : `Raundi ${iRadhes}`}
+            : magarec && magareciILojes
+              ? 'Loja mbaroi'
+              : `Raundi ${iRadhes}`}
         </h2>
 
         <div className="kartela kartela--kryesore">
-          <FutjaERaundit
-            players={players}
-            roundNumber={raundiQeRedaktohet?.roundNumber ?? iRadhes}
-            fillestare={raundiQeRedaktohet?.scores ?? null}
-            onRuaj={ruaj}
-            onAnulo={
-              raundiQeRedaktohet ? () => caktoRedaktimin(null) : undefined
-            }
-          />
+          {!magarec ? (
+            <FutjaERaundit
+              players={players}
+              roundNumber={raundiQeRedaktohet?.roundNumber ?? iRadhes}
+              fillestare={raundiQeRedaktohet?.scores ?? null}
+              onRuaj={ruaj}
+              onAnulo={
+                raundiQeRedaktohet ? () => caktoRedaktimin(null) : undefined
+              }
+            />
+          ) : magareciILojes && !raundiQeRedaktohet ? (
+            /*
+             * Loja ka mbaruar, prandaj raund i ri nuk ka.
+             *
+             * Butonat nuk rrinë të fikur: një shkronjë më shumë nuk do të thotë
+             * asgjë pasi fjala është mbushur, dhe një raund i shënuar pas fundit
+             * do ta bënte fletën të gënjejë. Redaktimi mbetet i hapur nga lista
+             * poshtë — atje rregullohet një prekje e gabuar.
+             */
+            <>
+              <ShenjaEMagarecit magareci={magareciILojes} />
+              <p className="ndihma" data-hapesire="lart">
+                Për një mbrëmje tjetër, nis një lojë të re te grupi. Nëse ndonjë
+                raund u shënua gabim, ndërroje ose fshije nga lista poshtë.
+              </p>
+            </>
+          ) : (
+            <FutjaEMagarecit
+              players={players}
+              roundNumber={raundiQeRedaktohet?.roundNumber ?? iRadhes}
+              shkronjat={shkronjatPara}
+              humbesi={
+                raundiQeRedaktohet
+                  ? humbesiIRaundit(players, raundiQeRedaktohet)
+                  : null
+              }
+              onRuaj={(humbesi) => void ruaj(raundiIHumbjes(players, humbesi))}
+              onAnulo={
+                raundiQeRedaktohet ? () => caktoRedaktimin(null) : undefined
+              }
+            />
+          )}
         </div>
       </section>
 
+      {/*
+        Te magareci numri krah emrit është shkronja e jo raundi i shënuar: aty
+        secili shënon `0` te çdo raund, prandaj raundet e luajtura do t'i ndalnin
+        të gjithëve heqjen. Kush ka marrë shkronja mbetet te loja — ato janë
+        pjesë e historikut të asaj mbrëmjeje — dhe kush u ngrit pa marrë asnjë
+        hiqet lirisht.
+      */}
       <LojtaretELojes
         players={players}
         grupi={grupi ?? undefined}
-        luajtur={luajtur}
+        luajtur={magarec ? totalat : luajtur}
         onShto={shtoLojtar}
         onHiq={hiqLojtar}
       />
@@ -274,7 +398,32 @@ export function Loja({ id }: { id: number }) {
         <Ndarja pamja={pamja} rreshtat={rreshtat} />
       )}
 
-      {raundet.length === 0 ? (
+      {magarec ? (
+        <>
+          {/*
+            Rrjeti rri edhe kur s'ka ende asnjë raund: shtatë rreshta të zbrazët
+            e thonë vetë lojën — kaq shkronja ka, dhe kush i mbush i humbi.
+          */}
+          <RrjetiIMagarecit players={players} shkronjat={totalat} />
+
+          {raundet.length === 0 ? (
+            <div className="zbrazet">
+              <p className="zbrazet__titull">Ende asnjë raund</p>
+              <p>
+                Prek atë që e humbi raundin e parë. Shkronjat dalin vetë, një
+                për raund, derisa dikujt t'i mbushet fjala.
+              </p>
+            </div>
+          ) : (
+            <RaundetEMagarecit
+              raundet={raundetMeShkronja}
+              dukeRedaktuar={dukeRedaktuar}
+              onRedakto={redakto}
+              onFshi={fshi}
+            />
+          )}
+        </>
+      ) : raundet.length === 0 ? (
         <div className="zbrazet">
           <p className="zbrazet__titull">Ende asnjë raund</p>
           <p>
