@@ -249,6 +249,25 @@ h3 {
   font-variant-numeric: tabular-nums;
 }
 
+/* Kush përzien letrat — te krahu i djathtë i titullit, që të mos marrë rresht
+   të vetin mbi bllokun që përdoret më shumë se çdo tjetër. */
+.titull-seksioni__perziersi {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.titull-seksioni__perziersi strong {
+  font-weight: 800;
+  color: var(--hapur);
+}
+
 /* ── Kreu ───────────────────────────────────────────────────────────────── */
 
 .kreu {
@@ -1407,6 +1426,171 @@ th.numri {
 .legjenda__ngjyra--negativ {
   background: var(--negativ-zbehte);
   box-shadow: inset 0 0 0 1px var(--negativ);
+}
+
+/* ── Përmbledhja e pamjes së ndarë ──────────────────────────────────────── */
+
+/* Përgjigjja para tabelave, për atë që sapo skanoi kodin: kush prin, sa larg
+   është i dyti, dhe sa ka mbetur. Kartelë e vetme, pa tabelë — në gjysmëdritë
+   një tabelë kërkon lexim, kjo kërkon vetëm një shikim. */
+.permbledhja {
+  padding: 1.1rem 1.25rem 1rem;
+  border: 1px solid var(--kufiri);
+  border-radius: var(--rreze);
+  background: var(--siperfaqe);
+  box-shadow: var(--hije-1);
+}
+
+.permbledhja__krye {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--teksti-zbehte);
+}
+
+.permbledhja__krye strong {
+  color: var(--hapur);
+  font-weight: 800;
+}
+
+.permbledhja__krye .ikona {
+  flex: none;
+  color: var(--hapur);
+}
+
+/* Numri i madh: ai është arsyeja pse u hap faqja. */
+.permbledhja__numri {
+  margin: 0.35rem 0 0;
+  font-family: var(--shkronja-numrat);
+  font-size: clamp(2.1rem, 11vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--teksti);
+}
+
+.permbledhja__nen {
+  margin: 0.45rem 0 0;
+  font-size: 0.9rem;
+  color: var(--teksti-zbehte);
+  text-wrap: pretty;
+}
+
+.permbledhja__fakte {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  margin: 0.9rem 0 0;
+  padding: 0.85rem 0 0;
+  border-top: 1px solid var(--kufiri);
+  list-style: none;
+}
+
+.permbledhja__fakte li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--teksti-zbehte);
+}
+
+.permbledhja__fakte .ikona {
+  width: 0.95em;
+  height: 0.95em;
+  flex: none;
+  opacity: 0.8;
+}
+
+.permbledhja__fakte strong {
+  color: var(--teksti);
+  font-weight: 700;
+}
+
+/* ── Rreshti i vetes ────────────────────────────────────────────────────── */
+
+.vetja__krye {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.5rem;
+}
+
+.vetja__vendi {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: none;
+  border-radius: 50%;
+  background: var(--hapur-zbehte);
+  color: var(--hapur);
+  font-family: var(--shkronja-numrat);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.vetja__emri {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--teksti);
+}
+
+.vetja__totali {
+  margin-left: auto;
+  font-family: var(--shkronja-numrat);
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--teksti);
+}
+
+.vetja__lista {
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--kufiri);
+}
+
+/* Emri, drejtimi me fjalë, dhe sasia. Drejtimi rri fjalë e jo ngjyrë: te
+   matrica pozitivja është jeshile sepse ashtu e kishte fleta origjinale, dhe
+   po ajo ngjyrë mbi një rresht që thotë „ti i jep" do të lexohej si fitore. */
+.vetja__njesi {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--kufiri);
+}
+
+.vetja__njesi:last-child {
+  border-bottom: 0;
+}
+
+.vetja__kujt {
+  font-weight: 700;
+  color: var(--teksti);
+}
+
+.vetja__drejtimi {
+  font-size: 0.8rem;
+  color: var(--teksti-zbehte);
+}
+
+.vetja__sasia {
+  min-width: 3rem;
+  text-align: right;
+  font-family: var(--shkronja-numrat);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--teksti);
 }
 
 /* ── Njoftimet ──────────────────────────────────────────────────────────── */

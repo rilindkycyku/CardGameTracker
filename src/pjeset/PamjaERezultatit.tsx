@@ -19,8 +19,12 @@
 import { dataShqip, matricaEShlyerjes, renditja } from '../llogaritjet.ts';
 import { FJALA, rreshtatEMagarecit } from '../magareci.ts';
 import type { Pamja } from '../ndarja.ts';
+import type { RreshtiRenditjes } from '../tipet.ts';
 import { Ikona, ShenjaEFaqes } from '../ikonat.tsx';
+import { Parashikimi } from './Parashikimi.tsx';
+import { PermbledhjaEPamjes } from './PermbledhjaEPamjes.tsx';
 import { Renditja } from './Renditja.tsx';
+import { Vetja } from './Vetja.tsx';
 import { RrjetiIMagarecit, ShenjaEMagarecit } from './RrjetiIMagarecit.tsx';
 import { Shlyerja } from './Shlyerja.tsx';
 
@@ -62,6 +66,7 @@ export function PamjaERezultatit({
   const emrat = pamja.totalet.map(([emri]) => emri);
   const totalat = Object.fromEntries(pamja.totalet);
   const magarec = pamja.lloji === 'magarec';
+  const rreshtat = renditja(emrat, totalat);
 
   return (
     <>
@@ -75,10 +80,17 @@ export function PamjaERezultatit({
               <Ikona emri={etiketa.ikona} />
               {etiketa.emri}
             </span>
-            <span className="etiketa">
-              <Ikona emri="shlyerja" />
-              {pamja.raunde} {pamja.raunde === 1 ? 'raund' : 'raunde'}
-            </span>
+            {/*
+              Numri i raundeve rri te përmbledhja poshtë, bashkë me sa kanë
+              mbetur. Këtu del vetëm kur ajo mungon — pra te një lojë e ndarë
+              para raundit të parë — që i njëjti numër të mos dalë dy herë.
+            */}
+            {pamja.raunde === 0 && (
+              <span className="etiketa">
+                <Ikona emri="shlyerja" />
+                ende asnjë raund
+              </span>
+            )}
             {magarec && (
               <span className="etiketa etiketa--hapur">
                 <Ikona emri="luaj" />
@@ -91,6 +103,10 @@ export function PamjaERezultatit({
 
       {njoftimi}
 
+      {pamja.raunde > 0 && (
+        <PermbledhjaEPamjes pamja={pamja} rreshtat={rreshtat} />
+      )}
+
       {magarec ? (
         <>
           <ShenjaEMagarecit
@@ -100,27 +116,67 @@ export function PamjaERezultatit({
             }
           />
           <RrjetiIMagarecit players={emrat} shkronjat={totalat} />
+
+          {pamja.raunde > 0 && (
+            <>
+              <Vetja rreshtat={rreshtat} totalet={totalat} magarec />
+
+              <Parashikimi
+                lloji="magarec"
+                players={emrat}
+                totalet={totalat}
+                luajtur={pamja.raunde}
+              />
+            </>
+          )}
         </>
       ) : (
-        <PjesaEBridzhit emrat={emrat} totalat={totalat} />
+        <PjesaEBridzhit
+          emrat={emrat}
+          totalat={totalat}
+          rreshtat={rreshtat}
+          raunde={pamja.raunde}
+        />
       )}
     </>
   );
 }
 
-/** Renditja dhe shlyerja e bridzhit — i njëjti vizatim si te ekrani i lojës. */
+/**
+ * Renditja, vetja dhe shlyerja e bridzhit — i njëjti vizatim si te ekrani i lojës.
+ *
+ * «Unë jam» rri mes renditjes dhe matricës me qëllim: renditja thotë ku janë të
+ * gjithë, rreshti i vetes thotë ku je ti, dhe matrica e plotë mbetet poshtë për
+ * kë e do të tërën. Kush skanoi kodin e gjen përgjigjen e vet pa e prekur atë.
+ */
 function PjesaEBridzhit({
   emrat,
   totalat,
+  rreshtat,
+  raunde,
 }: {
   emrat: string[];
   totalat: Record<string, number>;
+  rreshtat: RreshtiRenditjes[];
+  /** Sa raunde janë luajtur — pa asnjë, parashikimi s'ka çka të thotë. */
+  raunde: number;
 }) {
-  const rreshtat = renditja(emrat, totalat);
-
   return (
     <>
       <Renditja rreshtat={rreshtat} />
+
+      {raunde > 0 && (
+        <>
+          <Vetja rreshtat={rreshtat} totalet={totalat} magarec={false} />
+
+          <Parashikimi
+            lloji="bridzh"
+            players={emrat}
+            totalet={totalat}
+            luajtur={raunde}
+          />
+        </>
+      )}
 
       <Shlyerja
         players={rreshtat.map((rreshti) => rreshti.player)}

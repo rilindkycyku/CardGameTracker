@@ -21,17 +21,22 @@ import { readFileSync } from 'node:fs';
 
 import {
   dataMeNumra,
+  fituesit,
   dataNgaNumrat,
   dataShqip,
   eshteIMbushur,
   lojeratESortuara,
   matricaEShlyerjes,
   permbledhja,
+  perziersiIRaundit,
   pjesemarrjeEBarabarte,
+  RAUNDE_PER_LOJTAR,
+  raundetELojes,
   raundetELuajtura,
   raundiNeVijim,
   renditja,
   renditjaELojes,
+  shlyerjaEVetes,
   sipasRadhes,
   sot,
   tabelaEPergjithshme,
@@ -476,6 +481,209 @@ test('filtrimi i raundeve bosh nuk e ndryshon pjesëmarrjen', () => {
     assert.deepEqual(
       raundetELuajtura(players, raundet),
       raundetELuajtura(players, raundet.filter((r) => eshteIMbushur(players, r))),
+    );
+  }
+});
+
+/* ── Kush përzien letrat ────────────────────────────────────────────────── */
+
+test('përzierja nis nga i pari i listës dhe kalon një vend për raund', () => {
+  const players = ['alfa', 'beta', 'gama'];
+
+  assert.equal(perziersiIRaundit(players, 1), 'alfa');
+  assert.equal(perziersiIRaundit(players, 2), 'beta');
+  assert.equal(perziersiIRaundit(players, 3), 'gama');
+  // Pas të fundit nis prapë nga kreu.
+  assert.equal(perziersiIRaundit(players, 4), 'alfa');
+  assert.equal(perziersiIRaundit(players, 7), 'alfa');
+});
+
+test('përzierja ndjek radhën e tavolinës te çdo grup i `logic.json`-it', () => {
+  for (const grupi of burimi.groups) {
+    for (const raundi of grupi.rounds) {
+      assert.equal(
+        perziersiIRaundit(grupi.players, raundi.round),
+        grupi.players[(raundi.round - 1) % grupi.players.length],
+      );
+    }
+  }
+});
+
+test('pa lojtarë ose me numër të prishur nuk ka përzierës', () => {
+  assert.equal(perziersiIRaundit([], 3), null);
+  assert.equal(perziersiIRaundit(['alfa'], Number.NaN), null);
+  // Numri i raundit nuk shkon nën një, por një bazë e prishur mund ta sjellë.
+  assert.equal(perziersiIRaundit(['alfa', 'beta'], 0), 'beta');
+  assert.equal(perziersiIRaundit(['alfa', 'beta'], -1), 'alfa');
+});
+
+/* ── Sa raunde ka një lojë ──────────────────────────────────────────────── */
+
+test('loja ka dy raunde për lojtar', () => {
+  assert.equal(RAUNDE_PER_LOJTAR, 2);
+  assert.equal(raundetELojes(['alfa', 'beta', 'gama']), 6);
+  assert.equal(raundetELojes(['alfa', 'beta', 'gama', 'delta']), 8);
+  assert.equal(raundetELojes([]), 0);
+});
+
+test('çdo mbrëmje bridzhi e `logic.json`-it ka saktësisht dy raunde për lojtar', () => {
+  /*
+   * Ky rregull nuk u shpik: fleta origjinale e dëshmon. Dy grupe rrinë jashtë,
+   * dhe asnjëri nuk e kundërshton atë:
+   *
+   *   • `brigj_4_merged_teams` — kolonat janë çifte („alfa + zeta"), pra dy
+   *     kolona nga katër veta. Tetë raundet e tij janë pikërisht dy për njeri,
+   *     dhe kjo e përforcon rregullin në vend që ta thyejë.
+   *   • `domina_1` — nuk është bridzh fare.
+   */
+  const çiftet = /\s\+\s/;
+  const bridzhet = burimi.groups.filter(
+    (g) => !g.id.startsWith('domina'),
+  );
+
+  assert.ok(bridzhet.length >= 5);
+
+  for (const grupi of bridzhet) {
+    const veta = grupi.players.reduce(
+      (sa, emri) => sa + emri.split(çiftet).length,
+      0,
+    );
+
+    assert.equal(
+      grupi.rounds.length,
+      veta * RAUNDE_PER_LOJTAR,
+      `${grupi.id}: ${grupi.rounds.length} raunde nga ${veta} veta`,
+    );
+  }
+});
+
+test('sa raunde janë mbetur — dhe secili i përzien dy herë', () => {
+  const players = ['alfa', 'beta', 'gama'];
+  const gjithsej = raundetELojes(players);
+
+  // Dy rrotullime të plota të tavolinës, dhe asnjë vend nuk përsëritet brenda një.
+  const perziersit = [];
+  for (let raundi = 1; raundi <= gjithsej; raundi += 1) {
+    perziersit.push(perziersiIRaundit(players, raundi));
+  }
+
+  for (const player of players) {
+    assert.equal(
+      perziersit.filter((x) => x === player).length,
+      RAUNDE_PER_LOJTAR,
+    );
+  }
+});
+
+/* ── Rreshti i vetes te matrica ─────────────────────────────────────────── */
+
+test('shlyerja e vetes është rreshti i matricës, pa qelizën e vetvetes', () => {
+  for (const grupi of burimi.groups) {
+    const totalat = permbledhja(grupi.players, raundetE(grupi)).totalet;
+    const matrica = matricaEShlyerjes(grupi.players, totalat);
+
+    for (const vetja of grupi.players) {
+      const rreshti = shlyerjaEVetes(vetja, grupi.players, totalat);
+
+      assert.equal(rreshti.length, grupi.players.length - 1);
+      assert.ok(!rreshti.some((n) => n.player === vetja));
+
+      for (const njesi of rreshti) {
+        assert.equal(njesi.diferenca, matrica[vetja][njesi.player]);
+      }
+    }
+  }
+});
+
+test('radha shkon nga ai që i del më shumë te ai që i del më pak', () => {
+  const totalat = { alfa: 100, beta: 180, gama: 400 };
+  const rreshti = shlyerjaEVetes('beta', ['alfa', 'beta', 'gama'], totalat);
+
+  assert.deepEqual(rreshti, [
+    { player: 'alfa', diferenca: 80 },
+    { player: 'gama', diferenca: -220 },
+  ]);
+});
+
+test('çka i del njërit, i vjen tjetrit — dhe tavolina mbyllet me zero', () => {
+  for (const grupi of burimi.groups) {
+    const totalat = permbledhja(grupi.players, raundetE(grupi)).totalet;
+
+    // Secila diferencë ka të kundërtën e vet te rreshti i tjetrit.
+    for (const vetja of grupi.players) {
+      for (const njesi of shlyerjaEVetes(vetja, grupi.players, totalat)) {
+        const kthimi = shlyerjaEVetes(njesi.player, grupi.players, totalat)
+          .find((x) => x.player === vetja);
+
+        // Shuma e dy anëve, e jo `-njesi.diferenca`: kur të dy janë baras ajo
+        // jep `-0`, dhe `assert.equal` e ndan `-0`-in nga `0`.
+        assert.equal(njesi.diferenca + kthimi.diferenca, 0);
+      }
+    }
+
+    // Dhe shumat neto të të gjithëve mblidhen zero: askush nuk krijon pikë.
+    const neto = grupi.players.reduce(
+      (shuma, vetja) =>
+        shuma
+        + shlyerjaEVetes(vetja, grupi.players, totalat).reduce(
+          (s, n) => s + n.diferenca,
+          0,
+        ),
+      0,
+    );
+
+    assert.equal(neto, 0, `${grupi.id}: tavolina nuk mbyllet me zero`);
+  }
+});
+
+/* ── Kush del i pari ────────────────────────────────────────────────────── */
+
+test('barazimi te kreu nuk ndahet sipas radhës së listës', () => {
+  // Gjashtë raunde normale me tre lojtarë i lënë të gjithë te 360 — pikërisht
+  // rasti që del kur mbaron një mbrëmje e rregullt, dhe ku «alfa fitoi» gënjen.
+  const rreshtat = [
+    { rank: 1, player: 'alfa', total: 360 },
+    { rank: 2, player: 'beta', total: 360 },
+    { rank: 3, player: 'gama', total: 360 },
+  ];
+
+  assert.deepEqual(fituesit(rreshtat), ['alfa', 'beta', 'gama']);
+});
+
+test('kur kreu nuk është baras, fituesi është një i vetëm', () => {
+  assert.deepEqual(
+    fituesit([
+      { rank: 1, player: 'delta', total: 91 },
+      { rank: 2, player: 'gama', total: 237 },
+    ]),
+    ['delta'],
+  );
+
+  assert.deepEqual(fituesit([]), []);
+});
+
+test('fituesi nuk varet nga radha e vargut', () => {
+  // Thirrësit e japin të renditur, por një funksion që shpall fituesin nuk ka
+  // pse ta besojë atë.
+  assert.deepEqual(
+    fituesit([
+      { rank: 2, player: 'gama', total: 237 },
+      { rank: 1, player: 'delta', total: 91 },
+    ]),
+    ['delta'],
+  );
+});
+
+test('fituesi i çdo mbrëmjeje të `logic.json`-it është ai me totalin më të vogël', () => {
+  for (const grupi of burimi.groups) {
+    const totalat = permbledhja(grupi.players, raundetE(grupi)).totalet;
+    const rreshtat = renditja(grupi.players, totalat);
+    const meIVogli = Math.min(...grupi.players.map((p) => totalat[p]));
+
+    assert.deepEqual(
+      fituesit(rreshtat),
+      grupi.players.filter((p) => totalat[p] === meIVogli),
+      grupi.id,
     );
   }
 });

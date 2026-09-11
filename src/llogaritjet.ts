@@ -133,9 +133,131 @@ export function matricaEShlyerjes(
   return matrica;
 }
 
+/**
+ * Kush del i pari — dhe mund të jenë disa.
+ *
+ * `renditja` i jep secilit një vend të vetëm, dhe barazimin e ndan sipas radhës
+ * së listës: te një tabelë ashtu duhet, sepse një rresht nuk rri dot në dy vende
+ * njëherësh, dhe kështu vepron edhe fleta origjinale.
+ *
+ * Por kur i njëjti rezultat thuhet me fjalë — «alfa fitoi» — ajo radhë bëhet
+ * gënjeshtër: tre veta me nga 360 pikë nuk i ka ndarë kush, dhe i pari i listës
+ * nuk fitoi asgjë. Prandaj çdo fjali që shpall një fitues merret prej këtej, e
+ * jo prej `rreshtat[0]`.
+ */
+export function fituesit(rreshtat: RreshtiRenditjes[]): string[] {
+  if (rreshtat.length === 0) return [];
+
+  // Totali më i vogël merret nga tërë vargu e jo nga `rreshtat[0]`: thirrësit e
+  // japin të renditur, por një funksion që shpall fituesin nuk ka pse ta besojë
+  // atë — dhe kostoja e një kalimi mbi gjashtë rreshta nuk matet.
+  const meIVogli = Math.min(...rreshtat.map((rreshti) => rreshti.total));
+
+  return rreshtat
+    .filter((rreshti) => rreshti.total === meIVogli)
+    .map((rreshti) => rreshti.player);
+}
+
+/** Sa i del një lojtari kundrejt një tjetri. */
+export type ShlyerjaENjerit = {
+  /** Tjetri — ai me të cilin shlyhet. */
+  player: string;
+  /**
+   * `total[vetja] − total[tjetri]`.
+   *
+   * Pozitive do të thotë që vetja ka aq pikë më shumë, pra ana që paguan —
+   * njësoj si te matrica, dhe për të njëjtën arsye: shenja është diferencë, jo
+   * epërsi.
+   */
+  diferenca: number;
+};
+
+/**
+ * Rreshti i matricës për një lojtar të vetëm.
+ *
+ * Matrica N×N e thotë të tërën, por në një telefon lexohet keq: kush shikon
+ * rezultatin e ndarë do vetëm rreshtin e vet — *sa i dal unë kujt*. Ky funksion
+ * është pikërisht ai rresht, pa qelizën e vetvetes.
+ *
+ * Radha shkon nga diferenca më e madhe te më e vogla, pra së pari ata që u
+ * paguhet dhe pastaj ata që paguajnë. Kjo nuk është radha e renditjes me
+ * qëllim: kur shlyhet, pyetja e parë është sa nxirret nga xhepi.
+ */
+export function shlyerjaEVetes(
+  vetja: string,
+  players: string[],
+  totals: Record<string, number>,
+): ShlyerjaENjerit[] {
+  return players
+    .filter((player) => player !== vetja)
+    .map((player) => ({
+      player,
+      diferenca: (totals[vetja] ?? 0) - (totals[player] ?? 0),
+    }))
+    .sort((a, b) => b.diferenca - a.diferenca);
+}
+
 /** A ka ky raund së paku një pikë të futur për ndonjë prej lojtarëve? */
 export function eshteIMbushur(players: string[], raundi: Raundi): boolean {
   return players.some((player) => typeof raundi.scores[player] === 'number');
+}
+
+/**
+ * Sa herë përzien secili te një lojë **bridzhi** — dhe prandaj sa raunde ka ajo.
+ *
+ * Mbrëmja mbaron kur tavolina ka bërë dy rrotullime të plota: secili i ka
+ * përzier letrat dy herë. Kjo nuk është marrëveshje e mbrëmjes — është vetë
+ * rregulli i lojës, dhe fleta origjinale e dëshmon: te `logic.json` çdo mbrëmje
+ * bridzhi ka saktësisht dy raunde për lojtar.
+ *
+ * Magareci nuk e ka këtë kufi. Atje mbrëmja mbaron kur dikujt i mbushet fjala,
+ * prandaj mund të zgjasë edhe shumë më gjatë se dy rrotullime, edhe të mbarojë
+ * te raundi i shtatë. Përzierja rrotullohet te të dyja lojërat; vetëm numërimi
+ * i raundeve është i bridzhit.
+ */
+export const RAUNDE_PER_LOJTAR = 2;
+
+/**
+ * Sa raunde ka një lojë bridzhi me këta lojtarë.
+ *
+ * Numri nuk ruhet askund, si asnjë vlerë e derivuar (pika 2): del nga lista e
+ * lojtarëve sa herë lexohet. Prandaj kur dikush ulet ose ngrihet mes lojës
+ * (pika 5), mbrëmja zgjatet ose shkurtohet vetvetiu — dhe ashtu ndodh edhe te
+ * tavolina, ku rrotullimi i letrave ndjek kë ka aty.
+ *
+ * Vetëm bridzhi e thërret. Të dy vendet që e përdorin e ndajnë llojin para se
+ * ta bëjnë — `Loja` dhe `raundetEMbetura` — sepse te magareci ky numër nuk do të
+ * thoshte asgjë.
+ */
+export function raundetELojes(players: string[]): number {
+  return players.length * RAUNDE_PER_LOJTAR;
+}
+
+/**
+ * Kush i përzien letrat te një raund.
+ *
+ * Radha e `selectedPlayers` është radha e tavolinës — te fleta e vjetër emrat
+ * rrinin në atë radhë sepse ashtu uleshin — dhe përzierja kalon një vend çdo
+ * raund: raundi i parë te i pari i listës, i dyti te i dyti, dhe pas të fundit
+ * nis prapë nga kreu.
+ *
+ * Dy raunde për lojtar (`raundetELojes`) do të thotë pikërisht se kjo radhë
+ * bën dy rrotullime të plota, dhe pastaj mbrëmja mbaron. Të dyja janë i njëjti
+ * rregull, parë nga dy anë.
+ *
+ * Kur dikush shtohet ose hiqet mes lojës (pika 5), radha rillogaritet mbi
+ * listën e tanishme. Kjo është e vërteta e tavolinës: kush u ngrit nuk përzien
+ * më, dhe kush u ul hyn te radha. Raundet e shkuara nuk preken — ai numër nuk
+ * ruhet askund.
+ */
+export function perziersiIRaundit(
+  players: string[],
+  roundNumber: number,
+): string | null {
+  if (players.length === 0 || !Number.isFinite(roundNumber)) return null;
+
+  const i = (Math.trunc(roundNumber) - 1) % players.length;
+  return players[(i + players.length) % players.length] ?? null;
 }
 
 /** Numri i raundit të radhës — një më shumë se më i larti i shënuar. */

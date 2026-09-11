@@ -29,6 +29,19 @@ mbrëmjen.
   mbrëmja mbaron.
 - **Renditja** — ngjitshëm sipas totalit, i pari është ai me më pak pikë. Kur
   nuk kanë luajtur të gjithë njësoj, shtohet kolona „raunde" dhe një shënim.
+  Barazimi te kreu nuk fshihet: kurora u shkon të gjithëve që e ndajnë totalin
+  më të vogël.
+- **Dy raunde për lojtar** — aq zgjat një lojë bridzhi, pra tavolina rrotullohet
+  dy herë. Kreu tregon «4 nga 8 raunde», dhe kur mbushen futja mbyllet me
+  fituesin, si te magareci kur mbushet fjala. Raundi i shënuar gabim rregullohet
+  nga lista, dhe kush u ul vonë shtohet te lojtarët — mbrëmja zgjatet vetvetiu.
+- **Kush përzien** — radha e emrave është radha e tavolinës, prandaj krah
+  titullit të raundit rri kush i përzien letrat; kalon një vend çdo raund.
+- **Parashikimi** — kush e arrin dot ende vendin e parë me raundet që kanë
+  mbetur, dhe brenda sa raundeve. Tabela jep vendin më të mirë e më të keq që
+  mund të arrijë secili, për raundin tjetër ose deri në fund. Numrat vijnë nga
+  vetë rregulli: një raund mbyll 240 pikë diferencë te bridzhi, dhe një shkronjë
+  te magareci.
 - **Shlyerja** — matrica N×N e diferencave, `matrica[i][j] = total[i] − total[j]`,
   me lojtarët sipas renditjes.
 - **Historik sipas ditës** — një grup ka shumë lojëra, edhe dy të njëjtën ditë,
@@ -53,7 +66,9 @@ mbrëmjen.
   njëra-tjetra, dhe edhe nëpër mesazh.
 
   Të dyja hapen edhe në një telefon që nuk e ka aplikacionin, dhe asnjëra nuk
-  lexon as shkruan në bazën e tij.
+  lexon as shkruan në bazën e tij. Pamja që hapet nis me përmbledhjen — kush
+  prin, sa vjen i dyti prapa, sa raunde kanë mbetur dhe kush përzien — dhe ka
+  «Unë jam …»: prek emrin tënd, dhe del rreshti yt i matricës, kujt sa i del.
 - **Kopje rezervë** — nxjerrja dhe kthimi i tërë historikut si një skedar JSON.
 
 Punon pa internet. Të dhënat rrinë vetëm në shfletuesin e pajisjes.
@@ -110,11 +125,15 @@ src/
   App.tsx             shpërndarja e rrugëve
   rruga.ts            rrugëtimi me hash
   tipet.ts            tipet e të dhënave
-  llogaritjet.ts      totalet, renditja, matrica, rrjedha — pa DOM, pa bazë;
+  llogaritjet.ts      totalet, renditja, matrica, gjatësia e lojës dhe kush
+                      përzien — pa DOM, pa bazë;
                       `permbledhja` i jep totalet, raundet e luajtura dhe
                       barazinë e pjesëmarrjes me një kalim të vetëm
   pikezimi.ts         rregullat hant/normal — pa DOM, pa bazë
   magareci.ts         shkronjat, fjala dhe magareci i mbrëmjes — pa DOM, pa bazë
+  parashikimi.ts      vendi më i mirë e më i keq i arritshëm, raundet që duhen
+                      për vendin e parë, dhe sa raunde i kanë mbetur mbrëmjes —
+                      pa DOM, pa bazë
   ruajtja.ts          IndexedDB përmes `idb`
   kopja.ts            nxjerrja dhe leximi i kopjes rezervë
   fusha.ts            teksti i fushës së pikëve, shenja e tij dhe data
@@ -136,7 +155,8 @@ src/
                       Ndarja · Drejtperdrejt · PaServer · MeServer
                       PamjaERezultatit · KodiQR
                       FutjaEMagarecit · RrjetiIMagarecit · RaundetEMagarecit
-                      PergjithshmetEMagarecit
+                      PergjithshmetEMagarecit · Parashikimi
+                      PermbledhjaEPamjes · Vetja
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it
@@ -144,6 +164,8 @@ test/
                          data ditë/muaj/vit sa shkruhet
   pikezimi.test.mjs      rregullat — kundër raundeve të vërteta
   magareci.test.mjs      shkronjat, fjala e mbushur dhe tabela e grupit
+  parashikimi.test.mjs   kufijtë e një raundi, dhe ligjet që vendi i mundshëm
+                         nuk i thyen dot — mbi totalet e `logic.json`-it
   kopja.test.mjs         nxjerrja dhe refuzimi i skedarëve të dëmtuar
   qr.test.mjs            matrica të ngrira, të verifikuara me një dekodues
   ndarja.test.mjs        paketimi, dhe refuzimi i adresave të prera

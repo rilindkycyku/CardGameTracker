@@ -20,7 +20,7 @@
  * matin drejtpërdrejt.
  */
 
-import { llojiILojes } from './llogaritjet.ts';
+import { dataShqip, llojiILojes, raundetELojes } from './llogaritjet.ts';
 import { fjalaE } from './magareci.ts';
 import {
   fushat,
@@ -176,17 +176,27 @@ export function adresaEPamjes(rrenja: string, pamja: Pamja): string {
 /**
  * Teksti që shoqëron ndarjen, kur telefoni ka «Share».
  *
+ * Ky tekst shkon te një bisedë, dhe atje lexohet pa faqen: prandaj data
+ * shkruhet me fjalë e jo `2026-09-11`, dhe te bridzhi numri i raundeve vjen me
+ * gjithsejin — «5 nga 8 raunde» thotë edhe sa ka mbetur, ndërsa «5 raunde» nuk
+ * thotë asgjë për kë nuk ishte te tavolina. Magareci nuk e ka atë gjithsej
+ * (pika 13), prandaj aty mbetet numri i thjeshtë.
+ *
  * Te magareci numri nuk thotë asgjë vetëm — `3` lexohet „MAG" — prandaj aty
  * shkruhet fjala. Kush s'ka marrë ende asnjë shkronjë del me një vizë, që
  * rreshti të mos mbetet gjysmak.
  */
 export function tekstiINdarjes(pamja: Pamja, rreshtat: RreshtiRenditjes[]): string {
   const magarec = pamja.lloji === 'magarec';
+  const gjithsej = raundetELojes(pamja.totalet.map(([emri]) => emri));
+
   const kreu = [
     pamja.grupi,
     magarec ? 'Magarec' : null,
-    pamja.data,
-    `${pamja.raunde} raunde`,
+    dataShqip(pamja.data),
+    magarec
+      ? `${pamja.raunde} ${pamja.raunde === 1 ? 'raund' : 'raunde'}`
+      : `${pamja.raunde} nga ${gjithsej} raunde`,
   ]
     .filter(Boolean)
     .join(' · ');

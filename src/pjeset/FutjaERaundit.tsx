@@ -303,12 +303,26 @@ function Llogaritesi({
   onVendos,
 }: {
   players: string[];
-  /** Pikët e llogaritura, sa herë ndryshojnë — butoni «Ruaj» rri jashtë. */
-  onPike: (pike: Record<string, number>) => void;
+  /**
+   * Pikët e llogaritura, sa herë ndryshojnë — butoni «Ruaj» rri jashtë.
+   *
+   * `null` sa kohë mbyllësi nuk është zgjedhur: pa të nuk ka raund, dhe butoni
+   * jashtë mbetet i fikur.
+   */
+  onPike: (pike: Record<string, number> | null) => void;
   /** I shkruan pikët te fushat, që të preken me dorë para ruajtjes. */
   onVendos: (pike: Record<string, number>) => void;
 }) {
-  const [mbyllesi, caktoMbyllesin] = useState(players[0] ?? '');
+  /*
+   * Nis pa mbyllës të zgjedhur, me kërkesë të pronarit.
+   *
+   * Më parë hapej me të parin e listës. Meqë llogaritësi tani hapet vetë te
+   * raundi i ri (pika 3), ai emër dilte i zgjedhur pa e prekur kush — dhe një
+   * prekje e vetme e «Ruaj raundin» e shkruante raundin te lojtari i gabuar.
+   * Zgjedhja është pyetja e parë e raundit, prandaj rri e papërgjigjur derisa
+   * të përgjigjet.
+   */
+  const [mbyllesi, caktoMbyllesin] = useState('');
   const [lloji, caktoLlojin] = useState<LlojiMbylljes>('normal');
   const [duart, caktoDuart] = useState<Record<string, string>>({});
 
@@ -324,8 +338,11 @@ function Llogaritesi({
     [players, duart],
   );
 
+  // Pa mbyllës nuk ka pikë: `piketERaundit` do t'i jepte dënimin e plotë
+  // secilit dhe shuma do të dukej si raund i vërtetë.
   const pike = useMemo(
-    () => piketERaundit(players, mbyllesi, lloji, gjendjet),
+    () =>
+      mbyllesi ? piketERaundit(players, mbyllesi, lloji, gjendjet) : null,
     [players, mbyllesi, lloji, gjendjet],
   );
 
@@ -347,6 +364,7 @@ function Llogaritesi({
             onChange={(e) => caktoMbyllesin(e.target.value)}
             aria-label="Lojtari që mbylli raundin"
           >
+            <option value="">Kush mbylli?</option>
             {players.map((player) => (
               <option key={player} value={player}>
                 {player}
@@ -403,7 +421,7 @@ function Llogaritesi({
               className="llogaritesi__pike"
               title={shpjegimi(lloji, gjendjet[player]!)}
             >
-              {pike[player]}
+              {pike ? pike[player] : '·'}
             </span>
           </li>
         ))}
@@ -415,9 +433,13 @@ function Llogaritesi({
         Mbetet ajo që ai rresht nuk e thotë — kush mbylli, dhe sa merr.
       */}
       <p className="futja__shuma">
-        <span>
-          {mbyllesi} merr <strong>{pike[mbyllesi]}</strong>
-        </span>
+        {pike ? (
+          <span>
+            {mbyllesi} merr <strong>{pike[mbyllesi]}</strong>
+          </span>
+        ) : (
+          <span>Zgjidh kush e mbylli raundin.</span>
+        )}
       </p>
 
       {/*
@@ -432,7 +454,8 @@ function Llogaritesi({
       <button
         type="button"
         className="buton buton--i-plote"
-        onClick={() => onVendos(pike)}
+        onClick={() => pike && onVendos(pike)}
+        disabled={!pike}
       >
         <Ikona emri="llogaritesi" />
         Vendosi te fushat

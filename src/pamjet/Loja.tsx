@@ -23,8 +23,11 @@ import { useCallback, useMemo, useState } from 'react';
 import {
   dataShqip,
   llojiILojes,
+  fituesit,
   matricaEShlyerjes,
   permbledhja,
+  perziersiIRaundit,
+  raundetELojes,
   raundiNeVijim,
   renditja,
 } from '../llogaritjet.ts';
@@ -42,6 +45,7 @@ import { FutjaEMagarecit } from '../pjeset/FutjaEMagarecit.tsx';
 import { FutjaERaundit } from '../pjeset/FutjaERaundit.tsx';
 import { LojtaretELojes } from '../pjeset/LojtaretELojes.tsx';
 import { Ndarja } from '../pjeset/Ndarja.tsx';
+import { Parashikimi } from '../pjeset/Parashikimi.tsx';
 import { RaundetEMagarecit } from '../pjeset/RaundetEMagarecit.tsx';
 import { Raundet } from '../pjeset/Raundet.tsx';
 import { Renditja } from '../pjeset/Renditja.tsx';
@@ -179,6 +183,45 @@ export function Loja({ id }: { id: number }) {
     [grupi?.name, loja, magarec, totalat, raundet.length],
   );
 
+  /*
+   * Sa raunde ka mbrëmja gjithsej — dy për lojtar.
+   *
+   * Te magareci nuk vlen: atje mbrëmja mbaron kur mbushet fjala, e jo pas një
+   * numri raundesh, prandaj numri nuk tregohet fare.
+   */
+  const gjithsej = magarec ? 0 : raundetELojes(players);
+
+  /*
+   * A ka mbaruar mbrëmja — dhe të dyja lojërat e kanë fundin e vet.
+   *
+   * Te magareci mbaron kur dikujt i mbushet fjala; te bridzhi pas dy raundeve
+   * për lojtar (pika 13). Nga këtu poshtë dallimi nuk përsëritet: ekrani pyet
+   * vetëm «a mbaroi», dhe fundi vizatohet një herë për të dyja.
+   *
+   * Kufiri i bridzhit nuk ngec dot mbi një raund të vërtetë: hiqet vetëm ai që
+   * s'ka shënuar ende (pika 5), prandaj lista nuk shkurtohet dot nën raundet që
+   * janë luajtur tashmë. Dhe kush ulet vonë e zgjat mbrëmjen vetvetiu.
+   */
+  const mbaroi = magarec
+    ? magareciILojes !== null
+    : players.length > 0 && raundet.length >= gjithsej;
+
+  /** Kush doli i pari — disa, kur totali më i vogël është i përbashkët. */
+  const pareter = useMemo(() => fituesit(rreshtat), [rreshtat]);
+
+  /*
+   * Kush i përzien letrat te raundi që po shënohet.
+   *
+   * Rri te krahu i djathtë i titullit e jo te një rresht i vetin: blloku poshtë
+   * përdoret dhjetëra herë në mbrëmje, dhe një rresht mbi të do t'i hiqte
+   * hapësirë pikërisht atij. Te redaktimi tregon përzierësin e atij raundi —
+   * numri i raundit e jep vetë.
+   */
+  const perziersi = useMemo(() => {
+    const numri = raundet.find((r) => r.id === dukeRedaktuar)?.roundNumber;
+    return perziersiIRaundit(players, numri ?? raundiNeVijim(raundet));
+  }, [players, raundet, dukeRedaktuar]);
+
   const raundiQeRedaktohet =
     dukeRedaktuar === null
       ? null
@@ -303,7 +346,9 @@ export function Loja({ id }: { id: number }) {
             </span>
             <span className="etiketa">
               <Ikona emri="shlyerja" />
-              {raundet.length} {raundet.length === 1 ? 'raund' : 'raunde'}
+              {magarec
+                ? `${raundet.length} ${raundet.length === 1 ? 'raund' : 'raunde'}`
+                : `${raundet.length} nga ${gjithsej} raunde`}
             </span>
             {magarec && (
               <span className="etiketa etiketa--hapur">
@@ -321,20 +366,76 @@ export function Loja({ id }: { id: number }) {
             emri={
               raundiQeRedaktohet
                 ? 'redakto'
-                : magarec && magareciILojes
-                  ? 'kujdes'
+                : mbaroi
+                  ? magarec
+                    ? 'kujdes'
+                    : 'renditja'
                   : 'shto'
             }
           />
           {raundiQeRedaktohet
             ? `Raundi ${raundiQeRedaktohet.roundNumber}`
-            : magarec && magareciILojes
+            : mbaroi
               ? 'Loja mbaroi'
               : `Raundi ${iRadhes}`}
+
+          {perziersi && !(mbaroi && !raundiQeRedaktohet) && (
+            <span className="titull-seksioni__perziersi">
+              përzien <strong>{perziersi}</strong>
+            </span>
+          )}
         </h2>
 
         <div className="kartela kartela--kryesore">
-          {!magarec ? (
+          {mbaroi && !raundiQeRedaktohet ? (
+            /*
+             * Mbrëmja ka mbaruar, prandaj raund i ri nuk ka — te të dyja lojërat,
+             * secila me fundin e vet: fjala e mbushur te magareci, dy raundet për
+             * lojtar te bridzhi.
+             *
+             * Butonat nuk rrinë të fikur, hiqen: një raund i shënuar pas fundit
+             * do ta bënte fletën të gënjejë. Dy rrugë mbeten të hapura, dhe të
+             * dyja janë të vërteta të tavolinës — raundi i shënuar gabim
+             * rregullohet nga lista poshtë, dhe kush u ul vonë shtohet te
+             * lojtarët, e atëherë te bridzhi mbrëmja zgjatet vetvetiu.
+             */
+            <>
+              {magarec ? (
+                <ShenjaEMagarecit magareci={magareciILojes} />
+              ) : (
+                <p className="njoftim njoftim--mire">
+                  <Ikona emri="renditja" />
+                  {/*
+                    Fituesi merret nga `fituesit` e jo nga `rreshtat[0]`: te një
+                    tabelë barazimi ndahet sipas radhës së listës, por një fjali
+                    që shpall fituesin nuk e ndan dot ashtu — tre veta me nga 360
+                    pikë nuk i ka ndarë kush.
+                  */}
+                  <span>
+                    {pareter.length === 1 ? (
+                      <>
+                        <strong>{pareter[0]}</strong> fitoi me{' '}
+                        {rreshtat[0]?.total} pikë
+                      </>
+                    ) : (
+                      <>
+                        Barazim: <strong>{pareter.join(', ')}</strong> me nga{' '}
+                        {rreshtat[0]?.total} pikë
+                      </>
+                    )}{' '}
+                    — {gjithsej} raunde, dy për lojtar.
+                  </span>
+                </p>
+              )}
+              <p className="ndihma" data-hapesire="lart">
+                Për një mbrëmje tjetër, nis një lojë të re te grupi. Nëse ndonjë
+                raund u shënua gabim, ndërroje ose fshije nga lista poshtë
+                {magarec
+                  ? '.'
+                  : '; dhe nëse dikush u ul vonë, shtoje te lojtarët — mbrëmja zgjatet me dy raunde.'}
+              </p>
+            </>
+          ) : !magarec ? (
             <FutjaERaundit
               players={players}
               roundNumber={raundiQeRedaktohet?.roundNumber ?? iRadhes}
@@ -344,22 +445,6 @@ export function Loja({ id }: { id: number }) {
                 raundiQeRedaktohet ? () => caktoRedaktimin(null) : undefined
               }
             />
-          ) : magareciILojes && !raundiQeRedaktohet ? (
-            /*
-             * Loja ka mbaruar, prandaj raund i ri nuk ka.
-             *
-             * Butonat nuk rrinë të fikur: një shkronjë më shumë nuk do të thotë
-             * asgjë pasi fjala është mbushur, dhe një raund i shënuar pas fundit
-             * do ta bënte fletën të gënjejë. Redaktimi mbetet i hapur nga lista
-             * poshtë — atje rregullohet një prekje e gabuar.
-             */
-            <>
-              <ShenjaEMagarecit magareci={magareciILojes} />
-              <p className="ndihma" data-hapesire="lart">
-                Për një mbrëmje tjetër, nis një lojë të re te grupi. Nëse ndonjë
-                raund u shënua gabim, ndërroje ose fshije nga lista poshtë.
-              </p>
-            </>
           ) : (
             <FutjaEMagarecit
               players={players}
@@ -406,6 +491,15 @@ export function Loja({ id }: { id: number }) {
           */}
           <RrjetiIMagarecit players={players} shkronjat={totalat} />
 
+          {raundet.length > 0 && (
+            <Parashikimi
+              lloji="magarec"
+              players={players}
+              totalet={totalat}
+              luajtur={raundet.length}
+            />
+          )}
+
           {raundet.length === 0 ? (
             <div className="zbrazet">
               <p className="zbrazet__titull">Ende asnjë raund</p>
@@ -434,6 +528,13 @@ export function Loja({ id }: { id: number }) {
       ) : (
         <>
           <Renditja rreshtat={rreshtat} luajtur={barabarte ? null : luajtur} />
+
+          <Parashikimi
+            lloji="bridzh"
+            players={players}
+            totalet={totalat}
+            luajtur={raundet.length}
+          />
 
           <Raundet
             players={players}
