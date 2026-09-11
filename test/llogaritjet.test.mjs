@@ -27,6 +27,7 @@ import {
   lojeratESortuara,
   matricaEShlyerjes,
   permbledhja,
+  perziersiIRaundit,
   pjesemarrjeEBarabarte,
   raundetELuajtura,
   raundiNeVijim,
@@ -478,4 +479,36 @@ test('filtrimi i raundeve bosh nuk e ndryshon pjesëmarrjen', () => {
       raundetELuajtura(players, raundet.filter((r) => eshteIMbushur(players, r))),
     );
   }
+});
+
+/* ── Kush përzien letrat ────────────────────────────────────────────────── */
+
+test('përzierja nis nga i pari i listës dhe kalon një vend për raund', () => {
+  const players = ['alfa', 'beta', 'gama'];
+
+  assert.equal(perziersiIRaundit(players, 1), 'alfa');
+  assert.equal(perziersiIRaundit(players, 2), 'beta');
+  assert.equal(perziersiIRaundit(players, 3), 'gama');
+  // Pas të fundit nis prapë nga kreu.
+  assert.equal(perziersiIRaundit(players, 4), 'alfa');
+  assert.equal(perziersiIRaundit(players, 7), 'alfa');
+});
+
+test('përzierja ndjek radhën e tavolinës te çdo grup i `logic.json`-it', () => {
+  for (const grupi of burimi.groups) {
+    for (const raundi of grupi.rounds) {
+      assert.equal(
+        perziersiIRaundit(grupi.players, raundi.round),
+        grupi.players[(raundi.round - 1) % grupi.players.length],
+      );
+    }
+  }
+});
+
+test('pa lojtarë ose me numër të prishur nuk ka përzierës', () => {
+  assert.equal(perziersiIRaundit([], 3), null);
+  assert.equal(perziersiIRaundit(['alfa'], Number.NaN), null);
+  // Numri i raundit nuk shkon nën një, por një bazë e prishur mund ta sjellë.
+  assert.equal(perziersiIRaundit(['alfa', 'beta'], 0), 'beta');
+  assert.equal(perziersiIRaundit(['alfa', 'beta'], -1), 'alfa');
 });

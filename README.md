@@ -29,6 +29,12 @@ mbrëmjen.
   mbrëmja mbaron.
 - **Renditja** — ngjitshëm sipas totalit, i pari është ai me më pak pikë. Kur
   nuk kanë luajtur të gjithë njësoj, shtohet kolona „raunde" dhe një shënim.
+- **Parashikimi** — kush e arrin dot ende vendin e parë, dhe brenda sa raundeve.
+  Zgjidhet sa raunde merren parasysh, dhe tabela jep vendin më të mirë e më të
+  keq që mund të arrijë secili. Kufijtë vijnë nga vetë rregulli: një raund mbyll
+  240 pikë diferencë te bridzhi, dhe një shkronjë te magareci.
+- **Kush përzien** — radha e emrave është radha e tavolinës, prandaj krah
+  titullit të raundit rri kush i përzien letrat; kalon një vend çdo raund.
 - **Shlyerja** — matrica N×N e diferencave, `matrica[i][j] = total[i] − total[j]`,
   me lojtarët sipas renditjes.
 - **Historik sipas ditës** — një grup ka shumë lojëra, edhe dy të njëjtën ditë,
@@ -115,6 +121,8 @@ src/
                       barazinë e pjesëmarrjes me një kalim të vetëm
   pikezimi.ts         rregullat hant/normal — pa DOM, pa bazë
   magareci.ts         shkronjat, fjala dhe magareci i mbrëmjes — pa DOM, pa bazë
+  parashikimi.ts      vendi më i mirë e më i keq i arritshëm, dhe raundet që
+                      duhen për vendin e parë — pa DOM, pa bazë
   ruajtja.ts          IndexedDB përmes `idb`
   kopja.ts            nxjerrja dhe leximi i kopjes rezervë
   fusha.ts            teksti i fushës së pikëve, shenja e tij dhe data
@@ -136,7 +144,7 @@ src/
                       Ndarja · Drejtperdrejt · PaServer · MeServer
                       PamjaERezultatit · KodiQR
                       FutjaEMagarecit · RrjetiIMagarecit · RaundetEMagarecit
-                      PergjithshmetEMagarecit
+                      PergjithshmetEMagarecit · Parashikimi
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it
@@ -144,6 +152,8 @@ test/
                          data ditë/muaj/vit sa shkruhet
   pikezimi.test.mjs      rregullat — kundër raundeve të vërteta
   magareci.test.mjs      shkronjat, fjala e mbushur dhe tabela e grupit
+  parashikimi.test.mjs   kufijtë e një raundi, dhe ligjet që vendi i mundshëm
+                         nuk i thyen dot — mbi totalet e `logic.json`-it
   kopja.test.mjs         nxjerrja dhe refuzimi i skedarëve të dëmtuar
   qr.test.mjs            matrica të ngrira, të verifikuara me një dekodues
   ndarja.test.mjs        paketimi, dhe refuzimi i adresave të prera

@@ -61,8 +61,8 @@ ndryshim që përdoruesi e sheh.
 
 ### 1. Logjika rri te module që nuk njohin as bazën, as React-in, as `window`-in
 
-`llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`,
-`sinjalizimi.ts` dhe `kodi.ts` importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
+`llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `parashikimi.ts`, `fusha.ts`, `qr.ts`, `paketa.ts`,
+`ndarja.ts`, `sinjalizimi.ts` dhe `kodi.ts` importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
 zgjat nën një sekondë dhe nuk ka çka të prishet mes provës dhe kodit.
 
 `lidhja.ts`, `lidhjaMeServer.ts` dhe `ruajtja.ts` nuk hyjnë te kjo listë me qëllim: e para njeh
@@ -93,6 +93,12 @@ prekje me dorë.
 të zbrazët mbi të vetëm e shtynin poshtë atë që po përdoret. Vlerat e shkruara rrinë te gjendja e
 komponentit, prandaj «Mbyll llogaritësin» i kthen ashtu si ishin dhe «Vendosi te fushat» i kthen të
 mbushura — nuk fshihet asgjë.
+
+**Mbyllësi nuk vjen i zgjedhur**, dhe kjo rrjedh nga rreshti më sipër. Sa kohë llogaritësi hapej me
+prekje, i pari i listës ishte parazgjedhje e padëmshme; me të hapur vetvetiu, ai emër del i zgjedhur
+pa e prekur kush, dhe një prekje e vetme e «Ruaj raundin» e shkruan raundin te lojtari i gabuar.
+Prandaj `<select>`-i nis te «Kush mbylli?», pikët nuk llogariten fare pa përgjigje (`pike` del
+`null`), dhe të dy butonat e daljes rrinë të fikur derisa të zgjidhet. Mos i kthe parazgjedhje.
 
 Llogaritësi hant/normal ka dy dalje, dhe të dyja duhen:
 
@@ -391,6 +397,55 @@ ekran të dytë:
 Lojërat e shkruara para tij nuk e kanë fushën `lloji` dhe lexohen bridzh — `llojiILojes()` është
 vendi i vetëm ku bëhet ai lexim. Një vlerë e panjohur te një kopje rezervë refuzohet e nuk lexohet
 bridzh: do të vinte nga një version më i ri, dhe shkronjat e tij do të dilnin pikë pa e thënë kush.
+
+### 12. Parashikimi mat kufij të arritshëm, jo gjasa
+
+Pas renditjes vjen gjithmonë e njëjta pyetje rreth tavolinës: *a e arrin dot i dyti të parin nëse
+luajmë edhe një raund?* `parashikimi.ts` i përgjigjet asaj, dhe ajo që e bën të përgjigjshme është
+se të dyja lojërat veçojnë saktësisht një lojtar për raund — mbyllësin te bridzhi, humbësin te
+magareci. Prandaj kufijtë e një raundi janë numra, e jo hamendje: −40 poshtë dhe +200 lart te
+bridzhi (pra 240 pikë diferencë për raund), një shkronjë te magareci.
+
+Katër gjëra e mbajnë të ndershëm, dhe asnjëra nuk guxon të hiqet:
+
+- **Skenarët janë të arritshëm bashkë, jo kufij teorikë.** «Vendi më i mirë» te bridzhi është një
+  raund hant ku askush tjetër nuk kishte hapur — një gjendje e vetme, jo dy supozime të ndara.
+- **Mbyllja është një për raund, dhe ndahet.** Te «vendi më i keq» të tjerët nuk mbyllin dot të
+  gjithë njëkohësisht; raundet u ndahen, më i liri i pari. Pa këtë, kush prin me njëqind pikë do të
+  dilte i fundit pas një raundi të vetëm. E njëjta ndarje vlen te magareci për shkronjat.
+- **Kufiri i sipërm është i rregullit, jo i së mundshmes.** `2 × dora` e kalon 200-shin kur dora del
+  mbi 100 pikë. Ekrani e thotë këtë me fjalë poshtë tabelës; mos e hiq atë fjali duke e quajtur
+  hollësi.
+- **Barazimi numërohet si i njëjti vend.** `renditja` e ndan barazimin sipas radhës së listës — aty
+  duhet një vend i vetëm për rresht — por një parashikim që thotë «i dyti» vetëm sepse emri vjen më
+  vonë do të ishte numër i shpikur. Prandaj vendi këtu është «sa veta kanë më pak, plus një», dhe
+  prova `vendi i tanishëm rri mes vendit më të mirë dhe atij më të keq` e mban të matur.
+
+Magareci ka edhe një kufi që bridzhi nuk e ka: mbrëmja mbaron kur mbushet fjala, prandaj edhe
+raundet e mbetura janë të numërueshme (`raundetMeTeShumta`), dhe zgjedhjet e ekranit priten sipas
+tyre. Te bridzhi ai numër nuk ekziston — mbrëmja mbaron kur ngrihen nga tavolina — prandaj «brenda
+sa raundeve» zgjidhet me dorë. Mos e shpik atë numër.
+
+Provat nuk maten kundër `logic.json`-it me numra të gatshëm: ai skedar nuk ka kolonë «vendi më i
+mirë», sepse ajo pyetje nuk i bëhej dot një flete. Maten totalet e tij të vërteta kundër ligjeve që
+një parashikim nuk i thyen dot — vendi i tanishëm rri brenda intervalit, më shumë raunde nuk e
+ngushtojnë atë, dhe numri i raundeve që premton e mban premtimin me saktësisht një raund më pak.
+Për magarecin të njëjtat mbrëmje lexohen sërish si shkronja — raundin e humb ai që mori më shumë
+pikë — sepse pikët me qindra nuk hyjnë te një llogari ku totali shkon nga zero në shtatë.
+
+### 13. Radha e emrave është radha e tavolinës
+
+`perziersiIRaundit` nuk mban gjendje: raundi i parë i takon të parit të `selectedPlayers`, i dyti të
+dytit, dhe pas të fundit nis prapë nga kreu. Kjo punon vetëm sepse radha e emrave ruhet që nga
+futja — kutia e emrave e thotë («Radha ruhet — kështu ulen rreth tavolinës»), dhe fleta e vjetër i
+mbante ashtu për të njëjtën arsye.
+
+Numri nuk ruhet, si asnjë vlerë e derivuar (pika 2), prandaj shtimi ose heqja e një lojtari mes lojës
+e rillogarit radhën mbi listën e tanishme. Kjo është e vërteta e tavolinës: kush u ngrit nuk përzien
+më. Raundet e shkuara nuk preken gjithsesi.
+
+Rri krah titullit të raundit dhe jo te një rresht i vetin: blloku poshtë përdoret dhjetëra herë në
+mbrëmje (pika 6), dhe një rresht mbi të do t'i hiqte hapësirë pikërisht atij.
 
 ## Sistemi vizual
 

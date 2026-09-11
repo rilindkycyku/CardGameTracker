@@ -249,6 +249,25 @@ h3 {
   font-variant-numeric: tabular-nums;
 }
 
+/* Kush përzien letrat — te krahu i djathtë i titullit, që të mos marrë rresht
+   të vetin mbi bllokun që përdoret më shumë se çdo tjetër. */
+.titull-seksioni__perziersi {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.titull-seksioni__perziersi strong {
+  font-weight: 800;
+  color: var(--hapur);
+}
+
 /* ── Kreu ───────────────────────────────────────────────────────────────── */
 
 .kreu {

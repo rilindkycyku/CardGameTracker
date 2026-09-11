@@ -20,6 +20,7 @@ import { dataShqip, matricaEShlyerjes, renditja } from '../llogaritjet.ts';
 import { FJALA, rreshtatEMagarecit } from '../magareci.ts';
 import type { Pamja } from '../ndarja.ts';
 import { Ikona, ShenjaEFaqes } from '../ikonat.tsx';
+import { Parashikimi } from './Parashikimi.tsx';
 import { Renditja } from './Renditja.tsx';
 import { RrjetiIMagarecit, ShenjaEMagarecit } from './RrjetiIMagarecit.tsx';
 import { Shlyerja } from './Shlyerja.tsx';
@@ -100,9 +101,13 @@ export function PamjaERezultatit({
             }
           />
           <RrjetiIMagarecit players={emrat} shkronjat={totalat} />
+
+          {pamja.raunde > 0 && (
+            <Parashikimi lloji="magarec" players={emrat} totalet={totalat} />
+          )}
         </>
       ) : (
-        <PjesaEBridzhit emrat={emrat} totalat={totalat} />
+        <PjesaEBridzhit emrat={emrat} totalat={totalat} raunde={pamja.raunde} />
       )}
     </>
   );
@@ -112,15 +117,22 @@ export function PamjaERezultatit({
 function PjesaEBridzhit({
   emrat,
   totalat,
+  raunde,
 }: {
   emrat: string[];
   totalat: Record<string, number>;
+  /** Sa raunde janë luajtur — pa asnjë, parashikimi s'ka çka të thotë. */
+  raunde: number;
 }) {
   const rreshtat = renditja(emrat, totalat);
 
   return (
     <>
       <Renditja rreshtat={rreshtat} />
+
+      {raunde > 0 && (
+        <Parashikimi lloji="bridzh" players={emrat} totalet={totalat} />
+      )}
 
       <Shlyerja
         players={rreshtat.map((rreshti) => rreshti.player)}

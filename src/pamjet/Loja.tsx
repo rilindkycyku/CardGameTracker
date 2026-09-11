@@ -25,6 +25,7 @@ import {
   llojiILojes,
   matricaEShlyerjes,
   permbledhja,
+  perziersiIRaundit,
   raundiNeVijim,
   renditja,
 } from '../llogaritjet.ts';
@@ -42,6 +43,7 @@ import { FutjaEMagarecit } from '../pjeset/FutjaEMagarecit.tsx';
 import { FutjaERaundit } from '../pjeset/FutjaERaundit.tsx';
 import { LojtaretELojes } from '../pjeset/LojtaretELojes.tsx';
 import { Ndarja } from '../pjeset/Ndarja.tsx';
+import { Parashikimi } from '../pjeset/Parashikimi.tsx';
 import { RaundetEMagarecit } from '../pjeset/RaundetEMagarecit.tsx';
 import { Raundet } from '../pjeset/Raundet.tsx';
 import { Renditja } from '../pjeset/Renditja.tsx';
@@ -178,6 +180,19 @@ export function Loja({ id }: { id: number }) {
         : null,
     [grupi?.name, loja, magarec, totalat, raundet.length],
   );
+
+  /*
+   * Kush i përzien letrat te raundi që po shënohet.
+   *
+   * Rri te krahu i djathtë i titullit e jo te një rresht i vetin: blloku poshtë
+   * përdoret dhjetëra herë në mbrëmje, dhe një rresht mbi të do t'i hiqte
+   * hapësirë pikërisht atij. Te redaktimi tregon përzierësin e atij raundi —
+   * numri i raundit e jep vetë.
+   */
+  const perziersi = useMemo(() => {
+    const numri = raundet.find((r) => r.id === dukeRedaktuar)?.roundNumber;
+    return perziersiIRaundit(players, numri ?? raundiNeVijim(raundet));
+  }, [players, raundet, dukeRedaktuar]);
 
   const raundiQeRedaktohet =
     dukeRedaktuar === null
@@ -331,6 +346,12 @@ export function Loja({ id }: { id: number }) {
             : magarec && magareciILojes
               ? 'Loja mbaroi'
               : `Raundi ${iRadhes}`}
+
+          {perziersi && !(magarec && magareciILojes && !raundiQeRedaktohet) && (
+            <span className="titull-seksioni__perziersi">
+              përzien <strong>{perziersi}</strong>
+            </span>
+          )}
         </h2>
 
         <div className="kartela kartela--kryesore">
@@ -406,6 +427,10 @@ export function Loja({ id }: { id: number }) {
           */}
           <RrjetiIMagarecit players={players} shkronjat={totalat} />
 
+          {raundet.length > 0 && (
+            <Parashikimi lloji="magarec" players={players} totalet={totalat} />
+          )}
+
           {raundet.length === 0 ? (
             <div className="zbrazet">
               <p className="zbrazet__titull">Ende asnjë raund</p>
@@ -434,6 +459,8 @@ export function Loja({ id }: { id: number }) {
       ) : (
         <>
           <Renditja rreshtat={rreshtat} luajtur={barabarte ? null : luajtur} />
+
+          <Parashikimi lloji="bridzh" players={players} totalet={totalat} />
 
           <Raundet
             players={players}

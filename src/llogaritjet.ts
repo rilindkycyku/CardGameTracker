@@ -138,6 +138,29 @@ export function eshteIMbushur(players: string[], raundi: Raundi): boolean {
   return players.some((player) => typeof raundi.scores[player] === 'number');
 }
 
+/**
+ * Kush i përzien letrat te një raund.
+ *
+ * Radha e `selectedPlayers` është radha e tavolinës — te fleta e vjetër emrat
+ * rrinin në atë radhë sepse ashtu uleshin — dhe përzierja kalon një vend çdo
+ * raund: raundi i parë te i pari i listës, i dyti te i dyti, dhe pas të fundit
+ * nis prapë nga kreu.
+ *
+ * Kur dikush shtohet ose hiqet mes lojës (pika 5), radha rillogaritet mbi
+ * listën e tanishme. Kjo është e vërteta e tavolinës: kush u ngrit nuk përzien
+ * më, dhe kush u ul hyn te radha. Raundet e shkuara nuk preken — ai numër nuk
+ * ruhet askund.
+ */
+export function perziersiIRaundit(
+  players: string[],
+  roundNumber: number,
+): string | null {
+  if (players.length === 0 || !Number.isFinite(roundNumber)) return null;
+
+  const i = (Math.trunc(roundNumber) - 1) % players.length;
+  return players[(i + players.length) % players.length] ?? null;
+}
+
 /** Numri i raundit të radhës — një më shumë se më i larti i shënuar. */
 export function raundiNeVijim(rounds: Raundi[]): number {
   return rounds.reduce((max, r) => Math.max(max, r.roundNumber), 0) + 1;
