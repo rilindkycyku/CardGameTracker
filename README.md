@@ -29,12 +29,16 @@ mbrëmjen.
   mbrëmja mbaron.
 - **Renditja** — ngjitshëm sipas totalit, i pari është ai me më pak pikë. Kur
   nuk kanë luajtur të gjithë njësoj, shtohet kolona „raunde" dhe një shënim.
-- **Parashikimi** — kush e arrin dot ende vendin e parë, dhe brenda sa raundeve.
-  Zgjidhet sa raunde merren parasysh, dhe tabela jep vendin më të mirë e më të
-  keq që mund të arrijë secili. Kufijtë vijnë nga vetë rregulli: një raund mbyll
-  240 pikë diferencë te bridzhi, dhe një shkronjë te magareci.
+- **Dy raunde për lojtar** — aq zgjat një lojë bridzhi, pra tavolina rrotullohet
+  dy herë. Kreu tregon «4 nga 8 raunde», dhe kur mbushet del njoftimi. Futja
+  mbetet e hapur: lista e lojtarëve ndryshon mes lojës, dhe numri me të.
 - **Kush përzien** — radha e emrave është radha e tavolinës, prandaj krah
   titullit të raundit rri kush i përzien letrat; kalon një vend çdo raund.
+- **Parashikimi** — kush e arrin dot ende vendin e parë me raundet që kanë
+  mbetur, dhe brenda sa raundeve. Tabela jep vendin më të mirë e më të keq që
+  mund të arrijë secili, për raundin tjetër ose deri në fund. Numrat vijnë nga
+  vetë rregulli: një raund mbyll 240 pikë diferencë te bridzhi, dhe një shkronjë
+  te magareci.
 - **Shlyerja** — matrica N×N e diferencave, `matrica[i][j] = total[i] − total[j]`,
   me lojtarët sipas renditjes.
 - **Historik sipas ditës** — një grup ka shumë lojëra, edhe dy të njëjtën ditë,
@@ -116,13 +120,15 @@ src/
   App.tsx             shpërndarja e rrugëve
   rruga.ts            rrugëtimi me hash
   tipet.ts            tipet e të dhënave
-  llogaritjet.ts      totalet, renditja, matrica, rrjedha — pa DOM, pa bazë;
+  llogaritjet.ts      totalet, renditja, matrica, gjatësia e lojës dhe kush
+                      përzien — pa DOM, pa bazë;
                       `permbledhja` i jep totalet, raundet e luajtura dhe
                       barazinë e pjesëmarrjes me një kalim të vetëm
   pikezimi.ts         rregullat hant/normal — pa DOM, pa bazë
   magareci.ts         shkronjat, fjala dhe magareci i mbrëmjes — pa DOM, pa bazë
-  parashikimi.ts      vendi më i mirë e më i keq i arritshëm, dhe raundet që
-                      duhen për vendin e parë — pa DOM, pa bazë
+  parashikimi.ts      vendi më i mirë e më i keq i arritshëm, raundet që duhen
+                      për vendin e parë, dhe sa raunde i kanë mbetur mbrëmjes —
+                      pa DOM, pa bazë
   ruajtja.ts          IndexedDB përmes `idb`
   kopja.ts            nxjerrja dhe leximi i kopjes rezervë
   fusha.ts            teksti i fushës së pikëve, shenja e tij dhe data

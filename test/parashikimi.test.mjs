@@ -24,11 +24,12 @@ import {
   parashikimi,
   parashikimiIBridzhit,
   parashikimiIMagarecit,
+  raundetEMbetura,
   raundetMeTeShumta,
 } from '../src/parashikimi.ts';
 import { DENIMI_I_MBYLLUR, PIKET_E_MBYLLESIT } from '../src/pikezimi.ts';
 import { FJALA } from '../src/magareci.ts';
-import { permbledhja } from '../src/llogaritjet.ts';
+import { permbledhja, raundetELojes } from '../src/llogaritjet.ts';
 
 const burimi = JSON.parse(
   readFileSync(new URL('./logic.json', import.meta.url), 'utf8'),
@@ -185,7 +186,26 @@ test('raundet e mbetura kanë kufi, dhe ai kufi i pret raundet e zgjedhura', () 
 
   const p = parashikimiIMagarecit(['alfa', 'beta'], { alfa: 6, beta: 6 }, 5);
   assert.equal(p.raunde, 1);
-  assert.equal(p.kufiriIRaundeve, 1);
+});
+
+test('raundet e mbetura dalin nga vetë loja, e nuk hamendësohen', () => {
+  const players = ['alfa', 'beta', 'gama', 'delta'];
+  const pike = { alfa: 100, beta: 180, gama: 400, delta: 420 };
+
+  // Bridzhi: dy raunde për lojtar, minus ato të luajtura.
+  assert.equal(raundetELojes(players), 8);
+  assert.equal(raundetEMbetura('bridzh', players, pike, 0), 8);
+  assert.equal(raundetEMbetura('bridzh', players, pike, 5), 3);
+  assert.equal(raundetEMbetura('bridzh', players, pike, 8), 0);
+  // Një raund i tepërt nuk e kthen numrin nën zero.
+  assert.equal(raundetEMbetura('bridzh', players, pike, 9), 0);
+
+  // Magareci nuk e njeh atë kufi — atje numri vjen nga shkronjat.
+  const sa = { alfa: 1, beta: 3, gama: 6, delta: 0 };
+  assert.equal(
+    raundetEMbetura('magarec', players, sa, 4),
+    raundetMeTeShumta(players, sa),
+  );
 });
 
 test('pas mbushjes së fjalës nuk ka më raunde', () => {

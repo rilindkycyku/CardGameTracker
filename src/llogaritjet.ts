@@ -139,12 +139,41 @@ export function eshteIMbushur(players: string[], raundi: Raundi): boolean {
 }
 
 /**
+ * Sa herë përzien secili — dhe prandaj sa raunde ka një lojë.
+ *
+ * Loja mbaron kur tavolina ka bërë dy rrotullime të plota: secili i ka përzier
+ * letrat dy herë. Kjo nuk është marrëveshje e mbrëmjes — është vetë rregulli i
+ * lojës, dhe fleta origjinale e dëshmon: te `logic.json` çdo mbrëmje bridzhi ka
+ * saktësisht dy raunde për lojtar.
+ */
+export const RAUNDE_PER_LOJTAR = 2;
+
+/**
+ * Sa raunde ka një lojë bridzhi me këta lojtarë.
+ *
+ * Numri nuk ruhet askund, si asnjë vlerë e derivuar (pika 2): del nga lista e
+ * lojtarëve sa herë lexohet. Prandaj kur dikush ulet ose ngrihet mes lojës
+ * (pika 5), mbrëmja zgjatet ose shkurtohet vetvetiu — dhe ashtu ndodh edhe te
+ * tavolina, ku rrotullimi i letrave ndjek kë ka aty.
+ *
+ * Magareci nuk e ka këtë kufi: atje mbrëmja mbaron kur dikujt i mbushet fjala,
+ * e jo pas një numri raundesh.
+ */
+export function raundetELojes(players: string[]): number {
+  return players.length * RAUNDE_PER_LOJTAR;
+}
+
+/**
  * Kush i përzien letrat te një raund.
  *
  * Radha e `selectedPlayers` është radha e tavolinës — te fleta e vjetër emrat
  * rrinin në atë radhë sepse ashtu uleshin — dhe përzierja kalon një vend çdo
  * raund: raundi i parë te i pari i listës, i dyti te i dyti, dhe pas të fundit
  * nis prapë nga kreu.
+ *
+ * Dy raunde për lojtar (`raundetELojes`) do të thotë pikërisht se kjo radhë
+ * bën dy rrotullime të plota, dhe pastaj mbrëmja mbaron. Të dyja janë i njëjti
+ * rregull, parë nga dy anë.
  *
  * Kur dikush shtohet ose hiqet mes lojës (pika 5), radha rillogaritet mbi
  * listën e tanishme. Kjo është e vërteta e tavolinës: kush u ngrit nuk përzien

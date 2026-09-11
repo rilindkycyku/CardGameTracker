@@ -37,6 +37,7 @@
  * `node --test`, pa bundler.
  */
 
+import { raundetELojes } from './llogaritjet.ts';
 import { FJALA } from './magareci.ts';
 import { DENIMI_I_MBYLLUR, PIKET_E_MBYLLESIT } from './pikezimi.ts';
 import type { LlojiILojes } from './tipet.ts';
@@ -60,9 +61,6 @@ export const FITIMI_I_RAUNDIT = PIKET_E_MBYLLESIT.hant;
  * mundshmes, dhe ekrani e thotë atë me fjalë.
  */
 export const HUMBJA_E_RAUNDIT = DENIMI_I_MBYLLUR.hant;
-
-/** Sa raunde para i propozon ekrani. Magareci i pret sipas kufirit të vet. */
-export const RAUNDET_E_PARASHIKIMIT = [1, 2, 3, 5];
 
 /* ── Forma e përgjigjes ─────────────────────────────────────────────────── */
 
@@ -101,14 +99,30 @@ export type Parashikimi = {
   rreshtat: ParashikimiILojtarit[];
   /** Kush e arrin dot ende vendin e parë. */
   pretendentet: string[];
-  /**
-   * Sa raunde mund të luhen ende më së shumti, ose `null` kur s'ka kufi.
-   *
-   * Bridzhi nuk e ka: mbrëmja mbaron kur ngrihen nga tavolina. Magareci po —
-   * fjala mbushet, dhe pas saj nuk ka raund tjetër.
-   */
-  kufiriIRaundeve: number | null;
 };
+
+/**
+ * Sa raunde i kanë mbetur kësaj mbrëmjeje.
+ *
+ * Të dyja lojërat e kanë fundin e vet, dhe asnjëra nuk kërkon që numri të
+ * hamendësohet: bridzhi mbaron pas dy raundeve për lojtar, magareci kur
+ * dikujt i mbushet fjala. E dyta është kufi i sipërm e jo numër i saktë —
+ * fjala mund të mbushet edhe shumë më herët — prandaj parashikimi i magarecit
+ * lexohet «deri në fund të mbrëmjes, më e largëta».
+ *
+ * Ky është vendi i vetëm ku bëhet ai dallim. Një `lloji === 'magarec'` i
+ * shpërndarë nëpër ekrane do të harrohej pikërisht atje ku ndryshon kufiri.
+ */
+export function raundetEMbetura(
+  lloji: LlojiILojes,
+  players: string[],
+  totalet: Record<string, number>,
+  luajtur: number,
+): number {
+  if (lloji === 'magarec') return raundetMeTeShumta(players, totalet);
+
+  return Math.max(0, raundetELojes(players) - Math.max(0, Math.trunc(luajtur)));
+}
 
 /* ── Ndihmësit ──────────────────────────────────────────────────────────── */
 
@@ -214,7 +228,6 @@ export function parashikimiIBridzhit(
     raunde: n,
     rreshtat,
     pretendentet: rreshtat.filter((r) => r.mundTeFitoje).map((r) => r.player),
-    kufiriIRaundeve: null,
   };
 }
 
@@ -298,7 +311,6 @@ export function parashikimiIMagarecit(
     raunde: n,
     rreshtat,
     pretendentet: rreshtat.filter((r) => r.mundTeFitoje).map((r) => r.player),
-    kufiriIRaundeve: kufiri,
   };
 }
 

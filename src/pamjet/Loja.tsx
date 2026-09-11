@@ -26,6 +26,7 @@ import {
   matricaEShlyerjes,
   permbledhja,
   perziersiIRaundit,
+  raundetELojes,
   raundiNeVijim,
   renditja,
 } from '../llogaritjet.ts';
@@ -189,6 +190,15 @@ export function Loja({ id }: { id: number }) {
    * hapësirë pikërisht atij. Te redaktimi tregon përzierësin e atij raundi —
    * numri i raundit e jep vetë.
    */
+  /*
+   * Sa raunde ka mbrëmja gjithsej — dy për lojtar.
+   *
+   * Te magareci nuk vlen: atje mbrëmja mbaron kur mbushet fjala, e jo pas një
+   * numri raundesh, prandaj numri nuk tregohet fare.
+   */
+  const gjithsej = magarec ? 0 : raundetELojes(players);
+  const mbushur = !magarec && players.length > 0 && raundet.length >= gjithsej;
+
   const perziersi = useMemo(() => {
     const numri = raundet.find((r) => r.id === dukeRedaktuar)?.roundNumber;
     return perziersiIRaundit(players, numri ?? raundiNeVijim(raundet));
@@ -318,7 +328,9 @@ export function Loja({ id }: { id: number }) {
             </span>
             <span className="etiketa">
               <Ikona emri="shlyerja" />
-              {raundet.length} {raundet.length === 1 ? 'raund' : 'raunde'}
+              {magarec
+                ? `${raundet.length} ${raundet.length === 1 ? 'raund' : 'raunde'}`
+                : `${raundet.length} nga ${gjithsej} raunde`}
             </span>
             {magarec && (
               <span className="etiketa etiketa--hapur">
@@ -353,6 +365,26 @@ export function Loja({ id }: { id: number }) {
             </span>
           )}
         </h2>
+
+        {/*
+          Loja e mbushur thuhet, por nuk mbyllet me çelës.
+
+          Dy raunde për lojtar e mbarojnë mbrëmjen, dhe kjo shenjë e thotë. Futja
+          mbetet e hapur me qëllim: lista e lojtarëve ndryshon mes lojës (pika 5),
+          prandaj numri i raundeve lëviz nën këmbë — dhe një ekran që refuzon
+          raundin e vërtetë sepse dikush u ngrit nga tavolina do të ishte më keq
+          se një raund i tepërt. Te magareci çelësi ka kuptim, sepse atje një
+          shkronjë më shumë nuk do të thotë asgjë.
+        */}
+        {mbushur && !raundiQeRedaktohet && (
+          <p className="njoftim njoftim--mire" data-hapesire="posht">
+            <Ikona emri="renditja" />
+            <span>
+              Loja u mbush — {gjithsej} raunde, dy për lojtar. Renditja poshtë
+              është përfundimtare.
+            </span>
+          </p>
+        )}
 
         <div className="kartela kartela--kryesore">
           {!magarec ? (
@@ -428,7 +460,12 @@ export function Loja({ id }: { id: number }) {
           <RrjetiIMagarecit players={players} shkronjat={totalat} />
 
           {raundet.length > 0 && (
-            <Parashikimi lloji="magarec" players={players} totalet={totalat} />
+            <Parashikimi
+              lloji="magarec"
+              players={players}
+              totalet={totalat}
+              luajtur={raundet.length}
+            />
           )}
 
           {raundet.length === 0 ? (
@@ -460,7 +497,12 @@ export function Loja({ id }: { id: number }) {
         <>
           <Renditja rreshtat={rreshtat} luajtur={barabarte ? null : luajtur} />
 
-          <Parashikimi lloji="bridzh" players={players} totalet={totalat} />
+          <Parashikimi
+            lloji="bridzh"
+            players={players}
+            totalet={totalat}
+            luajtur={raundet.length}
+          />
 
           <Raundet
             players={players}

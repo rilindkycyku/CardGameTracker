@@ -10,7 +10,8 @@ të dhënave (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`), për a
 
 **Bridzh** — një numërues pikësh që i përgjigjet një pyetjeje: *sa ka secili, dhe kush kujt sa i
 del*. Zëvendëson një fletë Google Sheets-i që mbahej me dorë për bridzhin kosovar, varianti i
-xhin-ramit që luhet me 14 letra dhe mbyllet me 51 pikë.
+xhin-ramit që luhet me 14 letra, mbyllet me 51 pikë dhe mbaron pasi secili i ka përzier
+letrat dy herë.
 
 Ajo fletë ka edhe një skedë të dytë — **Magarec** — dhe tani e ka edhe aplikacioni: kush e humb
 raundin merr një shkronjë, dhe kush e mbush fjalën „MAGAREC" e humb mbrëmjen. Rregullat te
@@ -421,10 +422,15 @@ Katër gjëra e mbajnë të ndershëm, dhe asnjëra nuk guxon të hiqet:
   vonë do të ishte numër i shpikur. Prandaj vendi këtu është «sa veta kanë më pak, plus një», dhe
   prova `vendi i tanishëm rri mes vendit më të mirë dhe atij më të keq` e mban të matur.
 
-Magareci ka edhe një kufi që bridzhi nuk e ka: mbrëmja mbaron kur mbushet fjala, prandaj edhe
-raundet e mbetura janë të numërueshme (`raundetMeTeShumta`), dhe zgjedhjet e ekranit priten sipas
-tyre. Te bridzhi ai numër nuk ekziston — mbrëmja mbaron kur ngrihen nga tavolina — prandaj «brenda
-sa raundeve» zgjidhet me dorë. Mos e shpik atë numër.
+**Horizonti nuk hamendësohet.** Të dyja lojërat e kanë fundin e vet, prandaj «sa ka mbetur» është
+numër që del nga vetë loja, dhe `raundetEMbetura` është vendi i vetëm ku bëhet ai dallim: te bridzhi
+dy raunde për lojtar minus ato të luajtura (pika 13), te magareci sa mund të luhen më së shumti para
+se të mbushet fjala (`raundetMeTeShumta`). E dyta është kufi i sipërm e jo numër i saktë — fjala
+mund të mbushet shumë më herët — prandaj ekrani e shkruan «së shumti» krah numrit. Mos e zëvendëso
+asnjërin me një numër të zgjedhur me dorë.
+
+Ekrani ka dy çelësa e jo pesë, sepse vetëm dy pyetje bëhen vërtet: *sikur të luajmë edhe një raund*,
+dhe *deri në fund*. Me një raund të mbetur të dyja janë e njëjta gjë, dhe çelësi zhduket.
 
 Provat nuk maten kundër `logic.json`-it me numra të gatshëm: ai skedar nuk ka kolonë «vendi më i
 mirë», sepse ajo pyetje nuk i bëhej dot një flete. Maten totalet e tij të vërteta kundër ligjeve që
@@ -433,19 +439,35 @@ ngushtojnë atë, dhe numri i raundeve që premton e mban premtimin me saktësis
 Për magarecin të njëjtat mbrëmje lexohen sërish si shkronja — raundin e humb ai që mori më shumë
 pikë — sepse pikët me qindra nuk hyjnë te një llogari ku totali shkon nga zero në shtatë.
 
-### 13. Radha e emrave është radha e tavolinës
+### 13. Tavolina rrotullohet dy herë, dhe aty mbaron mbrëmja
+
+Dy gjëra që duken të ndara janë i njëjti rregull parë nga dy anë: përzierja kalon një vend çdo raund,
+dhe loja mbaron pas **dy raundeve për lojtar**. Pra tavolina bën saktësisht dy rrotullime të plota.
 
 `perziersiIRaundit` nuk mban gjendje: raundi i parë i takon të parit të `selectedPlayers`, i dyti të
 dytit, dhe pas të fundit nis prapë nga kreu. Kjo punon vetëm sepse radha e emrave ruhet që nga
 futja — kutia e emrave e thotë («Radha ruhet — kështu ulen rreth tavolinës»), dhe fleta e vjetër i
-mbante ashtu për të njëjtën arsye.
+mbante ashtu për të njëjtën arsye. `raundetELojes` është ana tjetër: `lojtarë × 2`.
 
-Numri nuk ruhet, si asnjë vlerë e derivuar (pika 2), prandaj shtimi ose heqja e një lojtari mes lojës
-e rillogarit radhën mbi listën e tanishme. Kjo është e vërteta e tavolinës: kush u ngrit nuk përzien
-më. Raundet e shkuara nuk preken gjithsesi.
+**Rregulli nuk u shpik — fleta e dëshmon.** Çdo mbrëmje bridzhi te `logic.json` ka saktësisht dy
+raunde për lojtar, dhe prova `çdo mbrëmje bridzhi e logic.json-it ka saktësisht dy raunde për
+lojtar` e mban këtë të matur. Dy grupe rrinë jashtë saj, dhe asnjëri nuk e kundërshton:
+`brigj_4_merged_teams` i ka kolonat çifte („alfa + zeta"), pra tetë raunde nga katër veta — që e
+përforcon rregullin — dhe `domina_1` nuk është bridzh fare.
 
-Rri krah titullit të raundit dhe jo te një rresht i vetin: blloku poshtë përdoret dhjetëra herë në
-mbrëmje (pika 6), dhe një rresht mbi të do t'i hiqte hapësirë pikërisht atij.
+Asnjëri nga të dy numrat nuk ruhet, si asnjë vlerë e derivuar (pika 2): dalin nga lista e lojtarëve
+sa herë lexohen. Prandaj shtimi ose heqja e dikujt mes lojës (pika 5) e zgjat ose e shkurton mbrëmjen
+vetvetiu, dhe rirendit përzierjen mbi listën e tanishme. Kjo është e vërteta e tavolinës: kush u
+ngrit nuk përzien më, dhe letrat nuk e presin.
+
+**Loja e mbushur thuhet, por nuk mbyllet me çelës.** Te magareci futja ndalet, sepse atje një
+shkronjë më shumë nuk do të thotë asgjë. Te bridzhi jo: meqë numri i raundeve lëviz nën këmbë sa
+herë ndryshon lista, një ekran që refuzon raundin e vërtetë sepse dikush u ngrit nga tavolina do të
+ishte më keq se një raund i tepërt. Prandaj del vetëm një njoftim, dhe futja mbetet e hapur.
+
+Përzierësi rri krah titullit të raundit dhe jo te një rresht i vetin: blloku poshtë përdoret dhjetëra
+herë në mbrëmje (pika 6), dhe një rresht mbi të do t'i hiqte hapësirë pikërisht atij. Numri i plotë
+(«4 nga 8 raunde») rri te kreu, krah lojtarëve.
 
 ## Sistemi vizual
 

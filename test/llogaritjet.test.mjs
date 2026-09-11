@@ -29,6 +29,8 @@ import {
   permbledhja,
   perziersiIRaundit,
   pjesemarrjeEBarabarte,
+  RAUNDE_PER_LOJTAR,
+  raundetELojes,
   raundetELuajtura,
   raundiNeVijim,
   renditja,
@@ -511,4 +513,62 @@ test('pa lojtarë ose me numër të prishur nuk ka përzierës', () => {
   // Numri i raundit nuk shkon nën një, por një bazë e prishur mund ta sjellë.
   assert.equal(perziersiIRaundit(['alfa', 'beta'], 0), 'beta');
   assert.equal(perziersiIRaundit(['alfa', 'beta'], -1), 'alfa');
+});
+
+/* ── Sa raunde ka një lojë ──────────────────────────────────────────────── */
+
+test('loja ka dy raunde për lojtar', () => {
+  assert.equal(RAUNDE_PER_LOJTAR, 2);
+  assert.equal(raundetELojes(['alfa', 'beta', 'gama']), 6);
+  assert.equal(raundetELojes(['alfa', 'beta', 'gama', 'delta']), 8);
+  assert.equal(raundetELojes([]), 0);
+});
+
+test('çdo mbrëmje bridzhi e `logic.json`-it ka saktësisht dy raunde për lojtar', () => {
+  /*
+   * Ky rregull nuk u shpik: fleta origjinale e dëshmon. Dy grupe rrinë jashtë,
+   * dhe asnjëri nuk e kundërshton atë:
+   *
+   *   • `brigj_4_merged_teams` — kolonat janë çifte („alfa + zeta"), pra dy
+   *     kolona nga katër veta. Tetë raundet e tij janë pikërisht dy për njeri,
+   *     dhe kjo e përforcon rregullin në vend që ta thyejë.
+   *   • `domina_1` — nuk është bridzh fare.
+   */
+  const çiftet = /\s\+\s/;
+  const bridzhet = burimi.groups.filter(
+    (g) => !g.id.startsWith('domina'),
+  );
+
+  assert.ok(bridzhet.length >= 5);
+
+  for (const grupi of bridzhet) {
+    const veta = grupi.players.reduce(
+      (sa, emri) => sa + emri.split(çiftet).length,
+      0,
+    );
+
+    assert.equal(
+      grupi.rounds.length,
+      veta * RAUNDE_PER_LOJTAR,
+      `${grupi.id}: ${grupi.rounds.length} raunde nga ${veta} veta`,
+    );
+  }
+});
+
+test('sa raunde janë mbetur — dhe secili i përzien dy herë', () => {
+  const players = ['alfa', 'beta', 'gama'];
+  const gjithsej = raundetELojes(players);
+
+  // Dy rrotullime të plota të tavolinës, dhe asnjë vend nuk përsëritet brenda një.
+  const perziersit = [];
+  for (let raundi = 1; raundi <= gjithsej; raundi += 1) {
+    perziersit.push(perziersiIRaundit(players, raundi));
+  }
+
+  for (const player of players) {
+    assert.equal(
+      perziersit.filter((x) => x === player).length,
+      RAUNDE_PER_LOJTAR,
+    );
+  }
 });

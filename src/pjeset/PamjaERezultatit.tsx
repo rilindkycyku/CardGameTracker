@@ -103,7 +103,12 @@ export function PamjaERezultatit({
           <RrjetiIMagarecit players={emrat} shkronjat={totalat} />
 
           {pamja.raunde > 0 && (
-            <Parashikimi lloji="magarec" players={emrat} totalet={totalat} />
+            <Parashikimi
+              lloji="magarec"
+              players={emrat}
+              totalet={totalat}
+              luajtur={pamja.raunde}
+            />
           )}
         </>
       ) : (
@@ -131,7 +136,12 @@ function PjesaEBridzhit({
       <Renditja rreshtat={rreshtat} />
 
       {raunde > 0 && (
-        <Parashikimi lloji="bridzh" players={emrat} totalet={totalat} />
+        <Parashikimi
+          lloji="bridzh"
+          players={emrat}
+          totalet={totalat}
+          luajtur={raunde}
+        />
       )}
 
       <Shlyerja
