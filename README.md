@@ -63,7 +63,9 @@ mbrëmjen.
   njëra-tjetra, dhe edhe nëpër mesazh.
 
   Të dyja hapen edhe në një telefon që nuk e ka aplikacionin, dhe asnjëra nuk
-  lexon as shkruan në bazën e tij.
+  lexon as shkruan në bazën e tij. Pamja që hapet nis me përmbledhjen — kush
+  prin, sa vjen i dyti prapa, sa raunde kanë mbetur dhe kush përzien — dhe ka
+  «Unë jam …»: prek emrin tënd, dhe del rreshti yt i matricës, kujt sa i del.
 - **Kopje rezervë** — nxjerrja dhe kthimi i tërë historikut si një skedar JSON.
 
 Punon pa internet. Të dhënat rrinë vetëm në shfletuesin e pajisjes.
@@ -151,6 +153,7 @@ src/
                       PamjaERezultatit · KodiQR
                       FutjaEMagarecit · RrjetiIMagarecit · RaundetEMagarecit
                       PergjithshmetEMagarecit · Parashikimi
+                      PermbledhjaEPamjes · Vetja
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it

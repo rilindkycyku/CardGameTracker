@@ -190,6 +190,23 @@ Ajo që kalon nëpër kanal është pikërisht paketa e `ndarja.ts` — të një
 dhe `PamjaERezultatit` është një vend i vetëm vizatimi për të dyja. Dy kopje do të dilnin jashtë
 sinkronie pikërisht atje ku numri duhet të jetë i njëjti.
 
+**Ajo pamje tregon më shumë se paketa, dhe pa asnjë bajt të shtuar.** Kush skanon një kod nuk e ka
+hapur aplikacionin: ai është ulur te tavolina, faqja sapo u hap, dhe pyetja e tij është një e vetme —
+*kush prin, dhe sa larg jam unë*. Prandaj sipër tabelave rri `PermbledhjaEPamjes` (kush prin, sa
+vjen i dyti prapa, sa raunde kanë mbetur, kush përzien) dhe nën renditje `Vetja` («Unë jam …» →
+rreshti yt i matricës). Të gjitha dalin nga dy gjëra që paketa i mbante që më parë: totalet, dhe
+radha e tavolinës te `selectedPlayers`. Mos i shto fusha paketës për diçka që nxirret prej tyre.
+
+Dy gjëra te ajo pamje nuk guxojnë të ndryshojnë:
+
+- **Zgjedhja e vetes nuk ruhet askund.** Rrugët e ndarjes nuk shkruajnë asgjë (kushti i mësipërm),
+  dhe një emër i mbajtur mend do të ishte shkelja e parë e tij. Rri te gjendja e komponentit; për një
+  faqe që hapet një herë, nuk vlen as sa kostoja e të shpjeguarit.
+- **Drejtimi i shlyerjes thuhet me fjalë, jo me ngjyrë.** Te matrica pozitivja është jeshile sepse
+  ashtu e kishte fleta origjinale, dhe legjenda e shpjegon; po ajo ngjyrë mbi një rresht që thotë «ti
+  i jep» do të lexohej si fitore. Dhe fjala mban kryefjalën e shkruar: një «i jep» i vetëm, me emrin
+  e rreshtit sipër, lexohet sikur ta jepte ai — pikërisht e kundërta.
+
 Paketa është te versioni **2**, dhe fusha e shtuar është një shkronjë: `b` a `m`, lloji i lojës.
 Pa të ana që shikon nuk ka nga ta dijë se `3` do të thotë „MAG" e jo tri pikë — numri është i njëjti
 bajt te të dyja lojërat. Versioni 1 lexohet ende dhe lexohet bridzh: një adresë e ndarë dje te një

@@ -35,6 +35,7 @@ import {
   raundiNeVijim,
   renditja,
   renditjaELojes,
+  shlyerjaEVetes,
   sipasRadhes,
   sot,
   tabelaEPergjithshme,
@@ -570,5 +571,66 @@ test('sa raunde janë mbetur — dhe secili i përzien dy herë', () => {
       perziersit.filter((x) => x === player).length,
       RAUNDE_PER_LOJTAR,
     );
+  }
+});
+
+/* ── Rreshti i vetes te matrica ─────────────────────────────────────────── */
+
+test('shlyerja e vetes është rreshti i matricës, pa qelizën e vetvetes', () => {
+  for (const grupi of burimi.groups) {
+    const totalat = permbledhja(grupi.players, raundetE(grupi)).totalet;
+    const matrica = matricaEShlyerjes(grupi.players, totalat);
+
+    for (const vetja of grupi.players) {
+      const rreshti = shlyerjaEVetes(vetja, grupi.players, totalat);
+
+      assert.equal(rreshti.length, grupi.players.length - 1);
+      assert.ok(!rreshti.some((n) => n.player === vetja));
+
+      for (const njesi of rreshti) {
+        assert.equal(njesi.diferenca, matrica[vetja][njesi.player]);
+      }
+    }
+  }
+});
+
+test('radha shkon nga ai që i del më shumë te ai që i del më pak', () => {
+  const totalat = { alfa: 100, beta: 180, gama: 400 };
+  const rreshti = shlyerjaEVetes('beta', ['alfa', 'beta', 'gama'], totalat);
+
+  assert.deepEqual(rreshti, [
+    { player: 'alfa', diferenca: 80 },
+    { player: 'gama', diferenca: -220 },
+  ]);
+});
+
+test('çka i del njërit, i vjen tjetrit — dhe tavolina mbyllet me zero', () => {
+  for (const grupi of burimi.groups) {
+    const totalat = permbledhja(grupi.players, raundetE(grupi)).totalet;
+
+    // Secila diferencë ka të kundërtën e vet te rreshti i tjetrit.
+    for (const vetja of grupi.players) {
+      for (const njesi of shlyerjaEVetes(vetja, grupi.players, totalat)) {
+        const kthimi = shlyerjaEVetes(njesi.player, grupi.players, totalat)
+          .find((x) => x.player === vetja);
+
+        // Shuma e dy anëve, e jo `-njesi.diferenca`: kur të dy janë baras ajo
+        // jep `-0`, dhe `assert.equal` e ndan `-0`-in nga `0`.
+        assert.equal(njesi.diferenca + kthimi.diferenca, 0);
+      }
+    }
+
+    // Dhe shumat neto të të gjithëve mblidhen zero: askush nuk krijon pikë.
+    const neto = grupi.players.reduce(
+      (shuma, vetja) =>
+        shuma
+        + shlyerjaEVetes(vetja, grupi.players, totalat).reduce(
+          (s, n) => s + n.diferenca,
+          0,
+        ),
+      0,
+    );
+
+    assert.equal(neto, 0, `${grupi.id}: tavolina nuk mbyllet me zero`);
   }
 });

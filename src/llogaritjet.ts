@@ -133,6 +133,45 @@ export function matricaEShlyerjes(
   return matrica;
 }
 
+/** Sa i del një lojtari kundrejt një tjetri. */
+export type ShlyerjaENjerit = {
+  /** Tjetri — ai me të cilin shlyhet. */
+  player: string;
+  /**
+   * `total[vetja] − total[tjetri]`.
+   *
+   * Pozitive do të thotë që vetja ka aq pikë më shumë, pra ana që paguan —
+   * njësoj si te matrica, dhe për të njëjtën arsye: shenja është diferencë, jo
+   * epërsi.
+   */
+  diferenca: number;
+};
+
+/**
+ * Rreshti i matricës për një lojtar të vetëm.
+ *
+ * Matrica N×N e thotë të tërën, por në një telefon lexohet keq: kush shikon
+ * rezultatin e ndarë do vetëm rreshtin e vet — *sa i dal unë kujt*. Ky funksion
+ * është pikërisht ai rresht, pa qelizën e vetvetes.
+ *
+ * Radha shkon nga diferenca më e madhe te më e vogla, pra së pari ata që u
+ * paguhet dhe pastaj ata që paguajnë. Kjo nuk është radha e renditjes me
+ * qëllim: kur shlyhet, pyetja e parë është sa nxirret nga xhepi.
+ */
+export function shlyerjaEVetes(
+  vetja: string,
+  players: string[],
+  totals: Record<string, number>,
+): ShlyerjaENjerit[] {
+  return players
+    .filter((player) => player !== vetja)
+    .map((player) => ({
+      player,
+      diferenca: (totals[vetja] ?? 0) - (totals[player] ?? 0),
+    }))
+    .sort((a, b) => b.diferenca - a.diferenca);
+}
+
 /** A ka ky raund së paku një pikë të futur për ndonjë prej lojtarëve? */
 export function eshteIMbushur(players: string[], raundi: Raundi): boolean {
   return players.some((player) => typeof raundi.scores[player] === 'number');
