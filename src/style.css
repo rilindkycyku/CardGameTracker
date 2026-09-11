@@ -1966,15 +1966,28 @@ th.numri {
 
 /* ── Ndarja e rezultatit ────────────────────────────────────────────────── */
 
+/**
+ * Fotografia e çastit: kodi sipër, fjalët poshtë.
+ *
+ * Ishte një rresht — kod 9.5rem krah një kolone teksti — dhe atje kodi dilte
+ * shumë i dendur për atë që duhet të bëjë. Me gjashtë lojtarë paketa jep 53
+ * module, pra 61 me zonën e qetë: te 9.5rem (152px) bien 2.5 piksela për modul,
+ * dhe me tetë emra të gjatë 2.1. Kufiri poshtë të cilit skanimi nga një ekran
+ * në tjetrin nis të dështojë është tre — i njëjti kufi që e ngriti ftesën e
+ * lidhjes te 18rem (shih `.qr--madh`). Prandaj kodi zuri rreshtin e vet dhe e
+ * mori atë gjerësi: 4.7 piksela për modul te rasti i zakonshëm.
+ */
 .ndarja {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  display: grid;
   gap: 0.9rem;
 }
 
+.ndarja__kodi {
+  display: flex;
+  justify-content: center;
+}
+
 .ndarja__krye {
-  flex: 1 1 11rem;
   min-width: 0;
   display: grid;
   gap: 0.6rem;
@@ -2002,12 +2015,6 @@ th.numri {
 
 .qr__pikat {
   fill: #000000;
-}
-
-@media (max-width: 22rem) {
-  .ndarja {
-    justify-content: center;
-  }
 }
 
 /* ── Lidhja e drejtpërdrejtë ────────────────────────────────────────────── */
