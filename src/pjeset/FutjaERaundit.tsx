@@ -13,9 +13,10 @@
  *   • Rreshti i veprimeve rri i ngjitur në fund të kartelës. Me tastierën e
  *     hapur, ekrani i mbetur është nën gjysmën e telefonit — pa këtë, butoni
  *     „Ruaj" bie poshtë çdo here që lojtarët janë shumë.
- *   • Llogaritësi e ruan raundin vetë, me një prekje. Raundi që bie brenda
- *     rregullit — dhe ata janë pothuajse të gjithë — nuk ka pse të kalojë
- *     nëpër fushat vetëm që të shtypet «Ruaj» prapë.
+ *   • Llogaritësi rri i hapur që në fillim te raundi i ri, dhe e ruan raundin
+ *     vetë me një prekje. Raundi që bie brenda rregullit — dhe ata janë
+ *     pothuajse të gjithë — nuk ka pse të kërkojë as prekjen që e hap, as
+ *     kalimin nëpër fushat vetëm që të shtypet «Ruaj» prapë.
  *
  * Fushat mbeten burimi i vërtetë gjithsesi, dhe llogaritësi mban edhe daljen
  * e dytë — «Vendosi te fushat», që i shkruan pikët pa i ruajtur: te fleta
@@ -58,7 +59,12 @@ export function FutjaERaundit({
   onAnulo?: () => void;
 }) {
   const [vlerat, caktoVlerat] = useState<Vlerat>(() => nga(players, fillestare));
-  const [hapurLlogaritesi, hapLlogaritesin] = useState(false);
+  // Raundi i ri hapet me llogaritësin gati (zgjedhje e pronarit): pikët e
+  // mbrëmjes dalin nga rregulli, jo nga koka, prandaj rruga e shpeshtë nuk ka
+  // pse të kërkojë një prekje para çdo raundi. Redaktimi nis i mbyllur — atje
+  // fushat mbajnë tashmë pikët e shënuara, dhe prekja është pikërisht ajo që
+  // duhet rregulluar me dorë.
+  const [hapurLlogaritesi, hapLlogaritesin] = useState(!fillestare);
   // Pikët e fundit të llogaritura rrinë këtu e jo brenda llogaritësit, sepse
   // butoni që i ruan rri te rreshti i ngjitur poshtë — përndryshe do të binte
   // nën fund të ekranit pikërisht kur lojtarët janë shumë.
@@ -66,12 +72,22 @@ export function FutjaERaundit({
     string,
     number
   > | null>(null);
+  // Sa raunde janë ruajtur nga ky bllok. Hyn te `key`-i i llogaritësit, që ai
+  // të nisë nga e para pas çdo ruajtjeje: dora e raundit të kaluar nuk ka pse
+  // të rrijë e shkruar te raundi tjetër.
+  const [ruajtje, caktoRuajtjen] = useState(0);
   const fushat = useRef<(HTMLInputElement | null)[]>([]);
 
   // Kur ndërrohet raundi që redaktohet, fushat duhet të ndjekin atë e jo të
-  // mbajnë pikët e raundit të mëparshëm.
+  // mbajnë pikët e raundit të mëparshëm. Bashkë me to kthehet edhe llogaritësi
+  // te gjendja e vet e nisjes: hapur për raund të ri, mbyllur për redaktim.
   useEffect(() => {
     caktoVlerat(nga(players, fillestare));
+    hapLlogaritesin(!fillestare);
+    // Pikët e llogaritësit nuk zbrazen këtu: ky efekt shkon pas atij të
+    // llogaritësit të sapomontuar, dhe do t'i fshinte pikërisht pikët që ai
+    // sapo i njoftoi — butoni «Ruaj» do të mbetej i fikur. Me llogaritësin e
+    // mbyllur ato nuk lexohen fare, dhe hapja e tij i njofton prapë.
   }, [players, fillestare, roundNumber]);
 
   // Me llogaritësin hapur ruhen pikët e tij, prandaj edhe përmbledhja e
@@ -112,12 +128,21 @@ export function FutjaERaundit({
    */
   function dergo(scores: Record<string, number | null>, rifokuso = false) {
     onRuaj(scores);
+    caktoPiketELlogaritura(null);
 
-    if (!fillestare) {
-      caktoVlerat(nga(players, null));
-      if (rifokuso) fushat.current[0]?.focus();
+    if (fillestare) {
+      // Redaktimi mbaron me ruajtjen — ekrani kthehet te lista.
+      hapLlogaritesin(false);
+      return;
     }
-    mbyllLlogaritesin();
+
+    caktoVlerat(nga(players, null));
+    // Llogaritësi mbetet i hapur për raundin tjetër, por nis nga e para:
+    // `ruajtje` e ndërron `key`-in e tij, prandaj dora e sapofutur nuk mbetet
+    // e shkruar aty. Numri i raundit vjen nga baza pak më vonë — pa këtë,
+    // llogaritësi do të tregonte raundin e kaluar deri atëherë.
+    caktoRuajtjen((n) => n + 1);
+    if (rifokuso) fushat.current[0]?.focus();
   }
 
   /** Mbyll llogaritësin dhe harron pikët e tij — ato vlejnë sa rri i hapur. */
@@ -177,6 +202,7 @@ export function FutjaERaundit({
 
       {hapurLlogaritesi && (
         <Llogaritesi
+          key={`${roundNumber}:${ruajtje}`}
           players={players}
           onPike={caktoPiketELlogaritura}
           onVendos={(pike) => {

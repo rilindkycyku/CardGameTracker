@@ -80,7 +80,14 @@ Në bazë shkruhen vetëm pikët e futura. Totalet, renditja dhe matrica llogari
 Kjo nuk është kursim vendi — është e vetmja mënyrë që redaktimi i raundit të tretë në raundin e
 dhjetë të mos lërë prapa një total të ngrirë diku. Nëse shton një vlerë të derivuar, mos e ruaj.
 
-### 3. Llogaritësi e ruan raundin vetë, por fushat mbeten burimi i vërtetë
+### 3. Llogaritësi hapet i pari, por fushat mbeten burimi i vërtetë
+
+**Raundi i ri hapet me llogaritësin gati, me kërkesë të pronarit.** Pikët e një raundi dalin nga
+rregulli e jo nga koka, prandaj rruga e shpeshtë nuk kërkon as prekjen që e hap atë. Pas ruajtjes ai
+mbetet i hapur për raundin tjetër, por nis nga e para — `key`-i i tij mban numrin e raundit dhe sa
+raunde janë ruajtur, që dora e sapofutur të mos mbetet e shkruar aty. Redaktimi i një raundi nis i
+mbyllur: atje fushat mbajnë tashmë pikët e shënuara, dhe ajo që duhet rregulluar është pikërisht një
+prekje me dorë.
 
 Llogaritësi hant/normal ka dy dalje, dhe të dyja duhen:
 
