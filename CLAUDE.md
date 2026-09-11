@@ -489,14 +489,37 @@ sa herë lexohen. Prandaj shtimi ose heqja e dikujt mes lojës (pika 5) e rirend
 e tanishme, dhe te bridzhi e zgjat ose e shkurton mbrëmjen vetvetiu. Kjo është e vërteta e tavolinës: kush u
 ngrit nuk përzien më, dhe letrat nuk e presin.
 
-**Loja e mbushur thuhet, por nuk mbyllet me çelës.** Te magareci futja ndalet, sepse atje një
-shkronjë më shumë nuk do të thotë asgjë. Te bridzhi jo: meqë numri i raundeve lëviz nën këmbë sa
-herë ndryshon lista, një ekran që refuzon raundin e vërtetë sepse dikush u ngrit nga tavolina do të
-ishte më keq se një raund i tepërt. Prandaj del vetëm një njoftim, dhe futja mbetet e hapur.
+**Fundi mbyll futjen te të dyja lojërat, dhe vizatohet një herë.** `mbaroi` te `Loja` e bën atë
+dallim një herë të vetme — fjala e mbushur te magareci, dy raundet për lojtar te bridzhi — dhe nga
+aty poshtë ekrani pyet vetëm «a mbaroi». Butonat nuk rrinë të fikur, hiqen: një raund i shënuar pas
+fundit do ta bënte fletën të gënjejë.
+
+Kufiri i bridzhit nuk ngec dot mbi një raund të vërtetë, dhe kjo varet nga pika 5: hiqet vetëm ai që
+s'ka shënuar ende, prandaj lista nuk shkurtohet dot nën raundet që janë luajtur tashmë. Dy rrugë
+mbeten të hapura, dhe të dyja janë të vërteta të tavolinës: raundi i shënuar gabim rregullohet nga
+lista poshtë, dhe kush u ul vonë shtohet te lojtarët — atëherë mbrëmja zgjatet me dy raunde
+vetvetiu. Mos e mbyll njërën prej tyre.
 
 Përzierësi rri krah titullit të raundit dhe jo te një rresht i vetin: blloku poshtë përdoret dhjetëra
 herë në mbrëmje (pika 6), dhe një rresht mbi të do t'i hiqte hapësirë pikërisht atij. Numri i plotë
 («4 nga 8 raunde») rri te kreu, krah lojtarëve.
+
+### 14. Fituesi shpallet nga totali, jo nga radha e listës
+
+`renditja` i jep secilit një vend të vetëm dhe barazimin e ndan sipas radhës së listës. Te një tabelë
+ashtu duhet — një rresht nuk rri dot në dy vende, dhe kështu i numëron fleta origjinale — prandaj ata
+numra nuk preken.
+
+Por një **pohim** nuk e ndan dot barazimin ashtu. Një mbrëmje e rregullt e nxjerr atë rast vetë: me
+tre lojtarë dhe gjashtë raunde normale, ku secili mbyll dy herë, të tre dalin te 360 pikë. «alfa
+fitoi» atëherë është e pavërtetë, dhe kurora mbi rreshtin e parë po ashtu — të dyja e shpallin një
+fitues që nuk e ka ndarë kush.
+
+Prandaj `fituesit()` te `llogaritjet.ts` kthen **të gjithë** ata që e ndajnë totalin më të vogël, dhe
+çdo vend që shpall një fitues merret prej andej e jo prej `rreshtat[0]`: shenja e fundit te `Loja`,
+kreu i `PermbledhjaEPamjes`, dhe kurora te `Renditja`. Vendet mbeten ashtu si ishin; ndryshon vetëm
+ajo që thuhet me fjalë a me ikonë. Provat `barazimi te kreu nuk ndahet sipas radhës së listës` dhe
+`fituesi i çdo mbrëmjeje të logic.json-it është ai me totalin më të vogël` e mbajnë këtë të matur.
 
 ## Sistemi vizual
 

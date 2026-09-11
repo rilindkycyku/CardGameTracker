@@ -13,6 +13,7 @@
 
 import { memo } from 'react';
 
+import { fituesit } from '../llogaritjet.ts';
 import type { RreshtiRenditjes } from '../tipet.ts';
 import { Ikona } from '../ikonat.tsx';
 
@@ -24,6 +25,17 @@ function RenditjaBrenda({
   /** Sa raunde ka luajtur secili. Jepet vetëm kur nuk kanë luajtur njësoj. */
   luajtur?: Record<string, number> | null;
 }) {
+  /*
+   * Kurora u takon të gjithëve që e ndajnë totalin më të vogël.
+   *
+   * Vendet mbeten ashtu si i jep `renditja` — 1, 2, 3 edhe kur totalet janë të
+   * njëjta — sepse ashtu i numëron fleta origjinale dhe një rresht nuk rri dot
+   * në dy vende. Por kurora nuk është numër, është pohim: «ky fitoi». Me tre
+   * veta te 360 pikë ajo mbi të parin e listës do të thoshte diçka që nuk ka
+   * ndodhur, prandaj ose u takon të gjithëve, ose askujt.
+   */
+  const pare = new Set(fituesit(rreshtat));
+
   return (
     <section>
       <h2 className="titull-seksioni">
@@ -64,15 +76,17 @@ function RenditjaBrenda({
             {rreshtat.map((rreshti) => (
               <tr
                 key={rreshti.player}
-                className={rreshti.rank === 1 ? 'rresht--pare' : undefined}
+                className={pare.has(rreshti.player) ? 'rresht--pare' : undefined}
               >
                 <td className="qeliza-vendi">{rreshti.rank}</td>
                 <td className="qeliza-emri">
                   {rreshti.player}
-                  {rreshti.rank === 1 && (
+                  {pare.has(rreshti.player) && (
                     <>
                       <Ikona emri="renditja" klasa="ikona kurora" />
-                      <span className="vetem-lexues">fituesi</span>
+                      <span className="vetem-lexues">
+                        {pare.size === 1 ? 'fituesi' : 'baras në krye'}
+                      </span>
                     </>
                   )}
                 </td>

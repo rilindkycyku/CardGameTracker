@@ -12,7 +12,11 @@
  * si te ekrani i lojës, nga të njëjtat module.
  */
 
-import { perziersiIRaundit, raundetELojes } from '../llogaritjet.ts';
+import {
+  fituesit,
+  perziersiIRaundit,
+  raundetELojes,
+} from '../llogaritjet.ts';
 import { FJALA, fjalaE, rreshtatEMagarecit } from '../magareci.ts';
 import type { Pamja } from '../ndarja.ts';
 import type { RreshtiRenditjes } from '../tipet.ts';
@@ -30,8 +34,19 @@ export function PermbledhjaEPamjes({
   const emrat = pamja.totalet.map(([emri]) => emri);
 
   const pari = rreshtat[0];
-  const dyti = rreshtat[1];
   if (!pari) return null;
+
+  /*
+   * Kush prin — dhe barazimi te kreu nuk fshihet.
+   *
+   * `rreshtat[0]` e ndan barazimin sipas radhës së listës, dhe te tabela ashtu
+   * duhet. Por këtu shkruhet një fjali, dhe «delta prin» me tre veta te 360
+   * pikë do të ishte e pavërtetë.
+   */
+  const pareter = fituesit(rreshtat);
+
+  /* I pari që nuk është baras me kreun — atij i matet largësia. */
+  const tjetri = rreshtat.find((rreshti) => rreshti.total !== pari.total) ?? null;
 
   // Raundet e mbetura vlejnë vetëm te bridzhi: magareci mbaron kur mbushet
   // fjala, e jo pas një numri raundesh (pika 13).
@@ -56,8 +71,14 @@ export function PermbledhjaEPamjes({
       <p className="permbledhja__krye">
         <Ikona emri="renditja" />
         <span>
-          <strong>{pari.player}</strong>{' '}
-          {magarec ? 'është më larg fundit' : 'prin'}
+          <strong>{pareter.join(', ')}</strong>{' '}
+          {pareter.length > 1
+            ? magarec
+              ? 'janë më larg fundit'
+              : 'janë baras në krye'
+            : magarec
+              ? 'është më larg fundit'
+              : 'prin'}
         </span>
       </p>
 
@@ -66,11 +87,13 @@ export function PermbledhjaEPamjes({
       </p>
 
       <p className="permbledhja__nen">
-        {dyti
+        {tjetri
           ? magarec
-            ? `${dyti.player} vjen me ${fjalaE(dyti.total) || 'asnjë shkronjë'}`
-            : `${dyti.player} vjen ${dyti.total - pari.total} pikë prapa`
-          : 'i vetmi te tavolina'}
+            ? `${tjetri.player} vjen me ${fjalaE(tjetri.total) || 'asnjë shkronjë'}`
+            : `${tjetri.player} vjen ${tjetri.total - pari.total} pikë prapa`
+          : rreshtat.length > 1
+            ? 'të gjithë janë baras'
+            : 'i vetmi te tavolina'}
       </p>
 
       <ul className="permbledhja__fakte">

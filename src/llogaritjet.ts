@@ -133,6 +133,31 @@ export function matricaEShlyerjes(
   return matrica;
 }
 
+/**
+ * Kush del i pari — dhe mund të jenë disa.
+ *
+ * `renditja` i jep secilit një vend të vetëm, dhe barazimin e ndan sipas radhës
+ * së listës: te një tabelë ashtu duhet, sepse një rresht nuk rri dot në dy vende
+ * njëherësh, dhe kështu vepron edhe fleta origjinale.
+ *
+ * Por kur i njëjti rezultat thuhet me fjalë — «alfa fitoi» — ajo radhë bëhet
+ * gënjeshtër: tre veta me nga 360 pikë nuk i ka ndarë kush, dhe i pari i listës
+ * nuk fitoi asgjë. Prandaj çdo fjali që shpall një fitues merret prej këtej, e
+ * jo prej `rreshtat[0]`.
+ */
+export function fituesit(rreshtat: RreshtiRenditjes[]): string[] {
+  if (rreshtat.length === 0) return [];
+
+  // Totali më i vogël merret nga tërë vargu e jo nga `rreshtat[0]`: thirrësit e
+  // japin të renditur, por një funksion që shpall fituesin nuk ka pse ta besojë
+  // atë — dhe kostoja e një kalimi mbi gjashtë rreshta nuk matet.
+  const meIVogli = Math.min(...rreshtat.map((rreshti) => rreshti.total));
+
+  return rreshtat
+    .filter((rreshti) => rreshti.total === meIVogli)
+    .map((rreshti) => rreshti.player);
+}
+
 /** Sa i del një lojtari kundrejt një tjetri. */
 export type ShlyerjaENjerit = {
   /** Tjetri — ai me të cilin shlyhet. */

@@ -21,6 +21,7 @@ import { readFileSync } from 'node:fs';
 
 import {
   dataMeNumra,
+  fituesit,
   dataNgaNumrat,
   dataShqip,
   eshteIMbushur,
@@ -632,5 +633,57 @@ test('çka i del njërit, i vjen tjetrit — dhe tavolina mbyllet me zero', () =
     );
 
     assert.equal(neto, 0, `${grupi.id}: tavolina nuk mbyllet me zero`);
+  }
+});
+
+/* ── Kush del i pari ────────────────────────────────────────────────────── */
+
+test('barazimi te kreu nuk ndahet sipas radhës së listës', () => {
+  // Gjashtë raunde normale me tre lojtarë i lënë të gjithë te 360 — pikërisht
+  // rasti që del kur mbaron një mbrëmje e rregullt, dhe ku «alfa fitoi» gënjen.
+  const rreshtat = [
+    { rank: 1, player: 'alfa', total: 360 },
+    { rank: 2, player: 'beta', total: 360 },
+    { rank: 3, player: 'gama', total: 360 },
+  ];
+
+  assert.deepEqual(fituesit(rreshtat), ['alfa', 'beta', 'gama']);
+});
+
+test('kur kreu nuk është baras, fituesi është një i vetëm', () => {
+  assert.deepEqual(
+    fituesit([
+      { rank: 1, player: 'delta', total: 91 },
+      { rank: 2, player: 'gama', total: 237 },
+    ]),
+    ['delta'],
+  );
+
+  assert.deepEqual(fituesit([]), []);
+});
+
+test('fituesi nuk varet nga radha e vargut', () => {
+  // Thirrësit e japin të renditur, por një funksion që shpall fituesin nuk ka
+  // pse ta besojë atë.
+  assert.deepEqual(
+    fituesit([
+      { rank: 2, player: 'gama', total: 237 },
+      { rank: 1, player: 'delta', total: 91 },
+    ]),
+    ['delta'],
+  );
+});
+
+test('fituesi i çdo mbrëmjeje të `logic.json`-it është ai me totalin më të vogël', () => {
+  for (const grupi of burimi.groups) {
+    const totalat = permbledhja(grupi.players, raundetE(grupi)).totalet;
+    const rreshtat = renditja(grupi.players, totalat);
+    const meIVogli = Math.min(...grupi.players.map((p) => totalat[p]));
+
+    assert.deepEqual(
+      fituesit(rreshtat),
+      grupi.players.filter((p) => totalat[p] === meIVogli),
+      grupi.id,
+    );
   }
 });

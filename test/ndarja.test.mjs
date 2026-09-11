@@ -192,9 +192,23 @@ test('teksti i ndarjes i mban emrat dhe totalet', () => {
   ]);
 
   assert.match(teksti, /Brigj/);
-  assert.match(teksti, /2026-03-08/);
+  // Data me fjalë: teksti shkon te një bisedë, e lexohet pa faqen.
+  assert.match(teksti, /8 mars 2026/);
+  assert.doesNotMatch(teksti, /2026-03-08/);
+  // Te bridzhi numri vjen me gjithsejin, që të thotë edhe sa ka mbetur.
+  assert.match(teksti, /7 nga 8 raunde/);
   assert.match(teksti, /1\. delta 91/);
   assert.match(teksti, /2\. alfa 594/);
+});
+
+test('teksti i magarecit nuk e shpik një gjithsej raundesh', () => {
+  // Magareci mbaron kur mbushet fjala, e jo pas dy raundeve për lojtar.
+  const teksti = tekstiINdarjes({ ...PAMJA, lloji: 'magarec', raunde: 10 }, [
+    { rank: 1, player: 'delta', total: 0 },
+  ]);
+
+  assert.match(teksti, /10 raunde/);
+  assert.doesNotMatch(teksti, /nga \d+ raunde/);
 });
 
 test('teksti i magarecit shkruan fjalën, jo numrin', () => {

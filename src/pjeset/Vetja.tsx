@@ -104,7 +104,7 @@ function VetjaEBridzhit({
       </p>
 
       <p className="ndihma">
-        {imi.rank === 1
+        {imi.total === pari.total
           ? 'Ti prin — fiton totali më i vogël.'
           : `Je ${imi.total - pari.total} pikë prapa, dhe prin ${pari.player}.`}
       </p>
@@ -173,7 +173,7 @@ function VetjaEMagarecit({
           : mbetur === 1
             ? 'Të ka mbetur një shkronjë e vetme.'
             : `Të kanë mbetur ${mbetur} shkronja deri te ${FJALA}.`}
-        {imi.rank !== 1 &&
+        {imi.total !== pari.total &&
           !mbushur(marre) &&
           ` Më larg fundit është ${pari.player}, me ${imi.total - pari.total} ${
             imi.total - pari.total === 1 ? 'shkronjë' : 'shkronja'

@@ -29,9 +29,12 @@ mbrëmjen.
   mbrëmja mbaron.
 - **Renditja** — ngjitshëm sipas totalit, i pari është ai me më pak pikë. Kur
   nuk kanë luajtur të gjithë njësoj, shtohet kolona „raunde" dhe një shënim.
+  Barazimi te kreu nuk fshihet: kurora u shkon të gjithëve që e ndajnë totalin
+  më të vogël.
 - **Dy raunde për lojtar** — aq zgjat një lojë bridzhi, pra tavolina rrotullohet
-  dy herë. Kreu tregon «4 nga 8 raunde», dhe kur mbushet del njoftimi. Futja
-  mbetet e hapur: lista e lojtarëve ndryshon mes lojës, dhe numri me të.
+  dy herë. Kreu tregon «4 nga 8 raunde», dhe kur mbushen futja mbyllet me
+  fituesin, si te magareci kur mbushet fjala. Raundi i shënuar gabim rregullohet
+  nga lista, dhe kush u ul vonë shtohet te lojtarët — mbrëmja zgjatet vetvetiu.
 - **Kush përzien** — radha e emrave është radha e tavolinës, prandaj krah
   titullit të raundit rri kush i përzien letrat; kalon një vend çdo raund.
 - **Parashikimi** — kush e arrin dot ende vendin e parë me raundet që kanë
