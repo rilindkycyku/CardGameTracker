@@ -20,62 +20,62 @@ import {
 } from '../src/pikezimi.ts';
 
 test('hant: mbyllësi −40, të mbyllurit +200, të hapurit dora dyfish', () => {
-  // brigj_1, raundi 3: rila mbylli hant; meri e lila s'kishin hapur fare;
-  // lesa kishte hapur dhe i mbetën 71 pikë në dorë → 2 × 71 = 142.
+  // brigj_1, raundi 3: delta mbylli hant; alfa e gama s'kishin hapur fare;
+  // beta kishte hapur dhe i mbetën 71 pikë në dorë → 2 × 71 = 142.
   const dala = piketERaundit(
-    ['meri', 'lesa', 'lila', 'rila'],
-    'rila',
+    ['alfa', 'beta', 'gama', 'delta'],
+    'delta',
     'hant',
     {
-      meri: { mbyllur: true, dora: 0 },
-      lesa: { mbyllur: false, dora: 71 },
-      lila: { mbyllur: true, dora: 0 },
+      alfa: { mbyllur: true, dora: 0 },
+      beta: { mbyllur: false, dora: 71 },
+      gama: { mbyllur: true, dora: 0 },
     },
   );
 
-  assert.deepEqual(dala, { meri: 200, lesa: 142, lila: 200, rila: -40 });
+  assert.deepEqual(dala, { alfa: 200, beta: 142, gama: 200, delta: -40 });
 });
 
 test('normal: mbyllësi −20, të mbyllurit +100, të hapurit dora një herë', () => {
-  // brigj_1, raundi 1: meri mbylli pasi kishte hapur; lesa s'kishte hapur;
-  // lila e rila kishin hapur, me 30 e 27 pikë në dorë.
+  // brigj_1, raundi 1: alfa mbylli pasi kishte hapur; beta s'kishte hapur;
+  // gama e delta kishin hapur, me 30 e 27 pikë në dorë.
   const dala = piketERaundit(
-    ['meri', 'lesa', 'lila', 'rila'],
-    'meri',
+    ['alfa', 'beta', 'gama', 'delta'],
+    'alfa',
     'normal',
     {
-      lesa: { mbyllur: true, dora: 0 },
-      lila: { mbyllur: false, dora: 30 },
-      rila: { mbyllur: false, dora: 27 },
+      beta: { mbyllur: true, dora: 0 },
+      gama: { mbyllur: false, dora: 30 },
+      delta: { mbyllur: false, dora: 27 },
     },
   );
 
-  assert.deepEqual(dala, { meri: -20, lesa: 100, lila: 30, rila: 27 });
+  assert.deepEqual(dala, { alfa: -20, beta: 100, gama: 30, delta: 27 });
 });
 
 test('raundi me gjashtë lojtarë del njësoj si te fleta', () => {
-  // brigj_3, raundi 2: eri mbylli pasi kishte hapur; Miloti s'kishte hapur fare;
+  // brigj_3, raundi 2: epsilon mbylli pasi kishte hapur; Mi s'kishte hapur fare;
   // katër të tjerët mbetën me 16, 28, 20 e 5 pikë në dorë.
   const dala = piketERaundit(
-    ['meri', 'eri', 'Arboni', 'gjigji', 'Miloti', 'rila'],
-    'eri',
+    ['alfa', 'epsilon', 'Lambda', 'jota', 'Mi', 'delta'],
+    'epsilon',
     'normal',
     {
-      meri: { mbyllur: false, dora: 16 },
-      Arboni: { mbyllur: false, dora: 28 },
-      gjigji: { mbyllur: false, dora: 20 },
-      Miloti: { mbyllur: true, dora: 0 },
-      rila: { mbyllur: false, dora: 5 },
+      alfa: { mbyllur: false, dora: 16 },
+      Lambda: { mbyllur: false, dora: 28 },
+      jota: { mbyllur: false, dora: 20 },
+      Mi: { mbyllur: true, dora: 0 },
+      delta: { mbyllur: false, dora: 5 },
     },
   );
 
   assert.deepEqual(dala, {
-    meri: 16,
-    eri: -20,
-    Arboni: 28,
-    gjigji: 20,
-    Miloti: 100,
-    rila: 5,
+    alfa: 16,
+    epsilon: -20,
+    Lambda: 28,
+    jota: 20,
+    Mi: 100,
+    delta: 5,
   });
 });
 

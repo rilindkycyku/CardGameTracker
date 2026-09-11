@@ -17,19 +17,19 @@ import {
   FORMATI,
 } from '../src/kopja.ts';
 
-const GRUPI = { id: 1, name: 'Brigj', playerNames: ['meri', 'lesa', 'rila'] };
+const GRUPI = { id: 1, name: 'Brigj', playerNames: ['alfa', 'beta', 'delta'] };
 const LOJA = {
   id: 1,
   groupId: 1,
   date: '2026-03-08',
-  selectedPlayers: ['meri', 'lesa'],
+  selectedPlayers: ['alfa', 'beta'],
   createdAt: 1700000000000,
 };
 const RAUNDI = {
   id: 1,
   gameId: 1,
   roundNumber: 1,
-  scores: { meri: -20, lesa: 100 },
+  scores: { alfa: -20, beta: 100 },
 };
 
 const teksti = (o) => JSON.stringify(o);
@@ -76,12 +76,12 @@ test('pikët `null` mbijetojnë kthimin', () => {
   const meNull = ndertoKopjen(
     [GRUPI],
     [LOJA],
-    [{ ...RAUNDI, scores: { meri: null, lesa: 100 } }],
+    [{ ...RAUNDI, scores: { alfa: null, beta: 100 } }],
   );
   const dala = lexoKopjen(teksti(meNull));
 
   assert.equal(dala.ok, true);
-  assert.equal(dala.kopja.rounds[0].scores.meri, null);
+  assert.equal(dala.kopja.rounds[0].scores.alfa, null);
 });
 
 test('teksti që nuk është JSON refuzohet', () => {
@@ -137,7 +137,7 @@ test('një raund pa lojën e vet refuzohet', () => {
 test('pikët jo-numerike refuzohen', () => {
   const dala = lexoKopjen(
     teksti(
-      ndertoKopjen([GRUPI], [LOJA], [{ ...RAUNDI, scores: { meri: 'njëzet' } }]),
+      ndertoKopjen([GRUPI], [LOJA], [{ ...RAUNDI, scores: { alfa: 'njëzet' } }]),
     ),
   );
 

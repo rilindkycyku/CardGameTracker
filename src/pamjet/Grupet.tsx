@@ -14,6 +14,7 @@ import { useNgarko } from '../ngarko.ts';
 import { PanelaEKopjes } from '../pjeset/PanelaEKopjes.tsx';
 import { grupet as lexoGrupet, numriILojerave, shtoGrup } from '../ruajtja.ts';
 import { shko } from '../rruga.ts';
+import { VERSIONI } from '../versioni.ts';
 
 export function Grupet() {
   const { te_dhenat, rifresko } = useNgarko(async () => {
@@ -142,10 +143,19 @@ export function Grupet() {
 
       <PanelaEKopjes onKthyer={rifresko} />
 
+      {/*
+        Versioni rri te ekrani i parë, jo te ndonjë ekran „rreth".
+
+        Aplikacioni hapet nga një adresë dhe telefoni e mban në cache: pa një
+        numër të dukshëm, «e ke të renë apo të vjetrën?» nuk i përgjigjet dot
+        kush. Numri është ai i `package.json`-it, prandaj ajo që thotë ekrani
+        dhe ajo që u ndërtua janë i njëjti varg.
+      */}
       <footer className="fundfaqja">
         <p>
           Bërë me <Zemra /> për tavolinën.
         </p>
+        <p className="fundfaqja__versioni">v{VERSIONI}</p>
       </footer>
     </div>
   );
@@ -164,7 +174,7 @@ function FormaEGrupit({
   const [iRi, caktoTeRin] = useState('');
   const fusha = useRef<HTMLInputElement>(null);
 
-  /** Pranon një emër ose të gjithë njëherësh: «meri, lesa, lila, rila». */
+  /** Pranon një emër ose të gjithë njëherësh: «alfa, beta, gama, delta». */
   function shtoLojtarin() {
     const rinjte = emratERinj(iRi, lojtaret);
     caktoTeRin('');
@@ -208,7 +218,7 @@ function FormaEGrupit({
                 ref={fusha}
                 type="text"
                 value={iRi}
-                placeholder="meri, lesa, lila…"
+                placeholder="alfa, beta, gama…"
                 onChange={(e) => caktoTeRin(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {

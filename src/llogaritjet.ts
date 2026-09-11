@@ -159,6 +159,61 @@ export function dataShqip(date: string): string {
   return `${dite} ${MUAJT[muaj - 1]} ${vit}`;
 }
 
+/**
+ * `YYYY-MM-DD` → `dd/mm/vvvv`, ashtu si shkruhet data këtu.
+ *
+ * Fusha e datës ishte `type="date"`, dhe atë e vizaton shfletuesi sipas gjuhës
+ * së vet: një telefon me anglishten amerikane e nxjerr muajin i pari, prandaj
+ * 11 shtatori dilte „09/11" dhe lexohej 9 nëntor. Radha nuk vendoset dot me
+ * HTML, prandaj fusha u bë tekst dhe radha shkruhet këtu.
+ *
+ * Në bazë data mbetet `YYYY-MM-DD` — renditja e historikut varet nga ajo.
+ */
+export function dataMeNumra(date: string): string {
+  const [vit, muaj, dite] = date.split('-');
+  if (!vit || !muaj || !dite) return date;
+
+  return `${dite}/${muaj}/${vit}`;
+}
+
+/**
+ * `dd/mm/vvvv` → `YYYY-MM-DD`, ose `null` kur data nuk qëndron.
+ *
+ * Vijat nuk kërkohen: numërohen vetëm shifrat, sepse fusha i vendos vetë sa
+ * shkruhet. Data që nuk ekziston — 31 shkurti — kthen `null` e jo muajin
+ * tjetër: një lojë e shkruar te një datë e shpikur do të rrinte te historiku
+ * pa u vënë re kurrë.
+ */
+export function dataNgaNumrat(teksti: string): string | null {
+  const shifrat = teksti.replace(/\D/g, '');
+  if (shifrat.length !== 8) return null;
+
+  const dite = Number(shifrat.slice(0, 2));
+  const muaj = Number(shifrat.slice(2, 4));
+  const vit = Number(shifrat.slice(4, 8));
+
+  if (vit < 1000 || muaj < 1 || muaj > 12) return null;
+  if (dite < 1 || dite > ditetEMuajit(vit, muaj)) return null;
+
+  const dy = (n: number) => String(n).padStart(2, '0');
+  return `${vit}-${dy(muaj)}-${dy(dite)}`;
+}
+
+/**
+ * Sa ditë ka muaji.
+ *
+ * Pa `Date`, për të njëjtën arsye si te `dataShqip`: ajo lexon UTC-në dhe
+ * kthimi mbrapsht do të shtonte një ditë pikërisht atje ku po kontrollohet.
+ */
+function ditetEMuajit(vit: number, muaj: number): number {
+  const DITET = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (muaj === 2 && (vit % 4 === 0 && (vit % 100 !== 0 || vit % 400 === 0))) {
+    return 29;
+  }
+
+  return DITET[muaj - 1] ?? 0;
+}
+
 /** Data e sotme si `YYYY-MM-DD`, në kohën e pajisjes. */
 export function sot(tani: Date = new Date()): string {
   const dy = (n: number) => String(n).padStart(2, '0');

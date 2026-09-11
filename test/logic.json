@@ -10,73 +10,73 @@
       "sheet": "Brigj",
       "id": "brigj_1",
       "players": [
-        "meri",
-        "lesa",
-        "lila",
-        "rila"
+        "alfa",
+        "beta",
+        "gama",
+        "delta"
       ],
       "rounds": [
         {
           "round": 1,
           "scores": {
-            "meri": -20.0,
-            "lesa": 100.0,
-            "lila": 30.0,
-            "rila": 27.0
+            "alfa": -20.0,
+            "beta": 100.0,
+            "gama": 30.0,
+            "delta": 27.0
           }
         },
         {
           "round": 2,
           "scores": {
-            "meri": 14.0,
-            "lesa": 26.0,
-            "lila": -20.0,
-            "rila": 18.0
+            "alfa": 14.0,
+            "beta": 26.0,
+            "gama": -20.0,
+            "delta": 18.0
           }
         },
         {
           "round": 3,
           "scores": {
-            "meri": 200.0,
-            "lesa": 142,
-            "lila": 200.0,
-            "rila": -40.0
+            "alfa": 200.0,
+            "beta": 142,
+            "gama": 200.0,
+            "delta": -40.0
           }
         },
         {
           "round": 4,
           "scores": {
-            "meri": 100.0,
-            "lesa": -20.0,
-            "lila": 10.0,
-            "rila": 100.0
+            "alfa": 100.0,
+            "beta": -20.0,
+            "gama": 10.0,
+            "delta": 100.0
           }
         },
         {
           "round": 5,
           "scores": {
-            "meri": 100.0,
-            "lesa": 14.0,
-            "lila": 25.0,
-            "rila": -20.0
+            "alfa": 100.0,
+            "beta": 14.0,
+            "gama": 25.0,
+            "delta": -20.0
           }
         },
         {
           "round": 6,
           "scores": {
-            "meri": 100.0,
-            "lesa": 18.0,
-            "lila": 12.0,
-            "rila": -20.0
+            "alfa": 100.0,
+            "beta": 18.0,
+            "gama": 12.0,
+            "delta": -20.0
           }
         },
         {
           "round": 7,
           "scores": {
-            "meri": 100.0,
-            "lesa": 100.0,
-            "lila": -20.0,
-            "rila": 26.0
+            "alfa": 100.0,
+            "beta": 100.0,
+            "gama": -20.0,
+            "delta": 26.0
           }
         },
         {
@@ -85,57 +85,57 @@
         }
       ],
       "totals": {
-        "meri": 594,
-        "lesa": 380,
-        "lila": 237,
-        "rila": 91
+        "alfa": 594,
+        "beta": 380,
+        "gama": 237,
+        "delta": 91
       },
       "standings": [
         {
           "rank": 1,
-          "player": "rila",
+          "player": "delta",
           "total": 91.0
         },
         {
           "rank": 2,
-          "player": "lila",
+          "player": "gama",
           "total": 237.0
         },
         {
           "rank": 3,
-          "player": "lesa",
+          "player": "beta",
           "total": 380.0
         },
         {
           "rank": 4,
-          "player": "meri",
+          "player": "alfa",
           "total": 594.0
         }
       ],
       "settlement_matrix": {
-        "meri": {
-          "meri": 0,
-          "lesa": 214.0,
-          "lila": 357.0,
-          "rila": 503.0
+        "alfa": {
+          "alfa": 0,
+          "beta": 214.0,
+          "gama": 357.0,
+          "delta": 503.0
         },
-        "lesa": {
-          "meri": -214.0,
-          "lesa": 0.0,
-          "lila": 143.0,
-          "rila": 289.0
+        "beta": {
+          "alfa": -214.0,
+          "beta": 0.0,
+          "gama": 143.0,
+          "delta": 289.0
         },
-        "lila": {
-          "meri": -357.0,
-          "lesa": -143.0,
-          "lila": 0.0,
-          "rila": 146.0
+        "gama": {
+          "alfa": -357.0,
+          "beta": -143.0,
+          "gama": 0.0,
+          "delta": 146.0
         },
-        "rila": {
-          "meri": -503.0,
-          "lesa": -289.0,
-          "lila": -146.0,
-          "rila": 0.0
+        "delta": {
+          "alfa": -503.0,
+          "beta": -289.0,
+          "gama": -146.0,
+          "delta": 0.0
         }
       }
     },
@@ -143,41 +143,41 @@
       "sheet": "Brigj",
       "id": "brigj_2",
       "players": [
-        "lila",
-        "yllza",
-        "djellza",
-        "lesa",
-        "rila"
+        "gama",
+        "eta",
+        "theta",
+        "beta",
+        "delta"
       ],
       "rounds": [
         {
           "round": 1,
           "scores": {
-            "lila": 4.0,
-            "yllza": 41.0,
-            "djellza": -20.0,
-            "lesa": 38.0,
-            "rila": 36.0
+            "gama": 4.0,
+            "eta": 41.0,
+            "theta": -20.0,
+            "beta": 38.0,
+            "delta": 36.0
           }
         },
         {
           "round": 2,
           "scores": {
-            "lila": 8.0,
-            "yllza": 34.0,
-            "djellza": 15.0,
-            "lesa": 10.0,
-            "rila": -20.0
+            "gama": 8.0,
+            "eta": 34.0,
+            "theta": 15.0,
+            "beta": 10.0,
+            "delta": -20.0
           }
         },
         {
           "round": 3,
           "scores": {
-            "lila": 100.0,
-            "yllza": 10.0,
-            "djellza": 100.0,
-            "lesa": -20.0,
-            "rila": 100.0
+            "gama": 100.0,
+            "eta": 10.0,
+            "theta": 100.0,
+            "beta": -20.0,
+            "delta": 100.0
           }
         },
         {
@@ -210,74 +210,74 @@
         }
       ],
       "totals": {
-        "lila": 112,
-        "yllza": 85,
-        "djellza": 95,
-        "lesa": 28,
-        "rila": 116
+        "gama": 112,
+        "eta": 85,
+        "theta": 95,
+        "beta": 28,
+        "delta": 116
       },
       "standings": [
         {
           "rank": 1,
-          "player": "lesa",
+          "player": "beta",
           "total": 28.0
         },
         {
           "rank": 2,
-          "player": "yllza",
+          "player": "eta",
           "total": 85.0
         },
         {
           "rank": 3,
-          "player": "djellza",
+          "player": "theta",
           "total": 95.0
         },
         {
           "rank": 4,
-          "player": "lila",
+          "player": "gama",
           "total": 112.0
         },
         {
           "rank": 5,
-          "player": "rila",
+          "player": "delta",
           "total": 116.0
         }
       ],
       "settlement_matrix": {
-        "lila": {
-          "lila": 0,
-          "yllza": 27.0,
-          "djellza": 17.0,
-          "lesa": 84.0,
-          "rila": -4.0
+        "gama": {
+          "gama": 0,
+          "eta": 27.0,
+          "theta": 17.0,
+          "beta": 84.0,
+          "delta": -4.0
         },
-        "yllza": {
-          "lila": -27.0,
-          "yllza": 0.0,
-          "djellza": -10.0,
-          "lesa": 57.0,
-          "rila": -31.0
+        "eta": {
+          "gama": -27.0,
+          "eta": 0.0,
+          "theta": -10.0,
+          "beta": 57.0,
+          "delta": -31.0
         },
-        "djellza": {
-          "lila": -17.0,
-          "yllza": 10.0,
-          "djellza": 0.0,
-          "lesa": 67.0,
-          "rila": -21.0
+        "theta": {
+          "gama": -17.0,
+          "eta": 10.0,
+          "theta": 0.0,
+          "beta": 67.0,
+          "delta": -21.0
         },
-        "lesa": {
-          "lila": -84.0,
-          "yllza": -57.0,
-          "djellza": -67.0,
-          "lesa": 0.0,
-          "rila": -88.0
+        "beta": {
+          "gama": -84.0,
+          "eta": -57.0,
+          "theta": -67.0,
+          "beta": 0.0,
+          "delta": -88.0
         },
-        "rila": {
-          "lila": 4.0,
-          "yllza": 31.0,
-          "djellza": 21.0,
-          "lesa": 88.0,
-          "rila": 0.0
+        "delta": {
+          "gama": 4.0,
+          "eta": 31.0,
+          "theta": 21.0,
+          "beta": 88.0,
+          "delta": 0.0
         }
       }
     },
@@ -285,133 +285,133 @@
       "sheet": "Brigj",
       "id": "brigj_3",
       "players": [
-        "meri",
-        "eri",
-        "Arboni",
-        "gjigji",
-        "Miloti",
-        "rila"
+        "alfa",
+        "epsilon",
+        "Lambda",
+        "jota",
+        "Mi",
+        "delta"
       ],
       "rounds": [
         {
           "round": 1,
           "scores": {
-            "meri": 26.0,
-            "eri": 54.0,
-            "Arboni": -50.0,
-            "gjigji": 18.0,
-            "Miloti": 100.0,
-            "rila": 100.0
+            "alfa": 26.0,
+            "epsilon": 54.0,
+            "Lambda": -50.0,
+            "jota": 18.0,
+            "Mi": 100.0,
+            "delta": 100.0
           }
         },
         {
           "round": 2,
           "scores": {
-            "meri": 16.0,
-            "eri": -20.0,
-            "Arboni": 28.0,
-            "gjigji": 20.0,
-            "Miloti": 100.0,
-            "rila": 5.0
+            "alfa": 16.0,
+            "epsilon": -20.0,
+            "Lambda": 28.0,
+            "jota": 20.0,
+            "Mi": 100.0,
+            "delta": 5.0
           }
         },
         {
           "round": 3,
           "scores": {
-            "meri": 37.0,
-            "eri": 100.0,
-            "Arboni": 23.0,
-            "gjigji": 49.0,
-            "Miloti": 100.0,
-            "rila": -20.0
+            "alfa": 37.0,
+            "epsilon": 100.0,
+            "Lambda": 23.0,
+            "jota": 49.0,
+            "Mi": 100.0,
+            "delta": -20.0
           }
         },
         {
           "round": 4,
           "scores": {
-            "meri": 12.0,
-            "eri": 100.0,
-            "Arboni": 20.0,
-            "gjigji": 100.0,
-            "Miloti": -20.0,
-            "rila": 100.0
+            "alfa": 12.0,
+            "epsilon": 100.0,
+            "Lambda": 20.0,
+            "jota": 100.0,
+            "Mi": -20.0,
+            "delta": 100.0
           }
         },
         {
           "round": 5,
           "scores": {
-            "meri": 100.0,
-            "eri": 100.0,
-            "Arboni": 30.0,
-            "gjigji": -20.0,
-            "Miloti": 40.0,
-            "rila": 48.0
+            "alfa": 100.0,
+            "epsilon": 100.0,
+            "Lambda": 30.0,
+            "jota": -20.0,
+            "Mi": 40.0,
+            "delta": 48.0
           }
         },
         {
           "round": 6,
           "scores": {
-            "meri": 100.0,
-            "eri": -20.0,
-            "Arboni": 22.0,
-            "gjigji": 22.0,
-            "Miloti": 21.0,
-            "rila": 10.0
+            "alfa": 100.0,
+            "epsilon": -20.0,
+            "Lambda": 22.0,
+            "jota": 22.0,
+            "Mi": 21.0,
+            "delta": 10.0
           }
         },
         {
           "round": 7,
           "scores": {
-            "meri": 7.0,
-            "eri": 100.0,
-            "Arboni": 13.0,
-            "gjigji": -20.0,
-            "Miloti": 19.0,
-            "rila": 15.0
+            "alfa": 7.0,
+            "epsilon": 100.0,
+            "Lambda": 13.0,
+            "jota": -20.0,
+            "Mi": 19.0,
+            "delta": 15.0
           }
         },
         {
           "round": 8,
           "scores": {
-            "meri": 20.0,
-            "eri": 100.0,
-            "Arboni": -20.0,
-            "gjigji": 5.0,
-            "Miloti": 8.0,
-            "rila": 29.0
+            "alfa": 20.0,
+            "epsilon": 100.0,
+            "Lambda": -20.0,
+            "jota": 5.0,
+            "Mi": 8.0,
+            "delta": 29.0
           }
         },
         {
           "round": 9,
           "scores": {
-            "meri": 200.0,
-            "eri": 200.0,
-            "Arboni": -40.0,
-            "gjigji": 200.0,
-            "Miloti": 200.0,
-            "rila": 200.0
+            "alfa": 200.0,
+            "epsilon": 200.0,
+            "Lambda": -40.0,
+            "jota": 200.0,
+            "Mi": 200.0,
+            "delta": 200.0
           }
         },
         {
           "round": 10,
           "scores": {
-            "meri": 200.0,
-            "eri": -40.0,
-            "Arboni": 200.0,
-            "gjigji": 200.0,
-            "Miloti": 200.0,
-            "rila": 200.0
+            "alfa": 200.0,
+            "epsilon": -40.0,
+            "Lambda": 200.0,
+            "jota": 200.0,
+            "Mi": 200.0,
+            "delta": 200.0
           }
         },
         {
           "round": 11,
           "scores": {
-            "meri": 200.0,
-            "eri": 200.0,
-            "Arboni": -40.0,
-            "gjigji": 200.0,
-            "Miloti": 200.0,
-            "rila": 200.0
+            "alfa": 200.0,
+            "epsilon": 200.0,
+            "Lambda": -40.0,
+            "jota": 200.0,
+            "Mi": 200.0,
+            "delta": 200.0
           }
         },
         {
@@ -420,93 +420,93 @@
         }
       ],
       "totals": {
-        "meri": 918,
-        "eri": 874,
-        "Arboni": 186,
-        "gjigji": 774,
-        "Miloti": 968,
-        "rila": 887
+        "alfa": 918,
+        "epsilon": 874,
+        "Lambda": 186,
+        "jota": 774,
+        "Mi": 968,
+        "delta": 887
       },
       "standings": [
         {
           "rank": 1,
-          "player": "Arboni",
+          "player": "Lambda",
           "total": 186.0
         },
         {
           "rank": 2,
-          "player": "gjigji",
+          "player": "jota",
           "total": 774.0
         },
         {
           "rank": 3,
-          "player": "eri",
+          "player": "epsilon",
           "total": 874.0
         },
         {
           "rank": 4,
-          "player": "rila",
+          "player": "delta",
           "total": 887.0
         },
         {
           "rank": 5,
-          "player": "meri",
+          "player": "alfa",
           "total": 918.0
         },
         {
           "rank": 6,
-          "player": "Miloti",
+          "player": "Mi",
           "total": 968.0
         }
       ],
       "settlement_matrix": {
-        "meri": {
-          "meri": 0,
-          "eri": 44.0,
-          "Arboni": 732.0,
-          "gjigji": 144.0,
-          "Miloti": -50.0,
-          "rila": 31.0
+        "alfa": {
+          "alfa": 0,
+          "epsilon": 44.0,
+          "Lambda": 732.0,
+          "jota": 144.0,
+          "Mi": -50.0,
+          "delta": 31.0
         },
-        "eri": {
-          "meri": -44.0,
-          "eri": 0.0,
-          "Arboni": 688.0,
-          "gjigji": 100.0,
-          "Miloti": -94.0,
-          "rila": -13.0
+        "epsilon": {
+          "alfa": -44.0,
+          "epsilon": 0.0,
+          "Lambda": 688.0,
+          "jota": 100.0,
+          "Mi": -94.0,
+          "delta": -13.0
         },
-        "Arboni": {
-          "meri": -732.0,
-          "eri": -688.0,
-          "Arboni": 0.0,
-          "gjigji": -588.0,
-          "Miloti": -782.0,
-          "rila": -701.0
+        "Lambda": {
+          "alfa": -732.0,
+          "epsilon": -688.0,
+          "Lambda": 0.0,
+          "jota": -588.0,
+          "Mi": -782.0,
+          "delta": -701.0
         },
-        "gjigji": {
-          "meri": -144.0,
-          "eri": -100.0,
-          "Arboni": 588.0,
-          "gjigji": 0.0,
-          "Miloti": -194.0,
-          "rila": -113.0
+        "jota": {
+          "alfa": -144.0,
+          "epsilon": -100.0,
+          "Lambda": 588.0,
+          "jota": 0.0,
+          "Mi": -194.0,
+          "delta": -113.0
         },
-        "Miloti": {
-          "meri": 50.0,
-          "eri": 94.0,
-          "Arboni": 782.0,
-          "gjigji": 194.0,
-          "Miloti": 0.0,
-          "rila": 81.0
+        "Mi": {
+          "alfa": 50.0,
+          "epsilon": 94.0,
+          "Lambda": 782.0,
+          "jota": 194.0,
+          "Mi": 0.0,
+          "delta": 81.0
         },
-        "rila": {
-          "meri": -31.0,
-          "eri": 13.0,
-          "Arboni": 701.0,
-          "gjigji": 113.0,
-          "Miloti": -81.0,
-          "rila": 0.0
+        "delta": {
+          "alfa": -31.0,
+          "epsilon": 13.0,
+          "Lambda": 701.0,
+          "jota": 113.0,
+          "Mi": -81.0,
+          "delta": 0.0
         }
       }
     },
@@ -514,8 +514,8 @@
       "sheet": "Brigj",
       "id": "brigj_4_merged_teams",
       "players": [
-        "meri + mil",
-        "eri + rila"
+        "alfa + zeta",
+        "epsilon + delta"
       ],
       "rounds": [
         {
@@ -552,29 +552,29 @@
         }
       ],
       "totals": {
-        "meri + mil": 0,
-        "eri + rila": 0
+        "alfa + zeta": 0,
+        "epsilon + delta": 0
       },
       "standings": [
         {
           "rank": 1,
-          "player": "meri + mil",
+          "player": "alfa + zeta",
           "total": 0.0
         },
         {
           "rank": 2,
-          "player": "eri + rila",
+          "player": "epsilon + delta",
           "total": 0.0
         }
       ],
       "settlement_matrix": {
-        "meri + mil": {
-          "meri + mil": 0,
-          "eri + rila": 0
+        "alfa + zeta": {
+          "alfa + zeta": 0,
+          "epsilon + delta": 0
         },
         "null": {
-          "meri + mil": 0,
-          "eri + rila": 0
+          "alfa + zeta": 0,
+          "epsilon + delta": 0
         }
       }
     },
@@ -582,25 +582,25 @@
       "sheet": "Brigj",
       "id": "brigj_5",
       "players": [
-        "lila",
-        "lesa",
-        "rila"
+        "gama",
+        "beta",
+        "delta"
       ],
       "rounds": [
         {
           "round": 1,
           "scores": {
-            "lila": 148,
-            "lesa": -40.0,
-            "rila": 200.0
+            "gama": 148,
+            "beta": -40.0,
+            "delta": 200.0
           }
         },
         {
           "round": 2,
           "scores": {
-            "lila": 7.0,
-            "lesa": 15.0,
-            "rila": -20.0
+            "gama": 7.0,
+            "beta": 15.0,
+            "delta": -20.0
           }
         },
         {
@@ -621,42 +621,42 @@
         }
       ],
       "totals": {
-        "lila": 155,
-        "lesa": -25,
-        "rila": 180
+        "gama": 155,
+        "beta": -25,
+        "delta": 180
       },
       "standings": [
         {
           "rank": 1,
-          "player": "lesa",
+          "player": "beta",
           "total": -25.0
         },
         {
           "rank": 2,
-          "player": "lila",
+          "player": "gama",
           "total": 155.0
         },
         {
           "rank": 3,
-          "player": "rila",
+          "player": "delta",
           "total": 180.0
         }
       ],
       "settlement_matrix": {
-        "lila": {
-          "lila": 0,
-          "lesa": 180.0,
-          "rila": -25.0
+        "gama": {
+          "gama": 0,
+          "beta": 180.0,
+          "delta": -25.0
         },
-        "lesa": {
-          "lila": -180.0,
-          "lesa": 0.0,
-          "rila": -205.0
+        "beta": {
+          "gama": -180.0,
+          "beta": 0.0,
+          "delta": -205.0
         },
-        "rila": {
-          "lila": 25.0,
-          "lesa": 205.0,
-          "rila": 0.0
+        "delta": {
+          "gama": 25.0,
+          "beta": 205.0,
+          "delta": 0.0
         }
       }
     },
@@ -664,17 +664,17 @@
       "sheet": "Domina",
       "id": "domina_1",
       "players": [
-        "meri",
-        "vigi",
-        "rila"
+        "alfa",
+        "kapa",
+        "delta"
       ],
       "rounds": [
         {
           "round": 1,
           "scores": {
-            "meri": 21.0,
-            "vigi": null,
-            "rila": 38
+            "alfa": 21.0,
+            "kapa": null,
+            "delta": 38
           }
         },
         {
@@ -707,32 +707,32 @@
         }
       ],
       "totals": {
-        "meri": 21,
-        "vigi": 0,
-        "rila": 38
+        "alfa": 21,
+        "kapa": 0,
+        "delta": 38
       },
       "standings": [
         {
           "rank": 1,
-          "player": "vigi",
+          "player": "kapa",
           "total": 0.0
         }
       ],
       "settlement_matrix": {
-        "meri": {
-          "meri": 0,
-          "vigi": 21.0,
-          "rila": -17.0
+        "alfa": {
+          "alfa": 0,
+          "kapa": 21.0,
+          "delta": -17.0
         },
-        "vigi": {
-          "meri": -21.0,
-          "vigi": 0.0,
-          "rila": -38.0
+        "kapa": {
+          "alfa": -21.0,
+          "kapa": 0.0,
+          "delta": -38.0
         },
-        "rila": {
-          "meri": 17.0,
-          "vigi": 38.0,
-          "rila": 0.0
+        "delta": {
+          "alfa": 17.0,
+          "kapa": 38.0,
+          "delta": 0.0
         }
       }
     }

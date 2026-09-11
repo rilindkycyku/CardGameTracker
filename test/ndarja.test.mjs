@@ -26,10 +26,10 @@ const PAMJA = {
   data: '2026-03-08',
   raunde: 7,
   totalet: [
-    ['meri', 594],
-    ['lesa', 380],
-    ['lila', 237],
-    ['rila', 91],
+    ['alfa', 594],
+    ['beta', 380],
+    ['gama', 237],
+    ['delta', 91],
   ],
 };
 
@@ -43,12 +43,12 @@ test('paketa është e sigurt për një adresë', () => {
 });
 
 test('emrat me presje, dy pika e shenja mbijetojnë', () => {
-  // Te fleta e vjetër ka skuadra si „meri + mil"; një ndarës brenda emrit do
+  // Te fleta e vjetër ka skuadra si „alfa + zeta"; një ndarës brenda emrit do
   // ta këpusë paketën në vendin e gabuar.
   const pamja = {
     ...PAMJA,
     totalet: [
-      ['meri + mil', 120],
+      ['alfa + zeta', 120],
       ['a,b', -20],
       ['c:d', 0],
       ['ë ü ç', 33],
@@ -93,7 +93,7 @@ test('magareci paketohet si magarec, jo si bridzh', () => {
     lloji: 'magarec',
     data: '2026-09-10',
     raunde: 9,
-    totalet: [['meri', 7], ['eri', 2]],
+    totalet: [['alfa', 7], ['epsilon', 2]],
   };
 
   assert.deepEqual(shpaketo(paketo(pamja)), pamja);
@@ -102,7 +102,7 @@ test('magareci paketohet si magarec, jo si bridzh', () => {
 test('adresa e versionit të parë lexohet ende, si bridzh', () => {
   // Ajo adresë rri te një bisedë e dje; versioni 1 nuk e mbante llojin sepse
   // atëherë kishte vetëm bridzh.
-  const trupi = '1|Brigj|2026-03-08|7|meri:594,lesa:380';
+  const trupi = '1|Brigj|2026-03-08|7|alfa:594,beta:380';
   const i_vjeter = ne64Tekst(nenshkruaj(trupi));
 
   assert.deepEqual(shpaketo(i_vjeter), {
@@ -110,12 +110,12 @@ test('adresa e versionit të parë lexohet ende, si bridzh', () => {
     lloji: 'bridzh',
     data: '2026-03-08',
     raunde: 7,
-    totalet: [['meri', 594], ['lesa', 380]],
+    totalet: [['alfa', 594], ['beta', 380]],
   });
 });
 
 test('adresa e versionit të parë e prerë refuzohet ende', () => {
-  const plote = ne64Tekst(nenshkruaj('1|Brigj|2026-03-08|7|meri:594,lesa:105'));
+  const plote = ne64Tekst(nenshkruaj('1|Brigj|2026-03-08|7|alfa:594,beta:105'));
 
   for (const sa of [1, 2, 3, 4, 8]) {
     assert.equal(shpaketo(plote.slice(0, -sa)), null, `−${sa} karaktere`);
@@ -123,7 +123,7 @@ test('adresa e versionit të parë e prerë refuzohet ende', () => {
 });
 
 test('lloji i panjohur brenda paketës refuzohet', () => {
-  const trupi = '2|x|Brigj|2026-03-08|7|meri:594';
+  const trupi = '2|x|Brigj|2026-03-08|7|alfa:594';
   assert.equal(shpaketo(ne64Tekst(nenshkruaj(trupi))), null);
 });
 
@@ -141,16 +141,16 @@ test('pamja e një loje merr totalet e lojtarëve të saj', () => {
     id: 1,
     groupId: 1,
     date: '2026-03-08',
-    selectedPlayers: ['meri', 'lesa'],
+    selectedPlayers: ['alfa', 'beta'],
     createdAt: 0,
   };
 
-  assert.deepEqual(pamjaELojes('Brigj', loja, { meri: 594, lesa: 380 }, 7), {
+  assert.deepEqual(pamjaELojes('Brigj', loja, { alfa: 594, beta: 380 }, 7), {
     grupi: 'Brigj',
     lloji: 'bridzh',
     data: '2026-03-08',
     raunde: 7,
-    totalet: [['meri', 594], ['lesa', 380]],
+    totalet: [['alfa', 594], ['beta', 380]],
   });
 });
 
@@ -159,12 +159,12 @@ test('pamja e një loje magareci e mban llojin e saj', () => {
     id: 2,
     groupId: 1,
     date: '2026-09-10',
-    selectedPlayers: ['meri', 'lesa'],
+    selectedPlayers: ['alfa', 'beta'],
     createdAt: 0,
     lloji: 'magarec',
   };
 
-  assert.equal(pamjaELojes('Brigj', loja, { meri: 7, lesa: 3 }, 10).lloji, 'magarec');
+  assert.equal(pamjaELojes('Brigj', loja, { alfa: 7, beta: 3 }, 10).lloji, 'magarec');
 });
 
 test('adresa e pamjes nuk dyfishon pjerrësa', () => {
@@ -187,14 +187,14 @@ test('adresa e pamjes lexohet prapa', () => {
 
 test('teksti i ndarjes i mban emrat dhe totalet', () => {
   const teksti = tekstiINdarjes(PAMJA, [
-    { rank: 1, player: 'rila', total: 91 },
-    { rank: 2, player: 'meri', total: 594 },
+    { rank: 1, player: 'delta', total: 91 },
+    { rank: 2, player: 'alfa', total: 594 },
   ]);
 
   assert.match(teksti, /Brigj/);
   assert.match(teksti, /2026-03-08/);
-  assert.match(teksti, /1\. rila 91/);
-  assert.match(teksti, /2\. meri 594/);
+  assert.match(teksti, /1\. delta 91/);
+  assert.match(teksti, /2\. alfa 594/);
 });
 
 test('teksti i magarecit shkruan fjalën, jo numrin', () => {
@@ -202,15 +202,15 @@ test('teksti i magarecit shkruan fjalën, jo numrin', () => {
   const teksti = tekstiINdarjes(
     { ...PAMJA, lloji: 'magarec', raunde: 10 },
     [
-      { rank: 1, player: 'rila', total: 0 },
-      { rank: 2, player: 'meri', total: 3 },
+      { rank: 1, player: 'delta', total: 0 },
+      { rank: 2, player: 'alfa', total: 3 },
       { rank: 3, player: 'lumi', total: 7 },
     ],
   );
 
   assert.match(teksti, /Magarec/);
-  assert.match(teksti, /1\. rila —/);
-  assert.match(teksti, /2\. meri MAG/);
+  assert.match(teksti, /1\. delta —/);
+  assert.match(teksti, /2\. alfa MAG/);
   assert.match(teksti, /3\. lumi MAGAREC/);
 });
 
@@ -223,8 +223,8 @@ test('paketa e një loje me gjashtë lojtarë mbetet e shkurtër', () => {
     data: '2026-03-08',
     raunde: 11,
     totalet: [
-      ['meri', 918], ['eri', 874], ['Arboni', 186],
-      ['gjigji', 774], ['Miloti', 968], ['rila', 887],
+      ['alfa', 918], ['epsilon', 874], ['Lambda', 186],
+      ['jota', 774], ['Mi', 968], ['delta', 887],
     ],
   };
 
@@ -242,7 +242,7 @@ test('adresa e prerë refuzohet, jo lexohet me numra të gabuar', () => {
     lloji: 'bridzh',
     data: '2026-09-10',
     raunde: 2,
-    totalet: [['meri', 42], ['Miloti', 200], ['rila', 105]],
+    totalet: [['alfa', 42], ['Mi', 200], ['delta', 105]],
   };
   const plote = paketo(pamja);
 

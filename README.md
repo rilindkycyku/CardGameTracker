@@ -13,14 +13,16 @@ mbrëmjen.
 ## Çka bën
 
 - **Grupe dhe lojtarë** — shoqëria futet një herë, e tërë me një shkrim
-  («meri, lesa, lila, rila»), dhe radha e emrave ruhet.
+  («alfa, beta, gama, delta»), dhe radha e emrave ruhet.
 - **Zgjedhje para lojës** — grupi mund të ketë gjashtë të rregullt dhe sonte të
   luajnë katër.
 - **Shtim mes lojës** — kush ulet te tavolina në raundin e pestë shtohet aty për
   aty, nga grupi ose si emër krejt i ri; raundet e shkuara nuk i preken dhe
   totali i tij nis nga hera e parë që shënon.
 - **Futje e raundit** — një numër për lojtar, ose përmes llogaritësit
-  hant/normal.
+  hant/normal, i cili e ruan raundin vetë me një prekje.
+- **Data ditë/muaj/vit** — shkruhet me numra dhe vijat dalin vetë; poshtë saj
+  rri data me fjalë, që të mos ngatërrohet ditë me muaj.
 - **Magarec** — para lojës zgjidhet çka luhet. Te magareci raundi ka një pyetje
   të vetme: kush e humbi. Prekja e emrit e ruan raundin, shkronja shkon te ai, e
   rrjeti M-A-G-A-R-E-C tregon ku janë të gjithë. Kur dikujt i mbushet fjala,
@@ -69,9 +71,11 @@ Punon pa internet. Të dhënat rrinë vetëm në shfletuesin e pajisjes.
 „I hapur" është lojtari që ka hedhur së paku një letër ose i ka shitur një letër
 dikujt atë raund.
 
-Llogaritësi i zbaton këto rregulla, por fushat e numrave mbeten gjithmonë të
-redaktueshme: te fletët e vjetra ka raunde që nuk dalin nga rregullat, dhe një
-aplikacion që pranon vetëm kombinimet e lejuara nuk do t’i shënonte dot.
+Llogaritësi i zbaton këto rregulla dhe e ruan raundin ashtu si i llogarit —
+një prekje për raundin që bie brenda tyre. Fushat e numrave mbeten gjithmonë të
+redaktueshme, dhe «Vendosi te fushat» i shkruan pikët aty pa i ruajtur: te
+fletët e vjetra ka raunde që nuk dalin nga rregullat, dhe një aplikacion që
+pranon vetëm kombinimet e lejuara nuk do t’i shënonte dot.
 
 ## Rregullat e magarecit
 
@@ -113,7 +117,8 @@ src/
   magareci.ts         shkronjat, fjala dhe magareci i mbrëmjes — pa DOM, pa bazë
   ruajtja.ts          IndexedDB përmes `idb`
   kopja.ts            nxjerrja dhe leximi i kopjes rezervë
-  fusha.ts            teksti i fushës së pikëve dhe shenja e tij
+  fusha.ts            teksti i fushës së pikëve, shenja e tij dhe data
+  versioni.ts         versioni i `package.json`-it, i futur gjatë ndërtimit
   qr.ts               kodues QR i shkruar me dorë (byte, niveli L, v1–20)
   paketa.ts           base64 i sigurt për adresa, dhe nënshkrimi
   kodi.ts             kodi tetëkarakterësh i bashkimit — pa DOM, pa rrjetë
@@ -135,7 +140,8 @@ src/
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it
-  fusha.test.mjs         futja e pikëve negative pa tastierë me minus
+  fusha.test.mjs         futja e pikëve negative pa tastierë me minus, dhe
+                         data ditë/muaj/vit sa shkruhet
   pikezimi.test.mjs      rregullat — kundër raundeve të vërteta
   magareci.test.mjs      shkronjat, fjala e mbushur dhe tabela e grupit
   kopja.test.mjs         nxjerrja dhe refuzimi i skedarëve të dëmtuar
