@@ -13,10 +13,11 @@
  *   • Rreshti i veprimeve rri i ngjitur në fund të kartelës. Me tastierën e
  *     hapur, ekrani i mbetur është nën gjysmën e telefonit — pa këtë, butoni
  *     „Ruaj" bie poshtë çdo here që lojtarët janë shumë.
- *   • Llogaritësi rri i hapur që në fillim te raundi i ri, dhe e ruan raundin
- *     vetë me një prekje. Raundi që bie brenda rregullit — dhe ata janë
- *     pothuajse të gjithë — nuk ka pse të kërkojë as prekjen që e hap, as
- *     kalimin nëpër fushat vetëm që të shtypet «Ruaj» prapë.
+ *   • Llogaritësi rri i hapur që në fillim te raundi i ri, e mban ekranin
+ *     vetëm për vete, dhe e ruan raundin me një prekje. Raundi që bie brenda
+ *     rregullit — dhe ata janë pothuajse të gjithë — nuk ka pse të kërkojë as
+ *     prekjen që e hap, as kalimin nëpër fushat vetëm që të shtypet «Ruaj»
+ *     prapë. Fushat kthehen sapo mbyllet ai.
  *
  * Fushat mbeten burimi i vërtetë gjithsesi, dhe llogaritësi mban edhe daljen
  * e dytë — «Vendosi te fushat», që i shkruan pikët pa i ruajtur: te fleta
@@ -163,42 +164,53 @@ export function FutjaERaundit({
 
   return (
     <div className="futja">
-      <div className="futja__rrjeti" data-shume={shume || undefined}>
-        {players.map((player, i) => (
-          <div className="futja__njesi" key={player}>
-            <span className="futja__emri">{player}</span>
-            <div className="futja__vlera">
-              <button
-                type="button"
-                className="futja__shenja"
-                aria-pressed={negative(vlerat[player])}
-                onClick={() => ndrroShenjen(player)}
-                aria-label={`Ndërro shenjën e ${player}`}
-              >
-                {negative(vlerat[player]) ? '−' : '+'}
-              </button>
-              <input
-                ref={(el) => {
-                  fushat.current[i] = el;
-                }}
-                type="text"
-                inputMode="numeric"
-                pattern="-?[0-9]*"
-                enterKeyHint={i === players.length - 1 ? 'done' : 'next'}
-                value={vlerat[player] ?? ''}
-                onChange={(e) =>
-                  caktoVlerat((v) => ({
-                    ...v,
-                    [player]: pastro(e.target.value),
-                  }))
-                }
-                onKeyDown={(e) => neTaste(e, i)}
-                aria-label={`Pikët e ${player} për raundin ${roundNumber}`}
-              />
+      {/*
+        Me llogaritësin hapur, fushat hiqen nga ekrani.
+
+        Ato janë të zbrazëta gjithsesi — pikët po dalin nga llogaritësi — dhe
+        gjashtë rreshta të zbrazët mbi të vetëm e shtynin poshtë atë që po
+        përdoret. Nuk fshihen: «Mbyll llogaritësin» i kthen ashtu si ishin, dhe
+        «Vendosi te fushat» i kthen të mbushura. Vlerat e shkruara rrinë te
+        gjendja, prandaj asgjë nuk humbet sa rri i hapur.
+      */}
+      {!hapurLlogaritesi && (
+        <div className="futja__rrjeti" data-shume={shume || undefined}>
+          {players.map((player, i) => (
+            <div className="futja__njesi" key={player}>
+              <span className="futja__emri">{player}</span>
+              <div className="futja__vlera">
+                <button
+                  type="button"
+                  className="futja__shenja"
+                  aria-pressed={negative(vlerat[player])}
+                  onClick={() => ndrroShenjen(player)}
+                  aria-label={`Ndërro shenjën e ${player}`}
+                >
+                  {negative(vlerat[player]) ? '−' : '+'}
+                </button>
+                <input
+                  ref={(el) => {
+                    fushat.current[i] = el;
+                  }}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="-?[0-9]*"
+                  enterKeyHint={i === players.length - 1 ? 'done' : 'next'}
+                  value={vlerat[player] ?? ''}
+                  onChange={(e) =>
+                    caktoVlerat((v) => ({
+                      ...v,
+                      [player]: pastro(e.target.value),
+                    }))
+                  }
+                  onKeyDown={(e) => neTaste(e, i)}
+                  aria-label={`Pikët e ${player} për raundin ${roundNumber}`}
+                />
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {hapurLlogaritesi && (
         <Llogaritesi
@@ -397,12 +409,14 @@ function Llogaritesi({
         ))}
       </ul>
 
+      {/*
+        Shuma nuk përsëritet këtu: rreshti i ngjitur poshtë e tregon tashmë,
+        dhe dy herë i njëjti numër njëri mbi tjetrin lexohet si dy numra.
+        Mbetet ajo që ai rresht nuk e thotë — kush mbylli, dhe sa merr.
+      */}
       <p className="futja__shuma">
         <span>
           {mbyllesi} merr <strong>{pike[mbyllesi]}</strong>
-        </span>
-        <span>
-          shuma <strong>{Object.values(pike).reduce((a, b) => a + b, 0)}</strong>
         </span>
       </p>
 

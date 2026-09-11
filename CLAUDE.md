@@ -89,6 +89,11 @@ raunde janë ruajtur, që dora e sapofutur të mos mbetet e shkruar aty. Redakti
 mbyllur: atje fushat mbajnë tashmë pikët e shënuara, dhe ajo që duhet rregulluar është pikërisht një
 prekje me dorë.
 
+**Me llogaritësin hapur, fushat hiqen nga ekrani.** Janë të zbrazëta gjithsesi, dhe gjashtë rreshta
+të zbrazët mbi të vetëm e shtynin poshtë atë që po përdoret. Vlerat e shkruara rrinë te gjendja e
+komponentit, prandaj «Mbyll llogaritësin» i kthen ashtu si ishin dhe «Vendosi te fushat» i kthen të
+mbushura — nuk fshihet asgjë.
+
 Llogaritësi hant/normal ka dy dalje, dhe të dyja duhen:
 
 - **«Ruaj raundin N»** — butoni i rreshtit të ngjitur, i cili me llogaritësin hapur ruan pikët e tij
