@@ -513,6 +513,28 @@ h3 {
   font-size: 1rem;
 }
 
+/**
+ * Vlera që tregohet e nuk shkruhet — data e mbrëmjes.
+ *
+ * Nuk merr as kufi veprues as sfond fushe: të dyja do ta ftonin prekjen, dhe
+ * atje nuk ka çka të preket. Lartësia mbetet ajo e një fushe, që rreshtat e
+ * kartelës të mos kërcejnë kur ndërrohet lloji i lojës.
+ */
+.vlera-e-lexuar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--teksti);
+}
+
+.vlera-e-lexuar .ikona {
+  color: var(--theks);
+}
+
 .fusha input::placeholder {
   color: var(--teksti-zbehte);
   opacity: 0.75;
