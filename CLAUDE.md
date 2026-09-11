@@ -51,6 +51,12 @@ npm test          # node --test — 150 prova, pa framework provash
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
 
+Versioni mbahet vetëm te `package.json` (`npm version patch|minor|major`). `vite.config.ts` e fut te
+ndërtimi si `__VERSIONI__`, `versioni.ts` e lexon dhe fundfaqja e ekranit të parë e tregon. Kjo
+ekziston sepse aplikacioni hapet nga një adresë dhe telefoni e mban në cache: pa një numër të
+dukshëm, «e ke të renë apo të vjetrën?» nuk i përgjigjet dot kush. Ngrite atë numër kur del një
+ndryshim që përdoruesi e sheh.
+
 ## Rregullat e arkitekturës
 
 ### 1. Logjika rri te module që nuk njohin as bazën, as React-in, as `window`-in
@@ -74,11 +80,18 @@ Në bazë shkruhen vetëm pikët e futura. Totalet, renditja dhe matrica llogari
 Kjo nuk është kursim vendi — është e vetmja mënyrë që redaktimi i raundit të tretë në raundin e
 dhjetë të mos lërë prapa një total të ngrirë diku. Nëse shton një vlerë të derivuar, mos e ruaj.
 
-### 3. Fushat e numrave mbeten burimi i vërtetë, llogaritësi vetëm i mbush
+### 3. Llogaritësi e ruan raundin vetë, por fushat mbeten burimi i vërtetë
 
-Llogaritësi hant/normal shkruan te fushat dhe pastaj hiqet nga mesi; pikët ende preken me dorë.
+Llogaritësi hant/normal ka dy dalje, dhe të dyja duhen:
 
-Arsyeja rri te vetë të dhënat: te fleta origjinale ka një raund me mbyllës të shënuar **−50**, që
+- **«Ruaj raundin N»** — butoni i rreshtit të ngjitur, i cili me llogaritësin hapur ruan pikët e tij
+  ashtu si dalin. Raundi që bie brenda rregullit — dhe ata janë pothuajse të gjithë — mbaron me një
+  prekje. Butoni rri poshtë e jo brenda llogaritësit, sepse brenda binte nën fund të ekranit sapo
+  lojtarët ishin shumë; dhe është një i vetëm, sepse dy me të njëjtat fjalë lexoheshin si prishje.
+- **«Vendosi te fushat»** — i shkruan pikët te fushat pa i ruajtur, dhe pastaj llogaritësi hiqet nga
+  mesi. Kjo është rruga e raundit që rregulli nuk e mbulon.
+
+Kjo e dyta nuk guxon të hiqet, dhe arsyeja rri te vetë të dhënat: te fleta origjinale ka një raund me mbyllës të shënuar **−50**, që
 nuk e jep asnjë nga dy mbylljet, dhe një raund të papërfunduar pa asnjë mbyllës. Një aplikacion që
 pranon vetëm kombinimet e lejuara nuk do t'i shënonte dot. Prova
 `llogaritësi i mbulon të gjitha raundet e shënuara, veç dy përjashtimeve` e mban këtë të matur:
@@ -117,8 +130,9 @@ e tij. Tri gjëra e mbajnë të përdorshëm, dhe asnjëra nuk guxon të hiqet p
   kjo është gjashtë prekje më pak për raund. Pas ruajtjes me tastierë fokusi kthehet te i pari; pas
   një prekjeje të butonit jo, sepse hapja e tastierës pa u kërkuar do të mbulonte renditjen që
   përdoruesi sapo shkoi ta shohë.
-- **Rreshti i veprimeve rri `position: sticky` në fund të kartelës.** Me tastierën e hapur ekrani i
-  mbetur është nën gjysmën e telefonit. Prandaj `.kartela--kryesore` ka `overflow: clip` e jo
+- **Rreshti i veprimeve rri `position: sticky` në fund të kartelës, dhe ka një «Ruaj» të vetëm** —
+  atë të fushave, ose atë të llogaritësit kur ai është hapur (pika 3). Me tastierën e hapur ekrani
+  i mbetur është nën gjysmën e telefonit. Prandaj `.kartela--kryesore` ka `overflow: clip` e jo
   `hidden`: të dyja e presin vijën e theksit njësoj, por `hidden` krijon kontejner rrëshqitjeje dhe
   ia heq fuqinë `sticky`-t brenda.
 - **Nga pesë lojtarë e tutje shtrëngohen rreshtat dhe tabelat** (`data-shume`). Ulet vetëm ajri:
@@ -282,6 +296,10 @@ projekti që nuk vjen nga tokenat.
 `test/logic.json` është fleta origjinale e nxjerrë nga Google Sheets-i, dhe çdo numër aty u
 kontrollua kundër formulave të saj. Provat maten kundër tij, jo kundër pritjeve të shpikura.
 
+**Emrat e lojtarëve aty janë pseudonime** — `alfa`, `beta`, `gama` e kështu me radhë — sepse te
+fleta ishin emrat e vërtetë të shoqërisë dhe depoja nuk ka pse t'i mbajë. U ndërruan njësoj kudo, e
+numrat nuk u prekën fare. Mos i kthe emra njerëzish, as te provat, as te teksti i ekranit.
+
 Prandaj `playerNames`, `selectedPlayers`, `roundNumber` e `scores` mbeten anglisht: janë kontrata
 me atë skedar. Gjithçka tjetër — emrat e moduleve, e funksioneve, e komponentëve, komentet dhe
 teksti në ekran — është shqip.
@@ -404,6 +422,11 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   shkronja mbetet te loja, kush u ngrit pa marrë asnjë hiqet.
 - **`dataShqip` e ndan datën me dorë.** `new Date('2026-01-08')` lexohet si UTC dhe në Kosovë do të
   jepte 7 janar. Mos e zëvendëso me `Date`.
+- **Fusha e datës është tekst, jo `type="date"`.** Atë e vizaton shfletuesi sipas gjuhës së vet, dhe
+  një telefon me anglishten amerikane e nxjerr muajin i pari: 11 shtatori dilte „09/11" dhe lexohej
+  9 nëntor. Radha nuk caktohet dot me HTML. Prandaj shkruhen vetëm shifrat, `pastroDaten` i vendos
+  vijat sa shkruhen, `dataNgaNumrat` e kthen te `YYYY-MM-DD` (dhe refuzon 31 shkurtin), dhe poshtë
+  fushës rri data me fjalë. Në bazë data mbetet `YYYY-MM-DD` — renditja e historikut varet nga ajo.
 - **Butoni i fshirjes rri brenda një lidhjeje** te historiku i grupit, prandaj i duhen
   `preventDefault` e `stopPropagation` — pa to, fshirja hap njëkohësisht edhe lojën.
 - **Kthimi i një kopjeje e zëvendëson tërë bazën**, prandaj `lexoKopjen` kontrollon edhe lidhjet
@@ -425,8 +448,8 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - **Matrica renditet sipas renditjes, jo sipas radhës së tavolinës.** Shlyerja shihet kur mbaron
   loja, dhe atëherë lexohet duke nisur nga fituesi. Vendi shkruhet krah emrit te rreshti, që radha
   të mos duket e rastit.
-- **Kutia e emrave pranon disa njëherësh** — «meri, lesa, lila, rila». Ndarësit janë presja,
-  pikëpresja dhe rreshti i ri, kurrë hapësira: emrat me dy fjalë („meri + mil" te fleta e vjetër)
+- **Kutia e emrave pranon disa njëherësh** — «alfa, beta, gama, delta». Ndarësit janë presja,
+  pikëpresja dhe rreshti i ri, kurrë hapësira: emrat me dy fjalë („alfa + zeta" te fleta e vjetër)
   duhet të mbeten një i vetëm. Shtimi mes lojës kalon një varg te `onShto`, jo një emër për
   thirrje — çdo thirrje niset nga e njëjta listë e vjetër dhe do të mbetej vetëm i fundit.
 - **Lojë e re niset nga lojtarët e lojës së fundit**, jo nga tërë lista e grupit: shoqëria është

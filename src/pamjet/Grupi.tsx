@@ -14,6 +14,8 @@
 import { useMemo, useRef, useState } from 'react';
 
 import {
+  dataMeNumra,
+  dataNgaNumrat,
   dataShqip,
   llojiILojes,
   lojeratESortuara,
@@ -22,7 +24,7 @@ import {
   tabelaEPergjithshme,
 } from '../llogaritjet.ts';
 import { FJALA, fjalaE, pergjithshmetEMagarecit } from '../magareci.ts';
-import { emratERinj } from '../fusha.ts';
+import { emratERinj, pastroDaten } from '../fusha.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import {
@@ -399,7 +401,11 @@ function ZgjedhjaELojtareve({
     );
     return meparshmit.length >= 2 ? meparshmit : grupi.playerNames;
   });
-  const [date, caktoDaten] = useState(sot());
+  // Data mbahet si tekst «dd/mm/vvvv» dhe `YYYY-MM-DD`-ja del prej saj: vlera
+  // e derivuar nuk ruhet (pika 2), dhe fusha nuk e ndërron radhën e shifrave
+  // nën dorën e atij që po shkruan.
+  const [dataTeksti, caktoTekstin] = useState(() => dataMeNumra(sot()));
+  const date = dataNgaNumrat(dataTeksti);
   // Njësoj si lista e lojtarëve: shoqëria e nis mbrëmjen aty ku e la, prandaj
   // çelësi nis te loja e fundit e grupit.
   const [lloji, caktoLlojin] = useState<LlojiILojes>(llojiIFundit);
@@ -461,13 +467,33 @@ function ZgjedhjaELojtareve({
           })}
         </div>
 
+        {/*
+          Fusha e datës është tekst, jo `type="date"`.
+
+          Atë e vizaton shfletuesi sipas gjuhës së vet, dhe një telefon me
+          anglishten amerikane e nxjerr muajin i pari: 11 shtatori dilte
+          „09/11" dhe lexohej 9 nëntor. Radha nuk caktohet dot me HTML,
+          prandaj shkruhet me dorë — ditë, muaj, vit — dhe vijat i vendos
+          `pastroDaten` sa shkruhen.
+        */}
         <label className="fusha">
           <span className="fusha__etiketa">Data</span>
           <input
-            type="date"
-            value={date}
-            onChange={(e) => caktoDaten(e.target.value)}
+            className="fusha__data"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9/]*"
+            placeholder="dd/mm/vvvv"
+            value={dataTeksti}
+            aria-invalid={date === null || undefined}
+            aria-describedby="ndihma-e-dates"
+            onChange={(e) => caktoTekstin(pastroDaten(e.target.value))}
           />
+          <span className="ndihma" id="ndihma-e-dates">
+            {date === null
+              ? 'Data shkruhet ditë/muaj/vit — p.sh. 11/09/2025.'
+              : dataShqip(date)}
+          </span>
         </label>
 
         <p className="ndihma">
@@ -484,8 +510,8 @@ function ZgjedhjaELojtareve({
           <button
             type="button"
             className="buton buton--kryesor"
-            disabled={zgjedhur.length < 2 || !date}
-            onClick={() => onNis(date, zgjedhur, lloji)}
+            disabled={zgjedhur.length < 2 || date === null}
+            onClick={() => date && onNis(date, zgjedhur, lloji)}
           >
             <Ikona emri="luaj" />
             Nis lojën

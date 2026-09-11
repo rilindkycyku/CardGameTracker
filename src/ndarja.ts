@@ -71,7 +71,7 @@ const SHENJA: Record<LlojiILojes, string> = { bridzh: 'b', magarec: 'm' };
  * Formati është me ndarës e jo JSON, sepse çdo bajt kthehet në pika të kodit
  * QR: `2|b|grupi|data|raunde|emri:total,emri:total`. Emrat kalojnë nëpër
  * `encodeURIComponent`, që një presje ose dy pika brenda emrit të mos e këpusë
- * ndarjen — te fleta e vjetër ka skuadra si „meri + mil".
+ * ndarjen — te fleta e vjetër ka skuadra si „alfa + zeta".
  */
 export function paketo(pamja: Pamja): string {
   const totalet = pamja.totalet

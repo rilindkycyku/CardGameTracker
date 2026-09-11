@@ -20,6 +20,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import {
+  dataMeNumra,
+  dataNgaNumrat,
   dataShqip,
   eshteIMbushur,
   lojeratESortuara,
@@ -71,13 +73,13 @@ test('renditja është ngjitshëm sipas totalit — më i vogli fiton', () => {
 
 test('renditja e mban radhën e lojtarëve kur totalet janë të barabarta', () => {
   // `brigj_4` i ka të dy skuadrat me 0: vendi vjen nga radha, jo nga emri.
-  const dala = renditja(['meri + mil', 'eri + rila'], {
-    'meri + mil': 0,
-    'eri + rila': 0,
+  const dala = renditja(['alfa + zeta', 'epsilon + delta'], {
+    'alfa + zeta': 0,
+    'epsilon + delta': 0,
   });
   assert.deepEqual(dala, [
-    { rank: 1, player: 'meri + mil', total: 0 },
-    { rank: 2, player: 'eri + rila', total: 0 },
+    { rank: 1, player: 'alfa + zeta', total: 0 },
+    { rank: 2, player: 'epsilon + delta', total: 0 },
   ]);
 });
 
@@ -118,13 +120,13 @@ test('matrica është antisimetrike', () => {
 });
 
 test('një qelizë e zbrazët nuk numërohet si zero e futur', () => {
-  // `domina_1` e ka `vigi` me `null` në raundin e vetëm të shënuar.
+  // `domina_1` e ka `kapa` me `null` në raundin e vetëm të shënuar.
   const grupi = burimi.groups.find((g) => g.id === 'domina_1');
   const dala = totalet(grupi.players, raundetE(grupi));
 
-  assert.equal(dala.vigi, 0);
-  assert.equal(dala.meri, 21);
-  assert.equal(dala.rila, 38);
+  assert.equal(dala.kapa, 0);
+  assert.equal(dala.alfa, 21);
+  assert.equal(dala.delta, 38);
 });
 
 test('eshteIMbushur dallon raundin e shënuar nga vendi i lirë', () => {
@@ -174,6 +176,38 @@ test('data shqip nuk rrëshqet një ditë prapa', () => {
   assert.equal(dataShqip('2026-12-31'), '31 dhjetor 2026');
 });
 
+test('data del ditë/muaj/vit, jo muaj/ditë/vit', () => {
+  // Kjo është vetë arsyeja pse fusha nuk është më `type="date"`: një telefon
+  // me anglishten amerikane e vizatonte 11 shtatorin si „09/11".
+  assert.equal(dataMeNumra('2025-09-11'), '11/09/2025');
+  assert.equal(dataMeNumra('2026-01-08'), '08/01/2026');
+  // Vlera që nuk lexohet kthehet ashtu si erdhi, e nuk shpiket.
+  assert.equal(dataMeNumra('sot'), 'sot');
+});
+
+test('data e shkruar me dorë lexohet prapa te `YYYY-MM-DD`', () => {
+  assert.equal(dataNgaNumrat('11/09/2025'), '2025-09-11');
+  assert.equal(dataNgaNumrat('08/01/2026'), '2026-01-08');
+  // Vijat nuk kërkohen — numërohen vetëm shifrat.
+  assert.equal(dataNgaNumrat('11092025'), '2025-09-11');
+});
+
+test('data që nuk ekziston nuk kalon te muaji tjetër', () => {
+  assert.equal(dataNgaNumrat('31/02/2025'), null);
+  assert.equal(dataNgaNumrat('29/02/2025'), null);
+  assert.equal(dataNgaNumrat('29/02/2024'), '2024-02-29');
+  assert.equal(dataNgaNumrat('29/02/2100'), null);
+  assert.equal(dataNgaNumrat('29/02/2000'), '2000-02-29');
+  assert.equal(dataNgaNumrat('00/09/2025'), null);
+  assert.equal(dataNgaNumrat('11/13/2025'), null);
+});
+
+test('data e papërfunduar nuk lexohet si datë', () => {
+  assert.equal(dataNgaNumrat(''), null);
+  assert.equal(dataNgaNumrat('11/09'), null);
+  assert.equal(dataNgaNumrat('11/09/202'), null);
+});
+
 test('sot e shkruan datën lokale me dy shifra', () => {
   assert.equal(sot(new Date(2026, 0, 8, 2, 30)), '2026-01-08');
   assert.equal(sot(new Date(2026, 11, 31, 23, 59)), '2026-12-31');
@@ -191,20 +225,20 @@ test('lojërat renditen më e reja e para, ora ndan ato të së njëjtës ditë'
 
 /* ── Pjesëmarrja e pabarabartë ──────────────────────────────────────────── */
 
-/** Një lojë ku `rila` ulet te tavolina vetëm në raundin e tretë. */
+/** Një lojë ku `delta` ulet te tavolina vetëm në raundin e tretë. */
 const HYRI_VONE = {
-  players: ['meri', 'lesa', 'rila'],
+  players: ['alfa', 'beta', 'delta'],
   rounds: [
-    { id: 1, gameId: 1, roundNumber: 1, scores: { meri: 100, lesa: -20 } },
-    { id: 2, gameId: 1, roundNumber: 2, scores: { meri: -20, lesa: 100 } },
-    { id: 3, gameId: 1, roundNumber: 3, scores: { meri: 50, lesa: 40, rila: -20 } },
+    { id: 1, gameId: 1, roundNumber: 1, scores: { alfa: 100, beta: -20 } },
+    { id: 2, gameId: 1, roundNumber: 2, scores: { alfa: -20, beta: 100 } },
+    { id: 3, gameId: 1, roundNumber: 3, scores: { alfa: 50, beta: 40, delta: -20 } },
   ],
 };
 
 test('raundet e luajtura numërojnë vetëm ato me pikë të shënuara', () => {
   const sa = raundetELuajtura(HYRI_VONE.players, HYRI_VONE.rounds);
 
-  assert.deepEqual(sa, { meri: 3, lesa: 3, rila: 1 });
+  assert.deepEqual(sa, { alfa: 3, beta: 3, delta: 1 });
 });
 
 test('pika zero numërohet si raund i luajtur', () => {
@@ -226,7 +260,7 @@ test('pjesëmarrja e barabartë nuk jep alarm të rremë', () => {
     const raundet = raundetE(grupi).filter((r) =>
       grupi.players.some((p) => typeof r.scores[p] === 'number'),
     );
-    // `domina_1` e ka `vigi` me `null` — atje pabarazia është e vërtetë.
+    // `domina_1` e ka `kapa` me `null` — atje pabarazia është e vërtetë.
     if (grupi.id === 'domina_1') continue;
 
     assert.equal(
@@ -242,8 +276,8 @@ test('totali nuk ndryshon nga hyrja e vonë — mbetet shuma e pikëve', () => {
   // vend të tij.
   const t = totalet(HYRI_VONE.players, HYRI_VONE.rounds);
 
-  assert.deepEqual(t, { meri: 130, lesa: 120, rila: -20 });
-  assert.equal(renditja(HYRI_VONE.players, t)[0].player, 'rila');
+  assert.deepEqual(t, { alfa: 130, beta: 120, delta: -20 });
+  assert.equal(renditja(HYRI_VONE.players, t)[0].player, 'delta');
 });
 
 
@@ -252,21 +286,21 @@ test('totali nuk ndryshon nga hyrja e vonë — mbetet shuma e pikëve', () => {
 /** Tri mbrëmje të një grupi, si blloqet e njëpasnjëshme te fleta e vjetër. */
 const TRI_MBREMJE = [
   {
-    selectedPlayers: ['lesa', 'lila', 'rila'],
+    selectedPlayers: ['beta', 'gama', 'delta'],
     raundet: [
-      { id: 1, gameId: 1, roundNumber: 1, scores: { lesa: -20, lila: 100, rila: 50 } },
+      { id: 1, gameId: 1, roundNumber: 1, scores: { beta: -20, gama: 100, delta: 50 } },
     ],
   },
   {
-    selectedPlayers: ['lesa', 'lila', 'rila'],
+    selectedPlayers: ['beta', 'gama', 'delta'],
     raundet: [
-      { id: 2, gameId: 2, roundNumber: 1, scores: { lesa: 100, lila: -20, rila: 60 } },
+      { id: 2, gameId: 2, roundNumber: 1, scores: { beta: 100, gama: -20, delta: 60 } },
     ],
   },
   {
-    selectedPlayers: ['lesa', 'lila'],
+    selectedPlayers: ['beta', 'gama'],
     raundet: [
-      { id: 3, gameId: 3, roundNumber: 1, scores: { lesa: -20, lila: 40 } },
+      { id: 3, gameId: 3, roundNumber: 1, scores: { beta: -20, gama: 40 } },
     ],
   },
 ];
@@ -275,9 +309,9 @@ test('tabela e përgjithshme mbledh lojërat, fitoret dhe mesataren', () => {
   const tabela = tabelaEPergjithshme(TRI_MBREMJE);
 
   assert.deepEqual(tabela, [
-    { player: 'lesa', lojera: 3, fitore: 2, totali: 60, mesatarja: 20 },
-    { player: 'lila', lojera: 3, fitore: 1, totali: 120, mesatarja: 40 },
-    { player: 'rila', lojera: 2, fitore: 0, totali: 110, mesatarja: 55 },
+    { player: 'beta', lojera: 3, fitore: 2, totali: 60, mesatarja: 20 },
+    { player: 'gama', lojera: 3, fitore: 1, totali: 120, mesatarja: 40 },
+    { player: 'delta', lojera: 2, fitore: 0, totali: 110, mesatarja: 55 },
   ]);
 });
 
@@ -343,13 +377,13 @@ test('grupi pa asnjë lojë jep tabelë të zbrazët', () => {
 
 test('renditja e një loje merr vetëm ata që shënuan', () => {
   const rend = renditjaELojes(
-    ['lesa', 'lila', 'rila'],
-    [{ id: 1, gameId: 1, roundNumber: 1, scores: { lesa: -20, lila: 100 } }],
+    ['beta', 'gama', 'delta'],
+    [{ id: 1, gameId: 1, roundNumber: 1, scores: { beta: -20, gama: 100 } }],
   );
 
   assert.deepEqual(rend, [
-    { rank: 1, player: 'lesa', total: -20 },
-    { rank: 2, player: 'lila', total: 100 },
+    { rank: 1, player: 'beta', total: -20 },
+    { rank: 2, player: 'gama', total: 100 },
   ]);
 });
 
@@ -375,7 +409,7 @@ test('renditja e lojës përputhet me atë të `logic.json`-it', () => {
 
 test('një lojë e hapur e paluajtur nuk renditet, edhe pse fleta e rendit', () => {
   // `brigj_4_merged_teams` s'ka asnjë pikë, por `logic.json` i jep të dyja
-  // skuadrat me 0 dhe „meri + mil" të parë — vend i fituar nga radha e listës,
+  // skuadrat me 0 dhe „alfa + zeta" të parë — vend i fituar nga radha e listës,
   // jo nga loja. Këtu ajo lojë thjesht nuk ka renditje.
   const grupi = burimi.groups.find((g) => g.id === 'brigj_4_merged_teams');
 
@@ -387,12 +421,12 @@ test('një lojë e hapur e paluajtur nuk renditet, edhe pse fleta e rendit', () 
 /* ── Një kalim i vetëm mbi raundet ──────────────────────────────────────── */
 
 test('permbledhja jep të njëjtat numra si tri thirrjet e vjetra', () => {
-  const players = ['meri', 'eri', 'Arboni', 'gjigji'];
+  const players = ['alfa', 'epsilon', 'Lambda', 'jota'];
   const raundet = [
-    { id: 1, gameId: 1, roundNumber: 1, scores: { meri: 22, eri: 14, Arboni: -20, gjigji: 18 } },
-    { id: 2, gameId: 1, roundNumber: 2, scores: { meri: 20, eri: 20, Arboni: -2 } },
+    { id: 1, gameId: 1, roundNumber: 1, scores: { alfa: 22, epsilon: 14, Lambda: -20, jota: 18 } },
+    { id: 2, gameId: 1, roundNumber: 2, scores: { alfa: 20, epsilon: 20, Lambda: -2 } },
     { id: 3, gameId: 1, roundNumber: 3, scores: {} },
-    { id: 4, gameId: 1, roundNumber: 4, scores: { meri: 0, eri: null, gjigji: 5 } },
+    { id: 4, gameId: 1, roundNumber: 4, scores: { alfa: 0, epsilon: null, jota: 5 } },
   ];
 
   const p = permbledhja(players, raundet);
@@ -402,8 +436,8 @@ test('permbledhja jep të njëjtat numra si tri thirrjet e vjetra', () => {
   assert.equal(p.barabarte, pjesemarrjeEBarabarte(players, raundet));
 
   // Dhe numrat vetë, të shkruar me dorë: zeroja shënohet, `null`-i jo.
-  assert.deepEqual(p.totalet, { meri: 42, eri: 34, Arboni: -22, gjigji: 23 });
-  assert.deepEqual(p.luajtur, { meri: 3, eri: 2, Arboni: 2, gjigji: 2 });
+  assert.deepEqual(p.totalet, { alfa: 42, epsilon: 34, Lambda: -22, jota: 23 });
+  assert.deepEqual(p.luajtur, { alfa: 3, epsilon: 2, Lambda: 2, jota: 2 });
   assert.equal(p.barabarte, false);
 });
 
@@ -414,20 +448,20 @@ test('filtrimi i raundeve bosh nuk e ndryshon pjesëmarrjen', () => {
    * pikë nuk i shton njërit numërimin. Kjo provë e mban atë arsyetim të matur —
    * nëse dikush e prek numërimin, ajo bie.
    */
-  const players = ['meri', 'eri', 'Arboni'];
+  const players = ['alfa', 'epsilon', 'Lambda'];
 
   const rastet = [
     [],
     [{ id: 1, gameId: 1, roundNumber: 1, scores: {} }],
     [
-      { id: 1, gameId: 1, roundNumber: 1, scores: { meri: 10, eri: 10, Arboni: 10 } },
+      { id: 1, gameId: 1, roundNumber: 1, scores: { alfa: 10, epsilon: 10, Lambda: 10 } },
       { id: 2, gameId: 1, roundNumber: 2, scores: {} },
-      { id: 3, gameId: 1, roundNumber: 3, scores: { meri: null, eri: null, Arboni: null } },
+      { id: 3, gameId: 1, roundNumber: 3, scores: { alfa: null, epsilon: null, Lambda: null } },
     ],
     [
-      { id: 1, gameId: 1, roundNumber: 1, scores: { meri: 10 } },
+      { id: 1, gameId: 1, roundNumber: 1, scores: { alfa: 10 } },
       { id: 2, gameId: 1, roundNumber: 2, scores: {} },
-      { id: 3, gameId: 1, roundNumber: 3, scores: { eri: 5, Arboni: 5 } },
+      { id: 3, gameId: 1, roundNumber: 3, scores: { epsilon: 5, Lambda: 5 } },
     ],
   ];
 

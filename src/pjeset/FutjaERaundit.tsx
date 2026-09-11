@@ -13,9 +13,15 @@
  *   • Rreshti i veprimeve rri i ngjitur në fund të kartelës. Me tastierën e
  *     hapur, ekrani i mbetur është nën gjysmën e telefonit — pa këtë, butoni
  *     „Ruaj" bie poshtë çdo here që lojtarët janë shumë.
- *   • Pikët preken ende me dorë pas llogaritësit: te fleta origjinale ka një
- *     raund me mbyllës −50, që nuk e jep asnjë nga dy mbylljet, dhe një
- *     aplikacion që pranon vetëm kombinimet e lejuara nuk do ta shënonte dot.
+ *   • Llogaritësi e ruan raundin vetë, me një prekje. Raundi që bie brenda
+ *     rregullit — dhe ata janë pothuajse të gjithë — nuk ka pse të kalojë
+ *     nëpër fushat vetëm që të shtypet «Ruaj» prapë.
+ *
+ * Fushat mbeten burimi i vërtetë gjithsesi, dhe llogaritësi mban edhe daljen
+ * e dytë — «Vendosi te fushat», që i shkruan pikët pa i ruajtur: te fleta
+ * origjinale ka një raund me mbyllës −50, që nuk e jep asnjë nga dy mbylljet,
+ * dhe një aplikacion që pranon vetëm kombinimet e lejuara nuk do ta shënonte
+ * dot.
  *
  * Shenja ka butonin e vet sepse tastiera numerike e Androidit s'ka minus;
  * arsyetimi i plotë dhe përpunimi i tekstit rrinë te `fusha.ts`.
@@ -53,6 +59,13 @@ export function FutjaERaundit({
 }) {
   const [vlerat, caktoVlerat] = useState<Vlerat>(() => nga(players, fillestare));
   const [hapurLlogaritesi, hapLlogaritesin] = useState(false);
+  // Pikët e fundit të llogaritura rrinë këtu e jo brenda llogaritësit, sepse
+  // butoni që i ruan rri te rreshti i ngjitur poshtë — përndryshe do të binte
+  // nën fund të ekranit pikërisht kur lojtarët janë shumë.
+  const [piketELlogaritura, caktoPiketELlogaritura] = useState<Record<
+    string,
+    number
+  > | null>(null);
   const fushat = useRef<(HTMLInputElement | null)[]>([]);
 
   // Kur ndërrohet raundi që redaktohet, fushat duhet të ndjekin atë e jo të
@@ -61,8 +74,15 @@ export function FutjaERaundit({
     caktoVlerat(nga(players, fillestare));
   }, [players, fillestare, roundNumber]);
 
-  const shuma = players.reduce((s, p) => s + (numri(vlerat[p]) ?? 0), 0);
-  const sashenuar = players.filter((p) => numri(vlerat[p]) !== null).length;
+  // Me llogaritësin hapur ruhen pikët e tij, prandaj edhe përmbledhja e
+  // rreshtit tregon ato: një „shuma 0" nën një llogaritës që thotë 110 do të
+  // ishte dy të vërteta njëherësh.
+  const piket = hapurLlogaritesi ? piketELlogaritura : null;
+  const ngaFushat = players.filter((p) => numri(vlerat[p]) !== null).length;
+  const shuma = piket
+    ? Object.values(piket).reduce((s, n) => s + n, 0)
+    : players.reduce((s, p) => s + (numri(vlerat[p]) ?? 0), 0);
+  const sashenuar = piket ? players.length : ngaFushat;
   const shume = players.length >= SHUME;
 
   /**
@@ -73,17 +93,37 @@ export function FutjaERaundit({
    * pikërisht kur përdoruesi po shikon renditjen e sapondryshuar.
    */
   function ruaj(rifokuso = false) {
-    if (sashenuar === 0) return;
+    // Numërohen fushat e jo `sashenuar`: me llogaritësin hapur ai i numëron
+    // pikët e tij, dhe «Next» i tastierës do të ruante një raund të zbrazët.
+    if (ngaFushat === 0) return;
 
     const scores: Record<string, number | null> = {};
     for (const player of players) scores[player] = numri(vlerat[player]);
+    dergo(scores, rifokuso);
+  }
+
+  /**
+   * Dërgon pikët e gatshme — nga fushat, ose drejt nga llogaritësi.
+   *
+   * Llogaritësi i kalon këtu të vetat pa i shkruar te fushat: raundi që del
+   * ashtu si e jep rregulli nuk ka pse të prekë dy butona. Fushat mbeten
+   * burimi i vërtetë për çdo raund tjetër, dhe «Vendosi te fushat» rri brenda
+   * llogaritësit pikërisht për raundin që rregulli nuk e mbulon.
+   */
+  function dergo(scores: Record<string, number | null>, rifokuso = false) {
     onRuaj(scores);
 
     if (!fillestare) {
       caktoVlerat(nga(players, null));
       if (rifokuso) fushat.current[0]?.focus();
     }
+    mbyllLlogaritesin();
+  }
+
+  /** Mbyll llogaritësin dhe harron pikët e tij — ato vlejnë sa rri i hapur. */
+  function mbyllLlogaritesin() {
     hapLlogaritesin(false);
+    caktoPiketELlogaritura(null);
   }
 
   /** «Next» shkon te lojtari tjetër; te i fundit ruan raundin. */
@@ -138,13 +178,14 @@ export function FutjaERaundit({
       {hapurLlogaritesi && (
         <Llogaritesi
           players={players}
+          onPike={caktoPiketELlogaritura}
           onVendos={(pike) => {
             caktoVlerat(
               Object.fromEntries(
                 players.map((p) => [p, String(pike[p] ?? 0)]),
               ) as Vlerat,
             );
-            hapLlogaritesin(false);
+            mbyllLlogaritesin();
           }}
         />
       )}
@@ -159,11 +200,19 @@ export function FutjaERaundit({
           </span>
         </p>
 
+        {/*
+          Një buton i vetëm «Ruaj», për të dyja rrugët.
+
+          Me llogaritësin hapur ai ruan pikët e tij; i mbyllur, ato të fushave.
+          Dy butona me të njëjtat fjalë — një i gjallë brenda llogaritësit, një
+          i fikur këtu — lexoheshin si prishje, dhe ai i llogaritësit binte nën
+          fund të ekranit sapo lojtarët ishin shumë.
+        */}
         <div className="veprimet">
           <button
             type="button"
             className="buton buton--kryesor"
-            onClick={() => ruaj()}
+            onClick={() => (piket ? dergo(piket) : ruaj())}
             disabled={sashenuar === 0}
           >
             <Ikona emri="ruaj" />
@@ -174,10 +223,12 @@ export function FutjaERaundit({
             type="button"
             className="buton"
             aria-expanded={hapurLlogaritesi}
-            onClick={() => hapLlogaritesin((h) => !h)}
+            onClick={() =>
+              hapurLlogaritesi ? mbyllLlogaritesin() : hapLlogaritesin(true)
+            }
           >
             <Ikona emri="llogaritesi" />
-            Llogaritësi
+            {hapurLlogaritesi ? 'Mbyll llogaritësin' : 'Llogaritësi'}
           </button>
 
           {onAnulo && (
@@ -210,9 +261,13 @@ export function FutjaERaundit({
  */
 function Llogaritesi({
   players,
+  onPike,
   onVendos,
 }: {
   players: string[];
+  /** Pikët e llogaritura, sa herë ndryshojnë — butoni «Ruaj» rri jashtë. */
+  onPike: (pike: Record<string, number>) => void;
+  /** I shkruan pikët te fushat, që të preken me dorë para ruajtjes. */
   onVendos: (pike: Record<string, number>) => void;
 }) {
   const [mbyllesi, caktoMbyllesin] = useState(players[0] ?? '');
@@ -235,6 +290,12 @@ function Llogaritesi({
     () => piketERaundit(players, mbyllesi, lloji, gjendjet),
     [players, mbyllesi, lloji, gjendjet],
   );
+
+  // Pikët ngjiten lart sa herë ndryshojnë, sepse butoni që i ruan rri te
+  // rreshti i ngjitur i futjes e jo këtu.
+  useEffect(() => {
+    onPike(pike);
+  }, [pike, onPike]);
 
   const tjeret = players.filter((player) => player !== mbyllesi);
 
@@ -319,12 +380,21 @@ function Llogaritesi({
         </span>
       </p>
 
+      {/*
+        Dalja e dytë, dhe vetë rregulli i pikës 3.
+
+        «Ruaj» rri te rreshti i ngjitur poshtë dhe i merr këto pika ashtu si
+        janë — raundi që bie brenda rregullit mbaron me një prekje. Ky buton i
+        shkruan te fushat pa i ruajtur, dhe mbetet rruga e raundit që rregulli
+        nuk e mbulon: mbyllësi −50 te fleta e vjetër, ose një pikë që duhet
+        prekur me dorë para se të ruhet.
+      */}
       <button
         type="button"
         className="buton buton--i-plote"
         onClick={() => onVendos(pike)}
       >
-        <Ikona emri="ruaj" />
+        <Ikona emri="llogaritesi" />
         Vendosi te fushat
       </button>
     </div>

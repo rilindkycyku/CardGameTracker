@@ -500,9 +500,20 @@ h3 {
 }
 
 .fusha input[type='number'],
-.fusha input[type='date'] {
+.fusha input[type='date'],
+.fusha input.fusha__data {
   font-family: var(--shkronja-numrat);
   font-variant-numeric: tabular-nums;
+}
+
+/* Data shkruhet me dorë, prandaj vijat rrinë pak larg shifrave. */
+.fusha input.fusha__data {
+  letter-spacing: 0.06em;
+}
+
+/* Fusha që nuk lexohet ende si datë e thotë vetë — jo vetëm butoni i fikur. */
+.fusha input[aria-invalid='true'] {
+  border-color: var(--negativ);
 }
 
 /* Shigjetat e `number`-it e ngushtojnë fushën pa nevojë në telefon. */
@@ -1515,6 +1526,14 @@ th.numri {
 
 .fundfaqja p {
   margin: 0.35rem 0 0;
+}
+
+/* Numri i versionit: monospace, që të lexohet shifër për shifër me zë. */
+.fundfaqja__versioni {
+  font-family: var(--shkronja-numrat);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
 }
 
 .zemra {

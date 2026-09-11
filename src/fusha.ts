@@ -49,6 +49,27 @@ export function numri(teksti: string | undefined): number | null {
   return Number.isFinite(n) ? Math.round(n) : null;
 }
 
+/* ── Data ───────────────────────────────────────────────────────────────── */
+
+/**
+ * Formaton datën sa shkruhet: shifrat marrin vijat vetë — «11/09/2025».
+ *
+ * Vijat nuk shtypen me dorë: tastiera numerike e telefonit nuk i ka, dhe kush
+ * i kërkon te «!#1» e humb rreshtin. Prandaj mbahen vetëm shifrat, dhe vija
+ * del vetë pas ditës e pas muajit. Grupi i zbrazët nuk e merr vijën, që
+ * fshirja mbrapsht të mos ngecë te «11/».
+ */
+export function pastroDaten(teksti: string): string {
+  const shifrat = teksti.replace(/\D/g, '').slice(0, 8);
+  const pjeset = [
+    shifrat.slice(0, 2),
+    shifrat.slice(2, 4),
+    shifrat.slice(4, 8),
+  ];
+
+  return pjeset.filter((pjesa) => pjesa !== '').join('/');
+}
+
 /* ── Emrat e lojtarëve ──────────────────────────────────────────────────── */
 
 /**
@@ -56,10 +77,10 @@ export function numri(teksti: string | undefined): number | null {
  *
  * Krijimi i një grupi ishte një emër për prekje: shkruaj, Enter, shkruaj,
  * Enter — gjashtë herë para se të nisë loja e parë. Tani i njëjti kuti pranon
- * «meri, lesa, lila, rila» njëherësh, të shkruar ose të ngjitur nga një bisedë.
+ * «alfa, beta, gama, delta» njëherësh, të shkruar ose të ngjitur nga një bisedë.
  *
  * Ndarësit janë presja, pikëpresja, tabulatori dhe rreshti i ri — jo hapësira,
- * sepse emrat me dy fjalë („meri + mil" te fleta e vjetër) duhet të mbeten një
+ * sepse emrat me dy fjalë („alfa + zeta" te fleta e vjetër) duhet të mbeten një
  * i vetëm. Hapësirat e shumta brenda emrit shtypen në një.
  */
 export function ndajEmrat(teksti: string): string[] {
