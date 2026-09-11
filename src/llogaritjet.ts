@@ -139,12 +139,17 @@ export function eshteIMbushur(players: string[], raundi: Raundi): boolean {
 }
 
 /**
- * Sa herë përzien secili — dhe prandaj sa raunde ka një lojë.
+ * Sa herë përzien secili te një lojë **bridzhi** — dhe prandaj sa raunde ka ajo.
  *
- * Loja mbaron kur tavolina ka bërë dy rrotullime të plota: secili i ka përzier
- * letrat dy herë. Kjo nuk është marrëveshje e mbrëmjes — është vetë rregulli i
- * lojës, dhe fleta origjinale e dëshmon: te `logic.json` çdo mbrëmje bridzhi ka
- * saktësisht dy raunde për lojtar.
+ * Mbrëmja mbaron kur tavolina ka bërë dy rrotullime të plota: secili i ka
+ * përzier letrat dy herë. Kjo nuk është marrëveshje e mbrëmjes — është vetë
+ * rregulli i lojës, dhe fleta origjinale e dëshmon: te `logic.json` çdo mbrëmje
+ * bridzhi ka saktësisht dy raunde për lojtar.
+ *
+ * Magareci nuk e ka këtë kufi. Atje mbrëmja mbaron kur dikujt i mbushet fjala,
+ * prandaj mund të zgjasë edhe shumë më gjatë se dy rrotullime, edhe të mbarojë
+ * te raundi i shtatë. Përzierja rrotullohet te të dyja lojërat; vetëm numërimi
+ * i raundeve është i bridzhit.
  */
 export const RAUNDE_PER_LOJTAR = 2;
 
@@ -156,8 +161,9 @@ export const RAUNDE_PER_LOJTAR = 2;
  * (pika 5), mbrëmja zgjatet ose shkurtohet vetvetiu — dhe ashtu ndodh edhe te
  * tavolina, ku rrotullimi i letrave ndjek kë ka aty.
  *
- * Magareci nuk e ka këtë kufi: atje mbrëmja mbaron kur dikujt i mbushet fjala,
- * e jo pas një numri raundesh.
+ * Vetëm bridzhi e thërret. Të dy vendet që e përdorin e ndajnë llojin para se
+ * ta bëjnë — `Loja` dhe `raundetEMbetura` — sepse te magareci ky numër nuk do të
+ * thoshte asgjë.
  */
 export function raundetELojes(players: string[]): number {
   return players.length * RAUNDE_PER_LOJTAR;

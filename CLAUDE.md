@@ -439,15 +439,27 @@ ngushtojnë atë, dhe numri i raundeve që premton e mban premtimin me saktësis
 Për magarecin të njëjtat mbrëmje lexohen sërish si shkronja — raundin e humb ai që mori më shumë
 pikë — sepse pikët me qindra nuk hyjnë te një llogari ku totali shkon nga zero në shtatë.
 
-### 13. Tavolina rrotullohet dy herë, dhe aty mbaron mbrëmja
+### 13. Përzierja vlen te të dyja lojërat; dy rrotullimet vetëm te bridzhi
 
-Dy gjëra që duken të ndara janë i njëjti rregull parë nga dy anë: përzierja kalon një vend çdo raund,
-dhe loja mbaron pas **dy raundeve për lojtar**. Pra tavolina bën saktësisht dy rrotullime të plota.
+Dy rregulla që preken, por nuk janë një — dhe ngatërrimi i tyre është gabimi i lehtë këtu:
+
+- **Përzierja** kalon një vend çdo raund te **të dyja** lojërat. Edhe magareci luhet me letra te e
+  njëjta tavolinë, prandaj edhe atje dikush i përzien.
+- **Gjatësia** është vetëm e **bridzhit**: dy raunde për lojtar, pra tavolina rrotullohet saktësisht
+  dy herë dhe aty mbaron mbrëmja. **Magareci nuk e njeh atë kufi fare** — atje mbrëmja mbaron kur
+  dikujt i mbushet fjala (pika 11), dhe mund të zgjasë shumë më gjatë ose të mbarojë te raundi i
+  shtatë. Mos ia vër magarecit një fund të numëruar me raunde.
 
 `perziersiIRaundit` nuk mban gjendje: raundi i parë i takon të parit të `selectedPlayers`, i dyti të
 dytit, dhe pas të fundit nis prapë nga kreu. Kjo punon vetëm sepse radha e emrave ruhet që nga
 futja — kutia e emrave e thotë («Radha ruhet — kështu ulen rreth tavolinës»), dhe fleta e vjetër i
-mbante ashtu për të njëjtën arsye. `raundetELojes` është ana tjetër: `lojtarë × 2`.
+mbante ashtu për të njëjtën arsye.
+
+`raundetELojes` (`lojtarë × 2`) është rregulli i dytë, dhe del vetëm te bridzhi. Dy vende e thërrasin,
+dhe të dyja e ndajnë llojin para se ta bëjnë: `Loja` me `magarec ? 0 : …`, dhe `raundetEMbetura` te
+`parashikimi.ts` me një kthim të hershëm te rreshti i parë. Mos e thirr nga një ekran që u shërben të
+dyja lojërave pa e ndarë llojin — prova `kufiri i bridzhit nuk e mbyll një mbrëmje magareci` e mban
+këtë të matur.
 
 **Rregulli nuk u shpik — fleta e dëshmon.** Çdo mbrëmje bridzhi te `logic.json` ka saktësisht dy
 raunde për lojtar, dhe prova `çdo mbrëmje bridzhi e logic.json-it ka saktësisht dy raunde për
@@ -456,8 +468,8 @@ lojtar` e mban këtë të matur. Dy grupe rrinë jashtë saj, dhe asnjëri nuk e
 përforcon rregullin — dhe `domina_1` nuk është bridzh fare.
 
 Asnjëri nga të dy numrat nuk ruhet, si asnjë vlerë e derivuar (pika 2): dalin nga lista e lojtarëve
-sa herë lexohen. Prandaj shtimi ose heqja e dikujt mes lojës (pika 5) e zgjat ose e shkurton mbrëmjen
-vetvetiu, dhe rirendit përzierjen mbi listën e tanishme. Kjo është e vërteta e tavolinës: kush u
+sa herë lexohen. Prandaj shtimi ose heqja e dikujt mes lojës (pika 5) e rirendit përzierjen mbi listën
+e tanishme, dhe te bridzhi e zgjat ose e shkurton mbrëmjen vetvetiu. Kjo është e vërteta e tavolinës: kush u
 ngrit nuk përzien më, dhe letrat nuk e presin.
 
 **Loja e mbushur thuhet, por nuk mbyllet me çelës.** Te magareci futja ndalet, sepse atje një

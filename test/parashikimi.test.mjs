@@ -208,6 +208,34 @@ test('raundet e mbetura dalin nga vetë loja, e nuk hamendësohen', () => {
   );
 });
 
+test('kufiri i bridzhit nuk e mbyll një mbrëmje magareci', () => {
+  /*
+   * Dy raunde për lojtar është rregull i bridzhit dhe vetëm i tij. Një mbrëmje
+   * magareci me tre lojtarë e kalon lehtë atë numër — shkronjat ndahen, dhe
+   * fjala mbushet kur mbushet — prandaj raundet e mbetura nuk guxojnë të bien
+   * në zero vetëm sepse janë luajtur `2 × lojtarë`.
+   */
+  const players = ['alfa', 'beta', 'gama'];
+  const sa = { alfa: 2, beta: 3, gama: 1 };
+
+  assert.equal(raundetELojes(players), 6);
+  assert.equal(raundetEMbetura('bridzh', players, sa, 6), 0);
+
+  // Njëzet raunde të luajtura, dhe magareci vazhdon: askush s'e ka fjalën plot.
+  for (const luajtur of [0, 6, 7, 20]) {
+    assert.ok(
+      raundetEMbetura('magarec', players, sa, luajtur) > 0,
+      `magareci u mbyll pas ${luajtur} raundesh`,
+    );
+  }
+
+  // Dhe mbaron vetëm atëherë kur mbushet fjala, sado pak raunde të jenë luajtur.
+  assert.equal(
+    raundetEMbetura('magarec', players, { ...sa, beta: FJALA.length }, 0),
+    0,
+  );
+});
+
 test('pas mbushjes së fjalës nuk ka më raunde', () => {
   const sa = { alfa: 2, beta: FJALA.length };
   assert.equal(raundetMeTeShumta(['alfa', 'beta'], sa), 0);
