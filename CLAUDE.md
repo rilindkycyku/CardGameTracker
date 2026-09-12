@@ -39,10 +39,15 @@ Tri gjëra e përcaktojnë çdo vendim këtu:
    internet të mirë, dhe historiku i një shoqërie nuk ka pse të rrijë te dikush tjetër. Kjo do të
    thotë edhe se kopja rezervë nuk është shtojcë — është dalja e vetme e të dhënave.
 
-   Ka **një shmangje të vetme**, dhe rri e rrethuar: mënyra „me kod" e lidhjes së drejtpërdrejtë
-   (`lidhjaMeServer.ts`) përdor një server sinjalizimi të huaj. Të dhënat e lojës nuk shkruhen te
-   asnjë server edhe atëherë, dhe ekrani i thotë hapur çka del nga pajisja para se të shtypet
-   butoni.
+   Ka **dy shmangje**, dhe të dyja rrinë të rrethuara. E para: mënyra „me kod" e lidhjes së
+   drejtpërdrejtë (`lidhjaMeServer.ts`) përdor një server sinjalizimi të huaj. Të dhënat e lojës nuk
+   shkruhen te asnjë server edhe atëherë, dhe ekrani i thotë hapur çka del nga pajisja para se të
+   shtypet butoni.
+
+   E dyta: numërimi i hapjeve te strehuesi (pika 18). Nga pajisja del emri i rrugës — `/loja/[id]`,
+   `/shiko` — dhe asgjë tjetër: as pikë, as emra, as lojëra. Adresa e vërtetë nuk del kurrë, sepse
+   te rrugët e ndara ajo e mban brenda vetes tërë mbrëmjen. Fundfaqja e ekranit të parë e thotë me
+   fjalë, krah numrit të versionit.
 
    **Ajo mënyrë tani rri e parazgjedhur, me kërkesë të pronarit të projektit**: shoqëria zakonisht
    nuk luan te i njëjti wifi, dhe mënyra pa server atëherë nuk lidhet fare. Pra rruga e parë e
@@ -62,7 +67,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 234 prova, pa framework provash
+npm test          # node --test — 253 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -86,15 +91,16 @@ të dy ndërtimet te i njëjti kosh — dhe atëherë skedari i ri dhe ai i vjet
 ### 1. Logjika rri te module që nuk njohin as bazën, as React-in, as `window`-in
 
 `llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `lojerat.ts`, `parashikimi.ts`, `fundi.ts`,
-`fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts` dhe `kodi.ts` importohen
+`fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts`, `kodi.ts` dhe `analitika.ts`
+importohen
 drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
 zgjat nën një sekondë dhe nuk ka çka të prishet mes provës dhe kodit.
 
-`lidhja.ts`, `lidhjaMeServer.ts`, `sistemi.ts` dhe `ruajtja.ts` nuk hyjnë te kjo listë me qëllim: e
-para njeh `RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e treta `navigator`-in
-(tabelën e fragmenteve dhe fletën e ndarjes), e katërta bazën. Logjika e tyre e
-provueshme është nxjerrë jashtë — te `sinjalizimi.ts`, `kodi.ts` dhe `kopja.ts` — dhe ajo që mbetet
-provohet me shfletues.
+`lidhja.ts`, `lidhjaMeServer.ts`, `sistemi.ts`, `ruajtja.ts` dhe `matja.ts` nuk hyjnë te kjo listë
+me qëllim: e para njeh `RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e treta
+`navigator`-in (tabelën e fragmenteve dhe fletën e ndarjes), e katërta bazën, e pesta `document`-in
+dhe `window`-in. Logjika e tyre e provueshme është nxjerrë jashtë — te `sinjalizimi.ts`, `kodi.ts`,
+`kopja.ts` dhe `analitika.ts` — dhe ajo që mbetet provohet me shfletues.
 
 Logjika e re shkon te një prej tyre, ose te një modul i ri i të njëjtit lloj, me prova. Mos fut
 `import` të bazës, të React-it apo të ndonjë API-je të shfletuesit në to.
@@ -198,7 +204,7 @@ që tjetra nuk mundet:
   kontakton kurrë asnjë server.
 - **E drejtpërdrejtë, me kod** (`lidhjaMeServer.ts`, `kodi.ts`): i njëjti kanal WebRTC, por
   sinjalizimi kalon nëpër një server të huaj, prandaj mjafton një kod tetëkarakterësh. Shmangja e
-  vetme nga pika 1, dhe rri me kushte — më poshtë.
+  parë nga pika 1, dhe rri me kushte — më poshtë.
 - **Fotografia e çastit** (`ndarja.ts`): gjendja shkruhet te vetë adresa, adresa bëhet kod QR, dhe
   kush e skanon hap `#/shiko/<paketë>`. Rri sepse e para ka një kufi që nuk varet nga kodi — një
   rrjetë që i ndan klientët nga njëri-tjetri (AP isolation, wifi hoteli, „rrjeta e mysafirëve") e
@@ -764,9 +770,10 @@ dokument. Ruhet `/` e jo `/index.html`: disa strehues e kthejnë të dytën me n
 përgjigje e ridrejtuar nuk hyn dot te koshi — instalimi do të dështonte i tëri, pra pa kosh e pa
 asgjë offline.
 
-**Kërkesat jashtë origjinës nuk preken fare.** Serveri i sinjalizimit dhe relenjat TURN janë e vetmja
+**Kërkesat jashtë origjinës nuk preken fare.** Serveri i sinjalizimit dhe relenjat TURN janë
 shmangje e pikës 1, dhe rrinë të rrethuara; një punëtor që i lexon a i ruan do ta zgjeronte atë
-shmangje pa e thënë kush. E njëjta gjë për çdo metodë përveç `GET`.
+shmangje pa e thënë kush. E njëjta gjë për çdo metodë përveç `GET`, dhe për `/_vercel/` — ai shteg
+rri te e njëjta origjinë, por është i strehuesit e jo i faqes (pika 18).
 
 **Versioni i ri nuk merr pushtetin pa u pyetur.** Një punëtor që kalon vetvetiu do t'i ndërronte
 skedarët nën këmbët e një skede të hapur: kodi i vjetër në ekran, ai i riu te rrjeti, dhe një copë e
@@ -791,6 +798,61 @@ kërkon kush gjatë mbrëmjes.
 aplikacionit, kurrë të dhëna loje, dhe rrugët e ndarjes mbeten pa bazë fare. Përfitimi është i asaj
 ane: fotografia e rezultatit e hapur një herë hapet prapë edhe kur telefonit i bie wifi-ja në mes të
 mbrëmjes.
+
+### 18. Matja numëron hapje, jo njerëz — dhe adresa nuk del kurrë e plotë
+
+Numërimi i hapjeve rri te Vercel Web Analytics, dhe hyri **me kërkesë të pronarit**: një aplikacion
+që hapet nga një adresë nuk ka nga ta dijë a e përdor kush, dhe pa atë numër çdo vendim për të
+(«a ia vlen kjo pamje?», «a e hap kush fotografinë e ndarë?») merret me sy mbyllur.
+
+Është shmangja e dytë nga pika 1, dhe pranohet vetëm nën këto kushte:
+
+- **Adresa e vërtetë nuk del kurrë.** Kjo është e tëra. Rrugët janë me hash, dhe brenda hash-it rri
+  gjithçka që nuk guxon të dalë: `#/shiko/<paketë>` e mban mbrëmjen e plotë — emrat, raundet,
+  totalet — dhe `#/bashkohu/<kod>` mban kodin me të cilin kushdo do të lidhej te pikët e
+  drejtpërdrejta. Prandaj `beforeSend` e zëvendëson adresën e çdo ngjarjeje me atë që kthen
+  `analitika.ts`: origjina, plus emri i rrugës nga një listë e shkruar aty. Numri i grupit a i lojës
+  bëhet `[id]`, paketa dhe kodi hiqen fare, dhe ajo që nuk njihet lexohet `/`. **Një rrugë e re nuk
+  rrjedh vetvetiu** — nëse nuk shtohet te ai skedar, ajo numërohet si ekrani i parë.
+- **Logjika rri te një modul që nuk njeh `window`-in** (pika 1). `analitika.ts` është varg brenda,
+  varg jashtë, dhe provohet me `node --test` mbi paketa të vërteta: prova `paketa dhe kodi nuk dalin
+  nga pajisja` është ajo që e mban kushtin e mësipërm të matur. Lidhja me shfletuesin — skripti,
+  radha, ndërrimi i rrugës — rri te `matja.ts`, si `instalimi.ts` krah `sherbimi.ts`.
+- **Pa varësi të pestë** (pika 10). `@vercel/analytics` bën pikërisht aq sa rri te `matja.ts`: një
+  `<script>` te koka dhe një radhë thirrjesh te `window.va`. Kontrata (emrat `data-*`, forma e
+  `beforeSend` e e `pageview`) është ajo e versionit 2.0.1 të asaj pakete, dhe prandaj shkruhet
+  ashtu si e shkruan ajo. Nëse ndërron ajo kontratë, ndërron ky skedar — jo lista e varësive.
+- **Skripti vjen nga vetë origjina**, `/_vercel/insights/script.js`; te Vercel-i atë shteg e shërben
+  i njëjti domen. Asnjë host i huaj nuk kërkohet me hapjen e faqes — as këtu, as te fonti (sistemi
+  vizual).
+- **Vetëm te prodhimi.** Gjatë zhvillimit ai shteg nuk ekziston, dhe çdo rifreskim do të numërohej
+  si hapje e dikujt.
+- **Ekrani e thotë.** Fundfaqja, krah versionit: «Numërohen vetëm hapjet e faqes — pa pikë, pa emra,
+  pa lojëra». Kushti është i njëjti si te mënyra me kod (pika 7): çka del nga pajisja thuhet atje ku
+  lexohet, e jo te një ekran „rreth" që nuk e hap kush.
+
+**Hapja e parë numërohet nga vetë skripti; ndërrimi i rrugës me dorë.** Skripti i ndjek ndërrimet e
+`history`-së, kurse një `#/loja/3` nuk kalon as nga `pushState` as nga `popstate` — prandaj
+`hashchange` dërgon një `pageview` me emrin e pastruar. Ndarja është me qëllim: po qe se ajo thirrje
+ndërron formë te një version i ardhshëm, humbin rrugët e brendshme e jo vetë hapjet.
+
+**Punëtori i shërbimit nuk e prek `/_vercel/` fare** (pika 17). Emri i skriptit nuk është i hashuar,
+prandaj një kopje e ruajtur do të mbetej e ngrirë derisa të ngrihej versioni; dhe një përgjigje e
+ruajtur e vetë numërimit do ta vriste numërimin në heshtje — kërkesa e dytë do ta merrte të parën
+nga koshi e nuk do të dilte kurrë nga pajisja. Prova `shtegu i matjes nuk preket fare` e mban të
+matur.
+
+**Rrugët e ndara numërohen, por asgjë prej tyre nuk lexohet.** Kush skanon një kod QR e hap faqen te
+telefoni i vet, dhe ajo hapje del si `/shiko` a `/bashkohu` — pa bazë, pa cookie, pa asgjë të
+mbajtur mend (pika 7 mbetet fjalë për fjalë e vërtetë: ato rrugë nuk shkruajnë kurrkund). Nëse
+ndonjëherë duket tepër, hiqet me një rresht: `/shiko` e tre të tjerat dalin nga lista te
+`analitika.ts`.
+
+**Ndërtimi te Vercel-i kërkon `@types/node`.** `tsc --noEmit` i lexon edhe dy konfigurimet e Vite-s,
+dhe `vite.punetori.config.ts` importon `node:fs`. Ai paket vinte deri para pak si varësi e
+zgjedhshme e Vite-s — lokalisht ishte aty, te strehuesi jo — dhe ndërtimi binte me
+`TS2307: Cannot find module 'node:fs'`. Tani rri i shkruar te `devDependencies`. Mos e hiq: një
+varësi tipesh e ardhur vetvetiu nuk është premtim.
 
 ## Sistemi vizual
 

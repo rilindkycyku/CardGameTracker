@@ -1767,6 +1767,19 @@ th.numri {
   opacity: 0.75;
 }
 
+/*
+ * Fjalia e matjes: rri nën versionin, e zbehtë sa ai numri.
+ *
+ * Nuk është njoftim — nuk ka ndodhur asgjë për të cilën duhet vepruar — por as
+ * nuk fshihet: është e vetmja gjë që del nga pajisja, dhe kush e lexon duhet ta
+ * gjejë aty ku faqja flet për vete.
+ */
+.fundfaqja__matja {
+  font-size: 0.78rem;
+  opacity: 0.75;
+  text-wrap: balance;
+}
+
 /**
  * Rreshti i versionit të ri te fundfaqja.
  *
