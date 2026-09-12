@@ -123,5 +123,20 @@ export function strategjia(
     kerkesa.url === rrenja || kerkesa.url.startsWith(`${rrenja}/`);
   if (!brenda) return 'anashkalo';
 
+  /*
+   * `/_vercel/` është i strehuesit, jo i faqes — dhe nuk preket fare.
+   *
+   * Atje rri skripti i matjes dhe shtegu ku ai i dërgon numrat (pika 18). Emri
+   * i tij nuk është i hashuar, prandaj një kopje e ruajtur do të mbetej e
+   * ngrirë derisa të ngrihej versioni i aplikacionit; dhe një përgjigje e
+   * ruajtur e vetë numërimit do ta vriste numërimin në heshtje — kërkesa e
+   * dytë do të merrte të parën nga koshi e nuk do të dilte kurrë nga pajisja.
+   * Aty rri edhe arsyeja e dytë: ai trafik shkon te një server, pra te
+   * shmangja, dhe punëtori nuk hyn mes saj.
+   */
+  if (kerkesa.url.slice(rrenja.length).startsWith('/_vercel/')) {
+    return 'anashkalo';
+  }
+
   return kerkesa.navigim ? 'shelli' : 'koshi';
 }

@@ -137,6 +137,26 @@ test('kërkesat jashtë origjinës nuk preken fare', () => {
   }
 });
 
+test('shtegu i matjes nuk preket fare', () => {
+  /*
+   * `/_vercel/` është i strehuesit: aty rri skripti i matjes dhe shtegu ku ai i
+   * dërgon numrat (pika 18). Emri i skriptit nuk është i hashuar, prandaj një
+   * kopje e ruajtur do të mbetej e ngrirë; dhe një përgjigje e ruajtur e vetë
+   * numërimit do ta vriste numërimin në heshtje — kërkesa e dytë do ta merrte
+   * të parën nga koshi e nuk do të dilte kurrë nga pajisja.
+   */
+  for (const url of [
+    `${RRENJA}/_vercel/insights/script.js`,
+    `${RRENJA}/_vercel/insights/view`,
+  ]) {
+    assert.equal(
+      strategjia({ url, metoda: 'GET', navigim: false }, RRENJA),
+      'anashkalo',
+      url,
+    );
+  }
+});
+
 test('vetëm `GET` kalon nëpër koshin', () => {
   for (const metoda of ['POST', 'PUT', 'DELETE', 'HEAD']) {
     assert.equal(

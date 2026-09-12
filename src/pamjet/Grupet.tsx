@@ -171,6 +171,18 @@ export function Grupet() {
         <p className="fundfaqja__versioni">v{VERSIONI}</p>
 
         {/*
+          Çka del nga pajisja, thënë aty ku lexohet.
+
+          Të dhënat rrinë te telefoni (pika 1), dhe kjo nuk ndryshoi: te matja
+          shkon emri i rrugës — «/loja/[id]», «/shiko» — e asgjë tjetër. Rri
+          krah versionit sepse ky është i vetmi vend ku faqja flet për vete, dhe
+          sepse një fjali e fshehur te një ekran „rreth" nuk e lexon kush.
+        */}
+        <p className="fundfaqja__matja">
+          Numërohen vetëm hapjet e faqes — pa pikë, pa emra, pa lojëra.
+        </p>
+
+        {/*
           Versioni i ri rri e pret, dhe nuk merr pushtetin pa u thënë.
 
           Faqja tani ruhet te koshi i punëtorit të shërbimit, prandaj ajo që

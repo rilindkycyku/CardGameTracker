@@ -92,6 +92,25 @@ fjalë: renditja, kurora dhe fjalia e fundit e lexojnë drejtimin nga vetë loja
 
 Punon pa internet. Të dhënat rrinë vetëm në shfletuesin e pajisjes.
 
+## Çka del nga pajisja
+
+Pikët, emrat dhe raundet rrinë te telefoni, dhe dalin vetëm kur i nxjerr vetë
+përdoruesi — një kopje rezervë, një kod QR, një lidhje e drejtpërdrejtë.
+
+Dy gjëra të tjera prekin një server, dhe të dyja thuhen te ekrani aty ku
+përdoren:
+
+- **Lidhja «me kod»** — te serveri i sinjalizimit shkojnë kodi dhe adresat e
+  rrjetës, kurrë pikët. Kërkon butonin; pa të nuk niset asgjë.
+- **Numërimi i hapjeve** (Vercel Web Analytics) — nga faqja del emri i rrugës,
+  `/loja/[id]` ose `/shiko`, e asgjë tjetër. Adresa e vërtetë nuk del kurrë:
+  brenda saj rri mbrëmja e ndarë, prandaj pastrohet para se të nisë. Pa cookie
+  dhe pa asgjë të mbajtur mend për vizitorin.
+
+Për ta pasur atë numërim, «Web Analytics» ndizet një herë te paneli i projektit
+te Vercel; skripti vjen nga vetë domeni (`/_vercel/insights/…`), prandaj asnjë
+host i huaj nuk kërkohet me hapjen e faqes.
+
 ## Rregullat e pikëzimit
 
 Çdo raund mbyllet nga një lojtar që arrin 51 pikë me kombinime prej një dore me
@@ -152,7 +171,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 234 prova, pa framework provash
+npm test          # node --test — 253 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i.
@@ -190,6 +209,10 @@ src/
   ngarko.ts           lexo-nga-baza si hook
   sherbimi.ts         çka ruhet për punë pa internet, dhe çka nuk preket —
                       pa DOM, pa `caches`
+  analitika.ts        emri i rrugës që i shkon matjes, dhe pastrimi i adresës —
+                      pa DOM, pa rrjetë
+  matja.ts            numërimi i hapjeve te strehuesi: skripti dhe ndërrimi i
+                      rrugës, asnjë vendim
   punetori.ts         punëtori i shërbimit: tri ngjarje, asnjë vendim
   instalimi.ts        regjistrimi, dhe njoftimi kur del një version i ri
   ikonat.tsx          ikonat SVG inline
