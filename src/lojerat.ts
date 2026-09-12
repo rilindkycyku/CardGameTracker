@@ -37,26 +37,40 @@ import type { Drejtimi, LlojiILojes } from './tipet.ts';
 export const KUFIRI_I_DOMINES = 100;
 
 /**
- * Deri ku luhet pishpiriku: njëqind e një pikë, dhe këtu fiton më i madhi.
+ * Deri ku luhet pishpiriku, dhe këtu fiton më i madhi.
  *
- * Një dorë e plotë ndan njëzet e pesë pikë — njëzet e dy nga letrat (asi,
- * dama, mbreti, fanti e dhjeta nga një, dhjeta bastuni dy, dyshi lulja një)
- * dhe tri për shumicën e letrave — plus dhjetë për çdo pishpirik. Loja
- * vazhdon dorë pas dore derisa dikush t'i kalojë 101-shin.
+ * Ky numër nuk vjen nga burimi i rregullave si të tjerët poshtë: ai flet për
+ * pikët e një dore e jo për fundin e mbrëmjes. 101-shi është kufiri me të cilin
+ * luhet gjerësisht, dhe rri këtu si konstante e vetme pikërisht që të ndërrohet
+ * me një prekje nëse tavolina luan deri diku tjetër.
+ */
+export const KUFIRI_I_PISHPIRIKUT = 101;
+
+/**
+ * Sa pikë ndan një dorë pishpiriku pa pishpirikët — për shënimin nën fushat.
+ *
+ * Njëzet e dy vijnë nga letrat: nga një për secilin as, dam, mbret, fant e
+ * dhjetë, ku dhjeta e bastunit numëron dy e dyshi i lules një. Tri të tjerat i
+ * merr kush ka shumicën e letrave — njëzet e shtatë a më shumë, dhe askush kur
+ * tavolina ndahet baras.
  *
  * Aplikacioni nuk i njeh letrat dhe nuk ka pse t'i njohë: numri i një dore
  * numërohet te tavolina, ku janë letrat, e shkruhet ashtu si del. Kjo shumë
  * shërben vetëm si shënim nën fushat — një dorë që del 19 do të thotë se
  * dikujt i ka ikur një letër te numërimi.
  */
-export const KUFIRI_I_PISHPIRIKUT = 101;
-
-/** Sa pikë ndan një dorë pishpiriku pa pishpirikët — për shënimin nën fushat. */
 export const DORA_E_PISHPIRIKUT = 25;
 
-/** Sa vlen një pishpirik, dhe sa ai me fant. */
+/**
+ * Sa vlen një pishpirik, dhe sa ai me fant.
+ *
+ * Të dy numrat vijnë nga rregullat e vetë lojës (pishpirik.com): dhjetë kur
+ * letra e luajtur përputhet me atë të vetme mbi tavolinë, dhe **pesëmbëdhjetë**
+ * kur ajo letër është fant. Njëzet qarkullon nëpër shumë faqe të tjera për
+ * pishtin turk — mos e „rregullo" atje pa e parë burimin.
+ */
 export const PIKET_E_PISHPIRIKUT = 10;
-export const PIKET_E_PISHPIRIKUT_ME_FANT = 20;
+export const PIKET_E_PISHPIRIKUT_ME_FANT = 15;
 
 /* ── Rregullat e një loje ───────────────────────────────────────────────── */
 
@@ -184,7 +198,8 @@ export const LOJERAT: Record<LlojiILojes, Rregullat> = {
       + `totali më i madh: mbrëmja mbaron kur dikush arrin ${KUFIRI_I_PISHPIRIKUT}.`,
     shenimi:
       `Pikët e dorës: ${DORA_E_PISHPIRIKUT} gjithsej, plus ${PIKET_E_PISHPIRIKUT} `
-      + `për çdo pishpirik. Fiton totali më i madh.`,
+      + `për çdo pishpirik (${PIKET_E_PISHPIRIKUT_ME_FANT} me fant). Fiton totali `
+      + `më i madh.`,
   },
 };
 

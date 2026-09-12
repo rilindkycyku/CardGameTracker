@@ -11,8 +11,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  DORA_E_PISHPIRIKUT,
   KUFIRI_I_DOMINES,
   KUFIRI_I_PISHPIRIKUT,
+  PIKET_E_PISHPIRIKUT,
+  PIKET_E_PISHPIRIKUT_ME_FANT,
   LOJERAT,
   RADHA,
   arritiKufirin,
@@ -107,5 +110,26 @@ test('llogaritësi mbetet i bridzhit, sepse vetëm ai ka formulë', () => {
   assert.equal(rregullat('bridzh').llogaritesi, true);
   for (const lloji of ['magarec', 'domina', 'pishpirik']) {
     assert.equal(rregullat(lloji).llogaritesi, false);
+  }
+});
+
+test('numrat e pishpirikut janë ata të rregullave të tij', () => {
+  /*
+   * Këta tre numra dalin te ekrani si shënim nën fushat, prandaj një numër i
+   * gabuar aty nuk prish asnjë llogari — mëson gabim një tavolinë të tërë.
+   *
+   * Burimi është pishpirik.com: njëzet e pesë pikë për dorë (njëzet e dy nga
+   * letrat, tri për shumicën), dhjetë për një pishpirik, dhe pesëmbëdhjetë kur
+   * letra që e bën është fant. Pesëmbëdhjeta është ajo që ngatërrohet: faqet e
+   * pishtit turk shkruajnë njëzet, dhe ai numër hyri një herë edhe këtu.
+   */
+  assert.equal(DORA_E_PISHPIRIKUT, 25);
+  assert.equal(PIKET_E_PISHPIRIKUT, 10);
+  assert.equal(PIKET_E_PISHPIRIKUT_ME_FANT, 15);
+
+  // Dhe shënimi që lexon përdoruesi i mban të tre, e nuk ka numra të vetët.
+  const shenimi = rregullat('pishpirik').shenimi;
+  for (const numri of [25, 10, 15]) {
+    assert.match(shenimi, new RegExp(String(numri)), `mungon ${numri}`);
   }
 });

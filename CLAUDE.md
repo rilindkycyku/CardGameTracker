@@ -25,7 +25,7 @@ Katër lojëra, një tavolinë:
 | **Bridzh** | pikët, ose llogaritësi hant/normal | dy raunde për lojtar | më i vogli | po |
 | **Magarec** | një prekje: kush e humbi | kur mbushet fjala „MAGAREC" | më i vogli | jo |
 | **Domina** | gurët e mbetur në dorë | kur dikujt i mbushen 100 pikë | më i vogli | po |
-| **Pishpirik** | pikët e dorës (25 + 10 për pishpirik) | kur dikush arrin 101 | **më i madhi** | jo |
+| **Pishpirik** | pikët e dorës (25 + 10 për pishpirik, 15 me fant) | kur dikush arrin 101 | **më i madhi** | jo |
 
 Dy të parat vijnë nga dy skedat e para të asaj flete, domina nga e treta, dhe pishpiriku nga vetë
 tavolina — atë skedë fleta nuk e pati kurrë. Rregullat te
@@ -684,8 +684,8 @@ Tri gjëra nuk guxojnë të ndryshojnë:
   parë (pika 11). Tabela pa rreshta nuk vizatohet, prandaj një grup që luan vetëm bridzh nuk e sheh
   kurrë fjalën „pishpirik".
 
-**Ajo që regjistri nuk e mban është vetë loja.** Pishpiriku ka njëzet e pesë pikë për dorë dhe dhjetë
-për çdo pishpirik; domina i numëron gurët e mbetur në dorë. Asnjëra nuk hyri te kodi si formulë, dhe
+**Ajo që regjistri nuk e mban është vetë loja.** Pishpiriku ka njëzet e pesë pikë për dorë, dhjetë për
+çdo pishpirik dhe pesëmbëdhjetë kur ai bëhet me fant; domina i numëron gurët e mbetur në dorë. Asnjëra nuk hyri te kodi si formulë, dhe
 asnjëra nuk ka llogaritës: numri numërohet te tavolina, ku janë letrat dhe gurët, dhe aplikacioni nuk
 i njeh as të parat as të dytët. Ajo që ka bridzhi — `pikezimi.ts` — e ka sepse aty shumëzohet e
 mblidhet me kokë në orën dy të natës, jo sepse aplikacioni i njeh letrat. Kufijtë e pikëve (100, 101)

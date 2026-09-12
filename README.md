@@ -118,12 +118,13 @@ Asnjëra nuk ka llogaritës: numri vjen i numëruar nga tavolina.
 | | Raundi | Mbaron | Fiton |
 | --- | --- | --- | --- |
 | **Domina** | sa gurë i mbetën secilit në dorë | kur dikujt i mbushen 100 | totali më i vogël |
-| **Pishpirik** | pikët e dorës — 25 gjithsej, plus 10 për çdo pishpirik | kur dikush arrin 101 | totali më i madh |
+| **Pishpirik** | pikët e dorës — 25 gjithsej, plus 10 për çdo pishpirik (15 me fant) | kur dikush arrin 101 | totali më i madh |
 
 Te pishpiriku një dorë e plotë ndan 25 pikë: nga një për secilin as, dam, mbret,
 fant e dhjetë (22 me dhjetën e bastunit dy e dyshin e lules një), dhe tri për
-shumicën e letrave. Ai numër rri shkruar nën fushat, që një dorë e numëruar
-gabim të bjerë në sy para se të ruhet.
+shumicën e letrave — 27 a më shumë, e askujt kur tavolina ndahet baras. Një
+pishpirik vlen 10, dhe 15 kur letra që e bën është fant. Ata numra rrinë shkruar
+nën fushat, që një dorë e numëruar gabim të bjerë në sy para se të ruhet.
 
 ## Rregullat e magarecit
 
