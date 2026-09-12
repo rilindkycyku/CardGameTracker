@@ -1747,6 +1747,33 @@ th.numri {
   margin-top: 0;
 }
 
+/*
+ * Rregullat e plota te paneli i mbledhur.
+ *
+ * Pika e listës është vizë e jo pikë e zezë: rreshtat janë fjali të plota e jo
+ * gjëra për t'u numëruar, dhe një kolonë pikash mbi tekst të zbehtë del më e
+ * zëshme se vetë teksti.
+ */
+.rregullat {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--teksti-zbehte);
+}
+
+.rregullat li {
+  padding-left: 0.9rem;
+  text-indent: -0.9rem;
+}
+
+.rregullat li::before {
+  content: '— ';
+  color: var(--hapur);
+}
+
 /* ── Fundfaqja ──────────────────────────────────────────────────────────── */
 
 .fundfaqja {

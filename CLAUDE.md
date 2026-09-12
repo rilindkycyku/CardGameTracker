@@ -67,7 +67,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 253 prova, pa framework provash
+npm test          # node --test — 257 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -691,8 +691,10 @@ hershme me dorë, dhe ajo nuk vlen sa një fushë e re te një kod QR (pika 7).
 ### 16. Një lojë e re hyn te regjistri, jo te ekranet
 
 `lojerat.ts` mban gjithçka që e ndan një lojë nga tjetra, dhe asgjë tjetër: emrin, shkronjën e
-paketës, drejtimin e fitores, njësinë, gjatësinë, kufirin e totalit, dhe tri po-a-jo — llogaritës,
-shlyerje, parashikim. Katër rreshta të dhënash, dhe tre funksione mbi ta.
+paketës, drejtimin e fitores, njësinë, gjatësinë, kufirin e totalit, tri po-a-jo — llogaritës,
+shlyerje, parashikim — dhe tri tekste: `rregulli` (një fjali te çelësi), `shenimi` (një rresht nën
+fushat e raundit) e `hollesite` (rregullat e plota te paneli i mbledhur). Katër rreshta të dhënash,
+dhe tre funksione mbi ta.
 
 Ekziston sepse numri i vendeve që duhet ta dinin lojën nuk rritet me një kur shtohet një lojë — rritet
 me dhjetë. Me dy lojëra një `lloji === 'magarec'` i shpërndarë nëpër ekrane ishte i durueshëm; me
@@ -723,6 +725,26 @@ Tri gjëra nuk guxojnë të ndryshojnë:
   `tabelaEPergjithshme` një herë për lojë, me drejtimin e saj; magareci e ka tabelën e vet që më
   parë (pika 11). Tabela pa rreshta nuk vizatohet, prandaj një grup që luan vetëm bridzh nuk e sheh
   kurrë fjalën „pishpirik".
+
+**Rregullat e plota rrinë te regjistri, e vizatohen një herë.** `hollesite` është një varg fjalish
+për lojë, dhe `RregullatELojes` i nxjerr te një `<details>` i mbledhur — te ekrani ku zgjidhet çka
+luhet, dhe te ai i lojës. Deri tani ato rrinin vetëm te README-ja, pra jashtë telefonit që i mban
+pikët: te tavolina pyetja «a vlen fanti dhjetë a pesëmbëdhjetë?» vjen pikërisht kur askush nuk e hap
+GitHub-un. Tri kushte i mbajnë të ndershme, dhe provat i masin:
+
+- **Numrat e kufirit nuk hyjnë atje** (pika 13). Ata i zgjedh tavolina për çdo mbrëmje, dhe një numër
+  i ngrirë te teksti do të gënjente pikërisht atë që sapo e zgjodhi vetë. Prova `kufiri i mbrëmjes nuk
+  shkruhet te teksti i rregullave` e lexon çdo tekst të regjistrit kundër `kufijteEMundshem` të asaj
+  loje. Numrat e rregullit — 51-shi i mbylljes, 25-a e dorës, 10-a e pishpirikut — mbeten, sepse ata
+  nuk ndryshojnë nga mbrëmja në mbrëmje.
+- **Numrat e shkruar vijnë nga konstantet**, jo nga dora: `${DORA_E_PISHPIRIKUT}` e `${FJALA.length}`
+  te teksti, që një ndërrim i tyre të mos lërë prapa një fjali që mëson gabim një tavolinë të tërë.
+- **Paneli rri i mbledhur, dhe jashtë bllokut të futjes** (pika 6). Ai bllok përdoret dhjetëra herë
+  në mbrëmje; kjo pyetje bëhet një herë, nëse bëhet.
+
+Tani të katërta lojërat e kanë edhe `shenimi`-n: bridzhi e mori të fundit, sepse llogaritësi i tij i
+thotë numrat vetë (pika 3) — por vetëm kur është hapur, dhe raundi që shkruhet me dorë është
+pikërisht ai që rregulli nuk e mbulon.
 
 **Ajo që regjistri nuk e mban është vetë loja.** Pishpiriku ka njëzet e pesë pikë për dorë, dhjetë për
 çdo pishpirik dhe pesëmbëdhjetë kur ai bëhet me fant; domina i numëron gurët e mbetur në dorë. Asnjëra nuk hyri te kodi si formulë, dhe

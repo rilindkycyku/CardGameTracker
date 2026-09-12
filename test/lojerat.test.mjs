@@ -153,3 +153,67 @@ test('numrat e pishpirikut janë ata të rregullave të tij', () => {
     assert.match(shenimi, new RegExp(String(numri)), `mungon ${numri}`);
   }
 });
+
+/* ── Rregullat e shkruara për tavolinën ─────────────────────────────────── */
+
+test('çdo lojë i ka rregullat e veta të shkruara', () => {
+  /*
+   * Deri tani ato rrinin te README-ja, pra jashtë telefonit. Një lojë e pestë e
+   * shtuar nesër pa këtë fushë do të dilte me një panel të zbrazët — dhe ajo
+   * nuk duket si gabim, duket si lojë pa rregulla.
+   */
+  for (const lloji of RADHA) {
+    const r = rregullat(lloji);
+    assert.ok(r.hollesite.length >= 3, `${lloji}: shumë pak rreshta`);
+    assert.ok(r.shenimi, `${lloji}: pa shënim nën fushat`);
+
+    for (const rreshti of r.hollesite) {
+      assert.match(rreshti, /\S/);
+      // Çdo rresht është fjali e mbyllur: paneli lexohet si tekst, jo si listë
+      // fjalësh të prera.
+      assert.match(rreshti, /\.$/, `${lloji}: rreshti nuk mbaron me pikë`);
+    }
+  }
+});
+
+test('kufiri i mbrëmjes nuk shkruhet te teksti i rregullave', () => {
+  /*
+   * Deri ku luhet e zgjedh tavolina për çdo mbrëmje (pika 13), prandaj një
+   * numër i ngrirë te teksti do të thoshte «mbaron te 100» mbi një fletë të
+   * nisur deri te 250 — pra do të gënjente pikërisht atë që sapo e zgjodhi
+   * vetë. Numrat e rregullit (51-shi, 25-a, 10-a) nuk preken nga kjo: ata nuk
+   * ndryshojnë nga mbrëmja në mbrëmje.
+   */
+  for (const lloji of RADHA) {
+    const r = rregullat(lloji);
+    const teksti = [r.rregulli, r.shenimi ?? '', ...r.hollesite].join(' ');
+    const kufijte = [...r.kufijteEMundshem];
+
+    for (const kufiri of kufijte) {
+      assert.doesNotMatch(
+        teksti,
+        new RegExp(`(^|[^0-9])${kufiri}([^0-9]|$)`),
+        `${lloji}: kufiri ${kufiri} rri i shkruar te teksti`,
+      );
+    }
+  }
+});
+
+test('rregullat e pishpirikut i mbajnë të tre numrat e dorës', () => {
+  // I njëjti kusht si te shënimi, por te teksti i gjatë: aty shkruhet edhe
+  // pse fanti e ndryshon numrin, dhe ai është rreshti që pyetet te tavolina.
+  const teksti = rregullat('pishpirik').hollesite.join(' ');
+
+  for (const numri of [DORA_E_PISHPIRIKUT, PIKET_E_PISHPIRIKUT, PIKET_E_PISHPIRIKUT_ME_FANT]) {
+    assert.match(teksti, new RegExp(String(numri)), `mungon ${numri}`);
+  }
+});
+
+test('rregullat e magarecit e numërojnë fjalën nga vetë fjala', () => {
+  // `MAGAREC` shkruhet një herë (`magareci.ts`); një numër i shkruar me dorë
+  // këtu do të mbetej shtatë edhe po t'i ndërrohej fjala.
+  const teksti = rregullat('magarec').hollesite.join(' ');
+
+  assert.match(teksti, new RegExp(FJALA));
+  assert.match(teksti, new RegExp(String(FJALA.length)));
+});

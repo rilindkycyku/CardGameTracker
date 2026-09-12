@@ -37,6 +37,7 @@ import {
   shtoLoje,
 } from '../ruajtja.ts';
 import { PA_KUFI, ZgjedhjaEKufirit } from '../pjeset/Kufiri.tsx';
+import { RregullatELojes } from '../pjeset/RregullatELojes.tsx';
 import { PergjithshmetEMagarecit } from '../pjeset/PergjithshmetEMagarecit.tsx';
 import { TabelaEPergjithshme } from '../pjeset/TabelaEPergjithshme.tsx';
 import { shko } from '../rruga.ts';
@@ -588,6 +589,13 @@ function ZgjedhjaELojtareve({
             ? 'Nisur nga lojtarët e lojës së fundit. Numri tregon radhën e kolonave.'
             : 'Numri tregon radhën e kolonave. Duhen së paku dy lojtarë.'}
         </p>
+
+        {/*
+          Rregullat e plota, po aty ku zgjidhet çka luhet — sepse atje bëhet
+          pyetja «si luhej kjo?», para se të ndahen letrat. Rri e mbledhur: kush
+          e di lojën nuk e hap kurrë.
+        */}
+        <RregullatELojes rregulli={rregullat(lloji)} />
 
         <div className="veprimet">
           <button
