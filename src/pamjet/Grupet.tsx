@@ -12,6 +12,7 @@
 import { useRef, useState } from 'react';
 
 import { emratERinj } from '../fusha.ts';
+import { kaloTeIRi, useVersionIRi } from '../instalimi.ts';
 import { RADHA, rregullat } from '../lojerat.ts';
 import { Ikona, ShenjaEFaqes, Zemra } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
@@ -28,6 +29,7 @@ export function Grupet() {
   }, []);
 
   const [hapurFormen, hapFormen] = useState(false);
+  const versionIRi = useVersionIRi();
 
   return (
     <div className="faqja">
@@ -167,6 +169,25 @@ export function Grupet() {
           Bërë me <Zemra /> për tavolinën.
         </p>
         <p className="fundfaqja__versioni">v{VERSIONI}</p>
+
+        {/*
+          Versioni i ri rri e pret, dhe nuk merr pushtetin pa u thënë.
+
+          Faqja tani ruhet te koshi i punëtorit të shërbimit, prandaj ajo që
+          hapet është ajo që u ruajt — edhe kur serveri ka diçka më të re. Pa
+          këtë rresht, «e ke të renë apo të vjetrën?» do të kthehej pikërisht
+          pyetja që numri i versionit erdhi ta mbyllte. Rri këtu sepse këtu rri
+          numri, dhe shfaqet vetëm kur ka vërtet çka të merret.
+        */}
+        {versionIRi && (
+          <p className="fundfaqja__i-ri">
+            <span>Ka një version më të ri.</span>
+            <button type="button" className="buton buton--vogel" onClick={kaloTeIRi}>
+              <Ikona emri="ruaj" />
+              Merre tani
+            </button>
+          </p>
+        )}
       </footer>
     </div>
   );

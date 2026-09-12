@@ -1,12 +1,12 @@
 {
   "name": "cardgametracker",
   "private": true,
-  "version": "1.7.0",
+  "version": "1.8.0",
   "type": "module",
   "description": "Numërues pikësh dhe llogarie për lojërat e tavolinës: bridzh, magarec, domina, pishpirik",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && vite build --config vite.punetori.config.ts",
     "preview": "vite preview",
     "test": "node --test --experimental-strip-types"
   },

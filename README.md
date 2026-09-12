@@ -84,6 +84,11 @@ fjalë: renditja, kurora dhe fjalia e fundit e lexojnë drejtimin nga vetë loja
   prin, sa vjen i dyti prapa, sa raunde kanë mbetur dhe kush përzien — dhe ka
   «Unë jam …»: prek emrin tënd, dhe del rreshti yt i matricës, kujt sa i del.
 - **Kopje rezervë** — nxjerrja dhe kthimi i tërë historikut si një skedar JSON.
+- **Punon pa internet, dhe instalohet** — një punëtor shërbimi i ruan skedarët e
+  faqes me hapjen e parë, prandaj aplikacioni hapet i plotë edhe në «mënyrë
+  avioni», dhe shtohet te ekrani kryesor i telefonit si aplikacion më vete. Kur
+  del një version i ri, ai pret: fundfaqja e thotë, dhe kalimi bëhet me një
+  prekje — kurrë nën këmbët e një loje që po shënohet.
 
 Punon pa internet. Të dhënat rrinë vetëm në shfletuesin e pajisjes.
 
@@ -138,9 +143,9 @@ mesit i rinumëron vetvetiu të gjitha shkronjat pas tij.
 ```bash
 npm install
 npm run dev       # serveri i zhvillimit
-npm run build     # tsc --noEmit && vite build
+npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 225 prova, pa framework provash
+npm test          # node --test — 234 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i.
@@ -176,6 +181,10 @@ src/
   lidhja.ts           kanali WebRTC dhe rruga e sinjalit mes skedave
   lidhjaMeServer.ts   mënyra me kod, e vetmja që prek një server
   ngarko.ts           lexo-nga-baza si hook
+  sherbimi.ts         çka ruhet për punë pa internet, dhe çka nuk preket —
+                      pa DOM, pa `caches`
+  punetori.ts         punëtori i shërbimit: tri ngjarje, asnjë vendim
+  instalimi.ts        regjistrimi, dhe njoftimi kur del një version i ri
   ikonat.tsx          ikonat SVG inline
   style.css           sistemi i stilit
   pamjet/             Grupet · Grupi · Loja · Shiko · Lidhu · Pergjigja
@@ -204,6 +213,8 @@ test/
   sinjalizimi.test.mjs   SDP-ja e ngjeshur — kundër SDP-ve të vërteta, dhe
                          refuzimi i rreshtave të futur brenda një adrese
   kodi.test.mjs          kodi i bashkimit, dhe shkronjat që ngatërrohen
+  sherbimi.test.mjs      lista e asaj që ruhet, koshët e vjetër, dhe kërkesat
+                         që punëtori nuk i prek fare
   logic.json             fleta origjinale, si burim provash
   sdp.json               SDP të vërteta të Chromium-it, si burim provash
 ```

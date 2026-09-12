@@ -15,4 +15,14 @@ export default defineConfig({
   define: {
     __VERSIONI__: JSON.stringify(paketa.version),
   },
+  build: {
+    /*
+     * Manifesti i ndërtimit — lista e skedarëve me emrat e tyre të hashuar.
+     *
+     * E lexon `vite.punetori.config.ts` për të ditur çka ruan punëtori i
+     * shërbimit me instalimin. Pa të, ajo listë do të shkruhej me dorë dhe do
+     * të vjetërohej te ndërtimi i parë që ndërron një hash — pra menjëherë.
+     */
+    manifest: true,
+  },
 });

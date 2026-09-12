@@ -1767,6 +1767,22 @@ th.numri {
   opacity: 0.75;
 }
 
+/**
+ * Rreshti i versionit të ri te fundfaqja.
+ *
+ * Rri i mbledhur dhe pa ngjyrë alarmi: nuk ka gabuar asgjë — faqja e ruajtur
+ * punon — thjesht ka dalë diçka më e re. Butoni mban lartësinë e vet, që gishti
+ * ta zërë pa e kërkuar.
+ */
+.fundfaqja__i-ri {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
 .zemra {
   width: 0.95em;
   height: 0.95em;

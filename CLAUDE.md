@@ -60,18 +60,26 @@ Tri gjëra e përcaktojnë çdo vendim këtu:
 ```bash
 npm install
 npm run dev       # serveri i zhvillimit
-npm run build     # tsc --noEmit && vite build
+npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 225 prova, pa framework provash
+npm test          # node --test — 234 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
+
+Ndërtimi ka dy hapa e jo një: i dyti e nxjerr punëtorin e shërbimit te `dist/sw.js`, nga manifesti
+që la i pari (pika 17). Njëri pa tjetrin lë ose faqe pa punëtor, ose punëtor që tregon te skedarë që
+nuk ekzistojnë më — prandaj thirren gjithmonë bashkë, nga `npm run build`.
 
 Versioni mbahet vetëm te `package.json` (`npm version patch|minor|major`). `vite.config.ts` e fut te
 ndërtimi si `__VERSIONI__`, `versioni.ts` e lexon dhe fundfaqja e ekranit të parë e tregon. Kjo
 ekziston sepse aplikacioni hapet nga një adresë dhe telefoni e mban në cache: pa një numër të
 dukshëm, «e ke të renë apo të vjetrën?» nuk i përgjigjet dot kush. Ngrite atë numër kur del një
 ndryshim që përdoruesi e sheh.
+
+Tani ai numër mban edhe emrin e koshit të punëtorit të shërbimit (pika 17), pra një ndërtim i
+ngritur nis me kosh të ri dhe e fshin të vjetrin. Një ndryshim i botuar pa e ngritur versionin i le
+të dy ndërtimet te i njëjti kosh — dhe atëherë skedari i ri dhe ai i vjetri rrinë te i njëjti emër.
 
 ## Rregullat e arkitekturës
 
@@ -415,9 +423,19 @@ do të ishte rrezik pa përfitim.
 
 Mos shto framework, mos shto bibliotekë komponentësh, mos shto bibliotekë grafikësh.
 
+Edhe punëtori i shërbimit hyn te kjo listë: është shkruar me dorë (pika 17), pa `workbox` e pa
+`vite-plugin-pwa`. Ato sjellin një gjenerues strategjish për një skedar që ka tri ngjarje dhe
+gjashtëdhjetë rreshta — dhe do ta zhvendosnin vendimin «çka ruhet» te një konfigurim që nuk lexohet
+si kod.
+
 Për zhvillim përdoren dëshmitarë që **nuk hyjnë te aplikacioni** dhe nuk rrinë te `package.json`:
 `segno`, `zxing-cpp` e `pillow` për koduesin QR, dhe `npx peer` (`peerjs-server`) si server
-sinjalizimi lokal gjatë provave të mënyrës me kod. Mos i shto te varësitë — `peer` sjell me vete
+sinjalizimi lokal gjatë provave të mënyrës me kod.
+
+Te kjo listë hyn edhe Chromium-i pa kokë me të cilin janë nxjerrë `public/ikona-180.png` dhe
+`ikona-512.png`: janë e njëjta `ikona.svg`, e vizatuar një herë me qoshet katrore (iOS-i dhe maskat
+e Androidit e vënë vetë rrumbullakimin). Vizatimi mbetet një i vetëm — nëse preket SVG-ja, të dyja
+nxirren sërish, e nuk redaktohen me dorë. Mos i shto te varësitë — `peer` sjell me vete
 `express` me dobësi të njohura, dhe një depo e klonuar nuk ka pse t'i marrë.
 
 ### 11. Magareci është lojë e dytë, jo aplikacion i dytë
@@ -673,6 +691,72 @@ i njeh as të parat as të dytët. Ajo që ka bridzhi — `pikezimi.ts` — e ka
 mblidhet me kokë në orën dy të natës, jo sepse aplikacioni i njeh letrat. Kufijtë e pikëve (100, 101)
 janë e vetmja gjë e rregullave të tyre që shkruhet, dhe rrinë konstante me emër te `lojerat.ts`:
 nëse shoqëria luan deri te 150, ndërrohet një numër i vetëm.
+
+### 17. Faqja hapet pa internet, dhe versioni i ri pret të pyetet
+
+Të dhënat rrinë te telefoni që nga dita e parë (pika 1), pra pikët ishin gjithmonë aty pa rrjetë.
+Ajo që mungonte ishte vetë faqja: hapja e saj varej nga cache-i i zakonshëm i shfletuesit, i cili e
+mban një kopje kur do dhe e heq kur do. Punëtori i shërbimit e bën atë premtim të matshëm — skedarët
+e ndërtimit ruhen me instalimin, dhe pastaj faqja hapet e plotë në «mënyrë avioni».
+
+Tri skedarë, dhe secili me një punë:
+
+- **`sherbimi.ts`** — vendimet, dhe asgjë tjetër: emri i koshit, koshët e vjetër që fshihen, lista e
+  asaj që ruhet, dhe çka bëhet me një kërkesë. Nuk njeh as `self`, as `caches` — prandaj provohet me
+  `node --test` si çdo modul tjetër logjike (pika 1).
+- **`punetori.ts`** — lidhja me shfletuesin: tri ngjarje dhe asnjë vendim. Ndërtohet veç, me
+  `vite.punetori.config.ts`, sepse duhet të dalë `/sw.js` te rrënja: ai vend e ai emër e vendosin
+  fushën e punëtorit, dhe një emër i hashuar te `/assets/` do ta ngushtonte atë te ajo dosje.
+- **`instalimi.ts`** — regjistrimi, dhe njoftimi kur del një version i ri.
+
+**Lista e asaj që ruhet nuk shkruhet me dorë.** Emrat janë të hashuar, prandaj një listë e shkruar
+vjetërohet te ndërtimi i parë që ndërron një hash — pra menjëherë, dhe pa u vënë re. Ndërtimi i parë
+lë manifestin e vet, i dyti e lexon, dhe `precachja()` ndjek prej tij vetëm importet **statike** të
+hyrjes.
+
+**Copa e `peerjs`-it mbetet jashtë asaj liste, dhe kjo nuk është kursim bajtesh.** Ajo varësi
+qëndron nën kushtin që ngarkohet vetëm kur përdoruesi e nis mënyrën me kod (pika 7 e pika 10); një
+punëtor që e shkarkon me instalimin do ta thyente atë kusht pikërisht atje ku nuk duket — te rrjeti,
+e jo te ekrani. Kush e prek atë mënyrë e merr copën nga rrjeti herën e parë, dhe atëherë ajo ruhet
+vetvetiu. Prova `copa e peerjs-it nuk hyn te lista e instalimit` e mban këtë të matur.
+
+**Koshi i pari, e rrjeti i dyti** — për skedarët e faqes. Emrat janë të hashuar, prandaj një skedar
+i ruajtur nuk vjetërohet dot, dhe hapja nuk pret asnjë rrjetë. Kjo është e rëndësishme pikërisht te
+rrjeta e ngadaltë e një kafeneje, e cila është më e keqe se mungesa: mungesa dështon menjëherë,
+ngadalësia rri.
+
+**Çdo navigim kthen rrënjën.** Rrugët janë me hash (`#/loja/3`), prandaj çdo navigim është i njëjti
+dokument. Ruhet `/` e jo `/index.html`: disa strehues e kthejnë të dytën me një ridrejtim, dhe një
+përgjigje e ridrejtuar nuk hyn dot te koshi — instalimi do të dështonte i tëri, pra pa kosh e pa
+asgjë offline.
+
+**Kërkesat jashtë origjinës nuk preken fare.** Serveri i sinjalizimit dhe relenjat TURN janë e vetmja
+shmangje e pikës 1, dhe rrinë të rrethuara; një punëtor që i lexon a i ruan do ta zgjeronte atë
+shmangje pa e thënë kush. E njëjta gjë për çdo metodë përveç `GET`.
+
+**Versioni i ri nuk merr pushtetin pa u pyetur.** Një punëtor që kalon vetvetiu do t'i ndërronte
+skedarët nën këmbët e një skede të hapur: kodi i vjetër në ekran, ai i riu te rrjeti, dhe një copë e
+ngarkuar vonë që nuk përputhet me asnjërin. Prandaj i riu pret, dhe fundfaqja e ekranit të parë e
+thotë me fjalë — atje ku rri numri i versionit gjithsesi, sepse tani ai numër është e vetmja gjë që
+e dallon një kosh nga tjetri. Prekja e butonit i dërgon punëtorit mesazhin, dhe faqja ringarkohet
+sapo ai ta marrë pushtetin. **Mos e shto `skipWaiting()` te instalimi.**
+
+**Emri i koshit e mban versionin**, prandaj ndërtimi i ri nis me kosh krejt të ri dhe i vjetri
+fshihet i tëri kur punëtori i ri merr pushtetin. Fshihen vetëm koshët me parathënjen tonë: te e njëjta
+origjinë mund të rrijë edhe koshi i dikujt tjetër, dhe ai nuk është i yni për ta hequr.
+
+**Gjatë zhvillimit punëtori nuk regjistrohet fare** (`import.meta.env.PROD`). Përndryshe do t'i
+shërbente skedarët e ruajtur mbi ata që Vite-ja i ndërron gjatë shkrimit — dhe ndryshimi do të dukej
+herë pas here, që është më keq se të mos dukej fare.
+
+**Ikonat e instalimit nuk hyjnë te koshi.** Ato i lexon sistemi kur shtohet aplikacioni te ekrani
+kryesor, e jo faqja gjatë punës — një kosh që i mban do të shtonte tetëdhjetë kilobajtë që nuk i
+kërkon kush gjatë mbrëmjes.
+
+**Edhe ana që vetëm shikon e merr punëtorin**, dhe kjo nuk e prek pikën 7: ai ruan vetëm skedarët e
+aplikacionit, kurrë të dhëna loje, dhe rrugët e ndarjes mbeten pa bazë fare. Përfitimi është i asaj
+ane: fotografia e rezultatit e hapur një herë hapet prapë edhe kur telefonit i bie wifi-ja në mes të
+mbrëmjes.
 
 ## Sistemi vizual
 
