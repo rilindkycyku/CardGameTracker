@@ -113,6 +113,8 @@ function Lidhur({ kodi }: { kodi: string }) {
     paketa: null,
     kur: null,
     gabimi: null,
+    dukeProvuar: true,
+    deshtime: 0,
   });
 
   useEffect(() => {
@@ -134,7 +136,11 @@ function Lidhur({ kodi }: { kodi: string }) {
         <PamjaERezultatit
           pamja={pamja}
           etiketa={{
-            emri: gjendja.lidhur ? 'Drejtpërdrejt' : 'Lidhja u shkëput',
+            emri: gjendja.lidhur
+              ? 'Drejtpërdrejt'
+              : gjendja.dukeProvuar
+                ? 'Duke u rilidhur…'
+                : 'Lidhja u shkëput',
             ikona: gjendja.lidhur ? 'drejtperdrejt' : 'kujdes',
           }}
           njoftimi={
@@ -148,12 +154,32 @@ function Lidhur({ kodi }: { kodi: string }) {
                 </span>
               </p>
             ) : (
+              /*
+                Numrat rrinë në ekran edhe të shkëputur — ata janë ende ata që u
+                shënuan, dhe një tabelë e zbrazët nuk i ndihmon askujt. Ajo që
+                ndryshon është ora krah tyre, dhe fjala nëse lidhja po kthehet
+                vetë apo pret butonin.
+              */
               <p className="njoftim njoftim--kujdes">
                 <Ikona emri="kujdes" />
                 <span>
-                  Lidhja u shkëput. Numrat janë ata të orës{' '}
-                  <strong>{gjendja.kur === null ? '—' : ora(gjendja.kur)}</strong>{' '}
-                  dhe nuk përditësohen më.
+                  Numrat janë ata të orës{' '}
+                  <strong>{gjendja.kur === null ? '—' : ora(gjendja.kur)}</strong>.{' '}
+                  {gjendja.dukeProvuar ? (
+                    'Lidhja po ngrihet sërish.'
+                  ) : (
+                    <>
+                      Lidhja u shkëput dhe nuk përditësohen më.{' '}
+                      <button
+                        type="button"
+                        className="buton buton--vogel"
+                        onClick={() => vizitori.current?.zgjohu()}
+                      >
+                        <Ikona emri="drejtperdrejt" />
+                        Provo sërish
+                      </button>
+                    </>
+                  )}
                 </span>
               </p>
             )
@@ -178,24 +204,46 @@ function Lidhur({ kodi }: { kodi: string }) {
         <div>
           <p className="kreu__mbi">Tavolina · {shfaqKodin(kodi)}</p>
           <h1 className="kreu__titull">
-            {gjendja.gabimi ? 'Nuk u lidh' : 'Duke u lidhur…'}
+            {gjendja.dukeProvuar ? 'Duke u lidhur…' : 'Nuk u lidh'}
           </h1>
         </div>
       </header>
 
       {gjendja.gabimi ? (
         <>
-          <p className="njoftim njoftim--gabim">
+          <p
+            className={
+              gjendja.dukeProvuar ? 'njoftim njoftim--kujdes' : 'njoftim njoftim--gabim'
+            }
+          >
             <Ikona emri="kujdes" />
-            <span>{gjendja.gabimi}</span>
+            <span>
+              {gjendja.gabimi}
+              {gjendja.dukeProvuar && ` Prova ${gjendja.deshtime + 1}…`}
+            </span>
           </p>
 
-          <div className="veprimet">
-            <a className="buton" href="#/bashkohu">
-              <Ikona emri="kthehu" />
-              Provo një kod tjetër
-            </a>
-          </div>
+          {/*
+            Butoni del vetëm kur provat kanë pushuar. Sa kohë ato vazhdojnë, një
+            prekje nuk ndryshon asgjë përveç numrit të provës.
+          */}
+          {!gjendja.dukeProvuar && (
+            <div className="veprimet">
+              <button
+                type="button"
+                className="buton"
+                onClick={() => vizitori.current?.zgjohu()}
+              >
+                <Ikona emri="drejtperdrejt" />
+                Provo sërish
+              </button>
+
+              <a className="buton buton--vogel" href="#/bashkohu">
+                <Ikona emri="kthehu" />
+                Provo një kod tjetër
+              </a>
+            </div>
+          )}
         </>
       ) : (
         <p className="njoftim njoftim--kujdes">

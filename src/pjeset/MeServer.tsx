@@ -22,13 +22,18 @@ import {
 import { kopjoTekstin } from '../sistemi.ts';
 import { KodiQR } from './KodiQR.tsx';
 
+/** Gjendja para se strehuesi të nisë, dhe ajo ku kthehet pas «Ndalo». */
+const BOSH: GjendjaEStrehuesitMeKod = {
+  kodi: null,
+  vizitore: 0,
+  gabimi: null,
+  dukeProvuar: true,
+  deshtime: 0,
+};
+
 export function MeServer({ paketa }: { paketa: string }) {
   const strehuesi = useRef<StrehuesiMeKod | null>(null);
-  const [gjendja, caktoGjendjen] = useState<GjendjaEStrehuesitMeKod>({
-    kodi: null,
-    vizitore: 0,
-    gabimi: null,
-  });
+  const [gjendja, caktoGjendjen] = useState<GjendjaEStrehuesitMeKod>(BOSH);
   const [nisur, caktoNisjen] = useState(false);
   /** `null` para se të shtypet; pastaj a e lejoi shfletuesi kopjimin. */
   const [kopjuar, caktoKopjuar] = useState<boolean | null>(null);
@@ -46,7 +51,7 @@ export function MeServer({ paketa }: { paketa: string }) {
     return () => {
       iRi.mbyll();
       strehuesi.current = null;
-      caktoGjendjen({ kodi: null, vizitore: 0, gabimi: null });
+      caktoGjendjen(BOSH);
     };
   }, [nisur]);
 
@@ -125,15 +130,49 @@ export function MeServer({ paketa }: { paketa: string }) {
         </button>
       </div>
 
-      {gjendja.gabimi && (
-        <p className="njoftim njoftim--gabim">
+      {/*
+        Gabimi tregohet edhe sa provohet sërish, sepse pritja është e heshtur:
+        pa të, ekrani thoshte «Duke marrë kodin…» për gjysmë minute pa e thënë
+        përse. Butoni del vetëm kur provat kanë pushuar — sa kohë ato vazhdojnë,
+        një «Provo sërish» do të ishte prekje që nuk ndryshon asgjë.
+      */}
+      {gjendja.gabimi && gjendja.kodi === null && (
+        <p
+          className={
+            gjendja.dukeProvuar ? 'njoftim njoftim--kujdes' : 'njoftim njoftim--gabim'
+          }
+        >
           <Ikona emri="kujdes" />
-          <span>{gjendja.gabimi}</span>
+          <span>
+            {gjendja.gabimi}
+            {gjendja.dukeProvuar && ' Po provohet sërish…'}
+          </span>
         </p>
       )}
 
       {gjendja.kodi === null || adresa === null ? (
-        <p className="ndihma">Duke marrë kodin…</p>
+        <>
+          <p className="ndihma">
+            {gjendja.dukeProvuar
+              ? gjendja.deshtime > 0
+                ? `Duke provuar sërish — prova ${gjendja.deshtime + 1}…`
+                : 'Duke marrë kodin…'
+              : 'Lidhja me serverin nuk u ngrit.'}
+          </p>
+
+          {!gjendja.dukeProvuar && (
+            <div className="veprimet">
+              <button
+                type="button"
+                className="buton"
+                onClick={() => strehuesi.current?.zgjohu()}
+              >
+                <Ikona emri="drejtperdrejt" />
+                Provo sërish
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         <>
           <p className="kodi" data-kodi={gjendja.kodi}>

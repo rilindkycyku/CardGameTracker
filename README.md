@@ -78,7 +78,9 @@ fjalë: renditja, kurora dhe fjalia e fundit e lexojnë drejtimin nga vetë loja
     me zë ose skanohet një herë. Punon edhe nëpër rrjeta të ndryshme, sepse
     shoqëria rrallë rri te i njëjti wifi — por i duhet internet dhe një server
     i huaj për t'i lidhur pajisjet. Lidhja kërkon butonin, dhe ekrani e thotë
-    çka del nga pajisja.
+    çka del nga pajisja. Serveri që bie nuk e mbaron mbrëmjen: lidhja provohet
+    sërish vetvetiu, kodi i shkruar në letër mbetet i njëjti, dhe ana që shikon
+    rilidhet pa e prekur kush.
 - **Ose një fotografi e çastit** — rezultati shkon brenda vetë adresës dhe
   adresa bëhet kod QR. Punon edhe atje ku rrjeta i ndan pajisjet nga
   njëra-tjetra, dhe edhe nëpër mesazh.
@@ -286,13 +288,15 @@ test/
   sdp.json               SDP të vërteta të Chromium-it, si burim provash
 ```
 
-Dy dëshmitarë rrinë jashtë `npm test`, sepse kërkojnë Playwright dhe një ndërtim
+Tre dëshmitarë rrinë jashtë `npm test`, sepse kërkojnë Playwright dhe një ndërtim
 të gatshëm:
 
 ```
 deshmitare/
   supabase-i-rreme.mjs   një Supabase sa për të provuar shtresën e rrjetit
   rrjeti.mjs             hyrje → skript → verifikim → dërgim → pajisja e dytë
+  lidhja-me-kod.mjs      lidhja me kod kundër një `peerjs-server` lokal, i cili
+                         vritet në mes të mbrëmjes dhe kthehet
 ```
 
 Arsyetimi pas zgjidhjeve rri te [`CLAUDE.md`](CLAUDE.md).

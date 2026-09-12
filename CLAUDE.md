@@ -74,7 +74,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 316 prova, pa framework provash
+npm test          # node --test — 325 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -369,12 +369,61 @@ qëndron më:
   prapa (`O`→`0`, `I`/`L`→`1`), sepse kodi diktohet me zë dhe shkruhet me nxitim. Vija dhe shkronjat
   e vogla nuk pengojnë.
 
-`VITE_PEER_SERVER` (si `host:porta/shtegu`) e ndërron serverin gjatë ndërtimit. E zbrazët — dhe
-kështu rri te prodhimi — do të thotë reja publike. Ekziston sepse reja publike nuk kapet nga makina
-e provave, dhe pa të e tërë kjo mënyrë do të shkonte e paprovuar; dhe sepse kush nuk do t'ia besojë
-lidhjen një serveri të huaj mund të ngrejë të vetin. Prova me shfletues ngre një `peerjs-server`
-lokal dhe kalon nëpër tërë rrugën; ndërtimi i prodhimit kontrollohet se nuk mban asnjë gjurmë të
-adresës së provave.
+- **Serveri që bie nuk e mbaron mbrëmjen.** Kjo mënyrë varet nga priza e telefonit dhe nga një
+  server që nuk është i yni, dhe të dyja bien pikërisht te tavolina — ku askush nuk shikon konsolën.
+  Deri tani secila rënie e linte kodin të vdekur derisa dikush ta rihapte skedën. Katër gjëra e
+  ndalojnë atë, dhe rrinë të ndara: vendimi te `kodi.ts`, kërkesa te `lidhjaMeServer.ts` (pika 1).
+
+  - **Hapja ka afat** (`AFATI_I_HAPJES`). Një server që e pranon prizën dhe hesht nuk nxjerr asnjë
+    gabim — pra pa afat, «Duke marrë kodin…» rrinte përgjithmonë. I njëjti kusht si te
+    `KOHA_PARA_SINKRONIZIMIT` e `kerko` (pika 19): çdo pritje pa afat është një ekran i ngrirë.
+  - **Dështimi provohet sërish, me largim** (`pritjaEProves`: nga një sekondë te gjysmë minute).
+    Strehuesi provon pa fund, sepse paneli i tij rri hapur tërë mbrëmjen dhe kush e hapi do ta mbajë
+    kodin të gjallë; ana që shikon provon `PROVAT_E_VIZITORIT` herë e pastaj rri te butoni — ai
+    telefon zakonisht nuk është i atij që e nisi mbrëmjen, dhe provat e pafundme vetëm i pinë
+    baterinë. Të dyja zgjohen te `online` dhe te kthimi i skedës në pamje: telefoni që fjeti në xhep
+    e ka prizën e vdekur pa e ditur.
+  - **Kodi nuk ndërrohet mes provave.** Kush e shkroi kodin në një copë letër nuk ka pse ta
+    rishkruajë sepse wifi-ja pati një çast të keq. Ndërrohet vetëm kur serveri e refuzon si të zënë
+    **para** se ta ketë pranuar një herë; pas asaj, i zëni jemi ne vetë — regjistrimi i vjetër që
+    serveri ende nuk e ka lëshuar — dhe prova tjetër e gjen të lirë.
+  - **Rilidhja e butë nuk i vret lidhjet e hapura.** `peer.destroy()` i mbyll të gjitha bashkë me
+    vete, pra një vizitor që rri duke shikuar do ta humbte pamjen sa herë serveri kollitet;
+    `reconnect()` i mban, dhe e mban edhe emrin. Prandaj provohet i pari, dhe e ashpra rri vetëm për
+    atë peer që është shkatërruar tashmë.
+
+  Dy kurthe rrinë të mbyllura me flamurin `#nePerpjekje` dhe me krahasimin `#lidhja !== lidhja`, dhe
+  të dyja janë e njëjta gjë: rilidhja që numërohet dështim i vetvetes. `disconnect()` e nxjerr
+  `disconnected` në çast e jo te radha tjetër, dhe kanali i vjetër që sapo u mbyll e nxjerr `close`
+  të vetin — pa ato dy rreshta, çdo rilidhje shtonte dy dështime dhe ana që shikon dorëzohej në
+  gjysmë të rrugës. Mos i hiq.
+
+- **Emri i gabimit nuk del kurrë në ekran.** `shpjegimi()` te `kodi.ts` është vendi i vetëm ku
+  `socket-closed` bëhet fjali shqip, dhe prova `asnjë gabim nuk del me emrin e tipit në ekran` e
+  lexon çdo lloj kundër saj — edhe një të panjohur.
+
+`VITE_PEER_SERVER` i ndërron serverat gjatë ndërtimit: **listë e ndarë me presje**, secili si
+`[https://|http://]host[:porta][/shtegu]`, dhe prova e radhës shkon te i pari i pastaj te i dyti. E
+zbrazët — dhe kështu rri te prodhimi — do të thotë reja publike. Ekziston sepse reja publike nuk
+kapet nga makina e provave, dhe pa të e tërë kjo mënyrë do të shkonte e paprovuar; dhe sepse kush
+nuk do t'ia besojë lidhjen një serveri të huaj mund të ngrejë të vetin — ose një rezervë, për atë
+mbrëmje kur reja publike nuk përgjigjet.
+
+**Asnjë server i dytë nuk hyn i shkruar te kodi**, dhe kjo është e njëjta gjë si `BOSH` te
+`supabase.ts` (pika 19): çdo server që shtohet është një i tretë i ri që mëson kur luajmë, dhe një
+«rezervë e përshtatshme» nuk do të dukej te asnjë ekran. Kush do një rezervë e shkruan vetë te
+ndërtimi, dhe e di se çka shtoi. Prova `pa VITE_PEER_SERVER nuk shkruhet asnjë server` e mban këtë
+të matur.
+
+**TLS-ja nuk hamendësohet gabim.** Skema e thënë vendos vetë; pa skemë, porta e thotë — 443 dhe
+vetëm ajo — dhe pa portë fare lexohet një server publik. Deri tani `secure` rrinte `false`
+gjithmonë, pra `localhost:9000` i provave punonte e një server i vetin me certifikatë nuk lidhej dot
+fare.
+
+Prova me shfletues (`deshmitare/lidhja-me-kod.mjs`) ngre një `peerjs-server` lokal, kalon nëpër tërë
+rrugën, dhe pastaj **e vret serverin në mes të mbrëmjes**: numrat e fundit duhet të rrinë në ekran,
+kodi duhet të mbetet i njëjti kur serveri kthehet, dhe një telefon krejt i ri duhet të lidhet ende me
+të. Ndërtimi i prodhimit kontrollohet se nuk mban asnjë gjurmë të adresës së provave.
 
 #### Kodi QR
 
@@ -1240,7 +1289,15 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   është ndarja e klientëve nga rrjeta.
 - **Reja publike e PeerJS-it nuk u provua as ajo.** Egresi i makinës së provave nuk e lëshon
   `0.peerjs.com`, prandaj mënyra me kod u provua kundër një `peerjs-server` lokal. Ajo që u provua
-  është tërë rruga e aplikacionit; ajo që mbetet e paprovuar është vetëm arritja te ai host.
+  është tërë rruga e aplikacionit — bashkë me rënien e serverit dhe kthimin e tij; ajo që mbetet e
+  paprovuar është vetëm arritja te ai host.
+- **`npx` nuk vdes me një `kill`, dhe një dëshmitar që e beson atë gënjen.** `deshmitare/lidhja-me-kod.mjs`
+  e vret serverin e sinjalizimit në mes të mbrëmjes, dhe e tërë vlera e tij rri te ajo vrasje.
+  `npx peer` është mbështjellës mbi një `sh -c` mbi një `node`, prandaj `serveri.kill()` e vret
+  vetëm të parin dhe serveri mbetet gjallë — atëherë prova kalon e gjelbër pa e prekur fare rrugën
+  që u shkrua për të. Prandaj `spawn` merr `detached: true` dhe vrasja shkon te tërë grupi
+  (`process.kill(-pid)`); dhe pas saj pritet sa hesht vërtet porta, përndryshe ngritja e radhës e
+  gjen të zënë.
 - **Hook-et rrinë mbi kthimet e para, te `Loja` e te `Grupi`.** React-i i numëron sipas radhës: një
   `useMemo` nën `if (te_dhenat === null) return …` thirret vetëm pasi të dhënat mbërrijnë, prandaj
   vizatimi i dytë ka më shumë hook-e se i pari dhe React-i bie me gabimin **#310** — ekrani nuk

@@ -3,7 +3,7 @@
  *
  * Kjo është një **shmangje me qëllim** nga pika 1 e `CLAUDE.md`-së, dhe rri e
  * ndarë te ky skedar pikërisht që shmangja të mos përhapet. Mënyra pa server
- * (`lidhja.ts`) mbetet ajo e parazgjedhur; kjo hyn vetëm kur përdoruesi e
+ * (`lidhja.ts`) mbetet ajo pa asnjë të tretë; kjo hyn vetëm kur përdoruesi e
  * zgjedh me dorë, dhe paneli i thotë hapur çka del nga pajisja.
  *
  * Përse ekziston: shkëmbimi pa server kërkon dy skanime, sepse gishtëza DTLS dhe
@@ -32,54 +32,46 @@
  * PeerJS-i ngarkohet vetëm kur kjo mënyrë niset (`await import('peerjs')`),
  * prandaj kush nuk e prek fare nuk e shkarkon fare. Ky është edhe kushti nën të
  * cilin varësia e katërt është e pranueshme.
+ *
+ * ## Çka e mban të gjallë
+ *
+ * Serveri i sinjalizimit është i dikujt tjetër, priza e telefonit vdes sa hyn
+ * në xhep, dhe reja publike e PeerJS-it bie sa herë t'i teket. Deri tani secila
+ * nga këto e linte kodin të vdekur derisa dikush ta rihapte skedën — pra
+ * pikërisht te tavolina, ku askush nuk shikon konsolën. Katër gjëra e ndalojnë
+ * atë, dhe asnjëra nuk guxon të hiqet:
+ *
+ * - **Hapja ka afat** (`AFATI_I_HAPJES`). Një server që e pranon prizën dhe nuk
+ *   përgjigjet më nuk nxjerr asnjë gabim — pra pa afat, «Duke marrë kodin…»
+ *   rrinte përgjithmonë.
+ * - **Dështimi provohet sërish, me largim** (`pritjaEProves`). Strehuesi provon
+ *   pa fund, sepse paneli i tij rri hapur tërë mbrëmjen; ana që shikon provon
+ *   `PROVAT_E_VIZITORIT` herë dhe pastaj pret butonin.
+ * - **Kodi nuk ndërrohet mes provave.** Kush e shkroi kodin në një copë letër
+ *   nuk ka pse ta rishkruajë sepse wifi-ja pati një çast të keq. Ndërrohet
+ *   vetëm kur serveri e refuzon si të zënë **para** se ta ketë pranuar një herë.
+ * - **Rilidhja e butë nuk i vret lidhjet e hapura.** `peer.destroy()` i mbyll të
+ *   gjitha bashkë me vete; `reconnect()` i mban. Prandaj serveri i humbur
+ *   rikapet me të dytin, dhe një vizitor që rri duke shikuar nuk e vë re fare.
+ *
+ * Dhe të dyja anët zgjohen vetë te `online` dhe te kthimi i skedës në pamje:
+ * telefoni që fjeti gjysmë ore e ka prizën e vdekur pa e ditur, dhe pritja e
+ * radhës do të ishte gjysmë minute pas një preke që nuk e bën kush.
  */
 
 import type { DataConnection, Peer } from 'peerjs';
 
-import { idIStrehuesit, kodiNgaBajtet } from './kodi.ts';
-
-/**
- * Sa herë provohet një kod i re kur emri del i zënë.
- *
- * Hapësira është dyzet bita, prandaj një përplasje e vërtetë është pothuajse e
- * pamundur — por reja është publike dhe e përbashkët, dhe një provë e dytë
- * kushton më lirë se një mesazh gabimi që nuk e ndreq njeri.
- */
-const PROVAT = 3;
-
-/**
- * Serveri i sinjalizimit, kur nuk është reja publike.
- *
- * `VITE_PEER_SERVER` lexohet gjatë ndërtimit, si `host:porta/shtegu`. E zbrazët
- * — dhe kështu rri te ndërtimi i prodhimit — do të thotë reja publike e
- * PeerJS-it, pikërisht ajo që përshkruhet më lart.
- *
- * Ekziston për dy arsye. E para: reja publike nuk kapet nga makina e provave,
- * prandaj pa këtë e tërë kjo mënyrë do të shkonte e paprovuar — dhe kodi i
- * rrjetës i paprovuar është pikërisht ai që prishet te tavolina. E dyta: kush
- * nuk do t'ia besojë lidhjen një serveri të huaj mund të ngrejë të vetin
- * (`peerjs-server`) dhe ta ndërtojë aplikacionin me adresën e tij — atëherë
- * mënyra me kod nuk i thotë asgjë asnjë të treti.
- */
-function serveriIZgjedhur(): { host: string; port: number; path: string; secure: boolean } | undefined {
-  const thene = import.meta.env?.VITE_PEER_SERVER;
-  if (typeof thene !== 'string' || !thene) return undefined;
-
-  const [autoriteti, ...shtegu] = thene.split('/');
-  const [host, porta] = (autoriteti ?? '').split(':');
-  if (!host) return undefined;
-
-  const numri = Number(porta);
-
-  return {
-    host,
-    port: Number.isInteger(numri) && numri > 0 ? numri : 443,
-    path: `/${shtegu.join('/')}`,
-    // Vetëm reja publike merr TLS pa u thënë; një server i vendosur vetë
-    // zakonisht rri pa të gjatë zhvillimit.
-    secure: false,
-  };
-}
+import {
+  AFATI_I_HAPJES,
+  PROVAT_E_VIZITORIT,
+  idIStrehuesit,
+  kodiNgaBajtet,
+  pritjaEProves,
+  serverat,
+  shpjegimi,
+  veprimiPasGabimit,
+  type Serveri,
+} from './kodi.ts';
 
 /** Bajte të rastit për kodin. */
 function bajteTeRastit(sa: number): Uint8Array {
@@ -94,47 +86,96 @@ async function ngarkoPeer(): Promise<typeof Peer> {
   return moduli.Peer;
 }
 
-/** Teksti shqip për gabimet e PeerJS-it, që të mos dalë emri i tipit në ekran. */
-function shpjegimi(lloji: string): string {
-  switch (lloji) {
-    case 'browser-incompatible':
-      return 'Ky shfletues nuk e mban lidhjen e drejtpërdrejtë.';
-    case 'network':
-    case 'server-error':
-    case 'socket-error':
-    case 'socket-closed':
-      return 'Serveri i lidhjes nuk u kap. A ka internet ky telefon?';
-    case 'ssl-unavailable':
-      return 'Serveri i lidhjes nuk pranon lidhje të sigurt.';
-    case 'peer-unavailable':
-      return 'Ky kod nuk u gjet. A rri hapur paneli te telefoni që mban pikët?';
-    case 'invalid-id':
-    case 'invalid-key':
-      return 'Kodi nuk u pranua nga serveri.';
-    case 'webrtc':
-      return 'Lidhja mes pajisjeve dështoi.';
-    default:
-      return 'Lidhja nuk u ngrit; provoje sërish.';
-  }
+/** Lista e serverave, e lexuar një herë nga ndërtimi. */
+function lista(): Serveri[] {
+  return serverat(import.meta.env?.VITE_PEER_SERVER);
+}
+
+/**
+ * Serveri i provës `cila`, ose `undefined` për rejën publike.
+ *
+ * Rrotullohet: prova e dytë shkon te serveri i dytë, dhe pas të fundit nis
+ * prapë nga kreu. Me një server të vetëm — dhe kështu rri te prodhimi — kjo
+ * është pa efekt.
+ */
+function serveriIProves(cila: number): Serveri | undefined {
+  const te_gjithe = lista();
+  if (te_gjithe.length === 0) return undefined;
+  return te_gjithe[cila % te_gjithe.length]!;
+}
+
+/**
+ * Zgjimi kur ka kuptim të provohet sërish.
+ *
+ * `online` është i qartë. Kthimi i skedës në pamje jo aq, dhe është pikërisht
+ * ai që mungonte: Androidi dhe iOS-i e vrasin prizën e një skede të fshehur pa
+ * i thënë asgjë faqes, prandaj telefoni i nxjerrë nga xhepi gjeti gjithmonë një
+ * lidhje të vdekur dhe një pritje që sapo kishte nisur.
+ */
+function degjoZgjimin(zgjohu: () => void): () => void {
+  const nePamje = () => {
+    if (document.visibilityState === 'visible') zgjohu();
+  };
+
+  window.addEventListener('online', zgjohu);
+  document.addEventListener('visibilitychange', nePamje);
+
+  return () => {
+    window.removeEventListener('online', zgjohu);
+    document.removeEventListener('visibilitychange', nePamje);
+  };
+}
+
+/** A e di shfletuesi se rrjeti mungon fare. */
+function jashteRrjetit(): boolean {
+  return typeof navigator !== 'undefined' && navigator.onLine === false;
 }
 
 /* ── Strehuesi: ai që mban pikët ────────────────────────────────────────── */
 
 export type GjendjaEStrehuesitMeKod = {
-  /** Kodi që tregohet, ose `null` sa përgatitet. */
+  /** Kodi që tregohet, ose `null` sa përgatitet ose sa serveri rri i humbur. */
   kodi: string | null;
   vizitore: number;
   gabimi: string | null;
+  /** A do të provohet sërish vetvetiu — qoftë tani, qoftë pas pritjes. */
+  dukeProvuar: boolean;
+  /** Sa dështime me radhë; zero sapo serveri kapet. */
+  deshtime: number;
 };
 
 export class StrehuesiMeKod {
   #njofto: (gjendja: GjendjaEStrehuesitMeKod) => void;
-  #gjendja: GjendjaEStrehuesitMeKod = { kodi: null, vizitore: 0, gabimi: null };
+  #gjendja: GjendjaEStrehuesitMeKod = {
+    kodi: null,
+    vizitore: 0,
+    gabimi: null,
+    dukeProvuar: true,
+    deshtime: 0,
+  };
 
+  #Peer: typeof Peer | null = null;
   #peer: Peer | null = null;
   #lidhjet = new Set<DataConnection>();
   #paketa: string;
-  #provat = 0;
+
+  /** Kodi i kësaj mbrëmjeje. Mbahet nëpër prova, që të mos rishkruhet. */
+  #kodi: string | null = null;
+  /** A e pranoi serveri ndonjëherë këtë kod — vendos çka do të thotë «i zënë». */
+  #uPranua = false;
+  #deshtime = 0;
+  #sprova = 0;
+  #afati: number | null = null;
+  #ora: number | null = null;
+  /**
+   * A rri `#provo` brenda punës së vet pikërisht tani.
+   *
+   * `disconnect()` e nxjerr `disconnected` në çast e jo te radha tjetër, pra
+   * rilidhja e butë e thërriste dëgjuesin e vet dhe e numëronte veten dështim:
+   * një lidhje e mirë prishej pikërisht sa po ndreqej.
+   */
+  #nePerpjekje = false;
+  #hiqDegjuesit: (() => void) | null = null;
   #mbyllur = false;
 
   constructor(paketa: string, njofto: (gjendja: GjendjaEStrehuesitMeKod) => void) {
@@ -149,31 +190,51 @@ export class StrehuesiMeKod {
   }
 
   async nis(): Promise<void> {
-    let Peer_: typeof Peer;
+    this.#hiqDegjuesit = degjoZgjimin(() => this.zgjohu());
 
     try {
-      Peer_ = await ngarkoPeer();
+      this.#Peer = await ngarkoPeer();
     } catch {
-      this.#ndrysho({ gabimi: 'Pjesa e lidhjes me kod nuk u ngarkua.' });
+      this.#ndrysho({ gabimi: 'Pjesa e lidhjes me kod nuk u ngarkua.', dukeProvuar: false });
       return;
     }
 
     if (this.#mbyllur) return;
-    this.#hap(Peer_);
+    this.#hap();
   }
 
-  #hap(Peer_: typeof Peer): void {
-    const kodi = kodiNgaBajtet(bajteTeRastit(8));
+  /** «Provo sërish», ose rrjeti që u kthye: pritja e nisur nga e para. */
+  zgjohu(): void {
+    if (this.#mbyllur || this.#gjendja.kodi !== null) return;
+
+    this.#deshtime = 0;
+    this.#hiqOret();
+    this.#provo();
+  }
+
+  #hap(): void {
+    if (this.#mbyllur || !this.#Peer) return;
+
+    const kodi = this.#kodi ?? kodiNgaBajtet(bajteTeRastit(8));
 
     if (!kodi) {
-      this.#ndrysho({ gabimi: 'Kodi nuk u përgatit; provoje sërish.' });
+      this.#ndrysho({ gabimi: 'Kodi nuk u përgatit; provoje sërish.', dukeProvuar: false });
       return;
     }
 
-    const peer = new Peer_(idIStrehuesit(kodi), serveriIZgjedhur());
-    this.#peer = peer;
+    this.#kodi = kodi;
+    this.#ndrysho({ dukeProvuar: true });
 
-    peer.on('open', () => this.#ndrysho({ kodi, gabimi: null }));
+    const peer = new this.#Peer(idIStrehuesit(kodi), serveriIProves(this.#sprova));
+    this.#peer = peer;
+    this.#niseAfatin();
+
+    peer.on('open', () => {
+      this.#hiqOret();
+      this.#deshtime = 0;
+      this.#uPranua = true;
+      this.#ndrysho({ kodi, gabimi: null, dukeProvuar: false, deshtime: 0 });
+    });
 
     peer.on('connection', (lidhja) => {
       lidhja.on('open', () => {
@@ -184,7 +245,7 @@ export class StrehuesiMeKod {
         } catch {
           // Lidhja u mbyll mes kohe; heqja bëhet te `close`.
         }
-        this.#ndrysho({ vizitore: this.#lidhjet.size, gabimi: null });
+        this.#ndrysho({ vizitore: this.#lidhjet.size });
       });
 
       lidhja.on('close', () => {
@@ -198,34 +259,107 @@ export class StrehuesiMeKod {
       });
     });
 
-    peer.on('error', (gabimi: { type?: string }) => {
-      const lloji = gabimi?.type ?? '';
-
-      // Emri i zënë nuk është gabim për përdoruesin: provohet një kod tjetër.
-      if (lloji === 'unavailable-id' && this.#provat < PROVAT) {
-        this.#provat++;
-        peer.destroy();
-        this.#ndrysho({ kodi: null });
-        this.#hap(Peer_);
-        return;
-      }
-
-      this.#ndrysho({ gabimi: shpjegimi(lloji) });
-    });
+    peer.on('error', (gabimi: { type?: string }) => this.#deshtoi(gabimi?.type ?? ''));
 
     /*
-     * Shkëputja nga serveri nuk i vret lidhjet që janë hapur — ato rrinë drejt
-     * mes pajisjeve. Prandaj rilidhja provohet pa e prishur asgjë: pa të,
-     * kodi mbetet i pavlefshëm dhe askush i re nuk lidhet dot.
+     * Shkëputja vjen gjithmonë pas një gabimi — `_abort` e thërret vetë — pra
+     * pritja është zakonisht e nisur tashmë. Rri si rrjetë sigurie: nëse ajo
+     * rrugë ndërron te një version i ardhshëm, kodi nuk mbetet i vdekur pa e
+     * thënë kush.
      */
     peer.on('disconnected', () => {
-      if (this.#mbyllur || peer.destroyed) return;
-      try {
-        peer.reconnect();
-      } catch {
-        this.#ndrysho({ gabimi: 'Serveri i lidhjes u shkëput.' });
-      }
+      if (this.#mbyllur || this.#nePerpjekje || this.#ora !== null) return;
+      this.#deshtoi('network');
     });
+  }
+
+  #niseAfatin(): void {
+    if (this.#afati !== null) window.clearTimeout(this.#afati);
+    // Serveri që e pranon prizën dhe hesht nuk nxjerr gabim: afati e nxjerr.
+    this.#afati = window.setTimeout(() => this.#deshtoi('socket-error'), AFATI_I_HAPJES);
+  }
+
+  #hiqOret(): void {
+    if (this.#afati !== null) window.clearTimeout(this.#afati);
+    if (this.#ora !== null) window.clearTimeout(this.#ora);
+    this.#afati = null;
+    this.#ora = null;
+  }
+
+  #deshtoi(lloji: string): void {
+    if (this.#mbyllur) return;
+
+    this.#hiqOret();
+    const veprimi = veprimiPasGabimit(lloji);
+
+    if (veprimi === 'ndal') {
+      this.#peer?.destroy();
+      this.#peer = null;
+      this.#ndrysho({ kodi: null, gabimi: shpjegimi(lloji), dukeProvuar: false });
+      return;
+    }
+
+    /*
+     * «I zënë» ka dy kuptime, dhe ndarja e tyre është ajo që e mban kodin të
+     * shkruar në letër të vlefshëm: para se serveri ta ketë pranuar një herë,
+     * emri i takon vërtet dikujt tjetër dhe duhet një kod tjetër; pas asaj, i
+     * zëni jemi ne vetë — regjistrimi i vjetër që serveri ende nuk e ka lëshuar
+     * — dhe prova tjetër e gjen të lirë.
+     */
+    if (veprimi === 'kodTjeter' && !this.#uPranua) this.#kodi = null;
+
+    this.#deshtime++;
+    this.#sprova++;
+    this.#ndrysho({
+      kodi: null,
+      gabimi: shpjegimi(lloji),
+      deshtime: this.#deshtime,
+      dukeProvuar: !jashteRrjetit(),
+    });
+
+    // Pa rrjet fare nuk ka çka provohet; `online` e zgjon vetë.
+    if (jashteRrjetit()) return;
+
+    this.#ora = window.setTimeout(() => this.#provo(), pritjaEProves(this.#deshtime));
+  }
+
+  /**
+   * Prova e radhës: e butë kur mundet, e ashpër kur duhet.
+   *
+   * `destroy()` i mbyll bashkë me vete të gjitha lidhjet e hapura, pra një
+   * vizitor që rri duke shikuar do ta humbte pamjen sa herë serveri kollitet.
+   * `reconnect()` i mban — dhe e mban edhe emrin — prandaj provohet i pari.
+   * Kërkon një peer të shkëputur e jo të shkatërruar, dhe pikërisht atë e
+   * siguron rreshti para tij.
+   */
+  #provo(): void {
+    if (this.#mbyllur) return;
+    this.#ora = null;
+    this.#ndrysho({ dukeProvuar: true });
+
+    const peer = this.#peer;
+    this.#nePerpjekje = true;
+
+    try {
+      if (peer && !peer.destroyed) {
+        try {
+          if (!peer.disconnected) peer.disconnect();
+          peer.reconnect();
+          this.#niseAfatin();
+          return;
+        } catch {
+          // Rrugë e mbyllur; poshtë rri ajo e ashpra.
+        }
+      }
+
+      peer?.destroy();
+      this.#peer = null;
+      this.#lidhjet.clear();
+      this.#ndrysho({ vizitore: 0 });
+      this.#hap();
+    } finally {
+      this.#nePerpjekje = false;
+    }
   }
 
   /** Dërgon pamjen e re te çdo vizitor i lidhur. */
@@ -244,6 +378,9 @@ export class StrehuesiMeKod {
 
   mbyll(): void {
     this.#mbyllur = true;
+    this.#hiqOret();
+    this.#hiqDegjuesit?.();
+    this.#hiqDegjuesit = null;
     for (const lidhja of this.#lidhjet) lidhja.close();
     this.#lidhjet.clear();
     this.#peer?.destroy();
@@ -259,6 +396,9 @@ export type GjendjaEVizitoritMeKod = {
   paketa: string | null;
   kur: number | null;
   gabimi: string | null;
+  /** A do të provohet sërish vetvetiu — qoftë tani, qoftë pas pritjes. */
+  dukeProvuar: boolean;
+  deshtime: number;
 };
 
 export class VizitoriMeKod {
@@ -268,10 +408,21 @@ export class VizitoriMeKod {
     paketa: null,
     kur: null,
     gabimi: null,
+    dukeProvuar: true,
+    deshtime: 0,
   };
 
   #kodi: string;
+  #Peer: typeof Peer | null = null;
   #peer: Peer | null = null;
+  #lidhja: DataConnection | null = null;
+  #deshtime = 0;
+  #sprova = 0;
+  #afati: number | null = null;
+  #ora: number | null = null;
+  /** Si te strehuesi: `#provo` nuk guxon ta numërojë veten dështim. */
+  #nePerpjekje = false;
+  #hiqDegjuesit: (() => void) | null = null;
   #mbyllur = false;
 
   constructor(kodi: string, njofto: (gjendja: GjendjaEVizitoritMeKod) => void) {
@@ -286,45 +437,180 @@ export class VizitoriMeKod {
   }
 
   async nis(): Promise<void> {
-    let Peer_: typeof Peer;
+    this.#hiqDegjuesit = degjoZgjimin(() => this.zgjohu());
 
     try {
-      Peer_ = await ngarkoPeer();
+      this.#Peer = await ngarkoPeer();
     } catch {
-      this.#ndrysho({ gabimi: 'Pjesa e lidhjes me kod nuk u ngarkua.' });
+      this.#ndrysho({ gabimi: 'Pjesa e lidhjes me kod nuk u ngarkua.', dukeProvuar: false });
       return;
     }
 
     if (this.#mbyllur) return;
+    this.#hap();
+  }
 
-    // Emri i kësaj ane e lëshon serveri: vetëm strehuesi ka nevojë për emër që
+  /** «Provo sërish», ose rrjeti që u kthye: provat e numëruara nga e para. */
+  zgjohu(): void {
+    if (this.#mbyllur || this.#gjendja.lidhur) return;
+
+    this.#deshtime = 0;
+    this.#hiqOret();
+    this.#provo();
+  }
+
+  #hap(): void {
+    if (this.#mbyllur || !this.#Peer) return;
+
+    this.#ndrysho({ dukeProvuar: true });
+
+    // Emrin e kësaj ane e lëshon serveri: vetëm strehuesi ka nevojë për emër që
     // dihet përpara.
-    // Mbingarkesa me vetëm opsione: emrin e kësaj ane e lëshon serveri.
-    const peer = new Peer_(serveriIZgjedhur() ?? {});
+    const peer = new this.#Peer(serveriIProves(this.#sprova) ?? {});
     this.#peer = peer;
+    this.#niseAfatin();
 
-    peer.on('open', () => {
-      const lidhja = peer.connect(idIStrehuesit(this.#kodi));
+    peer.on('open', () => this.#lidhu());
+    peer.on('error', (gabimi: { type?: string }) => this.#deshtoi(gabimi?.type ?? ''));
 
-      lidhja.on('open', () => this.#ndrysho({ lidhur: true, gabimi: null }));
-      lidhja.on('close', () => this.#ndrysho({ lidhur: false }));
-      lidhja.on('data', (te_dhenat) => {
-        if (typeof te_dhenat === 'string') {
-          this.#ndrysho({ paketa: te_dhenat, kur: Date.now(), lidhur: true });
+    peer.on('disconnected', () => {
+      if (this.#mbyllur || this.#nePerpjekje || this.#ora !== null) return;
+      this.#deshtoi('network');
+    });
+  }
+
+  #lidhu(): void {
+    const peer = this.#peer;
+    if (this.#mbyllur || !peer) return;
+
+    this.#niseAfatin();
+    const lidhja = peer.connect(idIStrehuesit(this.#kodi));
+    this.#lidhja = lidhja;
+
+    lidhja.on('open', () => {
+      this.#hiqOret();
+      this.#deshtime = 0;
+      this.#ndrysho({ lidhur: true, gabimi: null, dukeProvuar: false, deshtime: 0 });
+    });
+
+    /*
+     * Mbyllja e kanalit nuk është fundi i mbrëmjes: telefoni i strehuesit mund
+     * të ketë hyrë në xhep. Numrat e fundit rrinë në ekran — ata janë ende ata
+     * që u shënuan — dhe lidhja provohet sërish nën to.
+     */
+    /*
+     * Vetëm kanali i tanishëm ka të drejtë të thotë «u shkëput». Pa krahasimin
+     * me `#lidhja`, kanali i vjetër që `#provo` sapo e mbylli e thërriste vetë
+     * dështimin e radhës — pra çdo rilidhje numërohej dy herë dhe prova e pestë
+     * mbërrinte në gjysmë të rrugës.
+     */
+    lidhja.on('close', () => {
+      if (this.#mbyllur || this.#lidhja !== lidhja) return;
+      this.#ndrysho({ lidhur: false });
+      this.#deshtoi('webrtc');
+    });
+
+    lidhja.on('data', (te_dhenat) => {
+      if (typeof te_dhenat === 'string') {
+        this.#ndrysho({ paketa: te_dhenat, kur: Date.now(), lidhur: true });
+      }
+    });
+
+    lidhja.on('error', (gabimi: { type?: string }) => {
+      if (this.#mbyllur || this.#lidhja !== lidhja) return;
+      this.#ndrysho({ lidhur: false });
+      this.#deshtoi(gabimi?.type ?? '');
+    });
+  }
+
+  #niseAfatin(): void {
+    if (this.#afati !== null) window.clearTimeout(this.#afati);
+    this.#afati = window.setTimeout(() => this.#deshtoi('socket-error'), AFATI_I_HAPJES);
+  }
+
+  #hiqOret(): void {
+    if (this.#afati !== null) window.clearTimeout(this.#afati);
+    if (this.#ora !== null) window.clearTimeout(this.#ora);
+    this.#afati = null;
+    this.#ora = null;
+  }
+
+  #deshtoi(lloji: string): void {
+    if (this.#mbyllur) return;
+
+    this.#hiqOret();
+    const veprimi = veprimiPasGabimit(lloji);
+    this.#deshtime++;
+    this.#sprova++;
+
+    /*
+     * Ana që shikon nuk provon pa fund. Kur paneli u mbyll ose kodi është i
+     * vjetër, provat nuk e ndreqin gjë — dhe ky telefon zakonisht nuk është ai
+     * që e nisi mbrëmjen, pra nuk ka kush e shikon. Pas kufirit rri butoni.
+     */
+    const jep_pas = veprimi === 'ndal'
+      || jashteRrjetit()
+      || this.#deshtime >= PROVAT_E_VIZITORIT;
+
+    this.#ndrysho({
+      lidhur: false,
+      gabimi: shpjegimi(lloji),
+      deshtime: this.#deshtime,
+      dukeProvuar: !jep_pas,
+    });
+
+    if (jep_pas) return;
+
+    this.#ora = window.setTimeout(() => this.#provo(), pritjaEProves(this.#deshtime));
+  }
+
+  #provo(): void {
+    if (this.#mbyllur) return;
+    this.#ora = null;
+    this.#ndrysho({ dukeProvuar: true });
+
+    const peer = this.#peer;
+    const vjetri = this.#lidhja;
+    this.#nePerpjekje = true;
+
+    try {
+      // Serveri i kapur ende: mjafton kanali i ri, pa e ngritur lidhjen nga pari.
+      if (peer && !peer.destroyed && peer.open) {
+        // Hiqet i pari, që mbyllja e tij të mos lexohet si shkëputje e re.
+        this.#lidhja = null;
+        vjetri?.close();
+        this.#lidhu();
+        return;
+      }
+
+      if (peer && !peer.destroyed) {
+        try {
+          if (!peer.disconnected) peer.disconnect();
+          peer.reconnect();
+          this.#niseAfatin();
+          return;
+        } catch {
+          // Rrugë e mbyllur; poshtë rri ajo e ashpra.
         }
-      });
-      lidhja.on('error', (gabimi: { type?: string }) => {
-        this.#ndrysho({ lidhur: false, gabimi: shpjegimi(gabimi?.type ?? '') });
-      });
-    });
+      }
 
-    peer.on('error', (gabimi: { type?: string }) => {
-      this.#ndrysho({ lidhur: false, gabimi: shpjegimi(gabimi?.type ?? '') });
-    });
+      this.#lidhja = null;
+      peer?.destroy();
+      this.#peer = null;
+      this.#hap();
+    } finally {
+      this.#nePerpjekje = false;
+    }
   }
 
   mbyll(): void {
     this.#mbyllur = true;
+    this.#hiqOret();
+    this.#hiqDegjuesit?.();
+    this.#hiqDegjuesit = null;
+    const lidhja = this.#lidhja;
+    this.#lidhja = null;
+    lidhja?.close();
     this.#peer?.destroy();
     this.#peer = null;
   }
