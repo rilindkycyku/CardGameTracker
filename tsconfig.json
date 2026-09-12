@@ -12,6 +12,17 @@
     "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
     "allowImportingTsExtensions": true,
+    /*
+     * Parathënja `.ts` te importet rishkruhet `.js` kur dikush e nxjerr kodin.
+     *
+     * Projekti i shkruan importet me `.ts` sepse `node --test` i lexon modulet
+     * drejtpërdrejt (pika 1), dhe ai kërkon shtegun e plotë. Vercel-i nga ana e
+     * vet e përkthen `api/sinjali.ts` te `.js` **pa i prekur specifikuesit** —
+     * pra dilte një funksion që importonte `../src/takimi.ts`, skedar që te
+     * dalja nuk ekziston, dhe botimi refuzohej. Kjo e mban një stil të vetëm te
+     * burimi dhe e ndreq daljen.
+     */
+    "rewriteRelativeImportExtensions": true,
     "noEmit": true,
     "skipLibCheck": true,
     "isolatedModules": true,

@@ -7,6 +7,7 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
 import {
@@ -159,5 +160,30 @@ test('serverat ICE lexohen me kredencialet e tyre', () => {
   assert.deepEqual(
     serveratEICE('stun:a.example:3478, turn:u:p@b.example:3478').map((n) => n.urls),
     ['stun:a.example:3478', 'turn:b.example:3478'],
+  );
+});
+
+/* ── Dalja e serverit ───────────────────────────────────────────────────── */
+
+test('importet e nxjerra shkruhen `.js`, që funksioni të botohet dot', () => {
+  /*
+   * Kjo provë mat një rresht konfigurimi, e jo logjikë, dhe pikërisht prandaj
+   * ekziston: dështimi që mbulon nuk duket askund lokalisht.
+   *
+   * Projekti i shkruan importet me `.ts` sepse `node --test` i lexon modulet
+   * drejtpërdrejt (pika 1). Vercel-i e përkthen `api/sinjali.ts` te `.js` me
+   * TypeScript-in tonë, por **pa i prekur specifikuesit** — pra pa këtë rresht
+   * te dalja rri një funksion që importon `../src/takimi.ts`, skedar që atje
+   * nuk ekziston. `npm test`, `tsc --noEmit` dhe `npm run build` kalojnë të
+   * gjitha; refuzimi vjen vetëm te botimi, pas gjithçkaje.
+   */
+  const cilesimet = readFileSync(new URL('../tsconfig.json', import.meta.url), 'utf8');
+
+  // Komentet te tsconfig-u i lejon Vercel-i e jo `JSON.parse`, prandaj lexohet
+  // si tekst: ajo që na duhet është një rresht, dhe ai lexohet ashtu.
+  assert.match(
+    cilesimet,
+    /"rewriteRelativeImportExtensions"\s*:\s*true/,
+    'pa `rewriteRelativeImportExtensions` funksioni i sinjalizimit nuk botohet dot',
   );
 });

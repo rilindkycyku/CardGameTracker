@@ -91,7 +91,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 335 prova, pa framework provash
+npm test          # node --test — 336 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -1219,6 +1219,27 @@ Dhe një e katërt, nga i njëjti dështim: **përgjigja pa asnjë adresë nuk d
 kandidatëve ka afat, dhe te një telefon i ngarkuar ai afat mund të mbarojë para se të vijë qoftë një
 i vetëm. Atëherë dilte një përgjigje e ligjshme e pa asnjë adresë: strehuesi e pranonte, e prishte
 ftesën e vet për të, dhe pastaj priste një shtrëngim që nuk kishte nga të vinte.
+
+#### Importet e nxjerra shkruhen `.js`, përndryshe funksioni nuk botohet
+
+`rewriteRelativeImportExtensions` te `tsconfig.json` rri për një arsye të vetme, dhe ajo arsye nuk
+duket askund lokalisht.
+
+Projekti i shkruan importet me `.ts`, sepse `node --test` i lexon modulet drejtpërdrejt dhe kërkon
+shtegun e plotë (pika 1). Vercel-i e përkthen `api/sinjali.ts` te `.js` me TypeScript-in tonë, por
+**pa i prekur specifikuesit** — pra pa atë rresht te dalja rri një funksion që importon
+`../src/takimi.ts`, skedar që atje nuk ekziston, dhe botimi refuzohet me
+«referencing unsupported modules».
+
+Ajo që e bën këtë kurth: `npm test`, `tsc --noEmit` dhe `npm run build` kalojnë të gjitha. Refuzimi
+vjen vetëm te botimi, pas gjithçkaje. Prandaj prova
+`importet e nxjerra shkruhen .js, që funksioni të botohet dot` e lexon atë rresht drejtpërdrejt —
+një provë mbi konfigurim, e cila zakonisht nuk vlen, por këtu është i vetmi vend ku dështimi kapet
+para kohe.
+
+Rruga për ta parë me sy është `npx vercel build` dhe pastaj një `grep` mbi specifikuesit te
+`.vercel/output/functions/api/sinjali.func/`: aty duhet të dalin `.js`, dhe skedarët përbri duhet
+të jenë pikërisht ata.
 
 #### Serveri ngrihet edhe gjatë zhvillimit
 
