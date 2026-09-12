@@ -40,7 +40,7 @@ Tri gjëra e përcaktojnë çdo vendim këtu:
    të rrijë te dikush tjetër. Kjo do të thotë edhe se kopja rezervë nuk është shtojcë — është dalja
    e parë e të dhënave.
 
-   Ka **tri shmangje**, dhe të tria rrinë të rrethuara. E para: mënyra „me kod" e lidhjes së
+   Ka **katër shmangje**, dhe të katërta rrinë të rrethuara. E para: mënyra „me kod" e lidhjes së
    drejtpërdrejtë (`lidhjaMeServer.ts`) përdor një server sinjalizimi të huaj. Të dhënat e lojës nuk
    shkruhen te asnjë server edhe atëherë, dhe ekrani i thotë hapur çka del nga pajisja para se të
    shtypet butoni.
@@ -56,11 +56,28 @@ Tri gjëra e përcaktojnë çdo vendim këtu:
    fotografinë. Kjo është zgjedhje e pronarit, e jo rrjedhojë e kodit — mos e ndërro pa e pyetur.
    Kushtet që mbeten te pika 7.
 
-   E treta, dhe më e madhja: **sinkronizimi** (pika 19), me kërkesë të pronarit. Ajo është e vetmja
-   gjë që i shkruan pikët dhe emrat te një bazë jashtë pajisjes — por te një bazë që e zotëron vetë
-   përdoruesi, te projekti i tij Supabase, dhe vetëm pasi ta ketë lidhur me dorë. Server i Tavolinës
-   nuk ka edhe atëherë, dhe **mos shto një të tillë**. Rri e fikur derisa dikush ta ndezë; kushtet e
-   plota te pika 19.
+   E treta: **sinkronizimi** (pika 19), me kërkesë të pronarit. Ajo është e vetmja gjë që i shkruan
+   pikët dhe emrat te një bazë jashtë pajisjes — por te një bazë që e zotëron vetë përdoruesi, te
+   projekti i tij Supabase, dhe vetëm pasi ta ketë lidhur me dorë. Rri e fikur derisa dikush ta
+   ndezë; kushtet e plota te pika 19.
+
+   E katërta, dhe ajo që e ndërron vetë fjalinë e parë: **serveri i sinjalizimit është i yni**
+   (`api/sinjali.ts`, pika 20), **me kërkesë të shprehur të pronarit**. Deri para saj këtu rrinte
+   „Server i Tavolinës nuk ka, dhe mos shto një të tillë" pa asnjë përjashtim; pronari e hoqi atë
+   ndalesë për një gjë të vetme, dhe ajo gjë është e ngushtë sa vetë fjalia:
+
+   - Nëpër të kalojnë **vetëm dy varga sinjalizimi** — ftesa dhe përgjigja, pra pikërisht ato që te
+     mënyra pa server kalojnë nëpër dy kode QR. Kredenciale ICE dhe një gishtëz DTLS: emra, raunde
+     dhe totale nuk hyjnë aty fare, dhe as nuk mund të hyjnë.
+   - Preket **vetëm sa zgjat shtrëngimi i duarve**. Sapo kanali hapet, asnjë kërkesë nuk niset më —
+     një provë me shfletues e numëron pikërisht këtë.
+   - **Asgjë nuk mbahet**: vargu zhduket vetë brenda tre minutash, dhe nuk ka llogari, cookie as
+     regjistër.
+
+   Pra baza e të dhënave mbetet e paprekur nga kjo: pikët janë ende vetëm te telefoni, dhe
+   **një server që i sheh të dhënat e lojës nuk guxon të shtohet ende** — as për sinkronizim, as për
+   „lehtësi". Shmangja e katërt lejon një server që lidh dy telefona, e jo një që mban një mbrëmje.
+   Kushtet e plota te pika 20.
 2. **Përdoruesi po mban letrat me dorën tjetër.** Çdo fushë numri është së paku 2.75rem, tastiera
    del numerike, dhe blloku që përdoret dhjetëra herë në mbrëmje („Ruaj raundin") rri i pari.
    Ekrani i ngushtë vjen i pari; kompjuteri pas.
@@ -74,7 +91,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 316 prova, pa framework provash
+npm test          # node --test — 336 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -98,13 +115,14 @@ të dy ndërtimet te i njëjti kosh — dhe atëherë skedari i ri dhe ai i vjet
 ### 1. Logjika rri te module që nuk njohin as bazën, as React-in, as `window`-in
 
 `llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `lojerat.ts`, `parashikimi.ts`, `fundi.ts`,
-`fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts`, `kodi.ts`, `analitika.ts`,
-`tema.ts`, `bashkimi.ts`, `skema.ts`, `projekti.ts` dhe `identiteti.ts` importohen drejtpërdrejt nga
+`fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts`, `kodi.ts`, `takimi.ts`,
+`analitika.ts`, `tema.ts`, `bashkimi.ts`, `skema.ts`, `projekti.ts` dhe `identiteti.ts` importohen
+drejtpërdrejt nga
 `node --test`, pa bundler dhe pa DOM — prandaj `npm test` zgjat nën një sekondë dhe nuk ka çka të
 prishet mes provës dhe kodit.
 
-`lidhja.ts`, `lidhjaMeServer.ts`, `sistemi.ts`, `ruajtja.ts`, `matja.ts`, `ndricimi.ts`,
-`supabase.ts`, `sinkronizimi.ts` dhe `pajisja.ts` nuk hyjnë te kjo listë me qëllim: e para njeh
+`lidhja.ts`, `lidhjaMeServer.ts`, `lidhjaMeTakim.ts`, `sistemi.ts`, `ruajtja.ts`, `matja.ts`,
+`ndricimi.ts`, `supabase.ts`, `sinkronizimi.ts` dhe `pajisja.ts` nuk hyjnë te kjo listë me qëllim: e para njeh
 `RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e treta `navigator`-in (tabelën e
 fragmenteve dhe fletën e ndarjes), e katërta bazën, e pesta `document`-in dhe `window`-in, e gjashta
 `localStorage`-in e `matchMedia`-n, e shtata `fetch`-in e `localStorage`-in, e teta të dyja ato
@@ -115,7 +133,9 @@ shfletues.
 
 Çiftet e sinkronizimit lexohen si ato që ekzistonin: `bashkimi.ts` krah `sinkronizimi.ts` si
 `sherbimi.ts` krah `punetori.ts`, dhe `projekti.ts` krah `supabase.ts` si `analitika.ts` krah
-`matja.ts`. Vendimi rri te i pari; kërkesa te i dyti.
+`matja.ts`. Vendimi rri te i pari; kërkesa te i dyti. `takimi.ts` është i njëjti çift dy herë: krah
+`lidhjaMeTakim.ts` te shfletuesi, dhe krah `api/sinjali.ts` te serveri — i njëjti kontroll alfabeti
+lexohet nga të dyja anët, sepse një anë e vetme që e bën atë punë nuk është kontroll fare.
 
 Logjika e re shkon te një prej tyre, ose te një modul i ri i të njëjtit lloj, me prova. Mos fut
 `import` të bazës, të React-it apo të ndonjë API-je të shfletuesit në to.
@@ -209,14 +229,19 @@ Një lojtar që ka hapur e ka mbetur me zero pikë do ta kishte mbyllur vetë ra
 nuk humb asnjë gjendje të vërtetë. Me gjashtë lojtarë kjo e preu llogaritësin nga 1195px në 569px
 dhe hoqi pesë prekje.
 
-### 7. Rezultati shpërndahet tri rrugë, dhe parazgjedhja nuk ka server
+### 7. Rezultati shpërndahet katër rrugë, dhe vetëm njëra nuk prek asnjë server
 
-Kush rri rreth tavolinës do t'i shohë pikët në telefonin e vet. Ka tri rrugë, dhe secila mbulon atë
+Kush rri rreth tavolinës do t'i shohë pikët në telefonin e vet. Ka katër rrugë, dhe secila mbulon atë
 që tjetra nuk mundet:
 
 - **E drejtpërdrejtë, pa server** (`lidhja.ts`, `sinjalizimi.ts`): një kanal WebRTC mes telefonave
   të së njëjtës rrjetë, me sinjalizimin nëpër dy kode QR. Parazgjedhja, dhe e vetmja që nuk
   kontakton kurrë asnjë server.
+- **E drejtpërdrejtë, me takim** (`lidhjaMeTakim.ts`, `takimi.ts`, `api/sinjali.ts`): i njëjti kanal
+  WebRTC dhe i njëjti kod i vetëm, por serveri që i takon dy anët është **yni**, te e njëjta adresë
+  ku rri aplikacioni. Kërkon të njëjtin wifi — `iceServers` rri i zbrazët si te mënyra pa server —
+  dhe është e vetmja rrugë me një kod të vetëm që nuk i thotë asgjë asnjë të treti. Shmangja e
+  katërt nga pika 1, dhe kushtet e plota te pika 20.
 - **E drejtpërdrejtë, me kod** (`lidhjaMeServer.ts`, `kodi.ts`): i njëjti kanal WebRTC, por
   sinjalizimi kalon nëpër një server të huaj, prandaj mjafton një kod tetëkarakterësh. Shmangja e
   parë nga pika 1, dhe rri me kushte — më poshtë.
@@ -369,12 +394,61 @@ qëndron më:
   prapa (`O`→`0`, `I`/`L`→`1`), sepse kodi diktohet me zë dhe shkruhet me nxitim. Vija dhe shkronjat
   e vogla nuk pengojnë.
 
-`VITE_PEER_SERVER` (si `host:porta/shtegu`) e ndërron serverin gjatë ndërtimit. E zbrazët — dhe
-kështu rri te prodhimi — do të thotë reja publike. Ekziston sepse reja publike nuk kapet nga makina
-e provave, dhe pa të e tërë kjo mënyrë do të shkonte e paprovuar; dhe sepse kush nuk do t'ia besojë
-lidhjen një serveri të huaj mund të ngrejë të vetin. Prova me shfletues ngre një `peerjs-server`
-lokal dhe kalon nëpër tërë rrugën; ndërtimi i prodhimit kontrollohet se nuk mban asnjë gjurmë të
-adresës së provave.
+- **Serveri që bie nuk e mbaron mbrëmjen.** Kjo mënyrë varet nga priza e telefonit dhe nga një
+  server që nuk është i yni, dhe të dyja bien pikërisht te tavolina — ku askush nuk shikon konsolën.
+  Deri tani secila rënie e linte kodin të vdekur derisa dikush ta rihapte skedën. Katër gjëra e
+  ndalojnë atë, dhe rrinë të ndara: vendimi te `kodi.ts`, kërkesa te `lidhjaMeServer.ts` (pika 1).
+
+  - **Hapja ka afat** (`AFATI_I_HAPJES`). Një server që e pranon prizën dhe hesht nuk nxjerr asnjë
+    gabim — pra pa afat, «Duke marrë kodin…» rrinte përgjithmonë. I njëjti kusht si te
+    `KOHA_PARA_SINKRONIZIMIT` e `kerko` (pika 19): çdo pritje pa afat është një ekran i ngrirë.
+  - **Dështimi provohet sërish, me largim** (`pritjaEProves`: nga një sekondë te gjysmë minute).
+    Strehuesi provon pa fund, sepse paneli i tij rri hapur tërë mbrëmjen dhe kush e hapi do ta mbajë
+    kodin të gjallë; ana që shikon provon `PROVAT_E_VIZITORIT` herë e pastaj rri te butoni — ai
+    telefon zakonisht nuk është i atij që e nisi mbrëmjen, dhe provat e pafundme vetëm i pinë
+    baterinë. Të dyja zgjohen te `online` dhe te kthimi i skedës në pamje: telefoni që fjeti në xhep
+    e ka prizën e vdekur pa e ditur.
+  - **Kodi nuk ndërrohet mes provave.** Kush e shkroi kodin në një copë letër nuk ka pse ta
+    rishkruajë sepse wifi-ja pati një çast të keq. Ndërrohet vetëm kur serveri e refuzon si të zënë
+    **para** se ta ketë pranuar një herë; pas asaj, i zëni jemi ne vetë — regjistrimi i vjetër që
+    serveri ende nuk e ka lëshuar — dhe prova tjetër e gjen të lirë.
+  - **Rilidhja e butë nuk i vret lidhjet e hapura.** `peer.destroy()` i mbyll të gjitha bashkë me
+    vete, pra një vizitor që rri duke shikuar do ta humbte pamjen sa herë serveri kollitet;
+    `reconnect()` i mban, dhe e mban edhe emrin. Prandaj provohet i pari, dhe e ashpra rri vetëm për
+    atë peer që është shkatërruar tashmë.
+
+  Dy kurthe rrinë të mbyllura me flamurin `#nePerpjekje` dhe me krahasimin `#lidhja !== lidhja`, dhe
+  të dyja janë e njëjta gjë: rilidhja që numërohet dështim i vetvetes. `disconnect()` e nxjerr
+  `disconnected` në çast e jo te radha tjetër, dhe kanali i vjetër që sapo u mbyll e nxjerr `close`
+  të vetin — pa ato dy rreshta, çdo rilidhje shtonte dy dështime dhe ana që shikon dorëzohej në
+  gjysmë të rrugës. Mos i hiq.
+
+- **Emri i gabimit nuk del kurrë në ekran.** `shpjegimi()` te `kodi.ts` është vendi i vetëm ku
+  `socket-closed` bëhet fjali shqip, dhe prova `asnjë gabim nuk del me emrin e tipit në ekran` e
+  lexon çdo lloj kundër saj — edhe një të panjohur.
+
+`VITE_PEER_SERVER` i ndërron serverat gjatë ndërtimit: **listë e ndarë me presje**, secili si
+`[https://|http://]host[:porta][/shtegu]`, dhe prova e radhës shkon te i pari i pastaj te i dyti. E
+zbrazët — dhe kështu rri te prodhimi — do të thotë reja publike. Ekziston sepse reja publike nuk
+kapet nga makina e provave, dhe pa të e tërë kjo mënyrë do të shkonte e paprovuar; dhe sepse kush
+nuk do t'ia besojë lidhjen një serveri të huaj mund të ngrejë të vetin — ose një rezervë, për atë
+mbrëmje kur reja publike nuk përgjigjet.
+
+**Asnjë server i dytë nuk hyn i shkruar te kodi**, dhe kjo është e njëjta gjë si `BOSH` te
+`supabase.ts` (pika 19): çdo server që shtohet është një i tretë i ri që mëson kur luajmë, dhe një
+«rezervë e përshtatshme» nuk do të dukej te asnjë ekran. Kush do një rezervë e shkruan vetë te
+ndërtimi, dhe e di se çka shtoi. Prova `pa VITE_PEER_SERVER nuk shkruhet asnjë server` e mban këtë
+të matur.
+
+**TLS-ja nuk hamendësohet gabim.** Skema e thënë vendos vetë; pa skemë, porta e thotë — 443 dhe
+vetëm ajo — dhe pa portë fare lexohet një server publik. Deri tani `secure` rrinte `false`
+gjithmonë, pra `localhost:9000` i provave punonte e një server i vetin me certifikatë nuk lidhej dot
+fare.
+
+Prova me shfletues (`deshmitare/lidhja-me-kod.mjs`) ngre një `peerjs-server` lokal, kalon nëpër tërë
+rrugën, dhe pastaj **e vret serverin në mes të mbrëmjes**: numrat e fundit duhet të rrinë në ekran,
+kodi duhet të mbetet i njëjti kur serveri kthehet, dhe një telefon krejt i ri duhet të lidhet ende me
+të. Ndërtimi i prodhimit kontrollohet se nuk mban asnjë gjurmë të adresës së provave.
 
 #### Kodi QR
 
@@ -813,9 +887,14 @@ dokument. Ruhet `/` e jo `/index.html`: disa strehues e kthejnë të dytën me n
 përgjigje e ridrejtuar nuk hyn dot te koshi — instalimi do të dështonte i tëri, pra pa kosh e pa
 asgjë offline.
 
-**Kërkesat jashtë origjinës nuk preken fare.** Serveri i sinjalizimit, relenjat TURN dhe projekti
-Supabase i përdoruesit janë shmangje e pikës 1, dhe rrinë të rrethuara; një punëtor që i lexon a i
-ruan do ta zgjeronte atë shmangje pa e thënë kush. Te sinkronizimi kjo është edhe e vetmja gjë e
+**Kërkesat jashtë origjinës nuk preken fare.** Serveri i sinjalizimit i PeerJS-it, relenjat TURN dhe
+projekti Supabase i përdoruesit janë shmangje e pikës 1, dhe rrinë të rrethuara; një punëtor që i
+lexon a i ruan do ta zgjeronte atë shmangje pa e thënë kush.
+
+**As `/api/` nuk preket**, edhe pse rri te e njëjta origjinë. Atje rri serveri ynë i sinjalizimit
+(pika 20), dhe një ftesë e ruajtur do të kthehej pasi vargu i saj të kishte vdekur — pra lidhja do të
+dështonte pa asnjë shpjegim. Më keq: dy vizitorë do të merrnin nga koshi të njëjtën ftesë, dhe
+pikërisht ajo përplasje është ajo që pika 20 e mbyll me zënien atomike. Te sinkronizimi kjo është edhe e vetmja gjë e
 saktë: një përgjigje e ruajtur e një `select`-i do të kthente mbrëmjen e djeshme si të sotmen, dhe
 një `POST` i ruajtur nuk do të thoshte asgjë. E njëjta gjë për çdo metodë përveç `GET`, dhe për
 `/_vercel/` — ai shteg rri te e njëjta origjinë, por është i strehuesit e jo i faqes (pika 18).
@@ -912,9 +991,13 @@ i shënoi tableti mbrëmë, dhe sot po i shikoj te telefoni*. Për atë duhet nj
 pajisjet, dhe **kjo hyri me kërkesë të pronarit**.
 
 Ajo bazë nuk është e jona. Përdoruesi sjell projektin e vet Supabase, ngjit adresën dhe çelësin
-publik, dhe hyn me një llogari që ekziston vetëm brenda tij. Server i Tavolinës nuk ka edhe tani, dhe
-**mos shto një të tillë** — as për të rele-uar diçka, as për „lehtësi". Sapo të ketë një, tërë pika 1
-bie bashkë me të.
+publik, dhe hyn me një llogari që ekziston vetëm brenda tij. **Server i yni që i sheh të dhënat e
+lojës nuk ka, dhe mos shto një të tillë** — as për të rele-uar një mbrëmje, as për „lehtësi". Sapo të
+ketë një, tërë kjo pikë bie bashkë me të.
+
+Serveri i sinjalizimit (pika 20) nuk e prek këtë: atje kalojnë vetëm kredencialet e një lidhjeje, dhe
+as një emër i vetëm lojtari nuk hyn dot. Ai është një server që lidh dy telefona; ky do të ishte një
+server që mban një mbrëmje, dhe ata të dy nuk janë e njëjta gjë.
 
 **Tabelën nuk e krijon dot aplikacioni, dhe kjo nuk është mangësi.** Çelësi publik që rri te
 pajisja arrin **vetëm** te PostgREST-i, i cili shërben rreshta; tabela, politika dhe trigger-i
@@ -1074,6 +1157,98 @@ Rrugët e ndarjes (`#/shiko`, `#/lidhu`, `#/pergjigje`, `#/bashkohu`) mbeten pa 
 pikës 7 është fjalë për fjalë i paprekur, dhe sinkronizimi nuk niset te ato rrugë sepse nuk niset
 askund pa projekt të lidhur. Dhe kopja rezervë mbetet aty ku ishte: ajo është rruga pa llogari, pa
 internet dhe pa varësi, dhe nuk zëvendësohet nga kjo.
+
+### 20. Serveri i sinjalizimit është yni, dhe prek vetëm shtrëngimin e duarve
+
+Kjo është e vetmja pikë e projektit që hoqi një ndalesë në vend që të shtonte një. Deri para saj
+pika 1 thoshte „server i yni nuk ka" pa asnjë përjashtim; **pronari e hoqi atë ndalesë për një gjë
+të vetme**, sepse mënyra me kod e PeerJS-it varej nga një server i huaj që kur binte e merrte me
+vete tërë mbrëmjen — dhe rruga e vetme e mbetur atëherë kërkonte dy skanime.
+
+`api/sinjali.ts` mban dy varga për një kod: ftesën dhe përgjigjen. Janë pikërisht ato që te mënyra
+pa server kalojnë nëpër dy kode QR, dhe `sinjalizimi.ts` është i njëjti kodek për të dyja — një
+format i dytë do të dilte jashtë sinkronie pikërisht atje ku bitet duhet të jenë të njëjtat.
+
+Shmangja pranohet vetëm nën këto kushte, dhe nëse dikush e prek një prej tyre, shmangja nuk qëndron
+më:
+
+- **Pikët nuk e prekin atë shteg kurrë.** Sapo kanali WebRTC hapet, asnjë kërkesë nuk niset më.
+  Kjo nuk lihet te leximi i kodit: prova `pikët nuk e prekin fare serverin` te
+  `deshmitare/takimi.mjs` i numëron kërkesat e faqes dhe kërkon që numri të mos lëvizë pas
+  transmetimit. Kjo është ndryshe nga PeerJS-i, i cili e mban prizën hapur tërë mbrëmjen.
+- **`iceServers` rri i zbrazët**, si te `lidhja.ts` (pika 7). Pa STUN e pa TURN mblidhen vetëm
+  kandidatë `typ host`, prandaj asnjë i tretë nuk kontaktohet dhe lidhja del vetëm brenda së njëjtës
+  rrjetë. Pra kjo mënyrë **kërkon të njëjtin wifi** — ajo që ndërron kundrejt mënyrës pa server
+  është vetëm numri i skanimeve, nga dy në një. Kush luan nëpër rrjeta të ndryshme e ka mënyrën me
+  PeerJS, e cila i mban relenjat e veta. `VITE_ICE_SERVERS` e ndërron këtë gjatë ndërtimit, për atë
+  që ka një TURN të vetin; asnjë adresë nuk vjen e shkruar te kodi, për të njëjtën arsye si te
+  `VITE_PEER_SERVER` dhe si te `BOSH` i pikës 19.
+- **Asgjë nuk mbahet.** Vargu rri `JETA` sekonda dhe zhduket vetë. Pa llogari, pa cookie, pa
+  regjistër.
+- **Çdo fushë kontrollohet me alfabet të ngushtë**, me të njëjtën ashpërsi si te sinjali i skanuar
+  (pika 7) dhe te rreshtat e sinkronizimit (pika 19) — dhe këtu arsyeja është më e drejtpërdrejtë:
+  shtegu është i hapur për këdo që e gjen adresën. Kodi tetë karaktere të alfabetit të vet, roli një
+  nga dy, trupi nën `KUFIRI` bajte dhe pa asnjë karakter që SDP-ja e lexon si ndarës. Vendimet rrinë
+  te `takimi.ts` e provohen me `node --test`; serveri vetëm i thërret.
+- **Vendi i ruajtjes thuhet, e nuk hamendësohet.** Një funksion pa gjendje nuk i takon dot dy anët,
+  prandaj duhet një vend ruajtjeje — Upstash Redis kur `KV_REST_API_*` rrinë te mjedisi, dhe kujtesa
+  e vetë thirrjes kur jo. E dyta punon te zhvillimi dhe **herë po e herë jo** te prodhimi, prandaj
+  përgjigjja e thotë me kokën `x-takimi` dhe ekrani e nxjerr me fjalë. Një mënyrë që dështon një herë
+  në tri është më e keqe se një që thotë hapur se nuk është ngritur.
+
+#### Një ftesë merr saktësisht një përgjigje
+
+Kjo është pika që nuk merret me mend, dhe ajo që u pagua me një dështim një-në-tri.
+
+Dy veta që e skanojnë kodin njëkohësisht e marrin të dy të njëjtën ftesë. Pa zënie, i dyti e
+mbishkruante përgjigjen e të parit — dhe pastaj **të dy** i dërgonin strehuesit kontrolle ICE mbi po
+ato kredenciale. Ai çift i ngatërruar nuk dështonte gjithmonë; dështonte rreth një herë në tri, dhe
+atëherë nuk lidhej **asnjëri nga të dy**. Pra jo „i dyti pret" — të dy binin, dhe në heshtje.
+
+Tri gjëra e mbyllin atë, dhe asnjëra nuk guxon të hiqet:
+
+- **Përgjigja zihet një herë e vetme** (`zer`, me `SET … NX` te Redis-i). I pari e zë; i dyti merr
+  `409` dhe e mëson menjëherë, në vend që të presë kot.
+- **Ana që shikon pret ftesën e radhës, e jo po atë.** `#merrFtesen(perveq)` e krahason me atë që
+  sapo e humbi — pa atë krahasim rrethi tjetër do t'i përgjigjej sërish së njëjtës ftesë, dhe do ta
+  humbte sërish.
+- **Ftesa e konsumuar fshihet në çast** (`DELETE`), e nuk lihet të vdesë vetë. Përndryshe kush
+  skanon pikërisht atëherë i përgjigjet një ftese që nuk e pret më askush.
+
+Dhe një e katërt, nga i njëjti dështim: **përgjigja pa asnjë adresë nuk dërgohet fare.** Mbledhja e
+kandidatëve ka afat, dhe te një telefon i ngarkuar ai afat mund të mbarojë para se të vijë qoftë një
+i vetëm. Atëherë dilte një përgjigje e ligjshme e pa asnjë adresë: strehuesi e pranonte, e prishte
+ftesën e vet për të, dhe pastaj priste një shtrëngim që nuk kishte nga të vinte.
+
+#### Importet e nxjerra shkruhen `.js`, përndryshe funksioni nuk botohet
+
+`rewriteRelativeImportExtensions` te `tsconfig.json` rri për një arsye të vetme, dhe ajo arsye nuk
+duket askund lokalisht.
+
+Projekti i shkruan importet me `.ts`, sepse `node --test` i lexon modulet drejtpërdrejt dhe kërkon
+shtegun e plotë (pika 1). Vercel-i e përkthen `api/sinjali.ts` te `.js` me TypeScript-in tonë, por
+**pa i prekur specifikuesit** — pra pa atë rresht te dalja rri një funksion që importon
+`../src/takimi.ts`, skedar që atje nuk ekziston, dhe botimi refuzohet me
+«referencing unsupported modules».
+
+Ajo që e bën këtë kurth: `npm test`, `tsc --noEmit` dhe `npm run build` kalojnë të gjitha. Refuzimi
+vjen vetëm te botimi, pas gjithçkaje. Prandaj prova
+`importet e nxjerra shkruhen .js, që funksioni të botohet dot` e lexon atë rresht drejtpërdrejt —
+një provë mbi konfigurim, e cila zakonisht nuk vlen, por këtu është i vetmi vend ku dështimi kapet
+para kohe.
+
+Rruga për ta parë me sy është `npx vercel build` dhe pastaj një `grep` mbi specifikuesit te
+`.vercel/output/functions/api/sinjali.func/`: aty duhet të dalin `.js`, dhe skedarët përbri duhet
+të jenë pikërisht ata.
+
+#### Serveri ngrihet edhe gjatë zhvillimit
+
+Te prodhimi `api/sinjali.ts` e ngre Vercel-i vetë; te `npm run dev` nuk e ngre kush. Prandaj
+`vite.config.ts` e mbërthen atë **të njëjtin skedar** si middleware — jo një imitim të tij, që ajo
+që provohet të jetë ajo që botohet. Pa të, e tërë kjo mënyrë do të shkonte e paprovuar deri te
+botimi, e cila është pikërisht mënyra si prishet kodi i rrjetës (e njëjta arsye si `VITE_PEER_SERVER`
+te pika 7).
+
 
 ## Sistemi vizual
 
@@ -1238,9 +1413,21 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   makinë, prandaj ICE-ja lidhet mbi `192.0.2.2` e mDNS-i zgjidhet brenda së njëjtës Chrome. Rruga e
   parë kur diçka nuk punon në wifi të vërtetë është `chrome://webrtc-internals`, dhe dyshimi i parë
   është ndarja e klientëve nga rrjeta.
+- **Dy skanime njëkohësisht nuk janë „rast i rrallë".** Te tavolina, kodi del në ekran dhe dy veta e
+  drejtojnë kamerën njëkohësisht — kjo është rruga e zakonshme, jo ajo e çuditshmja. Pikërisht ajo e
+  nxori dështimin një-në-tri të pikës 20, dhe pikërisht ajo është prova që duhet mbajtur: një
+  `Promise.all` mbi dy faqe, e jo dy skanime të radhitura bukur. Prova e radhitur kalonte gjithmonë.
 - **Reja publike e PeerJS-it nuk u provua as ajo.** Egresi i makinës së provave nuk e lëshon
   `0.peerjs.com`, prandaj mënyra me kod u provua kundër një `peerjs-server` lokal. Ajo që u provua
-  është tërë rruga e aplikacionit; ajo që mbetet e paprovuar është vetëm arritja te ai host.
+  është tërë rruga e aplikacionit — bashkë me rënien e serverit dhe kthimin e tij; ajo që mbetet e
+  paprovuar është vetëm arritja te ai host.
+- **`npx` nuk vdes me një `kill`, dhe një dëshmitar që e beson atë gënjen.** `deshmitare/lidhja-me-kod.mjs`
+  e vret serverin e sinjalizimit në mes të mbrëmjes, dhe e tërë vlera e tij rri te ajo vrasje.
+  `npx peer` është mbështjellës mbi një `sh -c` mbi një `node`, prandaj `serveri.kill()` e vret
+  vetëm të parin dhe serveri mbetet gjallë — atëherë prova kalon e gjelbër pa e prekur fare rrugën
+  që u shkrua për të. Prandaj `spawn` merr `detached: true` dhe vrasja shkon te tërë grupi
+  (`process.kill(-pid)`); dhe pas saj pritet sa hesht vërtet porta, përndryshe ngritja e radhës e
+  gjen të zënë.
 - **Hook-et rrinë mbi kthimet e para, te `Loja` e te `Grupi`.** React-i i numëron sipas radhës: një
   `useMemo` nën `if (te_dhenat === null) return …` thirret vetëm pasi të dhënat mbërrijnë, prandaj
   vizatimi i dytë ka më shumë hook-e se i pari dhe React-i bie me gabimin **#310** — ekrani nuk

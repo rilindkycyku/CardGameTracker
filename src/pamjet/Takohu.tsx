@@ -1,17 +1,12 @@
 /**
- * Bashkimi me kod — ana që shikon, te mënyra me server.
+ * Takimi me kod — ana që shikon.
  *
- * Dy rrugë hyjnë këtu: `#/bashkohu` me kodin e shkruar me dorë, dhe
- * `#/bashkohu/<kod>` kur kodi vjen nga një skanim ose nga një lidhje e dërguar.
- * E dyta lidhet vetë, prandaj skanimi është një hap i vetëm.
+ * Dy rrugë hyjnë këtu: `#/takohu` me kodin e shkruar me dorë, dhe
+ * `#/takohu/<kod>` kur kodi vjen nga një skanim ose nga një lidhje e dërguar.
  *
- * Si `#/shiko/` dhe `#/lidhu/`, kjo pamje nuk lexon as shkruan në bazë: hapet
- * edhe në një telefon që nuk e ka pasur kurrë aplikacionin, dhe nuk i prek
- * lojërat e vetë atij telefoni.
- *
- * Kur kodi vjen nga adresa, njoftimi mbi tabelë e thotë se lidhja shkon nëpër
- * një server të huaj. Kush skanon një kod nuk e ka lexuar tekstin te ana tjetër,
- * prandaj do ta mësonte vetëm këtu.
+ * Si `#/shiko/`, `#/lidhu/` dhe `#/bashkohu/`, kjo pamje nuk lexon as shkruan
+ * në bazë: hapet edhe në një telefon që nuk e ka pasur kurrë aplikacionin, dhe
+ * nuk i prek lojërat e vetë atij telefoni (pika 7).
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -19,9 +14,9 @@ import { useEffect, useRef, useState } from 'react';
 import { Ikona, ShenjaEFaqes } from '../ikonat.tsx';
 import { lexoKodin, shfaqKodin } from '../kodi.ts';
 import {
-  VizitoriMeKod,
-  type GjendjaEVizitoritMeKod,
-} from '../lidhjaMeServer.ts';
+  VizitoriMeTakim,
+  type GjendjaEVizitoritMeTakim,
+} from '../lidhjaMeTakim.ts';
 import { shpaketo } from '../ndarja.ts';
 import { PamjaERezultatit } from '../pjeset/PamjaERezultatit.tsx';
 import { shko } from '../rruga.ts';
@@ -32,14 +27,10 @@ function ora(kur: number): string {
   return `${String(koha.getHours()).padStart(2, '0')}:${String(koha.getMinutes()).padStart(2, '0')}`;
 }
 
-export function Bashkohu({ kodi }: { kodi: string | null }) {
+export function Takohu({ kodi }: { kodi: string | null }) {
   const iLexuar = kodi === null ? null : lexoKodin(kodi);
 
-  return iLexuar === null ? (
-    <Forma keq={kodi !== null} />
-  ) : (
-    <Lidhur kodi={iLexuar} />
-  );
+  return iLexuar === null ? <Forma keq={kodi !== null} /> : <Lidhur kodi={iLexuar} />;
 }
 
 /** Kutia e kodit, kur nuk vjen nga adresa ose kur adresa nuk lexohet. */
@@ -68,7 +59,7 @@ function Forma({ keq }: { keq: boolean }) {
         className="rreshti-fushave"
         onSubmit={(ngjarja) => {
           ngjarja.preventDefault();
-          if (iLexuar) shko(`/bashkohu/${iLexuar}`);
+          if (iLexuar) shko(`/takohu/${iLexuar}`);
         }}
       >
         <label className="lidhja">
@@ -93,7 +84,7 @@ function Forma({ keq }: { keq: boolean }) {
 
       <p className="ndihma">
         Kodin e tregon telefoni që mban pikët, te paneli «Pikët drejtpërdrejt» →
-        «Me kod». Shkronjat e vogla dhe vija nuk kanë rëndësi.
+        «Takim». Shkronjat e vogla dhe vija nuk kanë rëndësi.
       </p>
 
       <footer className="fundfaqja">
@@ -107,18 +98,17 @@ function Forma({ keq }: { keq: boolean }) {
 
 /** Pamja e lidhur, ose pritja para se pikët të mbërrijnë. */
 function Lidhur({ kodi }: { kodi: string }) {
-  const vizitori = useRef<VizitoriMeKod | null>(null);
-  const [gjendja, caktoGjendjen] = useState<GjendjaEVizitoritMeKod>({
+  const vizitori = useRef<VizitoriMeTakim | null>(null);
+  const [gjendja, caktoGjendjen] = useState<GjendjaEVizitoritMeTakim>({
     lidhur: false,
     paketa: null,
     kur: null,
     gabimi: null,
     dukeProvuar: true,
-    deshtime: 0,
   });
 
   useEffect(() => {
-    const iRi = new VizitoriMeKod(kodi, caktoGjendjen);
+    const iRi = new VizitoriMeTakim(kodi, window.location.href, caktoGjendjen);
     vizitori.current = iRi;
     void iRi.nis();
 
@@ -136,11 +126,7 @@ function Lidhur({ kodi }: { kodi: string }) {
         <PamjaERezultatit
           pamja={pamja}
           etiketa={{
-            emri: gjendja.lidhur
-              ? 'Drejtpërdrejt'
-              : gjendja.dukeProvuar
-                ? 'Duke u rilidhur…'
-                : 'Lidhja u shkëput',
+            emri: gjendja.lidhur ? 'Drejtpërdrejt' : 'Lidhja u shkëput',
             ikona: gjendja.lidhur ? 'drejtperdrejt' : 'kujdes',
           }}
           njoftimi={
@@ -149,37 +135,20 @@ function Lidhur({ kodi }: { kodi: string }) {
                 <Ikona emri="drejtperdrejt" />
                 <span>
                   Pikët vijnë drejt nga telefoni që i mban, dhe raundi tjetër del
-                  vetë. Lidhja u ngrit përmes një serveri të huaj, por pikët
-                  kalojnë mes dy telefonave.
+                  vetë. Asnjë server nuk i sheh: lidhja u ngrit dhe serveri u la
+                  jashtë.
                 </span>
               </p>
             ) : (
-              /*
-                Numrat rrinë në ekran edhe të shkëputur — ata janë ende ata që u
-                shënuan, dhe një tabelë e zbrazët nuk i ndihmon askujt. Ajo që
-                ndryshon është ora krah tyre, dhe fjala nëse lidhja po kthehet
-                vetë apo pret butonin.
-              */
               <p className="njoftim njoftim--kujdes">
                 <Ikona emri="kujdes" />
                 <span>
-                  Numrat janë ata të orës{' '}
-                  <strong>{gjendja.kur === null ? '—' : ora(gjendja.kur)}</strong>.{' '}
-                  {gjendja.dukeProvuar ? (
-                    'Lidhja po ngrihet sërish.'
-                  ) : (
-                    <>
-                      Lidhja u shkëput dhe nuk përditësohen më.{' '}
-                      <button
-                        type="button"
-                        className="buton buton--vogel"
-                        onClick={() => vizitori.current?.zgjohu()}
-                      >
-                        <Ikona emri="drejtperdrejt" />
-                        Provo sërish
-                      </button>
-                    </>
-                  )}
+                  Lidhja u shkëput. Numrat janë ata të orës{' '}
+                  <strong>{gjendja.kur === null ? '—' : ora(gjendja.kur)}</strong>{' '}
+                  dhe nuk përditësohen më.{' '}
+                  <a href={`#/takohu/${kodi}`} onClick={() => window.location.reload()}>
+                    Provo sërish
+                  </a>
                 </span>
               </p>
             )
@@ -211,47 +180,34 @@ function Lidhur({ kodi }: { kodi: string }) {
 
       {gjendja.gabimi ? (
         <>
-          <p
-            className={
-              gjendja.dukeProvuar ? 'njoftim njoftim--kujdes' : 'njoftim njoftim--gabim'
-            }
-          >
+          <p className="njoftim njoftim--gabim">
             <Ikona emri="kujdes" />
-            <span>
-              {gjendja.gabimi}
-              {gjendja.dukeProvuar && ` Prova ${gjendja.deshtime + 1}…`}
-            </span>
+            <span>{gjendja.gabimi}</span>
           </p>
 
-          {/*
-            Butoni del vetëm kur provat kanë pushuar. Sa kohë ato vazhdojnë, një
-            prekje nuk ndryshon asgjë përveç numrit të provës.
-          */}
-          {!gjendja.dukeProvuar && (
-            <div className="veprimet">
-              <button
-                type="button"
-                className="buton"
-                onClick={() => vizitori.current?.zgjohu()}
-              >
-                <Ikona emri="drejtperdrejt" />
-                Provo sërish
-              </button>
+          <div className="veprimet">
+            <button
+              type="button"
+              className="buton"
+              onClick={() => vizitori.current?.zgjohu()}
+            >
+              <Ikona emri="drejtperdrejt" />
+              Provo sërish
+            </button>
 
-              <a className="buton buton--vogel" href="#/bashkohu">
-                <Ikona emri="kthehu" />
-                Provo një kod tjetër
-              </a>
-            </div>
-          )}
+            <a className="buton buton--vogel" href="#/takohu">
+              <Ikona emri="kthehu" />
+              Provo një kod tjetër
+            </a>
+          </div>
         </>
       ) : (
         <p className="njoftim njoftim--kujdes">
           <Ikona emri="info" />
           <span>
-            Lidhja ngrihet përmes një serveri të huaj (<strong>peerjs.com</strong>),
-            prandaj i duhet internet. Pikët nuk ruhen atje — kanali mbetet mes
-            dy telefonave.
+            Lidhja ngrihet përmes serverit të vetë aplikacionit, dhe vetëm sa
+            zgjat kjo pritje. Pikët nuk kalojnë atje — ato vijnë drejt nga
+            telefoni që i mban.
           </span>
         </p>
       )}

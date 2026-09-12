@@ -11,7 +11,8 @@
  *   `#/shiko/<paketë>`     fotografia e çastit
  *   `#/lidhu/<ftesë>`      pamja e drejtpërdrejtë pa server
  *   `#/pergjigje/<kod>`    skeda që i dorëzon përgjigjen skedës së lojës
- *   `#/bashkohu[/<kod>]`   pamja e drejtpërdrejtë me kod, përmes serverit
+ *   `#/bashkohu[/<kod>]`   pamja e drejtpërdrejtë me kod, përmes PeerJS-it
+ *   `#/takohu[/<kod>]`     e njëjta, por me sinjalizimin te vetë origjina
  *
  * Rruga `#/sinkronizimi` është e pesta dhe e vetmja që shkruan jashtë pajisjes
  * (pika 19): projekti Supabase të cilin e sjell vetë përdoruesi.
@@ -24,6 +25,7 @@ import { Lidhu } from './pamjet/Lidhu.tsx';
 import { Loja } from './pamjet/Loja.tsx';
 import { Pergjigja } from './pamjet/Pergjigja.tsx';
 import { Shiko } from './pamjet/Shiko.tsx';
+import { Takohu } from './pamjet/Takohu.tsx';
 import { Sinkronizimi } from './pamjet/Sinkronizimi.tsx';
 import { numri, pjeset, useRruga } from './rruga.ts';
 
@@ -38,6 +40,7 @@ export function App() {
   if (pjesa === 'lidhu' && e_dyta) return <Lidhu kodi={e_dyta} />;
   if (pjesa === 'pergjigje' && e_dyta) return <Pergjigja kodi={e_dyta} />;
   if (pjesa === 'bashkohu') return <Bashkohu kodi={e_dyta ?? null} />;
+  if (pjesa === 'takohu') return <Takohu kodi={e_dyta ?? null} />;
   if (pjesa === 'sinkronizimi') return <Sinkronizimi />;
   if (pjesa === 'grupi' && id !== null) return <Grupi id={id} />;
   if (pjesa === 'loja' && id !== null) return <Loja id={id} />;
