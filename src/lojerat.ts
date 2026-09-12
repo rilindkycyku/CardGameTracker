@@ -138,6 +138,22 @@ export type Rregullat = {
    * hapur. Një rresht mjafton: çka pritet të jetë ai numër.
    */
   shenimi: string | null;
+  /**
+   * Rregullat e plota, një fjali për rresht — ato që deri tani rrinin te
+   * README-ja, pra jashtë telefonit që i mban pikët.
+   *
+   * Ekzistojnë sepse tavolina i kërkon rrallë por i kërkon vërtet: kush luan
+   * pishpirik një herë në muaj nuk e mban mend nëse fanti e bën pishpirikun 10
+   * apo 15, dhe përgjigjja nuk guxon të jetë «hape README-në te GitHub-i».
+   * Rrinë te një `<details>` i mbledhur (pika 6: blloku i futjes nuk ndahet me
+   * askënd), dhe vijnë prej këtu e jo prej ekranit, që një lojë e pestë të mos
+   * kërkojë vizatim të ri (pika 16).
+   *
+   * Numrat e tyre janë të rregullit — 51-shi i mbylljes, 25-a e dorës — kurrë
+   * kufiri i mbrëmjes: atë e zgjedh tavolina, dhe një numër i ngrirë këtu do të
+   * gënjente pikërisht atë që sapo e zgjodhi vetë (pika 13).
+   */
+  hollesite: string[];
 };
 
 /**
@@ -165,7 +181,24 @@ export const LOJERAT: Record<LlojiILojes, Rregullat> = {
     shlyerja: true,
     parashikimi: true,
     rregulli: 'Pikët shënohen për raund, dhe fiton totali më i vogël.',
-    shenimi: null,
+    /*
+     * Bridzhi e mori shënimin i fundit, dhe kjo tregon diçka: llogaritësi hapet
+     * i pari (pika 3), prandaj numrat e mbylljes rrinë të shkruar brenda tij e
+     * rruga e shpeshtë nuk e kërkon këtë rresht fare. Kush i shkruan pikët me
+     * dorë — raundi që rregulli nuk e mbulon — nuk i kishte askund.
+     */
+    shenimi: 'Pikët e secilit për këtë raund. Fiton totali më i vogël.',
+    hollesite: [
+      'Mbyllja bëhet me 51 pikë kombinimesh nga një dorë me 14 letra.',
+      'Hant — mbylli pa hedhur e pa shitur asnjë letër: mbyllësi −40, kush nuk '
+        + 'kishte hapur +200, kush kishte hapur 2 × pikët që i mbetën në dorë.',
+      'Normal — kishte hapur më parë: mbyllësi −20, kush nuk kishte hapur +100, '
+        + 'kush kishte hapur pikët që i mbetën në dorë.',
+      '„I hapur" është ai që ka hedhur së paku një letër ose i ka shitur një '
+        + 'letër dikujt atë raund.',
+      'Mbrëmja mbaron pas dy raundeve për lojtar, pra kur tavolina rrotullohet '
+        + 'dy herë.',
+    ],
   },
   magarec: {
     lloji: 'magarec',
@@ -184,7 +217,17 @@ export const LOJERAT: Record<LlojiILojes, Rregullat> = {
     shlyerja: false,
     parashikimi: true,
     rregulli: `Kush e humb raundin merr një shkronjë; kush e mbush ${FJALA}-in e humb mbrëmjen.`,
-    shenimi: null,
+    shenimi: 'Prek emrin e atij që e humbi raundin — ai merr shkronjën e radhës.',
+    hollesite: [
+      `Kush e humb raundin merr shkronjën e radhës nga ${FJALA}.`,
+      `Fjala ka ${FJALA.length} shkronja, dhe kush e mbush e humb mbrëmjen; loja `
+        + 'mbaron aty.',
+      'Raundi ka një pyetje të vetme, prandaj ka edhe një prekje të vetme: '
+        + 'emri i humbësit e ruan raundin.',
+      'Shkronjat nuk ruhen veças — dalin nga raundet. Prandaj fshirja ose '
+        + 'ndërrimi i një raundi të mesit i rinumëron vetvetiu të gjitha pas tij.',
+      'Shlyerje nuk ka: shkronjat nuk paguhen me para.',
+    ],
   },
   domina: {
     lloji: 'domina',
@@ -210,6 +253,14 @@ export const LOJERAT: Record<LlojiILojes, Rregullat> = {
       'Secili shënon sa gurë i mbetën në dorë, dhe fiton totali më i vogël. '
       + 'Deri ku luhet e thotë çelësi sipër.',
     shenimi: 'Sa gurë i mbetën secilit në dorë. Fiton totali më i vogël.',
+    hollesite: [
+      'Kur mbaron dora, secili shënon sa gurë i mbetën në dorë — pra pikët janë '
+        + 'dënim e jo fitim.',
+      'Kush nuk mbeti me asnjë gur shënon zero.',
+      'Mbrëmja mbaron kur dikush e arrin kufirin e zgjedhur për atë mbrëmje, dhe '
+        + 'pikërisht ai e humb.',
+      'Fiton totali më i vogël, dhe diferencat shlyhen nga matrica.',
+    ],
   },
   pishpirik: {
     lloji: 'pishpirik',
@@ -231,6 +282,20 @@ export const LOJERAT: Record<LlojiILojes, Rregullat> = {
       `Pikët e dorës: ${DORA_E_PISHPIRIKUT} gjithsej, plus ${PIKET_E_PISHPIRIKUT} `
       + `për çdo pishpirik (${PIKET_E_PISHPIRIKUT_ME_FANT} me fant). Fiton totali `
       + `më i madh.`,
+    hollesite: [
+      `Një dorë e plotë ndan ${DORA_E_PISHPIRIKUT} pikë: nga një për secilin as, `
+        + 'dam, mbret, fant e dhjetë — ku dhjeta e bastunit vlen dy dhe dyshi i '
+        + 'lules një — plus tri për shumicën e letrave.',
+      'Shumica është 27 letra a më shumë, dhe kur tavolina ndahet baras ato tri '
+        + 'pikë nuk i merr askush.',
+      `Një pishpirik — letra e luajtur përputhet me atë të vetme mbi tavolinë — `
+        + `vlen ${PIKET_E_PISHPIRIKUT} pikë, dhe ${PIKET_E_PISHPIRIKUT_ME_FANT} `
+        + 'kur ajo letër është fant.',
+      'Pikët numërohen te tavolina e shkruhen ashtu si dalin: aplikacioni nuk i '
+        + 'njeh letrat, prandaj llogaritës nuk ka.',
+      'Këtu fiton totali më i madh, dhe mbrëmja mbaron kur dikush e arrin '
+        + 'kufirin e zgjedhur — pra ai që e arrin, fiton.',
+    ],
   },
 };
 

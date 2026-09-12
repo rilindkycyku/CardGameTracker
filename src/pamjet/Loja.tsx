@@ -56,6 +56,7 @@ import { PamjaERezultatit } from '../pjeset/PamjaERezultatit.tsx';
 import { Parashikimi } from '../pjeset/Parashikimi.tsx';
 import { RaundetEMagarecit } from '../pjeset/RaundetEMagarecit.tsx';
 import { Raundet } from '../pjeset/Raundet.tsx';
+import { RregullatELojes } from '../pjeset/RregullatELojes.tsx';
 import { Renditja } from '../pjeset/Renditja.tsx';
 import {
   RrjetiIMagarecit,
@@ -835,6 +836,15 @@ export function Loja({ id }: { id: number }) {
         fare — dhe ndryshimi ruhet aty për aty: mbrëmja mbaron ose vazhdon sipas
         numrit të ri, pa asnjë buton të dytë.
       */}
+      {/*
+        Rregullat e lojës, një prekje larg dhe të mbledhura.
+
+        Rrinë këtu krah dy panelave të tjerë e jo mbi bllokun e futjes: ai
+        përdoret dhjetëra herë në mbrëmje (pika 6), kurse kjo pyetje bëhet një
+        herë — dhe kur bëhet, bëhet me letrat në dorë.
+      */}
+      <RregullatELojes rregulli={rregulli} />
+
       {rregulli.kufijteEMundshem.length > 0 && (
         <details className="detaje">
           <summary className="detaje__krye">

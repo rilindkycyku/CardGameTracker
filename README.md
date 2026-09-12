@@ -29,6 +29,10 @@ fjalë: renditja, kurora dhe fjalia e fundit e lexojnë drejtimin nga vetë loja
   hant/normal, i cili e ruan raundin vetë me një prekje.
 - **Data ditë/muaj/vit** — shkruhet me numra dhe vijat dalin vetë; poshtë saj
   rri data me fjalë, që të mos ngatërrohet ditë me muaj.
+- **Rregullat brenda aplikacionit** — çdo lojë i ka të vetat te një panel i
+  mbledhur, te ekrani ku zgjidhet çka luhet dhe te ai i lojës: si shënohet
+  raundi, sa vlen çka, dhe me çka mbaron mbrëmja. Deri ku luhet nuk shkruhet
+  atje — atë e zgjedh tavolina për çdo mbrëmje.
 - **Çka luhet** — zgjidhet para lojës, dhe çelësi nis te loja e fundit e grupit.
   Te magareci raundi ka një pyetje të vetme: kush e humbi. Prekja e emrit e ruan
   raundin, shkronja shkon te ai, e rrjeti M-A-G-A-R-E-C tregon ku janë të gjithë.
@@ -171,7 +175,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 253 prova, pa framework provash
+npm test          # node --test — 257 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i.
@@ -221,6 +225,7 @@ src/
                       Bashkohu
   pjeset/             Renditja · Raundet · Shlyerja · TabelaEPergjithshme
                       FutjaERaundit · LojtaretELojes · PanelaEKopjes
+                      RregullatELojes
                       Ndarja · Drejtperdrejt · PaServer · MeServer
                       PamjaERezultatit · KodiQR
                       FutjaEMagarecit · RrjetiIMagarecit · RaundetEMagarecit
