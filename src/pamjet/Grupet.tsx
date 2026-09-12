@@ -16,6 +16,7 @@ import { kaloTeIRi, useVersionIRi } from '../instalimi.ts';
 import { RADHA, rregullat } from '../lojerat.ts';
 import { Ikona, ShenjaEFaqes, Zemra } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
+import { CelesiINdricimit } from '../pjeset/Ndricimi.tsx';
 import { PanelaEKopjes } from '../pjeset/PanelaEKopjes.tsx';
 import { grupet as lexoGrupet, numriILojerave, shtoGrup } from '../ruajtja.ts';
 import { shko } from '../rruga.ts';
@@ -181,6 +182,16 @@ export function Grupet() {
         <p className="fundfaqja__matja">
           Numërohen vetëm hapjet e faqes — pa pikë, pa emra, pa lojëra.
         </p>
+
+        {/*
+          Ndriçimi: ajo që e thotë telefoni, ose ajo që e thotë tavolina.
+
+          Tema e ndiqte vetëm pajisjen, dhe kjo e mbulonte mbrëmjen — ora kur
+          luhet e ka telefonin në terr gjithsesi. Ajo që nuk e mbulonte ishte
+          dita, dhe një telefon nuk e ndërron temën e vet për një aplikacion.
+          Rri këtu sepse këtu rrinë zgjedhjet që bëhen një herë.
+        */}
+        <CelesiINdricimit />
 
         {/*
           Versioni i ri rri e pret, dhe nuk merr pushtetin pa u thënë.

@@ -53,7 +53,22 @@
 /* ── Tokenat ────────────────────────────────────────────────────────────── */
 
 :root {
-  color-scheme: light dark;
+  /*
+   * Drita është baza, dhe terri vjen te blloku poshtë — sipas atributit që vë
+   * `ndricimi.ts`, qoftë sepse e zgjodhi njeriu, qoftë sepse e thotë telefoni.
+   *
+   * `color-scheme` shkruhet i plotë te secila temë e jo `light dark` te të dyja:
+   * ai vendos edhe çka bëjnë kontrollet e sistemit — `<select>`-i i mbyllësit,
+   * shiritat e rrëshqitjes — dhe një temë e zgjedhur me dorë do t'i linte ato
+   * te ajo e telefonit.
+   */
+  color-scheme: light;
+
+  /*
+   * Sfondi i territ rri i emëruar sepse lexohet dy herë: te blloku i territ,
+   * dhe te rreshti që e mbulon çastin para se JS-i ta stampojë atributin.
+   */
+  --sfond-i-territ: #080f1a;
 
   --sfond: #f1f5f9;
   --siperfaqe: #ffffff;
@@ -101,41 +116,64 @@
     monospace;
 }
 
+/*
+ * Terri — një bllok i vetëm, dhe atributin e zgjedh `ndricimi.ts`.
+ *
+ * Me `@media (prefers-color-scheme: dark)` ky bllok do të duhej dy herë: një
+ * herë brenda saj, dhe një herë jashtë, për terrin e zgjedhur me dorë mbi një
+ * telefon që rri në dritë. Dy kopje tokenash dalin jashtë sinkronie pikërisht
+ * atje ku preket njëra — prandaj «sistemi» zgjidhet te JS-i, ku ngjarja e
+ * ndërrimit lexohet gjithsesi, dhe CSS-i merr vetëm përfundimin.
+ */
+:root[data-tema='terr'] {
+  color-scheme: dark;
+
+  --sfond: var(--sfond-i-territ);
+  --siperfaqe: #0f1827;
+  --siperfaqe-2: #162033;
+  --gjurma: #1e2d45;
+
+  --teksti: #f1f5f9;
+  /* 6.9:1 mbi sipërfaqe, 7.5:1 mbi sfond. */
+  --teksti-zbehte: #94a3b8;
+
+  --kufiri: rgb(255 255 255 / 10%);
+  /* 3.2:1 mbi sipërfaqe, 3.5:1 mbi sfond. */
+  --kufiri-veprues: #5a6a80;
+
+  /* 7.3:1 mbi sipërfaqe, 6.7:1 mbi mbushjen e vet të zbehtë. */
+  --theks: #06b6d4;
+  --theks-zbehte: #0d2233;
+  /* 7.0:1 mbi sipërfaqe, 6.1:1 mbi mbushjen e vet të zbehtë. */
+  --hapur: #10b981;
+  --hapur-zbehte: #0d2a20;
+  /* 8.3:1 mbi sipërfaqe, 7.4:1 mbi mbushjen e vet të zbehtë. */
+  --projektim: #f59e0b;
+  --projektim-zbehte: #2a2113;
+
+  /* 6.6:1 mbi mbushjen e vet të zbehtë. */
+  --negativ: #f87171;
+  --negativ-zbehte: #2b1414;
+  --zemra: #ef4444;
+
+  /* Sipërfaqet e ndritshme në temën e errët kërkojnë bojë të errët. */
+  --mbi-gjendje: #06101a;
+
+  --hije-1: 0 1px 2px rgb(0 0 0 / 40%);
+  --hije-2: 0 1px 2px rgb(0 0 0 / 40%), 0 20px 50px -12px rgb(0 0 0 / 75%);
+}
+
+/*
+ * Çasti para se JS-i ta stampojë atributin, te një telefon që rri në terr.
+ *
+ * Nga faqja atëherë duket vetëm sfondi — `#app` rri i zbrazët derisa React-i të
+ * vizatojë — prandaj mjafton ai: pa këtë rresht çdo hapje do të ndizte një të
+ * bardhë të plotë për një çast, pikërisht te ora kur luhet.
+ */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --sfond: #080f1a;
-    --siperfaqe: #0f1827;
-    --siperfaqe-2: #162033;
-    --gjurma: #1e2d45;
-
-    --teksti: #f1f5f9;
-    /* 6.9:1 mbi sipërfaqe, 7.5:1 mbi sfond. */
-    --teksti-zbehte: #94a3b8;
-
-    --kufiri: rgb(255 255 255 / 10%);
-    /* 3.2:1 mbi sipërfaqe, 3.5:1 mbi sfond. */
-    --kufiri-veprues: #5a6a80;
-
-    /* 7.3:1 mbi sipërfaqe, 6.7:1 mbi mbushjen e vet të zbehtë. */
-    --theks: #06b6d4;
-    --theks-zbehte: #0d2233;
-    /* 7.0:1 mbi sipërfaqe, 6.1:1 mbi mbushjen e vet të zbehtë. */
-    --hapur: #10b981;
-    --hapur-zbehte: #0d2a20;
-    /* 8.3:1 mbi sipërfaqe, 7.4:1 mbi mbushjen e vet të zbehtë. */
-    --projektim: #f59e0b;
-    --projektim-zbehte: #2a2113;
-
-    /* 6.6:1 mbi mbushjen e vet të zbehtë. */
-    --negativ: #f87171;
-    --negativ-zbehte: #2b1414;
-    --zemra: #ef4444;
-
-    /* Sipërfaqet e ndritshme në temën e errët kërkojnë bojë të errët. */
-    --mbi-gjendje: #06101a;
-
-    --hije-1: 0 1px 2px rgb(0 0 0 / 40%);
-    --hije-2: 0 1px 2px rgb(0 0 0 / 40%), 0 20px 50px -12px rgb(0 0 0 / 75%);
+  :root:not([data-tema]) {
+    color-scheme: dark;
+    background-color: var(--sfond-i-territ);
   }
 }
 
@@ -1807,6 +1845,26 @@ th.numri {
   text-wrap: balance;
 }
 
+/*
+ * Çelësi i ndriçimit te fundfaqja.
+ *
+ * Rri i ngushtë e në mes: nuk është veprim i mbrëmjes, është zgjedhje që bëhet
+ * një herë e pastaj mbahet mend. Njësitë mbeten 2.75rem të larta si kudo
+ * (pika 2) — gishti nuk e di se kjo prekje është e rrallë.
+ */
+.fundfaqja__ndricimi {
+  max-width: 22rem;
+  margin: 0.9rem auto 0;
+}
+
+.fundfaqja__ndricimi .celesi__njesi {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+}
+
 /**
  * Rreshti i versionit të ri te fundfaqja.
  *
@@ -1893,7 +1951,13 @@ th.numri {
 /* ── Shtypja ────────────────────────────────────────────────────────────── */
 
 @media print {
-  :root {
+  /*
+   * Edhe tema e territ shtypet e zezë mbi të bardhë — letra nuk ka nevojë për
+   * ekran të errët, dhe bojë as aq. Prandaj emërtohet edhe atributi: pa të,
+   * `:root[data-tema='terr']` do t'i mposhtte këta tokena.
+   */
+  :root,
+  :root[data-tema='terr'] {
     --sfond: #fff;
     --siperfaqe: #fff;
     --siperfaqe-2: #fff;

@@ -67,7 +67,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 257 prova, pa framework provash
+npm test          # node --test — 263 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -91,16 +91,16 @@ të dy ndërtimet te i njëjti kosh — dhe atëherë skedari i ri dhe ai i vjet
 ### 1. Logjika rri te module që nuk njohin as bazën, as React-in, as `window`-in
 
 `llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `lojerat.ts`, `parashikimi.ts`, `fundi.ts`,
-`fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts`, `kodi.ts` dhe `analitika.ts`
-importohen
-drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
+`fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts`, `kodi.ts`, `analitika.ts` dhe
+`tema.ts` importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
 zgjat nën një sekondë dhe nuk ka çka të prishet mes provës dhe kodit.
 
-`lidhja.ts`, `lidhjaMeServer.ts`, `sistemi.ts`, `ruajtja.ts` dhe `matja.ts` nuk hyjnë te kjo listë
-me qëllim: e para njeh `RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e treta
-`navigator`-in (tabelën e fragmenteve dhe fletën e ndarjes), e katërta bazën, e pesta `document`-in
-dhe `window`-in. Logjika e tyre e provueshme është nxjerrë jashtë — te `sinjalizimi.ts`, `kodi.ts`,
-`kopja.ts` dhe `analitika.ts` — dhe ajo që mbetet provohet me shfletues.
+`lidhja.ts`, `lidhjaMeServer.ts`, `sistemi.ts`, `ruajtja.ts`, `matja.ts` dhe `ndricimi.ts` nuk hyjnë
+te kjo listë me qëllim: e para njeh `RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e
+treta `navigator`-in (tabelën e fragmenteve dhe fletën e ndarjes), e katërta bazën, e pesta
+`document`-in dhe `window`-in, dhe e gjashta `localStorage`-in e `matchMedia`-n. Logjika e tyre e
+provueshme është nxjerrë jashtë — te `sinjalizimi.ts`, `kodi.ts`, `kopja.ts`, `analitika.ts` dhe
+`tema.ts` — dhe ajo që mbetet provohet me shfletues.
 
 Logjika e re shkon te një prej tyre, ose te një modul i ri i të njëjtit lloj, me prova. Mos fut
 `import` të bazës, të React-it apo të ndonjë API-je të shfletuesit në to.
@@ -896,7 +896,24 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 
 - Dy ngjyra theksi: smeraldi (`--hapur`) dhe ciani (`--theks`). Veprimi kryesor merr smeraldin e
   plotë.
-- Tema e errët nuk është shtojcë: mbrëmja është ora kur luhet.
+- Tema e errët nuk është shtojcë: mbrëmja është ora kur luhet. Por ajo mbetet vetëm parazgjedhje:
+  ndriçimin e zgjedh çelësi te fundfaqja — «Sistemi», «Dritë», «Terr» — dhe **tri gjendje e jo dy**,
+  sepse pa të parën nuk kthehesh dot te ajo që bën vetë telefoni (e njëjta trenjëshe si `mbyllur` te
+  pika 15). Vendimet rrinë te `tema.ts` e provohen me `node --test`; `ndricimi.ts` njeh
+  `document`-in, `localStorage`-in e `matchMedia`-n (pika 1).
+
+  **Tokenat e territ rrinë të shkruar një herë**, te `:root[data-tema='terr']`, dhe atributin e vë
+  `ndricimi.ts` — të zgjidhur, pra pa dallim a e zgjodhi njeriu a e tha telefoni. Me
+  `prefers-color-scheme` ai bllok do të duhej dy herë: brenda pyetjes, dhe jashtë saj për terrin e
+  zgjedhur mbi një telefon që rri në dritë. Mbetet një pyetje e vetme te CSS-i, dhe ajo mbulon
+  vetëm çastin para se JS-i ta stampojë atributin: `--sfond-i-territ`, që hapja të mos ndizet e
+  bardhë. `color-scheme` shkruhet i plotë te secila temë — ai vendos edhe kontrollet e sistemit —
+  dhe blloku i shtypjes i emërton të dyja, përndryshe atributi do t'i mposhtte tokenat e letrës.
+
+  **Ngjyra e shiritit është e treta që e di temën**, krah tokenave dhe metave te `index.html`. Ato
+  meta e pyesin sistemin, prandaj `ndricimi.ts` i heq dhe lë një të vetme sapo tema vihet — pa këtë,
+  te aplikacioni i instaluar shiriti do të mbetej i errët mbi një faqe të bardhë. Prova
+  `ngjyrat e shiritit janë ato të index.html-it` i lexon të dy skedarët që të mos ndahen.
 - Teksti është Quicksand me peshë 500 (`--shkronja`); numrat e kolonave mbeten monospace
   (`--shkronja-numrat`), sepse te një tabelë pikësh shifrat duhet të bien mbi njëra-tjetrën dhe
   Quicksand-i i ka proporcionale.
