@@ -8,7 +8,7 @@ Katër lojëra, një grup, një bazë:
 
 | Loja | Raundi | Mbaron | Fiton |
 | --- | --- | --- | --- |
-| **Bridzh** — xhin-rami kosovar me 14 letra, mbyllja me 51 pikë | pikët e secilit, ose llogaritësi hant/normal | pas dy raundeve për lojtar | totali më i vogël |
+| **Bridzh** — xhin-rami kosovar me 14 letra, hapja me 51 pikë | pikët e secilit, ose llogaritësi hant/normal | pas dy raundeve për lojtar | totali më i vogël |
 | **Magarec** — loja e shkronjave | një prekje: kush e humbi | kur dikujt i mbushet fjala „MAGAREC" | më pak shkronja |
 | **Domina** — gurët e mbetur në dorë | pikët e secilit | kur dikujt i mbushet kufiri | totali më i vogël |
 | **Pishpirik** — 25 pikë për dorë, plus 10 për çdo pishpirik | pikët e dorës | kur dikush arrin kufirin | **totali më i madh** |
@@ -117,8 +117,9 @@ host i huaj nuk kërkohet me hapjen e faqes.
 
 ## Rregullat e pikëzimit
 
-Çdo raund mbyllet nga një lojtar që arrin 51 pikë me kombinime prej një dore me
-14 letra. Dy mbyllje:
+Hapja lejohet me 51 pikë kombinimesh prej një dore me 14 letra. Raundin e mbyll
+ai që i ka hedhur të gjitha letrat dhe e mbaron me letrën e fundit, pa i mbetur
+asnjë në dorë. Dy mbyllje:
 
 | | Mbyllësi | Të tjerët që s’hapën | Të tjerët që kishin hapur |
 | --- | --- | --- | --- |
@@ -219,6 +220,8 @@ src/
                       rrugës, asnjë vendim
   punetori.ts         punëtori i shërbimit: tri ngjarje, asnjë vendim
   instalimi.ts        regjistrimi, dhe njoftimi kur del një version i ri
+  tema.ts             sistemi · dritë · terr — pa DOM, pa `localStorage`
+  ndricimi.ts         tema e vënë te faqja, dhe e mbajtur mend
   ikonat.tsx          ikonat SVG inline
   style.css           sistemi i stilit
   pamjet/             Grupet · Grupi · Loja · Shiko · Lidhu · Pergjigja
@@ -230,7 +233,7 @@ src/
                       PamjaERezultatit · KodiQR
                       FutjaEMagarecit · RrjetiIMagarecit · RaundetEMagarecit
                       PergjithshmetEMagarecit · Parashikimi
-                      PermbledhjaEPamjes · Vetja
+                      PermbledhjaEPamjes · Vetja · Ndricimi
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it
@@ -250,6 +253,8 @@ test/
   kodi.test.mjs          kodi i bashkimit, dhe shkronjat që ngatërrohen
   sherbimi.test.mjs      lista e asaj që ruhet, koshët e vjetër, dhe kërkesat
                          që punëtori nuk i prek fare
+  tema.test.mjs          leximi i temës së ruajtur, dhe ngjyrat që rrinë të
+                         shkruara te tre skedarë
   logic.json             fleta origjinale, si burim provash
   sdp.json               SDP të vërteta të Chromium-it, si burim provash
 ```
@@ -271,3 +276,9 @@ me qëllim:
 
 Kontrasti mbetet **WCAG AA** në dritë e në terr: teksti mbi veprimin kryesor
 del 5.5:1 dhe 7.6:1, dhe kufijtë e kontrolleve mbi 3:1 sipas WCAG 1.4.11.
+
+**Ndriçimin e zgjedh tavolina**, nga çelësi te fundfaqja e ekranit të parë:
+«Sistemi», «Dritë», «Terr». Hapet te **drita**; tema e errët rri e plotë një
+prekje larg, dhe «Sistemi» e kthen ndërrimin automatik të telefonit. Zgjedhja
+mbahet mend te vetë shfletuesi, jo te baza: nuk është e dhënë loje, nuk hyn te
+kopja rezervë dhe nuk del nga pajisja.

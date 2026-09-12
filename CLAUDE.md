@@ -12,7 +12,7 @@ të dhënave (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`), për a
 del*. Zëvendëson një fletë Google Sheets-i që mbahej me dorë për lojërat e një shoqërie.
 
 U quajt „Bridzh" derisa mbante një lojë të vetme: bridzhin kosovar, varianti i xhin-ramit që luhet
-me 14 letra, mbyllet me 51 pikë dhe mbaron pasi secili i ka përzier letrat dy herë. Tani mban katër,
+me 14 letra, hapet me 51 pikë dhe mbaron pasi secili i ka përzier letrat dy herë. Tani mban katër,
 dhe emri i vjetër do të gënjente te tri prej tyre. Ai emër mbeti vetëm te një vend, dhe atje me
 arsye: parathënja `bridzh-` e emrit te serveri i sinjalizimit (`kodi.ts`) është pjesë e telit e jo
 fjalë që lexon njeriu — ndërrimi i saj do t'i ndante dy telefonat që nuk e kanë rifreskuar faqen
@@ -67,7 +67,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 257 prova, pa framework provash
+npm test          # node --test — 265 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -91,16 +91,16 @@ të dy ndërtimet te i njëjti kosh — dhe atëherë skedari i ri dhe ai i vjet
 ### 1. Logjika rri te module që nuk njohin as bazën, as React-in, as `window`-in
 
 `llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `lojerat.ts`, `parashikimi.ts`, `fundi.ts`,
-`fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts`, `kodi.ts` dhe `analitika.ts`
-importohen
-drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
+`fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts`, `kodi.ts`, `analitika.ts` dhe
+`tema.ts` importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
 zgjat nën një sekondë dhe nuk ka çka të prishet mes provës dhe kodit.
 
-`lidhja.ts`, `lidhjaMeServer.ts`, `sistemi.ts`, `ruajtja.ts` dhe `matja.ts` nuk hyjnë te kjo listë
-me qëllim: e para njeh `RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e treta
-`navigator`-in (tabelën e fragmenteve dhe fletën e ndarjes), e katërta bazën, e pesta `document`-in
-dhe `window`-in. Logjika e tyre e provueshme është nxjerrë jashtë — te `sinjalizimi.ts`, `kodi.ts`,
-`kopja.ts` dhe `analitika.ts` — dhe ajo që mbetet provohet me shfletues.
+`lidhja.ts`, `lidhjaMeServer.ts`, `sistemi.ts`, `ruajtja.ts`, `matja.ts` dhe `ndricimi.ts` nuk hyjnë
+te kjo listë me qëllim: e para njeh `RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e
+treta `navigator`-in (tabelën e fragmenteve dhe fletën e ndarjes), e katërta bazën, e pesta
+`document`-in dhe `window`-in, dhe e gjashta `localStorage`-in e `matchMedia`-n. Logjika e tyre e
+provueshme është nxjerrë jashtë — te `sinjalizimi.ts`, `kodi.ts`, `kopja.ts`, `analitika.ts` dhe
+`tema.ts` — dhe ajo që mbetet provohet me shfletues.
 
 Logjika e re shkon te një prej tyre, ose te një modul i ri i të njëjtit lloj, me prova. Mos fut
 `import` të bazës, të React-it apo të ndonjë API-je të shfletuesit në to.
@@ -735,7 +735,7 @@ GitHub-un. Tri kushte i mbajnë të ndershme, dhe provat i masin:
 - **Numrat e kufirit nuk hyjnë atje** (pika 13). Ata i zgjedh tavolina për çdo mbrëmje, dhe një numër
   i ngrirë te teksti do të gënjente pikërisht atë që sapo e zgjodhi vetë. Prova `kufiri i mbrëmjes nuk
   shkruhet te teksti i rregullave` e lexon çdo tekst të regjistrit kundër `kufijteEMundshem` të asaj
-  loje. Numrat e rregullit — 51-shi i mbylljes, 25-a e dorës, 10-a e pishpirikut — mbeten, sepse ata
+  loje. Numrat e rregullit — 51-shi i hapjes, 25-a e dorës, 10-a e pishpirikut — mbeten, sepse ata
   nuk ndryshojnë nga mbrëmja në mbrëmje.
 - **Numrat e shkruar vijnë nga konstantet**, jo nga dora: `${DORA_E_PISHPIRIKUT}` e `${FJALA.length}`
   te teksti, që një ndërrim i tyre të mos lërë prapa një fjali që mëson gabim një tavolinë të tërë.
@@ -896,7 +896,37 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 
 - Dy ngjyra theksi: smeraldi (`--hapur`) dhe ciani (`--theks`). Veprimi kryesor merr smeraldin e
   plotë.
-- Tema e errët nuk është shtojcë: mbrëmja është ora kur luhet.
+- **Tema e parazgjedhur është drita, me kërkesë të pronarit.** Tema e errët mbetet e plotë dhe një
+  prekje larg — mbrëmja është ora kur luhet — por nuk vjen më vetvetiu, dhe as sistemi nuk pyetet pa
+  u kërkuar. Kjo është zgjedhje e pronarit e jo rrjedhojë e kodit: mos e ndërro pa e pyetur. Numri i
+  vetëm që e mban është `TEMA_E_PARAZGJEDHUR` te `tema.ts`, dhe prova `hapja e parë është drita, me
+  kërkesë të pronarit` e lexon pikërisht atë vendim.
+
+  Ndriçimin e zgjedh çelësi te fundfaqja — «Sistemi», «Dritë», «Terr» — dhe **tri gjendje e jo dy**,
+  sepse pa të parën nuk kthehesh dot te ndërrimi automatik i telefonit (e njëjta trenjëshe si
+  `mbyllur` te pika 15). Vendimet rrinë te `tema.ts` e provohen me `node --test`; `ndricimi.ts` njeh
+  `document`-in, `localStorage`-in e `matchMedia`-n (pika 1).
+
+  **Tokenat e territ rrinë të shkruar një herë**, te `:root[data-tema='terr']`, dhe atributin e vë
+  `ndricimi.ts` — të zgjidhur, pra pa dallim a e zgjodhi njeriu a e tha telefoni. Me
+  `prefers-color-scheme` ai bllok do të duhej dy herë: brenda pyetjes, dhe jashtë saj për terrin e
+  zgjedhur mbi një telefon që rri në dritë. Prandaj **te CSS-i nuk ka asnjë `prefers-color-scheme`**
+  — sistemi pyetet te një vend i vetëm, dhe prova `sistemi pyetet te një vend i vetëm` e mban këtë
+  të matur.
+
+  **Çasti para se atributi të stampohet e mban parazgjedhjen**, sepse e mban vetë `:root`-i. Kush
+  nuk e ka prekur çelësin nuk sheh asnjë ndërrim te hapja; kush zgjodhi terrin sheh një çast drite,
+  dhe ai është çmimi i të pasurit një parazgjedhje që CSS-i e di vetë. Sa kohë parazgjedhja ishte
+  ajo e telefonit, atë çast e mbulonte një pyetje e vetme te CSS-i — nëse parazgjedhja ndërron
+  sërish, ajo pyetje kthehet bashkë me të.
+
+  `color-scheme` shkruhet i plotë te secila temë — ai vendos edhe kontrollet e sistemit — dhe blloku
+  i shtypjes i emërton të dyja, përndryshe atributi do t'i mposhtte tokenat e letrës.
+
+  **Ngjyra e shiritit është e treta që e di temën**, krah tokenave dhe metës te `index.html`. Ajo
+  meta mban ngjyrën e parazgjedhjes e jo një çift me `media`: me `media` shiriti do të ndiqte
+  telefonin e jo zgjedhjen, pra do të dilte i errët mbi një faqe të bardhë te aplikacioni i
+  instaluar. `ndricimi.ts` e ndërron sapo tema vihet, dhe dy prova i lidhin të tri vendet.
 - Teksti është Quicksand me peshë 500 (`--shkronja`); numrat e kolonave mbeten monospace
   (`--shkronja-numrat`), sepse te një tabelë pikësh shifrat duhet të bien mbi njëra-tjetrën dhe
   Quicksand-i i ka proporcionale.

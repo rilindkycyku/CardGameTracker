@@ -124,6 +124,24 @@ const SHTIGJET: Record<string, JSX.Element> = {
       <circle cx="12" cy="13.8" r="3.1" />
     </>
   ),
+  /*
+   * Tri ikonat e ndriçimit. Dielli e hëna janë të njohura kudo; «sistemi» merr
+   * telefonin sepse ajo gjendje nuk është një ngjyrë e tretë — është «ashtu si
+   * e thotë pajisja».
+   */
+  dielli: (
+    <>
+      <circle cx="12" cy="12" r="4.2" />
+      <path d="M12 2.8v2.2M12 19v2.2M4.5 4.5l1.6 1.6M17.9 17.9l1.6 1.6M2.8 12h2.2M19 12h2.2M4.5 19.5l1.6-1.6M17.9 6.1l1.6-1.6" />
+    </>
+  ),
+  hena: <path d="M20.4 14.3A8.6 8.6 0 0 1 9.7 3.6a8.6 8.6 0 1 0 10.7 10.7Z" />,
+  telefoni: (
+    <>
+      <rect x="6.4" y="2.8" width="11.2" height="18.4" rx="2.6" />
+      <path d="M10.6 18.2h2.8" />
+    </>
+  ),
   llogaritesi: (
     <>
       <rect x="4.6" y="3.2" width="14.8" height="17.6" rx="2.6" />
