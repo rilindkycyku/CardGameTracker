@@ -24,8 +24,8 @@ Katër lojëra, një tavolinë:
 | --- | --- | --- | --- | --- |
 | **Bridzh** | pikët, ose llogaritësi hant/normal | dy raunde për lojtar | më i vogli | po |
 | **Magarec** | një prekje: kush e humbi | kur mbushet fjala „MAGAREC" | më i vogli | jo |
-| **Domina** | gurët e mbetur në dorë | kur dikujt i mbushen 100 pikë | më i vogli | po |
-| **Pishpirik** | pikët e dorës (25 + 10 për pishpirik, 15 me fant) | kur dikush arrin 101 | **më i madhi** | jo |
+| **Domina** | gurët e mbetur në dorë | kur dikujt i mbushet kufiri (100 a 250) | më i vogli | po |
+| **Pishpirik** | pikët e dorës (25 + 10 për pishpirik, 15 me fant) | kur dikush arrin kufirin (101, 120 a 151) | **më i madhi** | jo |
 
 Dy të parat vijnë nga dy skedat e para të asaj flete, domina nga e treta, dhe pishpiriku nga vetë
 tavolina — atë skedë fleta nuk e pati kurrë. Rregullat te
@@ -250,6 +250,14 @@ Paketa është te versioni **2**, dhe fusha e shtuar është një shkronjë: llo
 është i njëjti bajt te të katër lojërat. Versioni 1 lexohet ende dhe lexohet bridzh: një adresë e
 ndarë dje te një bisedë nuk ka pse të vdesë sot, dhe atëherë kishte vetëm bridzh gjithsesi.
 
+**Kufiri i mbrëmjes hipën te e njëjta fushë**, si shifra pas shkronjës: `d100`, `p0`, `b`. Pa të,
+rreshti «edhe 39 deri te 100» te ana që shikon do të shkruante parazgjedhjen mbi një mbrëmje të
+nisur deri te 250. Një fushë e re do ta bënte paketën versioni 3, dhe atëherë çdo aplikacion i
+djeshëm do t'i refuzonte edhe paketat e bridzhit; kështu `b` e `m` mbeten fjalë për fjalë ato që
+ishin, dhe refuzohen vetëm dy lojërat që ai nuk i njeh gjithsesi. Shifrat lexohen me alfabet të
+ngushtë si çdo fushë tjetër — një shkronjë, së shumti katër shifra — dhe mungesa e tyre do të thotë
+«nuk thuhet», jo zero.
+
 Dy shkronjat e fundit hynë pa e ngritur versionin, dhe kjo është zgjedhje: një aplikacion i vjetër
 një paketë domine e refuzon fare — shkronjën nuk e njeh — dhe kjo është pikërisht ajo që duhet. Te
 pishpiriku fiton totali më i madh, prandaj një lexim „si bridzh" do të shpallte fitues atë që mbeti
@@ -387,6 +395,10 @@ Fushat e reja janë shqip, sepse nuk janë pjesë e asaj kontrate: `lloji` te `L
 luajt atë mbrëmje — `bridzh`, `magarec`, `domina` a `pishpirik`. Ai skedar njeh vetëm bridzhin (dhe
 një skedë domine pa emër fushe), prandaj lista e emrave anglisht mbetet ajo që është dhe nuk
 zgjatet.
+
+**Kufiri i dy lojërave të fundit nuk është rregull, është marrëveshje** — dhe prandaj rri te mbrëmja
+e jo te kodi (pika 13). Numrat e regjistrit janë vetëm parazgjedhja e çelësit: 100 te domina, sepse
+ashtu thonë rregullat e shkruara, dhe 120 te pishpiriku, sepse ashtu thotë tavolina e pronarit.
 
 Skeda „Domina" e fletës nuk është dëshmi e dobët: raundi i vetëm i shënuar u jep dy lojtarëve 21 e
 38 dhe të tretit asgjë, pra secili shkruan sa i mbetën në dorë, dhe totalet e matrica dalin nga po
@@ -541,6 +553,28 @@ Dy rregulla që preken, por nuk janë një — dhe ngatërrimi i tyre është ga
   ndonjë total kufirin (`arritiKufirin`). Ajo që ndryshon është kuptimi — te magareci e te domina ai
   që e arriti humbi, te pishpiriku fitoi — dhe atë e thotë ekrani, jo ajo llogari.
 
+**Kufiri i dominës dhe i pishpirikut zgjidhet për çdo mbrëmje.** Deri ku luhet nuk e thotë loja, e
+thotë tavolina para se të ndahen letrat: domina deri te 100 a 250, pishpiriku deri te 101, 120 a 151,
+ose pa kufi fare — luajmë sa të luajmë. Prandaj numri rri te `Loja.kufiri` e jo te regjistri, dhe
+`kufiriILojes()` te `fundi.ts` është vendi i vetëm ku zgjidhet cili vlen:
+
+  - **mungon** → parazgjedhja e lojës. Kështu lexohen të gjitha mbrëmjet e shkruara para se fusha të
+    ekzistonte, dhe ato nuk ndërrojnë kuptim.
+  - **numër** → pikërisht ai kufi.
+  - **`0`** → pa kufi; mbrëmja mbaron vetëm me dorë (pika 15). Lexohet me `??` e jo me `||`, si
+    `mbyllur` dhe për të njëjtën arsye: me `||` zeroja do të lexohej mungesë, dhe mbrëmja do të
+    mbyllej vetvetiu pikërisht te kufiri që u nis për të mos e pasur.
+
+Kufiri ndërrohet edhe mes mbrëmjes, nga një `<details>` te ekrani i lojës. Pa atë, një numër i
+zgjedhur gabim te nisja do ta mbyllte fletën në mes të lojës, dhe rruga e vetme prapa do të ishte
+rihapja pas çdo raundi. Magareci e bridzhi nuk e kanë atë çelës fare: i pari mbaron me raundet, dhe
+te i dyti kufiri është vetë fjala — «deri te pesë shkronja» do të ishte lojë tjetër.
+
+**Numrat e kufirit nuk shkruhen te teksti i rregullit.** `rregulli` e `shenimi` te regjistri e thonë
+si shënohet raundi dhe kush fiton, kurrë deri ku luhet: ai numër ndryshon për çdo mbrëmje, dhe një i
+ngrirë atje do të thoshte «mbaron te 100» mbi një fletë të nisur deri te 250 — pra do të gënjente
+pikërisht atë që sapo e zgjodhi vetë.
+
 `perziersiIRaundit` nuk mban gjendje: raundi i parë i takon të parit të `selectedPlayers`, i dyti të
 dytit, dhe pas të fundit nis prapë nga kreu. Kjo punon vetëm sepse radha e emrave ruhet që nga
 futja — kutia e emrave e thotë («Radha ruhet — kështu ulen rreth tavolinës»), dhe fleta e vjetër i
@@ -665,8 +699,8 @@ Prandaj ekranet pyesin **çka thotë rregulli**, e jo **cila lojë është**:
 - `rregullat(lloji).drejtimi` → `renditja` dhe `fituesit`. Parazgjedhja e të dyve mbetet `poshte`,
   sepse tri lojëra nga katër fitohen ashtu dhe kështu e numëron edhe fleta origjinale.
 - `rregullat(lloji).raundePerLojtar` → a shkruhet «4 nga 8 raunde» apo «4 raunde» (pika 13).
-- `rregullat(lloji).kufiriITotalit` → fundi i mbrëmjes për tri lojërat pa numërim raundesh, dhe
-  rreshti «edhe 39 deri te 100» te përmbledhja.
+- `rregullat(lloji).kufiriITotalit` → parazgjedhja e kufirit, dhe `kufijteEMundshem` ata që i ofron
+  çelësi. Cili vlen për një mbrëmje të caktuar e thotë `kufiriILojes()` (pika 13), e jo regjistri.
 - `rregullat(lloji).llogaritesi`, `.shlyerja`, `.parashikimi` → a vizatohen ato tri blloqe.
 
 Tri gjëra nuk guxojnë të ndryshojnë:

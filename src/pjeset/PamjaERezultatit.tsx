@@ -151,7 +151,7 @@ export function PamjaERezultatit({
 
           {pamja.raunde > 0 && (
             <>
-              <Vetja rreshtat={rreshtat} totalet={totalat} lloji="magarec" />
+              <Vetja rreshtat={rreshtat} totalet={totalat} lloji="magarec" kufiri={null} />
 
               {!perfundoi && (
                 <Parashikimi
@@ -167,6 +167,7 @@ export function PamjaERezultatit({
       ) : (
         <PjesaEPikeve
           lloji={pamja.lloji}
+          kufiri={pamja.kufiri}
           emrat={emrat}
           totalat={totalat}
           rreshtat={rreshtat}
@@ -193,6 +194,7 @@ export function PamjaERezultatit({
  */
 function PjesaEPikeve({
   lloji,
+  kufiri,
   emrat,
   totalat,
   rreshtat,
@@ -200,6 +202,8 @@ function PjesaEPikeve({
   perfundoi,
 }: {
   lloji: LlojiILojes;
+  /** Kufiri me të cilin u luajt, nga paketa; `null` kur nuk thuhet. */
+  kufiri: number | null;
   emrat: string[];
   totalat: Record<string, number>;
   rreshtat: RreshtiRenditjes[];
@@ -216,7 +220,12 @@ function PjesaEPikeve({
 
       {raunde > 0 && (
         <>
-          <Vetja rreshtat={rreshtat} totalet={totalat} lloji={lloji} />
+          <Vetja
+            rreshtat={rreshtat}
+            totalet={totalat}
+            lloji={lloji}
+            kufiri={kufiri}
+          />
 
           {!perfundoi && rregulli.parashikimi && (
             <Parashikimi

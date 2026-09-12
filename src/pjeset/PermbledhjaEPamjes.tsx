@@ -139,12 +139,17 @@ export function PermbledhjaEPamjes({
           është fitorja që afrohet; te domina është mbrëmja që mbaron, dhe kush
           e arrin e humb — prandaj aty matet ai që i ka më shumë.
         */}
-        {!magarec && !meRaunde && rregulli.kufiriITotalit !== null && (
+        {/*
+          Kufiri vjen nga vetë paketa e jo nga regjistri: mbrëmja mund të jetë
+          nisur deri te një numër tjetër, ose pa kufi fare — dhe atëherë ky
+          rresht nuk shkruhet, në vend që të shpikë parazgjedhjen.
+        */}
+        {!magarec && !meRaunde && pamja.kufiri !== null && pamja.kufiri > 0 && (
           <li>
             <Ikona emri={rregulli.drejtimi === 'larte' ? 'luaj' : 'kujdes'} />
             <span>
               {(() => {
-                const kufiri = rregulli.kufiriITotalit;
+                const kufiri = pamja.kufiri!;
                 const afer =
                   rregulli.drejtimi === 'larte'
                     ? pari

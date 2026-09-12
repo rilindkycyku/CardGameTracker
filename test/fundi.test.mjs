@@ -10,7 +10,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { mbaroiSipasRregullit, perfundoiMbremja } from '../src/fundi.ts';
+import {
+  kufiriILojes,
+  mbaroiSipasRregullit,
+  perfundoiMbremja,
+} from '../src/fundi.ts';
 import { KUFIRI_I_DOMINES, KUFIRI_I_PISHPIRIKUT } from '../src/lojerat.ts';
 
 /** Një lojë bridzhi me katër veta: tetë raunde, dy për lojtar. */
@@ -183,4 +187,48 @@ test('mbyllja e hershme dhe rihapja punojnë edhe te lojërat me kufi pikësh', 
   const [mbaruar, plot] = meKufi('domina', [{ alfa: 120, beta: 10, gama: 0 }]);
   assert.equal(perfundoiMbremja(mbaruar, plot), true);
   assert.equal(perfundoiMbremja({ ...mbaruar, mbyllur: false }, plot), false);
+});
+
+/* ── Kufiri i zgjedhur për një mbrëmje ───────────────────────────────────── */
+
+test('kufiri i mbrëmjes e mbyt atë të parazgjedhur', () => {
+  // Deri ku luhet e vendos tavolina, prandaj mbrëmja e mban të vetin. Mungesa
+  // do të thotë «vendos loja» — ashtu lexohen të gjitha ato që u shkruan para
+  // se kjo fushë të ekzistonte.
+  assert.equal(kufiriILojes({ lloji: 'domina' }), KUFIRI_I_DOMINES);
+  assert.equal(kufiriILojes({ lloji: 'domina', kufiri: 250 }), 250);
+  assert.equal(kufiriILojes({ lloji: 'pishpirik' }), KUFIRI_I_PISHPIRIKUT);
+  assert.equal(kufiriILojes({ lloji: 'pishpirik', kufiri: 101 }), 101);
+
+  // Zeroja është zgjedhje e vërtetë — «pa kufi» — dhe jo mungesë. Lexohet me
+  // `??` e jo me `||`; me `||` do të kthehej parazgjedhja, pra pikërisht kufiri
+  // që mbrëmja u nis për të mos e pasur.
+  assert.equal(kufiriILojes({ lloji: 'domina', kufiri: 0 }), null);
+
+  // Lojërat pa atë pyetje mbeten ashtu si janë.
+  assert.equal(kufiriILojes({ lloji: 'bridzh' }), null);
+  assert.equal(kufiriILojes({}), null);
+});
+
+test('mbrëmja mbaron te kufiri i vet, jo te ai i parazgjedhur', () => {
+  const [loja, raundet] = meKufi('domina', [
+    { alfa: 120, beta: 10, gama: 0 },
+  ]);
+
+  // 120 e kalon njëqindshin e parazgjedhur, prandaj sipas tij ka mbaruar…
+  assert.equal(mbaroiSipasRregullit(loja, raundet), true);
+  // …por jo sipas dyqind e pesëdhjetës që zgjodhi kjo tavolinë.
+  assert.equal(mbaroiSipasRregullit({ ...loja, kufiri: 250 }, raundet), false);
+  // Dhe një mbrëmje e nisur pa kufi nuk mbaron kurrë vetvetiu.
+  assert.equal(mbaroiSipasRregullit({ ...loja, kufiri: 0 }, raundet), false);
+});
+
+test('pa kufi, mbrëmja pret vetëm dorën', () => {
+  const [loja, raundet] = meKufi('pishpirik', [
+    { alfa: 400, beta: 10, gama: 0 },
+  ]);
+  const pakufi = { ...loja, kufiri: 0 };
+
+  assert.equal(perfundoiMbremja(pakufi, raundet), false);
+  assert.equal(perfundoiMbremja({ ...pakufi, mbyllur: true }, raundet), true);
 });

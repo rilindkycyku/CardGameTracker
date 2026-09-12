@@ -24,17 +24,45 @@ import { arritiKufirin, rregullat } from './lojerat.ts';
 import type { Loja, Raundi } from './tipet.ts';
 
 /**
+ * Deri te sa pikë luhet kjo mbrëmje — vendi i vetëm ku zgjidhet.
+ *
+ * Kufiri ka dy burime, dhe radha mes tyre nuk ndryshon: mbrëmja e ka të vetin
+ * nëse u zgjodh një kur nisi, përndryshe vlen parazgjedhja e lojës. `0` do të
+ * thotë «pa kufi», dhe kthehet `null` — pra e njëjta gjë si te një lojë që
+ * kufi nuk ka fare, dhe e njëjta rrugë poshtë.
+ *
+ * Lexohet me `??` e jo me `||`, si `mbyllur`: zeroja është zgjedhje e jo
+ * mungesë, dhe një `||` do ta lexonte si «nuk u zgjodh» — pra do ta mbyllte
+ * mbrëmjen që u nis pikërisht për të mos u mbyllur vetvetiu.
+ */
+export function kufiriILojes(loja: {
+  lloji?: Loja['lloji'];
+  kufiri?: number;
+}): number | null {
+  const i_zgjedhuri = loja.kufiri;
+  if (i_zgjedhuri === undefined) {
+    return rregullat(llojiILojes(loja)).kufiriITotalit;
+  }
+
+  return i_zgjedhuri > 0 ? i_zgjedhuri : null;
+}
+
+/**
  * A e ka mbaruar rregulli mbrëmjen, pa pyetur askënd.
  *
  * Fundi vjen nga dy anë, dhe secila lojë e ka vetëm njërën:
  *
  * - **Nga raundet.** Bridzhi mbaron pasi tavolina rrotullohet dy herë, pra dy
  *   raunde për lojtar. Ky është i vetmi që numërohet me raunde.
- * - **Nga totali.** Shtatë shkronjat e magarecit, njëqind pikët e dominës dhe
- *   njëqind e një të pishpirikut janë i njëjti rregull parë nga numri: sapo
- *   dikush e arrin kufirin, mbrëmja mbaron. Ajo që ndryshon është kuptimi —
- *   te dy të parat ai e humbi mbrëmjen, te e treta e fitoi — dhe atë e thotë
- *   ekrani, jo ky funksion.
+ * - **Nga totali.** Shtatë shkronjat e magarecit, pikët e dominës dhe ato të
+ *   pishpirikut janë i njëjti rregull parë nga numri: sapo dikush e arrin
+ *   kufirin, mbrëmja mbaron. Ajo që ndryshon është kuptimi — te dy të parat ai
+ *   e humbi mbrëmjen, te e treta e fitoi — dhe atë e thotë ekrani, jo ky
+ *   funksion.
+ *
+ *   Te dy lojërat e fundit vetë kufiri është marrëveshje tavoline e jo rregull
+ *   loje, prandaj mbrëmja e mban të vetin dhe `kufiriILojes` e zgjedh. Një
+ *   mbrëmje e nisur «pa kufi» nuk mbaron kurrë vetvetiu: atë e mbyll dora.
  *
  * Një lojë pa asnjë lojtar nuk ka mbaruar: ajo as nuk ka nisur.
  */
@@ -49,7 +77,7 @@ export function mbaroiSipasRregullit(loja: Loja, raundet: Raundi[]): boolean {
     return raundet.length >= raundetELojes(players);
   }
 
-  return arritiKufirin(lloji, totalet(players, raundet));
+  return arritiKufirin(kufiriILojes(loja), totalet(players, raundet));
 }
 
 /**

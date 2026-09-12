@@ -23,6 +23,7 @@ import { ne64Tekst, nenshkruaj } from '../src/paketa.ts';
 const PAMJA = {
   grupi: 'Brigj',
   lloji: 'bridzh',
+  kufiri: null,
   data: '2026-03-08',
   raunde: 7,
   totalet: [
@@ -69,6 +70,7 @@ test('paketa e shkruar me ikjen e vjetër lexohet ende', () => {
   assert.deepEqual(shpaketo(ne64Tekst(nenshkruaj(trupi))), {
     grupi: 'Shoqëria e mbrëmjes',
     lloji: 'bridzh',
+    kufiri: null,
     data: '2026-03-08',
     raunde: 7,
     totalet: [['alfa + zeta', 594], ['bëta', 380]],
@@ -129,6 +131,7 @@ test('magareci paketohet si magarec, jo si bridzh', () => {
   const pamja = {
     grupi: 'Brigj',
     lloji: 'magarec',
+    kufiri: null,
     data: '2026-09-10',
     raunde: 9,
     totalet: [['alfa', 7], ['epsilon', 2]],
@@ -146,6 +149,7 @@ test('adresa e versionit të parë lexohet ende, si bridzh', () => {
   assert.deepEqual(shpaketo(i_vjeter), {
     grupi: 'Brigj',
     lloji: 'bridzh',
+    kufiri: null,
     data: '2026-03-08',
     raunde: 7,
     totalet: [['alfa', 594], ['beta', 380]],
@@ -186,6 +190,7 @@ test('pamja e një loje merr totalet e lojtarëve të saj', () => {
   assert.deepEqual(pamjaELojes('Brigj', loja, { alfa: 594, beta: 380 }, 7), {
     grupi: 'Brigj',
     lloji: 'bridzh',
+    kufiri: null,
     data: '2026-03-08',
     raunde: 7,
     totalet: [['alfa', 594], ['beta', 380]],
@@ -272,6 +277,7 @@ test('paketa e një loje me gjashtë lojtarë mbetet e shkurtër', () => {
   const gjashte = {
     grupi: 'Brigj',
     lloji: 'bridzh',
+    kufiri: null,
     data: '2026-03-08',
     raunde: 11,
     totalet: [
@@ -292,6 +298,7 @@ test('adresa e prerë refuzohet, jo lexohet me numra të gabuar', () => {
   const pamja = {
     grupi: 'Brigj',
     lloji: 'bridzh',
+    kufiri: null,
     data: '2026-09-10',
     raunde: 2,
     totalet: [['alfa', 42], ['Mi', 200], ['delta', 105]],
@@ -373,4 +380,49 @@ test('teksti i pishpirikut e shkruan emrin e lojës dhe raundet e thjeshta', () 
   assert.match(teksti, /5 raunde/);
   assert.doesNotMatch(teksti, /nga \d+ raunde/);
   assert.match(teksti, /1\. beta 88/);
+});
+
+/* ── Kufiri i mbrëmjes brenda fushës së llojit ───────────────────────────── */
+
+test('kufiri i mbrëmjes udhëton bashkë me llojin', () => {
+  // Ana që shikon nuk ka nga ta dijë ndryshe se deri ku luhej — dhe pa të,
+  // rreshti «edhe 39 deri te 100» do të shkruante kufirin e parazgjedhur mbi
+  // një mbrëmje që u nis deri te 250.
+  for (const [lloji, kufiri] of [
+    ['domina', 100],
+    ['domina', 250],
+    ['pishpirik', 120],
+    ['domina', 0],
+  ]) {
+    const pamja = { ...PAMJA, lloji, kufiri };
+    assert.deepEqual(shpaketo(paketo(pamja)), pamja, `${lloji} ${kufiri}`);
+  }
+});
+
+test('bridzhi dhe magareci mbeten një shkronjë e vetme', () => {
+  /*
+   * Kjo është arsyeja pse kufiri hipi te fusha e llojit e nuk u bë fushë e
+   * vetja: paketat e tyre mbeten fjalë për fjalë ato që ishin, prandaj një
+   * aplikacion i djeshëm i lexon si më parë. Një fushë e shtuar do t'i kishte
+   * refuzuar të gjitha.
+   */
+  for (const lloji of ['bridzh', 'magarec']) {
+    const trupi = Buffer.from(
+      paketo({ ...PAMJA, lloji, kufiri: null })
+        .replace(/-/g, '+')
+        .replace(/_/g, '/'),
+      'base64',
+    ).toString('utf8');
+
+    assert.equal(trupi.split('|')[1].length, 1, lloji);
+  }
+});
+
+test('shifrat e pabesueshme te lloji refuzohen', () => {
+  // Fusha vjen nga kushdo që të tregon një kod QR. Alfabeti rri i ngushtë këtu
+  // si kudo tjetër: një shkronjë, dhe së shumti katër shifra.
+  for (const fusha of ['d12345', 'd-1', 'd 100', 'dd', 'd1e3', '1', 'D100']) {
+    const trupi = `2|${fusha}|Brigj|2026-03-08|4|alfa:12`;
+    assert.equal(shpaketo(ne64Tekst(nenshkruaj(trupi))), null, fusha);
+  }
 });

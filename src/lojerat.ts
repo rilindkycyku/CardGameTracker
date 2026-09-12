@@ -36,15 +36,22 @@ import type { Drejtimi, LlojiILojes } from './tipet.ts';
  */
 export const KUFIRI_I_DOMINES = 100;
 
+/** Kufijtë që i ofrohen dominës kur nis mbrëmja. */
+export const KUFIJTE_E_DOMINES = [100, 250];
+
 /**
  * Deri ku luhet pishpiriku, dhe këtu fiton më i madhi.
  *
- * Ky numër nuk vjen nga burimi i rregullave si të tjerët poshtë: ai flet për
- * pikët e një dore e jo për fundin e mbrëmjes. 101-shi është kufiri me të cilin
- * luhet gjerësisht, dhe rri këtu si konstante e vetme pikërisht që të ndërrohet
- * me një prekje nëse tavolina luan deri diku tjetër.
+ * Ky numër nuk vjen nga burimi i rregullave si të tjerët poshtë: ajo faqe jep
+ * pikët e një dore, e jo fundin e mbrëmjes. Njëqind e njëzeta është ajo që e
+ * thotë tavolina e pronarit; 101-shi e 151-shi qarkullojnë po aq gjerësisht.
+ * Prandaj kufiri nuk u zgjodh fare: ky është vetëm parazgjedhja e çelësit, dhe
+ * mbrëmja e mban të vetin (`Loja.kufiri`).
  */
-export const KUFIRI_I_PISHPIRIKUT = 101;
+export const KUFIRI_I_PISHPIRIKUT = 120;
+
+/** Kufijtë që i ofrohen pishpirikut kur nis mbrëmja. */
+export const KUFIJTE_E_PISHPIRIKUT = [101, 120, 151];
 
 /**
  * Sa pikë ndan një dorë pishpiriku pa pishpirikët — për shënimin nën fushat.
@@ -100,8 +107,20 @@ export type Rregullat = {
    * Totali që e mbyll mbrëmjen sapo dikush e arrin, ose `null` kur s'ka të
    * tillë. Shtatë shkronjat e magarecit janë pikërisht ky kufi, parë nga ana e
    * numrit.
+   *
+   * Është parazgjedhje e jo ligj: mbrëmja mund ta mbajë të vetin (`Loja.kufiri`),
+   * dhe `kufiriILojes()` te `fundi.ts` është vendi i vetëm ku zgjidhet cili nga
+   * të dy vlen.
    */
   kufiriITotalit: number | null;
+  /**
+   * Kufijtë që i ofrohen kësaj loje te ekrani, ose bosh kur nuk zgjidhet.
+   *
+   * Bosh do të thotë se kufiri nuk është marrëveshje tavoline: bridzhi mbaron
+   * me raundet, dhe te magareci fjala ka shtatë shkronja — një çelës që të
+   * lejon „deri te pesë shkronja" do të shpikte një lojë tjetër.
+   */
+  kufijteEMundshem: number[];
   /** A ka llogaritës raundi — vetëm bridzhi, sepse vetëm ai ka formulë. */
   llogaritesi: boolean;
   /** A shlyhet diferenca mes lojtarëve me para, pra a vizatohet matrica. */
@@ -141,6 +160,7 @@ export const LOJERAT: Record<LlojiILojes, Rregullat> = {
     njesia: 'pike',
     raundePerLojtar: 2,
     kufiriITotalit: null,
+    kufijteEMundshem: [],
     llogaritesi: true,
     shlyerja: true,
     parashikimi: true,
@@ -159,6 +179,7 @@ export const LOJERAT: Record<LlojiILojes, Rregullat> = {
     njesia: 'shkronja',
     raundePerLojtar: null,
     kufiriITotalit: FJALA.length,
+    kufijteEMundshem: [],
     llogaritesi: false,
     shlyerja: false,
     parashikimi: true,
@@ -173,13 +194,22 @@ export const LOJERAT: Record<LlojiILojes, Rregullat> = {
     njesia: 'pike',
     raundePerLojtar: null,
     kufiriITotalit: KUFIRI_I_DOMINES,
+    kufijteEMundshem: KUFIJTE_E_DOMINES,
     llogaritesi: false,
     shlyerja: true,
     parashikimi: false,
+    /*
+     * Kufiri nuk shkruhet te këto dy rreshta, edhe pse do të rrinte mirë.
+     *
+     * Ai zgjidhet për çdo mbrëmje (`Loja.kufiri`), dhe një numër i ngrirë këtu
+     * do të thoshte «mbaron te 100» mbi një mbrëmje të nisur deri te 250 — pra
+     * do të gënjente pikërisht atë që sapo e zgjodhi vetë. Numrin e vërtetë e
+     * thotë çelësi krah këtij teksti, dhe rreshti «Deri te …» te ekrani i lojës.
+     */
     rregulli:
-      `Secili shënon sa gurë i mbetën në dorë. Mbrëmja mbaron kur dikujt i `
-      + `mbushen ${KUFIRI_I_DOMINES} pikë, dhe fiton totali më i vogël.`,
-    shenimi: `Sa gurë i mbetën secilit në dorë. Mbrëmja mbaron te ${KUFIRI_I_DOMINES}.`,
+      'Secili shënon sa gurë i mbetën në dorë, dhe fiton totali më i vogël. '
+      + 'Deri ku luhet e thotë çelësi sipër.',
+    shenimi: 'Sa gurë i mbetën secilit në dorë. Fiton totali më i vogël.',
   },
   pishpirik: {
     lloji: 'pishpirik',
@@ -189,13 +219,14 @@ export const LOJERAT: Record<LlojiILojes, Rregullat> = {
     njesia: 'pike',
     raundePerLojtar: null,
     kufiriITotalit: KUFIRI_I_PISHPIRIKUT,
+    kufijteEMundshem: KUFIJTE_E_PISHPIRIKUT,
     llogaritesi: false,
     shlyerja: false,
     parashikimi: false,
     rregulli:
       `Pikët e dorës shënohen ashtu si numërohen te tavolina — ${DORA_E_PISHPIRIKUT} `
       + `për dorë, plus ${PIKET_E_PISHPIRIKUT} për çdo pishpirik. Këtu fiton `
-      + `totali më i madh: mbrëmja mbaron kur dikush arrin ${KUFIRI_I_PISHPIRIKUT}.`,
+      + `totali më i madh; deri ku luhet e thotë çelësi sipër.`,
     shenimi:
       `Pikët e dorës: ${DORA_E_PISHPIRIKUT} gjithsej, plus ${PIKET_E_PISHPIRIKUT} `
       + `për çdo pishpirik (${PIKET_E_PISHPIRIKUT_ME_FANT} me fant). Fiton totali `
@@ -227,15 +258,18 @@ export function llojiNgaShenja(shenja: string): LlojiILojes | null {
  *
  * Të tri lojërat me kufi e ndajnë këtë llogari, edhe pse kufijtë e tyre nuk
  * kanë të bëjnë me njëri-tjetrin: shtatë shkronja, njëqind pikë dënimi, njëqind
- * e një pikë fitimi. Drejtimi nuk hyn fare — kufiri arrihet nga poshtë te të
+ * e njëzet pikë fitimi. Drejtimi nuk hyn fare — kufiri arrihet nga poshtë te të
  * treja, sepse totalet vetëm rriten. Ajo që ndryshon është kuptimi: te dy të
  * parat ai që e arriti humbi, te e treta fitoi.
+ *
+ * Kufiri jepet e nuk merret nga regjistri: ai i regjistrit është vetëm
+ * parazgjedhje, dhe mbrëmja mund ta ketë të vetin. `null` do të thotë «pa
+ * kufi» — as loja pa të, as mbrëmja që u nis ashtu, nuk mbarojnë vetvetiu.
  */
 export function arritiKufirin(
-  lloji: LlojiILojes,
+  kufiri: number | null,
   totalet: Record<string, number>,
 ): boolean {
-  const kufiri = LOJERAT[lloji].kufiriITotalit;
   if (kufiri === null) return false;
 
   return Object.values(totalet).some((total) => total >= kufiri);

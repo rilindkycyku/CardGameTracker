@@ -10,8 +10,8 @@ Katër lojëra, një grup, një bazë:
 | --- | --- | --- | --- |
 | **Bridzh** — xhin-rami kosovar me 14 letra, mbyllja me 51 pikë | pikët e secilit, ose llogaritësi hant/normal | pas dy raundeve për lojtar | totali më i vogël |
 | **Magarec** — loja e shkronjave | një prekje: kush e humbi | kur dikujt i mbushet fjala „MAGAREC" | më pak shkronja |
-| **Domina** — gurët e mbetur në dorë | pikët e secilit | kur dikujt i mbushen 100 pikë | totali më i vogël |
-| **Pishpirik** — 25 pikë për dorë, plus 10 për çdo pishpirik | pikët e dorës | kur dikush arrin 101 | **totali më i madh** |
+| **Domina** — gurët e mbetur në dorë | pikët e secilit | kur dikujt i mbushet kufiri | totali më i vogël |
+| **Pishpirik** — 25 pikë për dorë, plus 10 për çdo pishpirik | pikët e dorës | kur dikush arrin kufirin | **totali më i madh** |
 
 Pishpiriku është i vetmi që fitohet nga ana tjetër, dhe ekrani e thotë atë me
 fjalë: renditja, kurora dhe fjalia e fundit e lexojnë drejtimin nga vetë loja.
@@ -34,8 +34,8 @@ fjalë: renditja, kurora dhe fjalia e fundit e lexojnë drejtimin nga vetë loja
   raundin, shkronja shkon te ai, e rrjeti M-A-G-A-R-E-C tregon ku janë të gjithë.
 - **Domina dhe pishpirik** — i njëjti rrjet fushash si te bridzhi, pa
   llogaritës: numri numërohet te tavolina, ku janë gurët e letrat. Mbrëmja
-  mbaron kur dikush e arrin kufirin e pikëve — 100 te domina, 101 te
-  pishpiriku — dhe fjalia e fundit e thotë se kush e arriti.
+  mbaron kur dikush e arrin kufirin që u zgjodh kur nisi — ose kurrë, nëse u nis
+  «pa kufi» — dhe fjalia e fundit e thotë se kush e arriti.
 - **Renditja** — sipas totalit, në drejtimin që e fiton loja: i pari është ai me
   më pak pikë kudo veç pishpirikut. Kur
   nuk kanë luajtur të gjithë njësoj, shtohet kolona „raunde" dhe një shënim.
@@ -115,10 +115,16 @@ pranon vetëm kombinimet e lejuara nuk do t’i shënonte dot.
 
 Asnjëra nuk ka llogaritës: numri vjen i numëruar nga tavolina.
 
-| | Raundi | Mbaron | Fiton |
+| | Raundi | Deri te | Fiton |
 | --- | --- | --- | --- |
-| **Domina** | sa gurë i mbetën secilit në dorë | kur dikujt i mbushen 100 | totali më i vogël |
-| **Pishpirik** | pikët e dorës — 25 gjithsej, plus 10 për çdo pishpirik (15 me fant) | kur dikush arrin 101 | totali më i madh |
+| **Domina** | sa gurë i mbetën secilit në dorë | 100 a 250 pikë | totali më i vogël |
+| **Pishpirik** | pikët e dorës — 25 gjithsej, plus 10 për çdo pishpirik (15 me fant) | 101, 120 a 151 pikë | totali më i madh |
+
+**Deri ku luhet zgjidhet kur nis mbrëmja**, sepse kjo është marrëveshje e
+tavolinës e jo rregull i lojës — dhe «Pa kufi» rri krah numrave, për mbrëmjen që
+mbaron kur ngrihet shoqëria. Ndërrohet edhe mes lojës, nga rreshti «Deri te …»:
+nëse dikush e ka kaluar tashmë numrin e ri, fleta mbyllet aty për aty, dhe
+rihapet po aq lehtë.
 
 Te pishpiriku një dorë e plotë ndan 25 pikë: nga një për secilin as, dam, mbret,
 fant e dhjetë (22 me dhjetën e bastunit dy e dyshin e lules një), dhe tri për

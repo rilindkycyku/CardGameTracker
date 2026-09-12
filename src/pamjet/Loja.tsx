@@ -43,12 +43,13 @@ import {
   raundiIHumbjes,
   shkronjat as shkronjatE,
 } from '../magareci.ts';
-import { mbaroiSipasRregullit, perfundoiMbremja } from '../fundi.ts';
+import { kufiriILojes, mbaroiSipasRregullit, perfundoiMbremja } from '../fundi.ts';
 import { rregullat, type Rregullat } from '../lojerat.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import { FutjaEMagarecit } from '../pjeset/FutjaEMagarecit.tsx';
 import { FutjaERaundit } from '../pjeset/FutjaERaundit.tsx';
+import { PA_KUFI, ZgjedhjaEKufirit } from '../pjeset/Kufiri.tsx';
 import { LojtaretELojes } from '../pjeset/LojtaretELojes.tsx';
 import { Ndarja } from '../pjeset/Ndarja.tsx';
 import { PamjaERezultatit } from '../pjeset/PamjaERezultatit.tsx';
@@ -100,6 +101,7 @@ function ShenjaEFundit({
   total,
   raunde,
   gjithsej,
+  kufiri,
   kaloiKufirin,
 }: {
   rregulli: Rregullat;
@@ -112,6 +114,8 @@ function ShenjaEFundit({
   raunde: number;
   /** Sa raunde ka mbrëmja gjithsej — vetëm bridzhi e ka atë numër. */
   gjithsej: number;
+  /** Kufiri me të cilin u luajt kjo mbrëmje, ose `null` kur s'kishte. */
+  kufiri: number | null;
   /** Kush e arriti kufirin e pikëve, kur loja mbaron ashtu. */
   kaloiKufirin: string | null;
 }) {
@@ -160,10 +164,10 @@ function ShenjaEFundit({
     rregulli.raundePerLojtar !== null
       ? `${gjithsej} raunde, ${rregulli.raundePerLojtar} për lojtar`
       : rregulli.drejtimi === 'larte'
-        ? `i pari te ${rregulli.kufiriITotalit}`
+        ? `i pari te ${kufiri}`
         : kaloiKufirin
-          ? `${kaloiKufirin} i mbushi ${rregulli.kufiriITotalit} pikët`
-          : `${rregulli.kufiriITotalit} pikët u mbushën`;
+          ? `${kaloiKufirin} i mbushi ${kufiri} pikët`
+          : `${kufiri} pikët u mbushën`;
 
   return (
     <p className="njoftim njoftim--mire">
@@ -187,7 +191,11 @@ function ShenjaEFundit({
  * para se t'i mbarojnë raundet, para se dikujt t'i mbushen pikët, para se
  * dikush të arrijë kufirin.
  */
-function paraFundit(rregulli: Rregullat, gjithsej: number): string {
+function paraFundit(
+  rregulli: Rregullat,
+  gjithsej: number,
+  kufiri: number | null,
+): string {
   if (rregulli.lloji === 'magarec') {
     return 'Nëse shoqëria u ngrit para se dikujt t’i mbushej fjala, mbylle këtu.';
   }
@@ -196,9 +204,15 @@ function paraFundit(rregulli: Rregullat, gjithsej: number): string {
     return `Nëse shoqëria u ngrit para se t’i mbaronin ${gjithsej} raundet, mbylle këtu.`;
   }
 
+  // Pa kufi, mbyllja me dorë nuk është «më herët» — është e vetmja mbyllje që
+  // ka, dhe teksti nuk guxon të lërë të kuptohet se pritej diçka tjetër.
+  if (kufiri === null) {
+    return 'Kjo mbrëmje u nis pa kufi pikësh, prandaj mbaron kur ta mbyllësh ti.';
+  }
+
   return rregulli.drejtimi === 'larte'
-    ? `Nëse shoqëria u ngrit para se dikush të arrinte ${rregulli.kufiriITotalit}, mbylle këtu.`
-    : `Nëse shoqëria u ngrit para se dikujt t’i mbusheshin ${rregulli.kufiriITotalit} pikët, mbylle këtu.`;
+    ? `Nëse shoqëria u ngrit para se dikush të arrinte ${kufiri}, mbylle këtu.`
+    : `Nëse shoqëria u ngrit para se dikujt t’i mbusheshin ${kufiri} pikët, mbylle këtu.`;
 }
 
 /**
@@ -333,6 +347,15 @@ export function Loja({ id }: { id: number }) {
     rregulli.raundePerLojtar === null ? 0 : raundetELojes(players);
 
   /*
+   * Deri te sa pikë luhet kjo mbrëmje.
+   *
+   * Merret nga `fundi.ts` e jo nga regjistri: ai i regjistrit është vetëm
+   * parazgjedhja e çelësit, dhe tavolina mund ta ketë nisur mbrëmjen deri te
+   * një numër tjetër — ose pa kufi fare (`null`).
+   */
+  const kufiri = loja ? kufiriILojes(loja) : null;
+
+  /*
    * A ka mbaruar mbrëmja — dhe të dyja lojërat e kanë fundin e vet.
    *
    * Te magareci mbaron kur dikujt i mbushet fjala; te bridzhi pas dy raundeve
@@ -368,12 +391,11 @@ export function Loja({ id }: { id: number }) {
    * kufirin është pikërisht humbësi, dhe fjalia e fundit e thotë emrin e tij.
    */
   const kaloiKufirin = useMemo(() => {
-    const kufiri = rregulli.kufiriITotalit;
     if (kufiri === null || rregulli.njesia !== 'pike') return null;
 
     const iMadhi = [...rreshtat].sort((a, b) => b.total - a.total)[0];
     return iMadhi && iMadhi.total >= kufiri ? iMadhi.player : null;
-  }, [rreshtat, rregulli.kufiriITotalit, rregulli.njesia]);
+  }, [rreshtat, kufiri, rregulli.njesia]);
 
   /*
    * Kush i përzien letrat te raundi që po shënohet.
@@ -507,6 +529,20 @@ export function Loja({ id }: { id: number }) {
   }
 
   /**
+   * Ndërron kufirin e kësaj mbrëmjeje.
+   *
+   * Shkruhet te loja e jo te grupi: kufiri është marrëveshje e asaj tavoline,
+   * dhe mbrëmja e djeshme nuk ka pse të ndërrojë kuptim sepse sonte luhet deri
+   * diku tjetër (pika 4).
+   */
+  async function ndrroKufirin(i_ri: number) {
+    if (!loja) return;
+
+    await ruajLoje({ ...loja, kufiri: i_ri });
+    rifresko();
+  }
+
+  /**
    * Rihap mbrëmjen.
    *
    * Pa këtë, një prekje e gabuar do të ishte e pakthyeshme — dhe do të ishte e
@@ -560,6 +596,7 @@ export function Loja({ id }: { id: number }) {
               total={rreshtat[0]?.total ?? 0}
               raunde={raundet.length}
               gjithsej={gjithsej}
+              kufiri={kufiri}
               kaloiKufirin={kaloiKufirin}
             />
           }
@@ -716,6 +753,7 @@ export function Loja({ id }: { id: number }) {
                 total={rreshtat[0]?.total ?? 0}
                 raunde={raundet.length}
                 gjithsej={gjithsej}
+                kufiri={kufiri}
                 kaloiKufirin={kaloiKufirin}
               />
               <p className="ndihma" data-hapesire="lart">
@@ -788,6 +826,38 @@ export function Loja({ id }: { id: number }) {
         pyetje: ajo i mbyll raundet që kishin mbetur, dhe ato nuk shënohen dot
         derisa loja të rihapet.
       */}
+      {/*
+        Kufiri ndërrohet edhe mes mbrëmjes.
+
+        Pa këtë, një kufi i zgjedhur gabim te nisja do ta mbyllte fletën në mes
+        të lojës, dhe rruga e vetme prapa do të ishte rihapja pas çdo raundi
+        (pika 15). Rri i mbledhur sepse preket rrallë — një herë, nëse preket
+        fare — dhe ndryshimi ruhet aty për aty: mbrëmja mbaron ose vazhdon sipas
+        numrit të ri, pa asnjë buton të dytë.
+      */}
+      {rregulli.kufijteEMundshem.length > 0 && (
+        <details className="detaje">
+          <summary className="detaje__krye">
+            <span>
+              Deri te {kufiri === null ? 'pa kufi' : `${kufiri} pikë`}
+            </span>
+            <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+          </summary>
+          <div className="detaje__trupi">
+            <p className="ndihma">
+              Deri ku luhet e vendos tavolina, prandaj ndërrohet edhe tani. Nëse
+              dikush e ka kaluar tashmë numrin e ri, mbrëmja mbyllet menjëherë —
+              dhe rihapet po aq lehtë.
+            </p>
+            <ZgjedhjaEKufirit
+              kufijte={rregulli.kufijteEMundshem}
+              vlera={kufiri ?? PA_KUFI}
+              onNdrysho={ndrroKufirin}
+            />
+          </div>
+        </details>
+      )}
+
       {raundet.length > 0 &&
         (mbaroi ? (
           <section>
@@ -810,7 +880,7 @@ export function Loja({ id }: { id: number }) {
             </summary>
             <div className="detaje__trupi">
               <p className="ndihma">
-                {paraFundit(rregulli, gjithsej)} Mbrëmja del si fletë e mbyllur —
+                {paraFundit(rregulli, gjithsej, kufiri)} Mbrëmja del si fletë e mbyllur —
                 pa futje e pa redaktim — dhe rihapet me një prekje kur duhet.
               </p>
               <div className="veprimet">

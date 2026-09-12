@@ -36,6 +36,7 @@ import {
   ruajGrup,
   shtoLoje,
 } from '../ruajtja.ts';
+import { PA_KUFI, ZgjedhjaEKufirit } from '../pjeset/Kufiri.tsx';
 import { PergjithshmetEMagarecit } from '../pjeset/PergjithshmetEMagarecit.tsx';
 import { TabelaEPergjithshme } from '../pjeset/TabelaEPergjithshme.tsx';
 import { shko } from '../rruga.ts';
@@ -225,8 +226,14 @@ export function Grupi({ id }: { id: number }) {
           mefundit={lojerat[0]?.selectedPlayers}
           llojiIFundit={lojerat[0] ? llojiILojes(lojerat[0]) : 'bridzh'}
           onAnulo={() => hapLojen(false)}
-          onNis={async (date, zgjedhur, lloji) => {
-            const idELojes = await shtoLoje(grupi.id, date, zgjedhur, lloji);
+          onNis={async (date, zgjedhur, lloji, kufiri) => {
+            const idELojes = await shtoLoje(
+              grupi.id,
+              date,
+              zgjedhur,
+              lloji,
+              kufiri,
+            );
             shko(`/loja/${idELojes}`);
           }}
         />
@@ -441,7 +448,13 @@ function ZgjedhjaELojtareve({
   mefundit?: string[];
   /** Çka u luajt herën e fundit — nisja e çelësit, për të njëjtën arsye. */
   llojiIFundit: LlojiILojes;
-  onNis: (date: string, zgjedhur: string[], lloji: LlojiILojes) => void;
+  onNis: (
+    date: string,
+    zgjedhur: string[],
+    lloji: LlojiILojes,
+    /** Kufiri i pikëve, ose `undefined` te lojërat që nuk e kanë atë pyetje. */
+    kufiri: number | undefined,
+  ) => void;
   onAnulo: () => void;
 }) {
   // Shoqëria është zakonisht e njëjta nga një mbrëmje te tjetra, prandaj
@@ -466,6 +479,21 @@ function ZgjedhjaELojtareve({
   // Njësoj si lista e lojtarëve: shoqëria e nis mbrëmjen aty ku e la, prandaj
   // çelësi nis te loja e fundit e grupit.
   const [lloji, caktoLlojin] = useState<LlojiILojes>(llojiIFundit);
+  /*
+   * Kufiri i pikëve, i nisur nga parazgjedhja e asaj loje.
+   *
+   * Ndërrohet bashkë me llojin e jo me një efekt: çdo lojë e ka listën e vet,
+   * dhe një kufi i mbetur nga loja e mëparshme do të dilte buton i zgjedhur që
+   * nuk ekziston te lista e re — pra asnjë i zgjedhur në ekran.
+   */
+  const [kufiri, caktoKufirin] = useState<number>(
+    () => rregullat(llojiIFundit).kufiriITotalit ?? PA_KUFI,
+  );
+
+  function ndrroLlojin(i_ri: LlojiILojes) {
+    caktoLlojin(i_ri);
+    caktoKufirin(rregullat(i_ri).kufiriITotalit ?? PA_KUFI);
+  }
 
   function ndrysho(lojtari: string) {
     caktoZgjedhur((z) =>
@@ -495,13 +523,19 @@ function ZgjedhjaELojtareve({
                 key={njeri}
                 className="celesi__njesi"
                 aria-pressed={lloji === njeri}
-                onClick={() => caktoLlojin(njeri)}
+                onClick={() => ndrroLlojin(njeri)}
               >
                 {rregullat(njeri).emri}
               </button>
             ))}
           </div>
         </div>
+
+        <ZgjedhjaEKufirit
+          kufijte={rregullat(lloji).kufijteEMundshem}
+          vlera={kufiri}
+          onNdrysho={caktoKufirin}
+        />
 
         <div className="zgjedhesi">
           {grupi.playerNames.map((lojtari) => {
@@ -560,7 +594,16 @@ function ZgjedhjaELojtareve({
             type="button"
             className="buton buton--kryesor"
             disabled={zgjedhur.length < 2}
-            onClick={() => onNis(date, zgjedhur, lloji)}
+            onClick={() =>
+              onNis(
+                date,
+                zgjedhur,
+                lloji,
+                // Shkruhet vetëm te lojërat që e kanë atë pyetje: te bridzhi e
+                // magareci fusha mbetet e pashkruar, si te çdo lojë e vjetër.
+                rregullat(lloji).kufijteEMundshem.length > 0 ? kufiri : undefined,
+              )
+            }
           >
             <Ikona emri="luaj" />
             Nis lojën

@@ -12,6 +12,8 @@ import assert from 'node:assert/strict';
 
 import {
   DORA_E_PISHPIRIKUT,
+  KUFIJTE_E_DOMINES,
+  KUFIJTE_E_PISHPIRIKUT,
   KUFIRI_I_DOMINES,
   KUFIRI_I_PISHPIRIKUT,
   PIKET_E_PISHPIRIKUT,
@@ -73,18 +75,36 @@ test('kufiri i magarecit është vetë fjala', () => {
 });
 
 test('kufiri arrihet nga totali, pavarësisht se kush e arrin', () => {
-  assert.equal(arritiKufirin('domina', { alfa: 61, beta: 44 }), false);
-  assert.equal(arritiKufirin('domina', { alfa: KUFIRI_I_DOMINES, beta: 44 }), true);
-  assert.equal(arritiKufirin('domina', { alfa: 140, beta: 44 }), true);
+  assert.equal(arritiKufirin(KUFIRI_I_DOMINES, { alfa: 61, beta: 44 }), false);
+  assert.equal(arritiKufirin(KUFIRI_I_DOMINES, { alfa: 100, beta: 44 }), true);
+  assert.equal(arritiKufirin(KUFIRI_I_DOMINES, { alfa: 140, beta: 44 }), true);
 
-  assert.equal(arritiKufirin('pishpirik', { alfa: 88, beta: 74 }), false);
-  assert.equal(
-    arritiKufirin('pishpirik', { alfa: KUFIRI_I_PISHPIRIKUT, beta: 74 }),
-    true,
-  );
+  assert.equal(arritiKufirin(KUFIRI_I_PISHPIRIKUT, { alfa: 88, beta: 74 }), false);
+  assert.equal(arritiKufirin(KUFIRI_I_PISHPIRIKUT, { alfa: 120, beta: 74 }), true);
 
-  // Bridzhi nuk ka kufi totali fare: mbrëmja e tij mbaron me raundet.
-  assert.equal(arritiKufirin('bridzh', { alfa: 900 }), false);
+  // `null` do të thotë «pa kufi»: as bridzhi, as një mbrëmje domine e nisur
+  // pa kufi, nuk mbaron vetvetiu sado të rriten totalet.
+  assert.equal(arritiKufirin(null, { alfa: 900 }), false);
+});
+
+test('kufijtë e zgjedhshëm i ka vetëm loja ku janë marrëveshje', () => {
+  /*
+   * Te domina e pishpiriku deri ku luhet e vendos tavolina para se të ndahen
+   * letrat, prandaj ekrani i ofron. Te bridzhi mbaron numri i raundeve, dhe te
+   * magareci fjala ka shtatë shkronja — një çelës «deri te pesë shkronja» do
+   * të shpikte një lojë tjetër.
+   */
+  assert.deepEqual(rregullat('domina').kufijteEMundshem, KUFIJTE_E_DOMINES);
+  assert.deepEqual(rregullat('pishpirik').kufijteEMundshem, KUFIJTE_E_PISHPIRIKUT);
+  assert.deepEqual(rregullat('bridzh').kufijteEMundshem, []);
+  assert.deepEqual(rregullat('magarec').kufijteEMundshem, []);
+
+  // Parazgjedhja e secilës rri brenda listës që i ofrohet, që çelësi të mos
+  // hapet me një vlerë që nuk e ka asnjë buton.
+  for (const lloji of ['domina', 'pishpirik']) {
+    const r = rregullat(lloji);
+    assert.ok(r.kufijteEMundshem.includes(r.kufiriITotalit), lloji);
+  }
 });
 
 test('parashikimi premtohet vetëm atje ku kufijtë e një raundi dihen', () => {

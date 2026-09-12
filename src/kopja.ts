@@ -158,6 +158,25 @@ export function lexoKopjen(teksti: string): Lexuar {
     // Fusha shkruhet vetëm kur vjen: një lojë e vjetër del nga kopja ashtu si
     // hyri, pa një `lloji: undefined` të shtuar rrugës.
     if (lloji) loja.lloji = lloji;
+
+    /*
+     * Kufiri i mbrëmjes: numër i plotë jo negativ, ose asgjë.
+     *
+     * Zeroja është e ligjshme dhe do të thotë «pa kufi» (pika 13). Një numër i
+     * thyer ose negativ jo: do të bënte një mbrëmje që ose nuk mbaron kurrë,
+     * ose mbaron para raundit të parë — dhe as njëra as tjetra nuk duket te
+     * fleta derisa të jetë vonë.
+     */
+    if (l.kufiri !== undefined) {
+      if (!eshteNumer(l.kufiri) || l.kufiri < 0 || !Number.isInteger(l.kufiri)) {
+        return {
+          ok: false,
+          gabimi: `Loja e ${l.date} ka një kufi që nuk qëndron (${String(l.kufiri)}).`,
+        };
+      }
+
+      loja.kufiri = l.kufiri;
+    }
     // E njëjta arsye, dhe e njëjta kujdes: `false` nuk është mungesë. Ajo do të
     // thotë «e rihapur me dorë», dhe një `if (l.mbyllur)` do ta humbte.
     if (typeof l.mbyllur === 'boolean') loja.mbyllur = l.mbyllur;

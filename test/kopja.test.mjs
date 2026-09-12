@@ -199,3 +199,34 @@ test('kopja i pranon të katër llojet e lojërave', () => {
     assert.equal(dala.kopja.games[0].lloji, lloji, lloji);
   }
 });
+
+test('kufiri i mbrëmjes mbijeton kopjen, dhe ai i shpikur refuzohet', () => {
+  // Zeroja është «pa kufi» dhe kalon; një numër i thyer a negativ do të bënte
+  // një mbrëmje që ose nuk mbaron kurrë, ose mbaron para raundit të parë.
+  for (const kufiri of [100, 250, 0]) {
+    const dala = lexoKopjen(
+      teksti(ndertoKopjen([GRUPI], [{ ...LOJA, lloji: 'domina', kufiri }], [])),
+    );
+
+    assert.equal(dala.ok, true, String(kufiri));
+    assert.equal(dala.kopja.games[0].kufiri, kufiri, String(kufiri));
+  }
+
+  for (const kufiri of [-1, 12.5, '100', Infinity]) {
+    const dala = lexoKopjen(
+      teksti(ndertoKopjen([GRUPI], [{ ...LOJA, lloji: 'domina', kufiri }], [])),
+    );
+
+    assert.equal(dala.ok, false, String(kufiri));
+    assert.match(dala.gabimi, /kufi/i, String(kufiri));
+  }
+});
+
+test('loja pa kufi del nga kopja pa fushën', () => {
+  // Si te `lloji`: një lojë e vjetër del ashtu si hyri, pa një fushë të shtuar
+  // rrugës që do të thoshte diçka që askush nuk e zgjodhi.
+  const dala = lexoKopjen(teksti(ndertoKopjen([GRUPI], [LOJA], [])));
+
+  assert.equal(dala.ok, true);
+  assert.ok(!('kufiri' in dala.kopja.games[0]));
+});

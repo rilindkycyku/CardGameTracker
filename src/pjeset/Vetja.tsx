@@ -29,12 +29,20 @@ export function Vetja({
   rreshtat,
   totalet,
   lloji,
+  kufiri,
 }: {
   /** Renditja e gatshme, që emrat të dalin sipas vendit. */
   rreshtat: RreshtiRenditjes[];
   totalet: Record<string, number>;
   /** Çka u luajt — rreshti i vetes lexohet ndryshe te secila lojë. */
   lloji: LlojiILojes;
+  /**
+   * Kufiri me të cilin luhet ajo mbrëmje, ose `null` kur s'ka.
+   *
+   * Vjen nga paketa e jo nga regjistri: «të mbeten 12 pikë deri te 120» duhet
+   * të thotë numrin e asaj tavoline, e jo parazgjedhjen e lojës.
+   */
+  kufiri: number | null;
 }) {
   const rregulli = rregullat(lloji);
   const magarec = lloji === 'magarec';
@@ -82,7 +90,7 @@ export function Vetja({
       ) : rregulli.shlyerja ? (
         <VetjaEShlyerjes imi={imi} pari={pari} emrat={emrat} totalet={totalet} />
       ) : (
-        <VetjaEPikeve imi={imi} pari={pari} kufiri={rregulli.kufiriITotalit} />
+        <VetjaEPikeve imi={imi} pari={pari} kufiri={kufiri} />
       )}
     </section>
   );

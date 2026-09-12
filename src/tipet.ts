@@ -68,6 +68,28 @@ export type Loja = {
    */
   lloji?: LlojiILojes;
   /**
+   * Deri te sa pikë luhet kjo mbrëmje — kur loja e ka atë pyetje.
+   *
+   * Domina luhet deri te njëqind a dyqind e pesëdhjetë, dhe pishpiriku deri te
+   * njëqind e një, njëqind e njëzet a njëqind e pesëdhjetë e një: kufiri nuk
+   * është rregull i lojës, është marrëveshje e tavolinës para se të ndahen
+   * letrat. Prandaj rri te loja e jo te regjistri.
+   *
+   * Tri gjendje, si te `mbyllur` dhe për të njëjtën arsye — që mungesa të mos
+   * ngatërrohet me zgjedhjen:
+   *
+   *   • **mungon** → vlen kufiri i parazgjedhur i asaj loje (`lojerat.ts`).
+   *     Kështu lexohen të gjitha lojërat e shkruara para se kjo fushë të
+   *     ekzistonte, dhe ato nuk ndërrojnë kuptim.
+   *   • **numër** → pikërisht ai kufi, i zgjedhur te ekrani kur nisi mbrëmja.
+   *   • **`0`** → pa kufi fare: luhet derisa shoqëria të ngrihet, dhe fleta
+   *     mbyllet me dorë (pika 15).
+   *
+   * Bridzhi dhe magareci nuk e shkruajnë kurrë: i pari mbaron me raundet, dhe
+   * te i dyti kufiri është vetë fjala — shtatë shkronja, e jo marrëveshje.
+   */
+  kufiri?: number;
+  /**
    * A është mbyllur mbrëmja me dorë — dhe pse fusha ka tri gjendje e jo dy.
    *
    * Mungon te shumica: atëherë vendos rregulli, pra fjala e mbushur te magareci
