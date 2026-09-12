@@ -22,6 +22,7 @@ import {
   tabelaEPergjithshme,
 } from '../llogaritjet.ts';
 import { FJALA, fjalaE, pergjithshmetEMagarecit } from '../magareci.ts';
+import { perfundoiMbremja } from '../fundi.ts';
 import { emratERinj } from '../fusha.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
@@ -243,6 +244,17 @@ export function Grupi({ id }: { id: number }) {
                         <>
                           {' · '}
                           <span className="njesi__lloji">{FJALA}</span>
+                        </>
+                      )}
+                      {/*
+                        Mbrëmja e kryer thuhet edhe këtu, e jo vetëm brenda: pa
+                        të, lista e lojërave nuk dallon atë që pret raundin e
+                        radhës nga ajo që u mbyll — dhe të dyja hapen njësoj.
+                      */}
+                      {perfundoiMbremja(loja, raunde?.[loja.id] ?? BOSH) && (
+                        <>
+                          {' · '}
+                          <span className="njesi__perfunduar">Përfundoi</span>
                         </>
                       )}
                     </span>

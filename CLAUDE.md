@@ -47,7 +47,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 150 prova, pa framework provash
+npm test          # node --test — 201 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -62,12 +62,13 @@ ndryshim që përdoruesi e sheh.
 
 ### 1. Logjika rri te module që nuk njohin as bazën, as React-in, as `window`-in
 
-`llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `parashikimi.ts`, `fusha.ts`, `qr.ts`, `paketa.ts`,
-`ndarja.ts`, `sinjalizimi.ts` dhe `kodi.ts` importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
+`llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `parashikimi.ts`, `fundi.ts`, `fusha.ts`, `qr.ts`,
+`paketa.ts`, `ndarja.ts`, `sinjalizimi.ts` dhe `kodi.ts` importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
 zgjat nën një sekondë dhe nuk ka çka të prishet mes provës dhe kodit.
 
-`lidhja.ts`, `lidhjaMeServer.ts` dhe `ruajtja.ts` nuk hyjnë te kjo listë me qëllim: e para njeh
-`RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e treta bazën. Logjika e tyre e
+`lidhja.ts`, `lidhjaMeServer.ts`, `sistemi.ts` dhe `ruajtja.ts` nuk hyjnë te kjo listë me qëllim: e
+para njeh `RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e treta `navigator`-in
+(tabelën e fragmenteve dhe fletën e ndarjes), e katërta bazën. Logjika e tyre e
 provueshme është nxjerrë jashtë — te `sinjalizimi.ts`, `kodi.ts` dhe `kopja.ts` — dhe ajo që mbetet
 provohet me shfletues.
 
@@ -206,6 +207,19 @@ Dy gjëra te ajo pamje nuk guxojnë të ndryshojnë:
   ashtu e kishte fleta origjinale, dhe legjenda e shpjegon; po ajo ngjyrë mbi një rresht që thotë «ti
   i jep» do të lexohej si fitore. Dhe fjala mban kryefjalën e shkruar: një «i jep» i vetëm, me emrin
   e rreshtit sipër, lexohet sikur ta jepte ai — pikërisht e kundërta.
+
+**Ikja brenda paketës prek vetëm ndarësit.** Trupi kalon nëpër base64 para se t'i afrohet adresës,
+prandaj asnjë karakter nuk ka nevojë t'i ikë adresës — ikje kërkojnë vetëm `|`, `,`, `:` dhe vetë
+`%`-i. Këtu rrinte `encodeURIComponent`, dhe ai u ikte të gjithave: një hapësirë bëhej `%20` dhe një
+`ë` bëhej `%C3%AB`, gjashtë bajte për një shkronjë që base64-i e mban me dy. Te një grup me emra
+shqip paketa binte nga 148 karaktere në 114, pra nga 57 module në 53. Leximi nuk u prek fare —
+`decodeURIComponent` i kthen `%XX`-të dhe pjesën tjetër e lë ashtu — prandaj versioni nuk u ngrit
+dhe të dyja anët lexohen mes vete. Mos e kthe te ikja e plotë.
+
+**Kodi i fotografisë rri i madh, si ai i ftesës.** Ishte 9.5rem krah një kolone teksti, dhe atje
+dilte 2.5 piksela për modul me gjashtë lojtarë — 2.1 me tetë emra të gjatë — pra nën kufirin ku
+skanimi nga një ekran në tjetrin nis të dështojë. Tani zë rreshtin e vet dhe merr 18rem, si ftesa.
+Kjo nuk është zbukurim: një kod që nuk lexohet është e njëjta gjë me një kod që nuk ekziston.
 
 Paketa është te versioni **2**, dhe fusha e shtuar është një shkronjë: `b` a `m`, lloji i lojës.
 Pa të ana që shikon nuk ka nga ta dijë se `3` do të thotë „MAG" e jo tri pikë — numri është i njëjti
@@ -400,7 +414,7 @@ ekran të dytë:
   i rinumëron vetvetiu të gjitha ato që vijnë pas.
 - **Një shkronjë për raund, dhe loja mbaron kur mbushet fjala.** Ekrani nuk pranon raund të ri pasi
   dikush e ka mbushur: një shkronjë më shumë nuk do të thoshte asgjë, dhe fleta do të gënjente.
-  Redaktimi mbetet i hapur nga lista — atje rregullohet një prekje e gabuar.
+  Një prekje e gabuar rregullohet duke e rihapur mbrëmjen (pika 15).
 - **Futja është një prekje, jo një buton „Ruaj".** Raundi ka një pyetje të vetme; prekja e emrit e
   ruan. Butoni e thotë edhe fjalën e atij lojtari deri tani dhe shkronjën që do të marrë, sepse pa të
   duhet lexuar rrjeti poshtë para çdo prekjeje.
@@ -489,16 +503,16 @@ sa herë lexohen. Prandaj shtimi ose heqja e dikujt mes lojës (pika 5) e rirend
 e tanishme, dhe te bridzhi e zgjat ose e shkurton mbrëmjen vetvetiu. Kjo është e vërteta e tavolinës: kush u
 ngrit nuk përzien më, dhe letrat nuk e presin.
 
-**Fundi mbyll futjen te të dyja lojërat, dhe vizatohet një herë.** `mbaroi` te `Loja` e bën atë
-dallim një herë të vetme — fjala e mbushur te magareci, dy raundet për lojtar te bridzhi — dhe nga
-aty poshtë ekrani pyet vetëm «a mbaroi». Butonat nuk rrinë të fikur, hiqen: një raund i shënuar pas
-fundit do ta bënte fletën të gënjejë.
+**Fundi mbyll futjen te të dyja lojërat, dhe vizatohet një herë.** `mbaroiSipasRregullit` te
+`fundi.ts` e bën atë dallim një herë të vetme — fjala e mbushur te magareci, dy raundet për lojtar te
+bridzhi — dhe nga aty poshtë ekrani pyet vetëm «a mbaroi». Butonat nuk rrinë të fikur, hiqen: një
+raund i shënuar pas fundit do ta bënte fletën të gënjejë.
 
 Kufiri i bridzhit nuk ngec dot mbi një raund të vërtetë, dhe kjo varet nga pika 5: hiqet vetëm ai që
 s'ka shënuar ende, prandaj lista nuk shkurtohet dot nën raundet që janë luajtur tashmë. Dy rrugë
 mbeten të hapura, dhe të dyja janë të vërteta të tavolinës: raundi i shënuar gabim rregullohet nga
 lista poshtë, dhe kush u ul vonë shtohet te lojtarët — atëherë mbrëmja zgjatet me dy raunde
-vetvetiu. Mos e mbyll njërën prej tyre.
+vetvetiu. Mos e mbyll njërën prej tyre; të dyja kalojnë nëpër rihapjen e pikës 15.
 
 Përzierësi rri krah titullit të raundit dhe jo te një rresht i vetin: blloku poshtë përdoret dhjetëra
 herë në mbrëmje (pika 6), dhe një rresht mbi të do t'i hiqte hapësirë pikërisht atij. Numri i plotë
@@ -520,6 +534,44 @@ Prandaj `fituesit()` te `llogaritjet.ts` kthen **të gjithë** ata që e ndajnë
 kreu i `PermbledhjaEPamjes`, dhe kurora te `Renditja`. Vendet mbeten ashtu si ishin; ndryshon vetëm
 ajo që thuhet me fjalë a me ikonë. Provat `barazimi te kreu nuk ndahet sipas radhës së listës` dhe
 `fituesi i çdo mbrëmjeje të logic.json-it është ai me totalin më të vogël` e mbajnë këtë të matur.
+
+### 15. Mbrëmja e kryer lexohet, nuk shënohet
+
+Kur mbrëmja mbaron, pyetja rreth tavolinës ndërron: nuk është më «sa mora këtë raund», por «kush
+fitoi, dhe kush kujt sa i del». Pikërisht pyetja e atij që sapo skanoi kodin QR — prandaj ekrani i
+lojës së kryer është **i njëjti vizatim** me atë të `#/shiko/`: `PamjaERezultatit`, me përmbledhjen
+sipër, renditjen, rreshtin e vetes dhe matricën. Nuk është kursim kodi; është e njëjta pyetje.
+
+Nga ajo pamje hiqen futja, redaktimi dhe fshirja. Raundet mbeten poshtë te një `<details>` si dëshmi
+e mbrëmjes, pa kolonën e veprimeve — `onRedakto`/`onFshi` nuk jepen fare, dhe kolona zhduket e nuk
+rri e fikur: një buton i fikur thotë «provo prapë», dhe atje nuk ka çka provohet.
+
+Fundi ka dy burime, dhe `fundi.ts` është vendi i vetëm ku ndahen:
+
+- **`mbaroiSipasRregullit`** — fjala e mbushur te magareci, dy raundet për lojtar te bridzhi
+  (pika 13). Kjo mbyll futjen e raundit.
+- **`perfundoiMbremja`** — a është e kryer fleta. Rregulli e vendos vetë, por `loja.mbyllur` e
+  mbivendos.
+
+**`mbyllur` ka tri gjendje, dhe kjo nuk është luks.** Mungon → vendos rregulli. `true` → e mbyllur me
+dorë, edhe pse rregulli nuk e mbaroi: shoqëria u ngrit herët dhe fleta mbyllet aty ku është. `false`
+→ **e rihapur me dorë**, dhe pa këtë gjendje të tretë një raund i shënuar gabim te një mbrëmje që
+rregulli e mbaroi nuk do të rregullohej dot kurrë — fshirja e fushës do të thoshte «vendos rregulli»,
+dhe rregulli do ta mbyllte sërish në çast. Prandaj lexohet me `??` e jo me `||`, edhe te `kopja.ts`.
+
+**Rihapja rri gjithmonë një prekje larg.** Mbyllja nuk fshin asgjë dhe nuk është e pakthyeshme; kjo
+është kushti nën të cilin një ekran pa redaktim qëndron fare.
+
+**Fjalia e fundit i ndan katër raste, sepse të katërt janë të vërteta të ndryshme**
+(`ShenjaEFundit` te `Loja`): magareci i mbushur, magareci i mbyllur pa u mbushur, bridzhi i mbaruar
+sipas rregullit, dhe bridzhi i mbyllur herët. Te i fundit shkruhet **«prin»** e jo «fitoi» — raundet
+që kishin mbetur do ta ndërronin atë radhë, dhe fleta nuk guxon ta shpallë të përfunduar një gjë që
+u ndërpre. Nga e njëjta arsye `perfundoi` i heq nga përmbledhja dy faktet që shikojnë përpara: sa
+raunde kanë mbetur, dhe kush përzien atë që vjen.
+
+**Paketa nuk e mori këtë fushë**, dhe nuk ka pse ta marrë: kur mbrëmja mbaron sipas rregullit, ana
+që shikon e nxjerr vetë nga totalet e numri i raundeve (pika 2). Jashtë mbetet vetëm mbyllja e
+hershme me dorë, dhe ajo nuk vlen sa një fushë e re te një kod QR (pika 7).
 
 ## Sistemi vizual
 
@@ -563,11 +615,23 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   shkronja mbetet te loja, kush u ngrit pa marrë asnjë hiqet.
 - **`dataShqip` e ndan datën me dorë.** `new Date('2026-01-08')` lexohet si UTC dhe në Kosovë do të
   jepte 7 janar. Mos e zëvendëso me `Date`.
-- **Fusha e datës është tekst, jo `type="date"`.** Atë e vizaton shfletuesi sipas gjuhës së vet, dhe
-  një telefon me anglishten amerikane e nxjerr muajin i pari: 11 shtatori dilte „09/11" dhe lexohej
-  9 nëntor. Radha nuk caktohet dot me HTML. Prandaj shkruhen vetëm shifrat, `pastroDaten` i vendos
-  vijat sa shkruhen, `dataNgaNumrat` e kthen te `YYYY-MM-DD` (dhe refuzon 31 shkurtin), dhe poshtë
-  fushës rri data me fjalë. Në bazë data mbetet `YYYY-MM-DD` — renditja e historikut varet nga ajo.
+- **Data e mbrëmjes nuk shkruhet me dorë**, me kërkesë të pronarit: loja shënohet atë natë që luhet,
+  dhe telefoni e di se cila është. `sot()` llogaritet te vizatimi e nuk mbahet te gjendja — një skedë
+  e lënë hapur para mesnate do ta niste lojën me datën e djeshme — dhe del me fjalë mbi butonin, që
+  çka do të shkruhet të rrijë e dukshme. Në bazë mbetet `YYYY-MM-DD`: renditja e historikut varet
+  nga ajo.
+
+  `pastroDaten`, `dataMeNumra` e `dataNgaNumrat` mbeten me provat e tyre edhe pa përdorues, sepse
+  mësimi i tyre nuk vjetërohet: fusha e dikurshme ishte tekst e jo `type="date"`, sepse atë e
+  vizaton shfletuesi sipas gjuhës së vet dhe një telefon me anglishten amerikane e nxjerr muajin i
+  pari — 11 shtatori dilte „09/11" dhe lexohej 9 nëntor. Radha nuk caktohet dot me HTML. Nëse ndonjë
+  datë kthehet ndonjëherë e shkruajtshme, kthehet ashtu e jo me `type="date"`.
+- **Kopjimi i lidhjes kthen përgjigje, edhe kur dështon.** `navigator.clipboard` mungon fare jashtë
+  një konteksti të sigurt dhe lejen mund ta mohojë shfletuesi; me një `catch` të heshtur butoni
+  shtypej e nuk ndodhte kurrgjë. Prandaj `sistemi.ts` kthen `false` dhe ekrani e nxjerr lidhjen në
+  një fushë të zgjedhur vetë. Po ashtu, anulimi i fletës së ndarjes (`AbortError`) ndahet nga
+  dështimi: kush e mbylli atë fletë nuk kërkoi rrugë të dytë, dhe një kopjim pas tij do t'ia zinte
+  tabelën e fragmenteve pa e ditur.
 - **Butoni i fshirjes rri brenda një lidhjeje** te historiku i grupit, prandaj i duhen
   `preventDefault` e `stopPropagation` — pa to, fshirja hap njëkohësisht edhe lojën.
 - **Kthimi i një kopjeje e zëvendëson tërë bazën**, prandaj `lexoKopjen` kontrollon edhe lidhjet

@@ -1189,6 +1189,18 @@ th.numri {
   color: var(--hapur);
 }
 
+/**
+ * Shenja e mbrëmjes së kryer te historiku.
+ *
+ * Merr ngjyrën e zbehtë e jo theksin: te kjo listë theksi i takon llojit të
+ * lojës, dhe dy ngjyra të plota në të njëjtin rresht do të grindeshin për të
+ * njëjtin sy. Kjo është gjendje, jo lajm.
+ */
+.njesi__perfunduar {
+  font-weight: 700;
+  color: var(--teksti-zbehte);
+}
+
 /* ── Llogaritësi ────────────────────────────────────────────────────────── */
 
 

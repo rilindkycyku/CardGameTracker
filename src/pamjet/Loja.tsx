@@ -39,12 +39,14 @@ import {
   raundiIHumbjes,
   shkronjat as shkronjatE,
 } from '../magareci.ts';
+import { mbaroiSipasRregullit, perfundoiMbremja } from '../fundi.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import { FutjaEMagarecit } from '../pjeset/FutjaEMagarecit.tsx';
 import { FutjaERaundit } from '../pjeset/FutjaERaundit.tsx';
 import { LojtaretELojes } from '../pjeset/LojtaretELojes.tsx';
 import { Ndarja } from '../pjeset/Ndarja.tsx';
+import { PamjaERezultatit } from '../pjeset/PamjaERezultatit.tsx';
 import { Parashikimi } from '../pjeset/Parashikimi.tsx';
 import { RaundetEMagarecit } from '../pjeset/RaundetEMagarecit.tsx';
 import { Raundet } from '../pjeset/Raundet.tsx';
@@ -66,6 +68,90 @@ import {
   shtoRaund,
 } from '../ruajtja.ts';
 import { shko } from '../rruga.ts';
+
+/**
+ * Fjalia që mbyll fletën — çka ndodhi atë mbrëmje, me një rresht.
+ *
+ * Ndan katër raste, sepse të katërt janë të vërteta të ndryshme dhe një fjali e
+ * vetme do të gënjente te tri prej tyre:
+ *
+ * - Magareci u mbush: dikush e humbi mbrëmjen, dhe ajo është e tërë lajmi.
+ * - Magareci u mbyll pa u mbushur: nuk humbi kush, dhe fleta nuk guxon të lërë
+ *   të kuptohet se dikush humbi.
+ * - Bridzhi mbaroi sipas rregullit: fitorja është e plotë, me gjithë raundet.
+ * - Bridzhi u mbyll herët: kush ka totalin më të vogël **prin**, nuk «fitoi» —
+ *   raundet që kishin mbetur do ta ndërronin atë radhë.
+ *
+ * Fituesi merret nga `fituesit` e jo nga `rreshtat[0]`: te një tabelë barazimi
+ * ndahet sipas radhës së listës, por një fjali që shpall fituesin nuk e ndan dot
+ * ashtu — tre veta me nga 360 pikë nuk i ka ndarë kush (pika 14).
+ */
+function ShenjaEFundit({
+  magarec,
+  mbaroi,
+  magareciILojes,
+  pareter,
+  total,
+  raunde,
+  gjithsej,
+}: {
+  magarec: boolean;
+  /** A e mbaroi rregulli mbrëmjen, apo e mbylli dora para tij. */
+  mbaroi: boolean;
+  magareciILojes: string | null;
+  /** Të gjithë ata që e ndajnë totalin më të vogël. */
+  pareter: string[];
+  total: number;
+  raunde: number;
+  gjithsej: number;
+}) {
+  if (magarec) {
+    if (magareciILojes) return <ShenjaEMagarecit magareci={magareciILojes} />;
+
+    return (
+      <p className="njoftim njoftim--kujdes">
+        <Ikona emri="info" />
+        <span>
+          Mbrëmja u mbyll pas {raunde} {raunde === 1 ? 'raundi' : 'raundeve'},
+          pa e mbushur kush fjalën {FJALA}.
+        </span>
+      </p>
+    );
+  }
+
+  const emrat =
+    pareter.length === 1 ? (
+      <strong>{pareter[0]}</strong>
+    ) : (
+      <strong>{pareter.join(', ')}</strong>
+    );
+
+  if (!mbaroi) {
+    return (
+      <p className="njoftim njoftim--kujdes">
+        <Ikona emri="info" />
+        <span>
+          Mbrëmja u mbyll te {raunde} nga {gjithsej} raunde. {emrat}{' '}
+          {pareter.length === 1 ? 'prin' : 'prijnë'} me {total} pikë.
+        </span>
+      </p>
+    );
+  }
+
+  return (
+    <p className="njoftim njoftim--mire">
+      <Ikona emri="renditja" />
+      <span>
+        {pareter.length === 1 ? (
+          <>{emrat} fitoi me {total} pikë</>
+        ) : (
+          <>Barazim: {emrat} me nga {total} pikë</>
+        )}{' '}
+        — {gjithsej} raunde, dy për lojtar.
+      </span>
+    </p>
+  );
+}
 
 /**
  * Lista boshe si konstante, e jo si `[]` te trupi.
@@ -202,9 +288,17 @@ export function Loja({ id }: { id: number }) {
    * s'ka shënuar ende (pika 5), prandaj lista nuk shkurtohet dot nën raundet që
    * janë luajtur tashmë. Dhe kush ulet vonë e zgjat mbrëmjen vetvetiu.
    */
-  const mbaroi = magarec
-    ? magareciILojes !== null
-    : players.length > 0 && raundet.length >= gjithsej;
+  const mbaroi = loja !== null && mbaroiSipasRregullit(loja, raundet);
+
+  /*
+   * A është mbyllur fleta — dhe kjo nuk është e njëjta gjë me `mbaroi`.
+   *
+   * `mbaroi` thotë se rregulli nuk pranon raund tjetër; `perfundoi` thotë se
+   * mbrëmja është e kryer dhe nuk preket më. Të dyja rrinë te `fundi.ts`, sepse
+   * historiku i grupit e bën të njëjtën pyetje dhe një kopje e dytë do të dilte
+   * jashtë sinkronie pikërisht atje ku fleta thotë «përfundoi» e lista jo.
+   */
+  const perfundoi = loja !== null && perfundoiMbremja(loja, raundet);
 
   /** Kush doli i pari — disa, kur totali më i vogël është i përbashkët. */
   const pareter = useMemo(() => fituesit(rreshtat), [rreshtat]);
@@ -314,6 +408,137 @@ export function Loja({ id }: { id: number }) {
       selectedPlayers: players.filter((p) => p !== emri),
     });
     rifresko();
+  }
+
+  /**
+   * Mbyll mbrëmjen — dhe kërkon pohim vetëm kur rregulli nuk e ka mbaruar.
+   *
+   * Kur rregulli e mbaroi, mbyllja nuk heq asgjë që mund të bëhej; kur
+   * mbrëmja ndërpritet herët, ajo i mbyll raundet që kishin mbetur, prandaj
+   * pyetet. Në të dyja rastet rruga prapa rri një prekje larg.
+   */
+  async function mbyll() {
+    if (!loja) return;
+    if (
+      !mbaroi &&
+      !window.confirm(
+        'Të mbyllet mbrëmja këtu? Raundet që kanë mbetur nuk shënohen dot më, '
+        + 'derisa ta rihapësh.',
+      )
+    ) {
+      return;
+    }
+
+    await ruajLoje({ ...loja, mbyllur: true });
+    caktoRedaktimin(null);
+    rifresko();
+  }
+
+  /**
+   * Rihap mbrëmjen.
+   *
+   * Pa këtë, një prekje e gabuar do të ishte e pakthyeshme — dhe do të ishte e
+   * pakthyeshme edhe një raund i shënuar gabim te një mbrëmje që rregulli e
+   * mbaroi vetë. Prandaj shkruhet `false` e nuk fshihet fusha: mungesa do të
+   * thoshte «vendos rregulli», dhe rregulli do ta mbyllte sërish menjëherë.
+   */
+  async function rihap() {
+    if (!loja) return;
+
+    await ruajLoje({ ...loja, mbyllur: false });
+    rifresko();
+  }
+
+  /*
+   * Mbrëmja e mbyllur vizatohet si fletë, jo si ekran pune.
+   *
+   * Kjo është e njëjta pamje që merr kush skanon kodin QR — `PamjaERezultatit`
+   * — dhe kjo nuk është kursim kodi: mbrëmja e kryer lexohet e jo shënohet, pra
+   * pyetja e saj është pikërisht ajo e atij që sapo skanoi kodin. Kush prin, sa
+   * vjen i dyti prapa, dhe kush kujt sa i del. Prandaj futja, redaktimi dhe
+   * fshirja hiqen nga ekrani; raundet mbeten poshtë si dëshmi, pa butona.
+   */
+  if (perfundoi && pamja) {
+    return (
+      <div className="faqja">
+        <a
+          className="shtegu"
+          href={grupi ? `#/grupi/${grupi.id}` : '#/'}
+          onClick={(e) => {
+            if (!grupi) {
+              e.preventDefault();
+              shko('/');
+            }
+          }}
+        >
+          <Ikona emri="kthehu" />
+          {grupi ? grupi.name : 'Grupet'}
+        </a>
+
+        <PamjaERezultatit
+          pamja={pamja}
+          perfundoi
+          etiketa={{ emri: 'Përfundoi', ikona: 'renditja' }}
+          njoftimi={
+            <ShenjaEFundit
+              magarec={magarec}
+              mbaroi={mbaroi}
+              magareciILojes={magareciILojes}
+              pareter={pareter}
+              total={rreshtat[0]?.total ?? 0}
+              raunde={raundet.length}
+              gjithsej={gjithsej}
+            />
+          }
+        />
+
+        {players.length > 0 && <Ndarja pamja={pamja} rreshtat={rreshtat} />}
+
+        {raundet.length > 0 && (
+          <details className="detaje">
+            <summary className="detaje__krye">
+              <span>Raundet e mbrëmjes</span>
+              <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+            </summary>
+            <div className="detaje__trupi">
+              {magarec ? (
+                <RaundetEMagarecit
+                  raundet={raundetMeShkronja}
+                  dukeRedaktuar={null}
+                />
+              ) : (
+                <Raundet
+                  players={players}
+                  raundet={raundet}
+                  totalet={totalat}
+                  dukeRedaktuar={null}
+                />
+              )}
+            </div>
+          </details>
+        )}
+
+        <details className="detaje">
+          <summary className="detaje__krye">
+            <span>Rihap lojën</span>
+            <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+          </summary>
+          <div className="detaje__trupi">
+            <p className="ndihma">
+              Rihape nëse ndonjë raund u shënua gabim, ose nëse mbrëmja vazhdon
+              prapë. Asgjë nuk humbet: raundet rrinë ku janë, dhe mbyllja kthehet
+              me një prekje.
+            </p>
+            <div className="veprimet">
+              <button type="button" className="buton" onClick={rihap}>
+                <Ikona emri="redakto" />
+                Rihap lojën
+              </button>
+            </div>
+          </div>
+        </details>
+      </div>
+    );
   }
 
   return (
@@ -482,6 +707,56 @@ export function Loja({ id }: { id: number }) {
       {players.length > 0 && pamja && (
         <Ndarja pamja={pamja} rreshtat={rreshtat} />
       )}
+
+      {/*
+        Mbyllja e mbrëmjes.
+
+        Kur rregulli e ka mbaruar lojën, ky është veprimi i radhës dhe rri i
+        dukshëm: fleta mbyllet dhe mbrëmja del ashtu si e sheh kush skanon kodin.
+        Këtu arrihet vetëm pas një rihapjeje — përndryshe ekrani do të ishte
+        mbyllur vetë — prandaj teksti nuk e përsërit fundin, e thotë kthimin.
+
+        Mbyllja e hershme rri e mbledhur sepse është e rrallë dhe e mban një
+        pyetje: ajo i mbyll raundet që kishin mbetur, dhe ato nuk shënohen dot
+        derisa loja të rihapet.
+      */}
+      {raundet.length > 0 &&
+        (mbaroi ? (
+          <section>
+            <div className="veprimet">
+              <button
+                type="button"
+                className="buton buton--kryesor"
+                onClick={mbyll}
+              >
+                <Ikona emri="renditja" />
+                Mbyll lojën
+              </button>
+            </div>
+          </section>
+        ) : (
+          <details className="detaje">
+            <summary className="detaje__krye">
+              <span>Mbyll lojën më herët</span>
+              <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+            </summary>
+            <div className="detaje__trupi">
+              <p className="ndihma">
+                {magarec
+                  ? 'Nëse shoqëria u ngrit para se dikujt t’i mbushej fjala, mbylle këtu.'
+                  : `Nëse shoqëria u ngrit para se t’i mbaronin ${gjithsej} raundet, mbylle këtu.`}{' '}
+                Mbrëmja del si fletë e mbyllur — pa futje e pa redaktim — dhe
+                rihapet me një prekje kur duhet.
+              </p>
+              <div className="veprimet">
+                <button type="button" className="buton" onClick={mbyll}>
+                  <Ikona emri="renditja" />
+                  Mbyll lojën
+                </button>
+              </div>
+            </div>
+          </details>
+        ))}
 
       {magarec ? (
         <>

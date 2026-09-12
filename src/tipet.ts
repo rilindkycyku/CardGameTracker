@@ -50,6 +50,19 @@ export type Loja = {
    * atëherë lexohet `bridzh` — `llojiILojes()` e bën këtë leximin e vetëm.
    */
   lloji?: LlojiILojes;
+  /**
+   * A është mbyllur mbrëmja me dorë — dhe pse fusha ka tri gjendje e jo dy.
+   *
+   * Mungon te shumica: atëherë vendos rregulli, pra fjala e mbushur te magareci
+   * ose dy raundet për lojtar te bridzhi. `true` e mbyll edhe një mbrëmje që
+   * rregulli nuk e ka mbaruar — shoqëria u ngrit herët, dhe fleta mbyllet aty
+   * ku është. `false` është e kundërta dhe pikërisht aq e nevojshme: një lojë e
+   * mbaruar sipas rregullit rihapet vetëm nëse mungesa e mbylljes mund të thotë
+   * «e rihapur», e jo thjesht «s'është prekur».
+   *
+   * Nuk është vlerë e derivuar (pika 2) — asnjë raund nuk e jep. Është vendim.
+   */
+  mbyllur?: boolean;
 };
 
 /**
