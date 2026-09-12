@@ -59,6 +59,44 @@ test('emrat me presje, dy pika e shenja mbijetojnë', () => {
   assert.deepEqual(shpaketo(paketo(pamja)), pamja);
 });
 
+test('paketa e shkruar me ikjen e vjetër lexohet ende', () => {
+  // Ikja u ngushtua te tri shenjat e ndarësve, dhe kjo e mban të matur se
+  // ngushtimi nuk e ndau leximin nga shkrimi: një adresë e shkruar nga versioni
+  // i djeshëm — ku çdo hapësirë ishte `%20` — lexohet njësoj si sot.
+  const trupi =
+    '2|b|Shoq%C3%ABria%20e%20mbr%C3%ABmjes|2026-03-08|7|alfa%20%2B%20zeta:594,b%C3%ABta:380';
+
+  assert.deepEqual(shpaketo(ne64Tekst(nenshkruaj(trupi))), {
+    grupi: 'Shoqëria e mbrëmjes',
+    lloji: 'bridzh',
+    data: '2026-03-08',
+    raunde: 7,
+    totalet: [['alfa + zeta', 594], ['bëta', 380]],
+  });
+});
+
+test('emrat shqip nuk e fryjnë paketën me ikje të panevojshme', () => {
+  // Trupi kalon nëpër base64 para adresës, prandaj vetëm ndarësit kërkojnë
+  // ikje. Kur u ikte të gjithave, një `ë` zinte gjashtë bajte në vend të dy dhe
+  // paketa dilte një e gjashta më e gjatë — dhe ajo e gjashta del te modulet e
+  // kodit QR, pikërisht atje ku kodi duhet skanuar nga ekrani i një telefoni.
+  const pamja = {
+    ...PAMJA,
+    grupi: 'Shoqëria e mbrëmjes',
+    totalet: [
+      ['Gëzim', 120],
+      ['Përparim', 200],
+      ['alfa + zeta', 40],
+    ],
+  };
+
+  const kodi = paketo(pamja);
+
+  assert.deepEqual(shpaketo(kodi), pamja);
+  // Me `encodeURIComponent` kjo paketë dilte 148 karaktere; tani del 114.
+  assert.ok(kodi.length <= 120, `paketa doli ${kodi.length} karaktere`);
+});
+
 test('totalet negative dhe zeroja kalojnë ashtu si janë', () => {
   const pamja = { ...PAMJA, totalet: [['a', -205], ['b', 0], ['c', 1000]] };
   assert.deepEqual(shpaketo(paketo(pamja)).totalet, pamja.totalet);

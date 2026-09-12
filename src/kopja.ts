@@ -146,6 +146,9 @@ export function lexoKopjen(teksti: string): Lexuar {
     // Fusha shkruhet vetëm kur vjen: një lojë e vjetër del nga kopja ashtu si
     // hyri, pa një `lloji: undefined` të shtuar rrugës.
     if (lloji) loja.lloji = lloji;
+    // E njëjta arsye, dhe e njëjta kujdes: `false` nuk është mungesë. Ajo do të
+    // thotë «e rihapur me dorë», dhe një `if (l.mbyllur)` do ta humbte.
+    if (typeof l.mbyllur === 'boolean') loja.mbyllur = l.mbyllur;
 
     games.push(loja);
   }

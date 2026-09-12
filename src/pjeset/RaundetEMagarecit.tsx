@@ -24,9 +24,15 @@ function RaundetEMagarecitBrenda({
 }: {
   raundet: RaundiIMagarecit[];
   dukeRedaktuar: number | null;
-  onRedakto: (id: number) => void;
-  onFshi: (id: number) => void;
+  /**
+   * Mungojnë kur mbrëmja është e mbyllur, dhe atëherë kolona e veprimeve hiqet
+   * fare e nuk rri e fikur: një buton i fikur thotë «provo prapë», kurse aty
+   * nuk ka çka provohet derisa loja të rihapet.
+   */
+  onRedakto?: (id: number) => void;
+  onFshi?: (id: number) => void;
 }) {
+  const veprime = onRedakto !== undefined && onFshi !== undefined;
   return (
     <section>
       <h2 className="titull-seksioni">
@@ -47,9 +53,11 @@ function RaundetEMagarecitBrenda({
               <th scope="col" className="numri">
                 Shkronja
               </th>
-              <th scope="col" className="rreshti-veprimeve">
-                <span className="vetem-lexues">Veprimet</span>
-              </th>
+              {veprime && (
+                <th scope="col" className="rreshti-veprimeve">
+                  <span className="vetem-lexues">Veprimet</span>
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -66,31 +74,33 @@ function RaundetEMagarecitBrenda({
                 >
                   {raundi.shkronja || '—'}
                 </td>
-                <td className="rreshti-veprimeve">
-                  <div className="njesi__veprimet">
-                    <button
-                      type="button"
-                      className="buton buton--vogel"
-                      aria-pressed={dukeRedaktuar === raundi.id}
-                      onClick={() => onRedakto(raundi.id)}
-                    >
-                      <Ikona emri="redakto" />
-                      <span className="vetem-lexues">
-                        Ndërro humbësin e raundit {raundi.roundNumber}
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      className="buton buton--vogel buton--rrezik"
-                      onClick={() => onFshi(raundi.id)}
-                    >
-                      <Ikona emri="fshi" />
-                      <span className="vetem-lexues">
-                        Fshi raundin {raundi.roundNumber}
-                      </span>
-                    </button>
-                  </div>
-                </td>
+                {veprime && (
+                  <td className="rreshti-veprimeve">
+                    <div className="njesi__veprimet">
+                      <button
+                        type="button"
+                        className="buton buton--vogel"
+                        aria-pressed={dukeRedaktuar === raundi.id}
+                        onClick={() => onRedakto(raundi.id)}
+                      >
+                        <Ikona emri="redakto" />
+                        <span className="vetem-lexues">
+                          Ndërro humbësin e raundit {raundi.roundNumber}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        className="buton buton--vogel buton--rrezik"
+                        onClick={() => onFshi(raundi.id)}
+                      >
+                        <Ikona emri="fshi" />
+                        <span className="vetem-lexues">
+                          Fshi raundin {raundi.roundNumber}
+                        </span>
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

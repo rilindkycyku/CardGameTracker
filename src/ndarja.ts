@@ -66,22 +66,53 @@ const SHENJA: Record<LlojiILojes, string> = { bridzh: 'b', magarec: 'm' };
 /* ── Paketimi ───────────────────────────────────────────────────────────── */
 
 /**
+ * Ndarësit e trupit, dhe vetëm ata.
+ *
+ * Trupi kalon nëpër base64 para se t'i afrohet adresës, prandaj asnjë karakter
+ * nuk ka nevojë t'i ikë adresës — ikje kërkojnë vetëm tri shenjat që e ndajnë
+ * trupin, dhe vetë shenja e ikjes.
+ */
+const NDARESIT = /[%|,:]/g;
+
+/**
+ * Ikja e vogël: tri ndarësit, e asgjë tjetër.
+ *
+ * Këtu rrinte `encodeURIComponent`, dhe ai u ikte të gjithave: një hapësirë
+ * bëhej `%20` dhe një `ë` bëhej `%C3%AB` — gjashtë bajte për një shkronjë që
+ * base64-i e mban me dy. Te një grup me emra shqip kjo e frynte paketën me një
+ * të gjashtën, dhe ajo e gjashta del te modulet e kodit QR: «Shoqëria e
+ * mbrëmjes» me gjashtë lojtarë binte nga 190 karaktere në 159, pra nga 57
+ * module në 53. Kodi që skanohet nga ekrani i një telefoni tjetër i ka të
+ * shtrenjta ato katër module.
+ *
+ * Leximi nuk u prek fare: `decodeURIComponent` i kthen `%XX`-të dhe çdo gjë
+ * tjetër e lë ashtu si është. Prandaj versioni i paketës mbeti 2 — një adresë e
+ * shkruar sot lexohet nga aplikacioni i djeshëm, dhe një e djeshme nga i sotmi.
+ */
+function ike(teksti: string): string {
+  return teksti.replace(
+    NDARESIT,
+    (shenja) => `%${shenja.charCodeAt(0).toString(16).toUpperCase()}`,
+  );
+}
+
+/**
  * Pamja si tekst i shkurtër, i sigurt për një adresë.
  *
  * Formati është me ndarës e jo JSON, sepse çdo bajt kthehet në pika të kodit
  * QR: `2|b|grupi|data|raunde|emri:total,emri:total`. Emrat kalojnë nëpër
- * `encodeURIComponent`, që një presje ose dy pika brenda emrit të mos e këpusë
- * ndarjen — te fleta e vjetër ka skuadra si „alfa + zeta".
+ * `ike`, që një presje ose dy pika brenda emrit të mos e këpusë ndarjen — te
+ * fleta e vjetër ka skuadra si „alfa + zeta".
  */
 export function paketo(pamja: Pamja): string {
   const totalet = pamja.totalet
-    .map(([emri, total]) => `${encodeURIComponent(emri)}:${total}`)
+    .map(([emri, total]) => `${ike(emri)}:${total}`)
     .join(',');
 
   const trupi = [
     VERSIONI,
     SHENJA[pamja.lloji],
-    encodeURIComponent(pamja.grupi),
+    ike(pamja.grupi),
     pamja.data,
     pamja.raunde,
     totalet,
@@ -168,9 +199,20 @@ export function pamjaELojes(
   };
 }
 
+/**
+ * Adresa e plotë e një pakete të gatshme.
+ *
+ * E ndarë nga ajo poshtë sepse ekrani e mban paketën gjithsesi — e njëjta
+ * paketë shkon edhe nëpër kanalin e drejtpërdrejtë — dhe pa këtë ajo do të
+ * ndërtohej dy herë për çdo vizatim.
+ */
+export function adresaEKodit(rrenja: string, kodi: string): string {
+  return `${rrenjaEFaqes(rrenja)}/#/shiko/${kodi}`;
+}
+
 /** Adresa e plotë që shpërndahet, nga rrënja e faqes. */
 export function adresaEPamjes(rrenja: string, pamja: Pamja): string {
-  return `${rrenjaEFaqes(rrenja)}/#/shiko/${paketo(pamja)}`;
+  return adresaEKodit(rrenja, paketo(pamja));
 }
 
 /**

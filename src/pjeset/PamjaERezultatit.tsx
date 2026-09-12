@@ -56,12 +56,24 @@ export function PamjaERezultatit({
   pamja,
   etiketa,
   njoftimi,
+  perfundoi = false,
 }: {
   pamja: Pamja;
-  /** Ç'lloj pamjeje është — «Vetëm-lexim» a «Drejtpërdrejt». */
+  /** Ç'lloj pamjeje është — «Vetëm-lexim», «Drejtpërdrejt» a «Përfundoi». */
   etiketa: { emri: string; ikona: string };
   /** Shënimi mbi tabelë: sa i freskët është numri që shihet. */
   njoftimi: React.ReactNode;
+  /**
+   * A ka mbaruar mbrëmja — dhe atëherë parashikimi hiqet.
+   *
+   * «Sikur të luajmë edhe një raund» nuk ka kuptim mbi një fletë të mbyllur:
+   * nuk luhet më asnjë. Te fotografia e ndarë kjo nuk jepet fare dhe mbetet
+   * `false` — paketa nuk e mban, dhe nuk ka pse ta mbajë: kur mbrëmja mbaron
+   * sipas rregullit, raundet e mbetura dalin zero vetvetiu dhe parashikimi
+   * hiqet po ashtu. Mbetet jashtë vetëm mbyllja e hershme me dorë, dhe ajo nuk
+   * vlen sa një fushë e re te një kod QR (pika 7).
+   */
+  perfundoi?: boolean;
 }) {
   const emrat = pamja.totalet.map(([emri]) => emri);
   const totalat = Object.fromEntries(pamja.totalet);
@@ -104,7 +116,11 @@ export function PamjaERezultatit({
       {njoftimi}
 
       {pamja.raunde > 0 && (
-        <PermbledhjaEPamjes pamja={pamja} rreshtat={rreshtat} />
+        <PermbledhjaEPamjes
+          pamja={pamja}
+          rreshtat={rreshtat}
+          perfundoi={perfundoi}
+        />
       )}
 
       {magarec ? (
@@ -121,12 +137,14 @@ export function PamjaERezultatit({
             <>
               <Vetja rreshtat={rreshtat} totalet={totalat} magarec />
 
-              <Parashikimi
-                lloji="magarec"
-                players={emrat}
-                totalet={totalat}
-                luajtur={pamja.raunde}
-              />
+              {!perfundoi && (
+                <Parashikimi
+                  lloji="magarec"
+                  players={emrat}
+                  totalet={totalat}
+                  luajtur={pamja.raunde}
+                />
+              )}
             </>
           )}
         </>
@@ -136,6 +154,7 @@ export function PamjaERezultatit({
           totalat={totalat}
           rreshtat={rreshtat}
           raunde={pamja.raunde}
+          perfundoi={perfundoi}
         />
       )}
     </>
@@ -154,12 +173,15 @@ function PjesaEBridzhit({
   totalat,
   rreshtat,
   raunde,
+  perfundoi,
 }: {
   emrat: string[];
   totalat: Record<string, number>;
   rreshtat: RreshtiRenditjes[];
   /** Sa raunde janë luajtur — pa asnjë, parashikimi s'ka çka të thotë. */
   raunde: number;
+  /** Mbi një fletë të mbyllur nuk parashikohet asgjë. */
+  perfundoi: boolean;
 }) {
   return (
     <>
@@ -169,12 +191,14 @@ function PjesaEBridzhit({
         <>
           <Vetja rreshtat={rreshtat} totalet={totalat} magarec={false} />
 
-          <Parashikimi
-            lloji="bridzh"
-            players={emrat}
-            totalet={totalat}
-            luajtur={raunde}
-          />
+          {!perfundoi && (
+            <Parashikimi
+              lloji="bridzh"
+              players={emrat}
+              totalet={totalat}
+              luajtur={raunde}
+            />
+          )}
         </>
       )}
 

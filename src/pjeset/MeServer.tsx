@@ -19,6 +19,7 @@ import {
   StrehuesiMeKod,
   type GjendjaEStrehuesitMeKod,
 } from '../lidhjaMeServer.ts';
+import { kopjoTekstin } from '../sistemi.ts';
 import { KodiQR } from './KodiQR.tsx';
 
 export function MeServer({ paketa }: { paketa: string }) {
@@ -29,7 +30,8 @@ export function MeServer({ paketa }: { paketa: string }) {
     gabimi: null,
   });
   const [nisur, caktoNisjen] = useState(false);
-  const [kopjuar, caktoKopjuar] = useState(false);
+  /** `null` para se të shtypet; pastaj a e lejoi shfletuesi kopjimin. */
+  const [kopjuar, caktoKopjuar] = useState<boolean | null>(null);
 
   const eTanishmja = useRef(paketa);
   eTanishmja.current = paketa;
@@ -59,13 +61,9 @@ export function MeServer({ paketa }: { paketa: string }) {
   async function kopjo() {
     if (!adresa) return;
 
-    try {
-      await navigator.clipboard.writeText(adresa);
-      caktoKopjuar(true);
-      window.setTimeout(() => caktoKopjuar(false), 2500);
-    } catch {
-      caktoKopjuar(false);
-    }
+    const u = await kopjoTekstin(adresa);
+    caktoKopjuar(u);
+    if (u) window.setTimeout(() => caktoKopjuar(null), 2500);
   }
 
   if (!nisur) {
@@ -161,6 +159,23 @@ export function MeServer({ paketa }: { paketa: string }) {
               {kopjuar ? 'U kopjua' : 'Kopjo lidhjen'}
             </button>
           </div>
+
+          {/*
+            Kur shfletuesi nuk e lejon kopjimin, lidhja del në ekran: pa këtë,
+            butoni shtypej dhe nuk ndodhte kurrgjë — as mesazh, as rrugë e dytë.
+          */}
+          {kopjuar === false && (
+            <div className="fusha">
+              <span className="fusha__etiketa">Lidhja</span>
+              <input
+                type="text"
+                readOnly
+                value={adresa}
+                aria-label="Lidhja e bashkimit"
+                onFocus={(e) => e.currentTarget.select()}
+              />
+            </div>
+          )}
 
           <p className="njoftim njoftim--kujdes">
             <Ikona emri="info" />

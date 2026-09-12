@@ -14,8 +14,6 @@
 import { useMemo, useRef, useState } from 'react';
 
 import {
-  dataMeNumra,
-  dataNgaNumrat,
   dataShqip,
   llojiILojes,
   lojeratESortuara,
@@ -24,7 +22,8 @@ import {
   tabelaEPergjithshme,
 } from '../llogaritjet.ts';
 import { FJALA, fjalaE, pergjithshmetEMagarecit } from '../magareci.ts';
-import { emratERinj, pastroDaten } from '../fusha.ts';
+import { perfundoiMbremja } from '../fundi.ts';
+import { emratERinj } from '../fusha.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import {
@@ -247,6 +246,17 @@ export function Grupi({ id }: { id: number }) {
                           <span className="njesi__lloji">{FJALA}</span>
                         </>
                       )}
+                      {/*
+                        Mbrëmja e kryer thuhet edhe këtu, e jo vetëm brenda: pa
+                        të, lista e lojërave nuk dallon atë që pret raundin e
+                        radhës nga ajo që u mbyll — dhe të dyja hapen njësoj.
+                      */}
+                      {perfundoiMbremja(loja, raunde?.[loja.id] ?? BOSH) && (
+                        <>
+                          {' · '}
+                          <span className="njesi__perfunduar">Përfundoi</span>
+                        </>
+                      )}
                     </span>
                   </span>
                   <span className="njesi__veprimet">
@@ -401,11 +411,15 @@ function ZgjedhjaELojtareve({
     );
     return meparshmit.length >= 2 ? meparshmit : grupi.playerNames;
   });
-  // Data mbahet si tekst «dd/mm/vvvv» dhe `YYYY-MM-DD`-ja del prej saj: vlera
-  // e derivuar nuk ruhet (pika 2), dhe fusha nuk e ndërron radhën e shifrave
-  // nën dorën e atij që po shkruan.
-  const [dataTeksti, caktoTekstin] = useState(() => dataMeNumra(sot()));
-  const date = dataNgaNumrat(dataTeksti);
+  /*
+   * Data e vjen nga telefoni, dhe nuk shkruhet me dorë.
+   *
+   * Mbrëmja shënohet atë natë që luhet — kjo ishte e vërtetë te çdo lojë e
+   * shënuar deri tani — prandaj fusha kërkonte tetë shifra për një numër që
+   * pajisja e di. Nuk mbahet te gjendja: llogaritet te vizatimi, që një skedë e
+   * lënë hapur para mesnate të mos e nisë lojën me datën e djeshme.
+   */
+  const date = sot();
   // Njësoj si lista e lojtarëve: shoqëria e nis mbrëmjen aty ku e la, prandaj
   // çelësi nis te loja e fundit e grupit.
   const [lloji, caktoLlojin] = useState<LlojiILojes>(llojiIFundit);
@@ -468,33 +482,23 @@ function ZgjedhjaELojtareve({
         </div>
 
         {/*
-          Fusha e datës është tekst, jo `type="date"`.
+          Data tregohet, nuk shkruhet.
 
-          Atë e vizaton shfletuesi sipas gjuhës së vet, dhe një telefon me
-          anglishten amerikane e nxjerr muajin i pari: 11 shtatori dilte
-          „09/11" dhe lexohej 9 nëntor. Radha nuk caktohet dot me HTML,
-          prandaj shkruhet me dorë — ditë, muaj, vit — dhe vijat i vendos
-          `pastroDaten` sa shkruhen.
+          Dikur ishte fushë teksti me tetë shifra — dhe ajo fushë kishte një
+          arsye të vetën: `type="date"` e vizaton shfletuesi sipas gjuhës së
+          vet, dhe një telefon me anglishten amerikane e nxjerr muajin i pari,
+          pra 11 shtatori dilte „09/11". Por vetë shkrimi ishte i tepërt: loja
+          shënohet atë natë që luhet, dhe telefoni e di se cila është. Mbetet me
+          fjalë, që çka do të shkruhet të rrijë e dukshme para se të shtypet
+          «Nis lojën».
         */}
-        <label className="fusha">
+        <div className="fusha">
           <span className="fusha__etiketa">Data</span>
-          <input
-            className="fusha__data"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9/]*"
-            placeholder="dd/mm/vvvv"
-            value={dataTeksti}
-            aria-invalid={date === null || undefined}
-            aria-describedby="ndihma-e-dates"
-            onChange={(e) => caktoTekstin(pastroDaten(e.target.value))}
-          />
-          <span className="ndihma" id="ndihma-e-dates">
-            {date === null
-              ? 'Data shkruhet ditë/muaj/vit — p.sh. 11/09/2025.'
-              : dataShqip(date)}
-          </span>
-        </label>
+          <p className="vlera-e-lexuar">
+            <Ikona emri="kalendari" />
+            {dataShqip(date)}
+          </p>
+        </div>
 
         <p className="ndihma">
           {lloji === 'magarec'
@@ -510,8 +514,8 @@ function ZgjedhjaELojtareve({
           <button
             type="button"
             className="buton buton--kryesor"
-            disabled={zgjedhur.length < 2 || date === null}
-            onClick={() => date && onNis(date, zgjedhur, lloji)}
+            disabled={zgjedhur.length < 2}
+            onClick={() => onNis(date, zgjedhur, lloji)}
           >
             <Ikona emri="luaj" />
             Nis lojën

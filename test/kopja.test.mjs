@@ -54,6 +54,19 @@ test('lloji i lojës mbijeton kthimin', () => {
   assert.deepEqual(dala.kopja.games, [LOJA, magarec]);
 });
 
+test('mbyllja e mbrëmjes mbijeton kthimin, edhe rihapja', () => {
+  const mbyllur = { ...LOJA, id: 2, mbyllur: true };
+  // `false` nuk është mungesë: do të thotë «e rihapur me dorë», dhe po të
+  // hidhej si e tillë, rregulli do ta mbyllte sërish menjëherë pas kthimit.
+  const rihapur = { ...LOJA, id: 3, mbyllur: false };
+  const dala = lexoKopjen(
+    teksti(ndertoKopjen([GRUPI], [LOJA, mbyllur, rihapur], [RAUNDI])),
+  );
+
+  assert.equal(dala.ok, true);
+  assert.deepEqual(dala.kopja.games, [LOJA, mbyllur, rihapur]);
+});
+
 test('lloji i panjohur refuzohet, jo lexohet si bridzh', () => {
   // Do të vinte nga një version më i ri. I vizatuar si bridzh, shkronjat e tij
   // do të dilnin pikë pa e thënë kush.

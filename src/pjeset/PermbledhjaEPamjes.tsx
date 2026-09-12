@@ -25,10 +25,19 @@ import { Ikona } from '../ikonat.tsx';
 export function PermbledhjaEPamjes({
   pamja,
   rreshtat,
+  perfundoi = false,
 }: {
   pamja: Pamja;
   /** Renditja e gatshme — që të mos llogaritet dy herë te i njëjti ekran. */
   rreshtat: RreshtiRenditjes[];
+  /**
+   * A është e kryer mbrëmja.
+   *
+   * Dy fakte këtu shikojnë përpara — sa raunde kanë mbetur, dhe kush përzien
+   * atë që vjen — dhe mbi një fletë të mbyllur të dyja janë të pavërteta: nuk
+   * vjen asnjë raund, prandaj nuk përzien kush.
+   */
+  perfundoi?: boolean;
 }) {
   const magarec = pamja.lloji === 'magarec';
   const emrat = pamja.totalet.map(([emri]) => emri);
@@ -55,7 +64,7 @@ export function PermbledhjaEPamjes({
 
   // Kush përzien raundin që vjen. Pas raundit të fundit nuk ka më kush.
   const perziersi =
-    !magarec && mbetur === 0
+    perfundoi || (!magarec && mbetur === 0)
       ? null
       : perziersiIRaundit(emrat, pamja.raunde + 1);
 
@@ -110,7 +119,7 @@ export function PermbledhjaEPamjes({
           <li>
             <Ikona emri="luaj" />
             <span>
-              {mbetur === 0
+              {perfundoi || mbetur === 0
                 ? 'loja mbaroi'
                 : `edhe ${mbetur} ${mbetur === 1 ? 'raund' : 'raunde'}`}
             </span>

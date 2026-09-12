@@ -513,6 +513,28 @@ h3 {
   font-size: 1rem;
 }
 
+/**
+ * Vlera që tregohet e nuk shkruhet — data e mbrëmjes.
+ *
+ * Nuk merr as kufi veprues as sfond fushe: të dyja do ta ftonin prekjen, dhe
+ * atje nuk ka çka të preket. Lartësia mbetet ajo e një fushe, që rreshtat e
+ * kartelës të mos kërcejnë kur ndërrohet lloji i lojës.
+ */
+.vlera-e-lexuar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--teksti);
+}
+
+.vlera-e-lexuar .ikona {
+  color: var(--theks);
+}
+
 .fusha input::placeholder {
   color: var(--teksti-zbehte);
   opacity: 0.75;
@@ -1165,6 +1187,18 @@ th.numri {
   font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--hapur);
+}
+
+/**
+ * Shenja e mbrëmjes së kryer te historiku.
+ *
+ * Merr ngjyrën e zbehtë e jo theksin: te kjo listë theksi i takon llojit të
+ * lojës, dhe dy ngjyra të plota në të njëjtin rresht do të grindeshin për të
+ * njëjtin sy. Kjo është gjendje, jo lajm.
+ */
+.njesi__perfunduar {
+  font-weight: 700;
+  color: var(--teksti-zbehte);
 }
 
 /* ── Llogaritësi ────────────────────────────────────────────────────────── */
@@ -1966,15 +2000,28 @@ th.numri {
 
 /* ── Ndarja e rezultatit ────────────────────────────────────────────────── */
 
+/**
+ * Fotografia e çastit: kodi sipër, fjalët poshtë.
+ *
+ * Ishte një rresht — kod 9.5rem krah një kolone teksti — dhe atje kodi dilte
+ * shumë i dendur për atë që duhet të bëjë. Me gjashtë lojtarë paketa jep 53
+ * module, pra 61 me zonën e qetë: te 9.5rem (152px) bien 2.5 piksela për modul,
+ * dhe me tetë emra të gjatë 2.1. Kufiri poshtë të cilit skanimi nga një ekran
+ * në tjetrin nis të dështojë është tre — i njëjti kufi që e ngriti ftesën e
+ * lidhjes te 18rem (shih `.qr--madh`). Prandaj kodi zuri rreshtin e vet dhe e
+ * mori atë gjerësi: 4.7 piksela për modul te rasti i zakonshëm.
+ */
 .ndarja {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  display: grid;
   gap: 0.9rem;
 }
 
+.ndarja__kodi {
+  display: flex;
+  justify-content: center;
+}
+
 .ndarja__krye {
-  flex: 1 1 11rem;
   min-width: 0;
   display: grid;
   gap: 0.6rem;
@@ -2002,12 +2049,6 @@ th.numri {
 
 .qr__pikat {
   fill: #000000;
-}
-
-@media (max-width: 22rem) {
-  .ndarja {
-    justify-content: center;
-  }
 }
 
 /* ── Lidhja e drejtpërdrejtë ────────────────────────────────────────────── */
