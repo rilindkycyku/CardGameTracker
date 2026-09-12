@@ -8,7 +8,7 @@ Katër lojëra, një grup, një bazë:
 
 | Loja | Raundi | Mbaron | Fiton |
 | --- | --- | --- | --- |
-| **Bridzh** — xhin-rami kosovar me 14 letra, mbyllja me 51 pikë | pikët e secilit, ose llogaritësi hant/normal | pas dy raundeve për lojtar | totali më i vogël |
+| **Bridzh** — xhin-rami kosovar me 14 letra, hapja me 51 pikë | pikët e secilit, ose llogaritësi hant/normal | pas dy raundeve për lojtar | totali më i vogël |
 | **Magarec** — loja e shkronjave | një prekje: kush e humbi | kur dikujt i mbushet fjala „MAGAREC" | më pak shkronja |
 | **Domina** — gurët e mbetur në dorë | pikët e secilit | kur dikujt i mbushet kufiri | totali më i vogël |
 | **Pishpirik** — 25 pikë për dorë, plus 10 për çdo pishpirik | pikët e dorës | kur dikush arrin kufirin | **totali më i madh** |
@@ -117,8 +117,9 @@ host i huaj nuk kërkohet me hapjen e faqes.
 
 ## Rregullat e pikëzimit
 
-Çdo raund mbyllet nga një lojtar që arrin 51 pikë me kombinime prej një dore me
-14 letra. Dy mbyllje:
+Hapja lejohet me 51 pikë kombinimesh prej një dore me 14 letra. Raundin e mbyll
+ai që i ka hedhur të gjitha letrat dhe e mbaron me letrën e fundit, pa i mbetur
+asnjë në dorë. Dy mbyllje:
 
 | | Mbyllësi | Të tjerët që s’hapën | Të tjerët që kishin hapur |
 | --- | --- | --- | --- |

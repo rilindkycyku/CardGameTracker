@@ -12,7 +12,7 @@ të dhënave (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`), për a
 del*. Zëvendëson një fletë Google Sheets-i që mbahej me dorë për lojërat e një shoqërie.
 
 U quajt „Bridzh" derisa mbante një lojë të vetme: bridzhin kosovar, varianti i xhin-ramit që luhet
-me 14 letra, mbyllet me 51 pikë dhe mbaron pasi secili i ka përzier letrat dy herë. Tani mban katër,
+me 14 letra, hapet me 51 pikë dhe mbaron pasi secili i ka përzier letrat dy herë. Tani mban katër,
 dhe emri i vjetër do të gënjente te tri prej tyre. Ai emër mbeti vetëm te një vend, dhe atje me
 arsye: parathënja `bridzh-` e emrit te serveri i sinjalizimit (`kodi.ts`) është pjesë e telit e jo
 fjalë që lexon njeriu — ndërrimi i saj do t'i ndante dy telefonat që nuk e kanë rifreskuar faqen
@@ -735,7 +735,7 @@ GitHub-un. Tri kushte i mbajnë të ndershme, dhe provat i masin:
 - **Numrat e kufirit nuk hyjnë atje** (pika 13). Ata i zgjedh tavolina për çdo mbrëmje, dhe një numër
   i ngrirë te teksti do të gënjente pikërisht atë që sapo e zgjodhi vetë. Prova `kufiri i mbrëmjes nuk
   shkruhet te teksti i rregullave` e lexon çdo tekst të regjistrit kundër `kufijteEMundshem` të asaj
-  loje. Numrat e rregullit — 51-shi i mbylljes, 25-a e dorës, 10-a e pishpirikut — mbeten, sepse ata
+  loje. Numrat e rregullit — 51-shi i hapjes, 25-a e dorës, 10-a e pishpirikut — mbeten, sepse ata
   nuk ndryshojnë nga mbrëmja në mbrëmje.
 - **Numrat e shkruar vijnë nga konstantet**, jo nga dora: `${DORA_E_PISHPIRIKUT}` e `${FJALA.length}`
   te teksti, që një ndërrim i tyre të mos lërë prapa një fjali që mëson gabim një tavolinë të tërë.

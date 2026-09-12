@@ -149,7 +149,7 @@ export type Rregullat = {
    * askënd), dhe vijnë prej këtu e jo prej ekranit, që një lojë e pestë të mos
    * kërkojë vizatim të ri (pika 16).
    *
-   * Numrat e tyre janë të rregullit — 51-shi i mbylljes, 25-a e dorës — kurrë
+   * Numrat e tyre janë të rregullit — 51-shi i hapjes, 25-a e dorës — kurrë
    * kufiri i mbrëmjes: atë e zgjedh tavolina, dhe një numër i ngrirë këtu do të
    * gënjente pikërisht atë që sapo e zgjodhi vetë (pika 13).
    */
@@ -189,7 +189,9 @@ export const LOJERAT: Record<LlojiILojes, Rregullat> = {
      */
     shenimi: 'Pikët e secilit për këtë raund. Fiton totali më i vogël.',
     hollesite: [
-      'Mbyllja bëhet me 51 pikë kombinimesh nga një dorë me 14 letra.',
+      'Hapja lejohet me 51 pikë kombinimesh nga një dorë me 14 letra.',
+      'Mbyllja bëhet kur lojtari i ka hedhur të gjitha letrat dhe e mbyll '
+        + 'raundin me letrën e fundit, pa i mbetur asnjë në dorë.',
       'Hant — mbylli pa hedhur e pa shitur asnjë letër: mbyllësi −40, kush nuk '
         + 'kishte hapur +200, kush kishte hapur 2 × pikët që i mbetën në dorë.',
       'Normal — kishte hapur më parë: mbyllësi −20, kush nuk kishte hapur +100, '
