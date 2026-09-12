@@ -35,11 +35,12 @@ janë e njëjta tavolinë, i njëjti grup dhe e njëjta bazë.
 
 Tri gjëra e përcaktojnë çdo vendim këtu:
 
-1. **Nuk ka server.** IndexedDB dhe asgjë tjetër. Loja luhet rreth tavolinës, jo çdo mbrëmje ka
-   internet të mirë, dhe historiku i një shoqërie nuk ka pse të rrijë te dikush tjetër. Kjo do të
-   thotë edhe se kopja rezervë nuk është shtojcë — është dalja e vetme e të dhënave.
+1. **Nuk ka server i yni.** IndexedDB dhe asgjë tjetër, derisa përdoruesi të kërkojë ndryshe. Loja
+   luhet rreth tavolinës, jo çdo mbrëmje ka internet të mirë, dhe historiku i një shoqërie nuk ka pse
+   të rrijë te dikush tjetër. Kjo do të thotë edhe se kopja rezervë nuk është shtojcë — është dalja
+   e parë e të dhënave.
 
-   Ka **dy shmangje**, dhe të dyja rrinë të rrethuara. E para: mënyra „me kod" e lidhjes së
+   Ka **tri shmangje**, dhe të tria rrinë të rrethuara. E para: mënyra „me kod" e lidhjes së
    drejtpërdrejtë (`lidhjaMeServer.ts`) përdor një server sinjalizimi të huaj. Të dhënat e lojës nuk
    shkruhen te asnjë server edhe atëherë, dhe ekrani i thotë hapur çka del nga pajisja para se të
    shtypet butoni.
@@ -54,6 +55,12 @@ Tri gjëra e përcaktojnë çdo vendim këtu:
    ekranit prek një server, dhe pika 1 mbetet e plotë vetëm për bazën e të dhënave e për
    fotografinë. Kjo është zgjedhje e pronarit, e jo rrjedhojë e kodit — mos e ndërro pa e pyetur.
    Kushtet që mbeten te pika 7.
+
+   E treta, dhe më e madhja: **sinkronizimi** (pika 19), me kërkesë të pronarit. Ajo është e vetmja
+   gjë që i shkruan pikët dhe emrat te një bazë jashtë pajisjes — por te një bazë që e zotëron vetë
+   përdoruesi, te projekti i tij Supabase, dhe vetëm pasi ta ketë lidhur me dorë. Server i Tavolinës
+   nuk ka edhe atëherë, dhe **mos shto një të tillë**. Rri e fikur derisa dikush ta ndezë; kushtet e
+   plota te pika 19.
 2. **Përdoruesi po mban letrat me dorën tjetër.** Çdo fushë numri është së paku 2.75rem, tastiera
    del numerike, dhe blloku që përdoret dhjetëra herë në mbrëmje („Ruaj raundin") rri i pari.
    Ekrani i ngushtë vjen i pari; kompjuteri pas.
@@ -67,7 +74,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 265 prova, pa framework provash
+npm test          # node --test — 316 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -91,16 +98,24 @@ të dy ndërtimet te i njëjti kosh — dhe atëherë skedari i ri dhe ai i vjet
 ### 1. Logjika rri te module që nuk njohin as bazën, as React-in, as `window`-in
 
 `llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `lojerat.ts`, `parashikimi.ts`, `fundi.ts`,
-`fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts`, `kodi.ts`, `analitika.ts` dhe
-`tema.ts` importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
-zgjat nën një sekondë dhe nuk ka çka të prishet mes provës dhe kodit.
+`fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts`, `kodi.ts`, `analitika.ts`,
+`tema.ts`, `bashkimi.ts`, `skema.ts`, `projekti.ts` dhe `identiteti.ts` importohen drejtpërdrejt nga
+`node --test`, pa bundler dhe pa DOM — prandaj `npm test` zgjat nën një sekondë dhe nuk ka çka të
+prishet mes provës dhe kodit.
 
-`lidhja.ts`, `lidhjaMeServer.ts`, `sistemi.ts`, `ruajtja.ts`, `matja.ts` dhe `ndricimi.ts` nuk hyjnë
-te kjo listë me qëllim: e para njeh `RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e
-treta `navigator`-in (tabelën e fragmenteve dhe fletën e ndarjes), e katërta bazën, e pesta
-`document`-in dhe `window`-in, dhe e gjashta `localStorage`-in e `matchMedia`-n. Logjika e tyre e
-provueshme është nxjerrë jashtë — te `sinjalizimi.ts`, `kodi.ts`, `kopja.ts`, `analitika.ts` dhe
-`tema.ts` — dhe ajo që mbetet provohet me shfletues.
+`lidhja.ts`, `lidhjaMeServer.ts`, `sistemi.ts`, `ruajtja.ts`, `matja.ts`, `ndricimi.ts`,
+`supabase.ts`, `sinkronizimi.ts` dhe `pajisja.ts` nuk hyjnë te kjo listë me qëllim: e para njeh
+`RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e treta `navigator`-in (tabelën e
+fragmenteve dhe fletën e ndarjes), e katërta bazën, e pesta `document`-in dhe `window`-in, e gjashta
+`localStorage`-in e `matchMedia`-n, e shtata `fetch`-in e `localStorage`-in, e teta të dyja ato
+bashkë me bazën, dhe e nënta `localStorage`-in e `navigator`-in. Logjika e tyre e provueshme është
+nxjerrë jashtë — te `sinjalizimi.ts`, `kodi.ts`, `kopja.ts`, `analitika.ts`, `tema.ts`,
+`bashkimi.ts`, `skema.ts`, `projekti.ts` dhe `identiteti.ts` — dhe ajo që mbetet provohet me
+shfletues.
+
+Çiftet e sinkronizimit lexohen si ato që ekzistonin: `bashkimi.ts` krah `sinkronizimi.ts` si
+`sherbimi.ts` krah `punetori.ts`, dhe `projekti.ts` krah `supabase.ts` si `analitika.ts` krah
+`matja.ts`. Vendimi rri te i pari; kërkesa te i dyti.
 
 Logjika e re shkon te një prej tyre, ose te një modul i ri i të njëjtit lloj, me prova. Mos fut
 `import` të bazës, të React-it apo të ndonjë API-je të shfletuesit në to.
@@ -433,6 +448,12 @@ bibliotekë WebRTC-je për mënyrën e parazgjedhur, që rri e shkruar me dorë.
 `peerjs` është e katërta dhe e vetmja që hyri pas rregullit, prandaj mban kushte: ngarkohet vetëm me
 kërkesë, e prek vetëm një skedar, dhe mbulon vetëm mënyrën që përdoruesi zgjedh me dorë (pika 7).
 Nëse ndonjë prej tyre bie, bie edhe arsyeja pse rri.
+
+**Sinkronizimi nuk e shtoi të pestën.** `@supabase/supabase-js` do të bënte pikërisht atë që bën
+`supabase.ts`, por është ~120 kB për katër thirrje HTTP — një hyrje me fjalëkalim, një rifreskim, një
+`select` dhe një `upsert` — te një aplikacion që instalohet në telefon. E njëjta arsye si te kodi QR
+i shkruar me dorë, dhe e njëjta masë: nëse ajo bibliotekë ndonjëherë duhet vërtet, duhet edhe arsyeja
+pse rregulli nuk vlen më.
 
 Rrugët janë pak; një `switch` mbi hash-in
 mjafton dhe butoni «prapa» i telefonit punon vetvetiu. Gjendja lexohet nga baza pas çdo shkrimi —
@@ -792,10 +813,12 @@ dokument. Ruhet `/` e jo `/index.html`: disa strehues e kthejnë të dytën me n
 përgjigje e ridrejtuar nuk hyn dot te koshi — instalimi do të dështonte i tëri, pra pa kosh e pa
 asgjë offline.
 
-**Kërkesat jashtë origjinës nuk preken fare.** Serveri i sinjalizimit dhe relenjat TURN janë
-shmangje e pikës 1, dhe rrinë të rrethuara; një punëtor që i lexon a i ruan do ta zgjeronte atë
-shmangje pa e thënë kush. E njëjta gjë për çdo metodë përveç `GET`, dhe për `/_vercel/` — ai shteg
-rri te e njëjta origjinë, por është i strehuesit e jo i faqes (pika 18).
+**Kërkesat jashtë origjinës nuk preken fare.** Serveri i sinjalizimit, relenjat TURN dhe projekti
+Supabase i përdoruesit janë shmangje e pikës 1, dhe rrinë të rrethuara; një punëtor që i lexon a i
+ruan do ta zgjeronte atë shmangje pa e thënë kush. Te sinkronizimi kjo është edhe e vetmja gjë e
+saktë: një përgjigje e ruajtur e një `select`-i do të kthente mbrëmjen e djeshme si të sotmen, dhe
+një `POST` i ruajtur nuk do të thoshte asgjë. E njëjta gjë për çdo metodë përveç `GET`, dhe për
+`/_vercel/` — ai shteg rri te e njëjta origjinë, por është i strehuesit e jo i faqes (pika 18).
 
 **Versioni i ri nuk merr pushtetin pa u pyetur.** Një punëtor që kalon vetvetiu do t'i ndërronte
 skedarët nën këmbët e një skede të hapur: kodi i vjetër në ekran, ai i riu te rrjeti, dhe një copë e
@@ -864,6 +887,11 @@ ruajtur e vetë numërimit do ta vriste numërimin në heshtje — kërkesa e dy
 nga koshi e nuk do të dilte kurrë nga pajisja. Prova `shtegu i matjes nuk preket fare` e mban të
 matur.
 
+**Rruga `#/sinkronizimi` del me emrin e vet të plotë**, dhe kjo nuk e prek kushtin e parë: ajo nuk
+mban asgjë brenda hash-it. Adresa e projektit, çelësi publik dhe email-i rrinë te `localStorage` e
+nuk kalojnë kurrë nga shiriti (pika 19), prandaj s'ka çka të pastrohet prej saj. Rri e shkruar te
+`TE_THJESHTA`, dhe prova `ekrani i sinkronizimit numërohet me emrin e vet` e mban të matur.
+
 **Rrugët e ndara numërohen, por asgjë prej tyre nuk lexohet.** Kush skanon një kod QR e hap faqen te
 telefoni i vet, dhe ajo hapje del si `/shiko` a `/bashkohu` — pa bazë, pa cookie, pa asgjë të
 mbajtur mend (pika 7 mbetet fjalë për fjalë e vërtetë: ato rrugë nuk shkruajnë kurrkund). Nëse
@@ -875,6 +903,177 @@ dhe `vite.punetori.config.ts` importon `node:fs`. Ai paket vinte deri para pak s
 zgjedhshme e Vite-s — lokalisht ishte aty, te strehuesi jo — dhe ndërtimi binte me
 `TS2307: Cannot find module 'node:fs'`. Tani rri i shkruar te `devDependencies`. Mos e hiq: një
 varësi tipesh e ardhur vetvetiu nuk është premtim.
+
+### 19. Sinkronizimi është projekti i përdoruesit, jo yni
+
+Deri tani përgjigjja e pyetjes «po nëse ndërroj telefonin?» ishte një skedar JSON që e nxjerr dhe e
+kthen me dorë (pika 1). Ajo mbetet, dhe mbetet e para — por nuk i përgjigjet pyetjes së dytë: *pikët
+i shënoi tableti mbrëmë, dhe sot po i shikoj te telefoni*. Për atë duhet një bazë që e shohin të dyja
+pajisjet, dhe **kjo hyri me kërkesë të pronarit**.
+
+Ajo bazë nuk është e jona. Përdoruesi sjell projektin e vet Supabase, ngjit adresën dhe çelësin
+publik, dhe hyn me një llogari që ekziston vetëm brenda tij. Server i Tavolinës nuk ka edhe tani, dhe
+**mos shto një të tillë** — as për të rele-uar diçka, as për „lehtësi". Sapo të ketë një, tërë pika 1
+bie bashkë me të.
+
+**Tabelën nuk e krijon dot aplikacioni, dhe kjo nuk është mangësi.** Çelësi publik që rri te
+pajisja arrin **vetëm** te PostgREST-i, i cili shërben rreshta; tabela, politika dhe trigger-i
+kërkojnë SQL, dhe asnjë cilësim i projektit nuk e bën atë çelës të aftë për të — e cila është
+pikërisht ajo që e ndal një kopje të vjedhur të `localStorage`-it nga rishkrimi i bazës. API-ja e
+dytë e Supabase-it (Management) e bën SQL-në, por `api.supabase.com` nuk pranon asnjë kërkesë
+ndër-origjinë nga një faqe, dhe do të kërkonte një kredencial që mbulon tërë llogarinë — pra ose një
+server i yni për ta rele-uar, ose një buton që nuk punon kurrë. FinanCarePersonal e pati atë rrugë
+dhe e hoqi për këto arsye; këtu nuk hyri kurrë.
+
+Prandaj ngritja është skripti: `linkuSkriptit` e hap SQL Editor-in e vetë përdoruesit me të brenda
+(një prekje, pastaj «Run»), krah një butoni që e kopjon, dhe `verifikoSkemen` është rruga prapa —
+çka ra pyetet te vetë baza e jo te ai që shtypi butonin. Një projekt përgjysmë merr vetëm migrimet
+që i mbeten (`sqlPerMigrim`), sepse njeriu që shikon njëzet rreshta SQL nuk e di cilët janë të rinj.
+Pas verifikimit sinkronizimi niset vetë: arsyeja pse dikush e hapi atë ekran ishte se sinkronizimi
+nuk punonte.
+
+**Asnjë projekt nuk vjen i shkruar te kodi**, dhe kjo është kërkesë e shprehur e pronarit: as adresë,
+as çelës, as varg mjedisi që do t'i fuste gjatë ndërtimit. `BOSH` te `supabase.ts` nis me `url` e
+`anonKey` të zbrazët, pra `eshteLidhur` del `false` dhe asnjë kërkesë nuk niset. Një „parazgjedhje e
+përshtatshme" këtu do të thoshte se mbrëmjet e çdo instalimi shkojnë te baza e dikujt tjetër, dhe
+kjo nuk do të dukej te asnjë ekran. Prova `asnjë projekt Supabase nuk vjen i shkruar te kodi` e lexon
+tërë `src/`-në kundër kësaj — host projekti, çelës i të dy formave, dhe emrat e mundshëm të vargjeve
+të mjedisit. Vend-mbajtësja te forma është `projekti-yt.supabase.co` pikërisht që të mos ketë formën
+e një reference të vërtetë.
+
+Kjo shmangje pranohet vetëm nën këto kushte, dhe nëse dikush e prek një prej tyre, shmangja nuk
+qëndron më:
+
+- **Rri e fikur derisa dikush ta ndezë.** `nisAutomatikun()` te `main.tsx` e lexon konfigurimin dhe
+  kthehet menjëherë kur s'ka projekt të lidhur. Një pajisje që nuk e prek kurrë atë ekran nuk nxjerr
+  asnjë kërkesë.
+- **Ekrani e thotë çka del nga pajisja, para butonit.** Njësoj si te mënyra me kod (pika 7): te
+  projekti shkruhen grupet, lojërat dhe raundet — pra emrat dhe pikët. Nuk është fjali te një ekran
+  „rreth"; rri mbi vetë formën, ku lexohet.
+- **Çelësi sekret refuzohet para se të shkruhet në disk.** `kontrolloCelesin` te `projekti.ts` e
+  hedh poshtë `service_role`-in dhe `sb_secret_`-in me emër, sepse ai çelës i anashkalon rregullat e
+  rreshtave dhe paneli i Supabase-it e shkruan dy rreshta nën atë publik. Prova
+  `çelësi sekret dhe ai service_role refuzohen me emër` e mban këtë të matur. Mos e zbut.
+- **Pa varësi të pestë** (pika 10). `supabase.ts` është `fetch` i shkruar me dorë.
+- **Rreshtat e një përdoruesi i shikon vetëm ai.** Migrimi i parë e ndez `row level security` dhe e
+  krijon politikën `auth.uid() = user_id`. Pa atë, dy llogari te i njëjti projekt do t'i shihnin
+  mbrëmjet e njëra-tjetrës.
+
+#### Pajisja e sapolidhur lexon, nuk shkruan
+
+Dështimi që e formëson gjithçka këtu nuk është hipotetik: një telefon i pastruar, i rilidhur, që
+ngarkon bazën e vet të zbrazët mbi historikun e një viti. Prandaj një pajisje sapo e lidhur
+(`lidhjaVerifikuar === false`) **vetëm shkarkon**, dhe ekrani i tregon numrat e të dyja anëve para se
+t'i lejohet të dërgojë. Tri përgjigjet — bashko, merr, dërgo — rrinë te `MENYRAT`, dhe dy prej tyre
+kërkojnë një fjalë të shkruar me dorë. Mos e hiq atë pyetje, dhe mos i vër parazgjedhje që zbatohet
+vetvetiu.
+
+#### `uid`-i, e jo `id`-ja, është emri që del jashtë
+
+Baza lokale i numëron regjistrat me `autoIncrement`, pra dy telefona e quajnë të dy `1` grupin e vet.
+Prandaj çdo regjistër mban edhe një `uid` të rastësishëm (`identiteti.ts`), dhe jashtë pajisjes
+udhëton vetëm ai — edhe te lidhjet: një lojë e cloud-it mban `groupUid` e jo `groupId`, dhe një raund
+`gameUid`. Numri mbetet aty ku ishte: rrugët (`#/loja/3`), indekset dhe lidhjet brenda pajisjes
+lexohen njësoj si më parë, dhe asnjë ekran nuk u prek.
+
+Tri gjëra rrjedhin prej kësaj dhe nuk guxojnë të hiqen:
+
+- **Fëmija pa prindin e vet shtyhet, nuk hidhet.** Një raund që mbërrin para lojës së vet nuk
+  zbatohet dot; nëse do të hidhej, shënjuesi i shkarkimit do të kalonte mbi të dhe ai raund nuk do të
+  shkarkohej më kurrë. Prandaj `maxTs` ndalet **nën** rreshtin më të hershëm që u shty. Prova
+  `raundi pa lojën e vet shtyhet, dhe shënjuesi nuk kalon mbi të` e mban këtë të matur.
+- **Fshirja lë varr** (`fshirjet`). Pa të, pajisja tjetër do ta shihte regjistrin që mban ende si
+  «diçka që cloud-i s'e ka» dhe do ta ngarkonte sërish — pra fshirja do të zhbëhej vetvetiu.
+  Kaskada e `fshiGrup` lë një varr për secilin, dhe zbatimi i fshirjeve shkon fëmija para prindit.
+- **`uid`-i shkruhet edhe te kopja rezervë.** Kështu një kopje e kthyer te një pajisje tjetër e mban
+  të njëjtin identitet e nuk krijon dublikatë. Mungesa e tij te një skedar i vjetër është e ligjshme
+  — atëherë jepet një i ri — kurse përsëritja jo: i dyti riemërtohet, e nuk rrëzohet tërë skedari.
+
+#### Kush fiton, dhe pse jo ora
+
+Fiton **pajisja e fundit që sinkronizon**, për çdo regjistër. Një ndryshim lokal i padërguar
+(`sinkPezull`) e mban vendin e vet dhe dërgohet; çdo gjë tjetër që zbret zbatohet. Asnjë vendim nuk e
+krahason orën e një pajisjeje me atë të një tjetre — një telefon me orën një orë prapa prapë e di
+shumë mirë **që** shënoi diçka, gabon vetëm për kur.
+
+Ora e serverit hyn vetëm si emërues i përbashkët: trigger-i i migrimit të parë e shkruan
+`updated_at` me `now()`, dhe dërgimi e lexon prapa. Prandaj jehona e rreshtit tim njihet deri te
+milisekondi dhe kapërcehet, në vend që të rishkruhet te baza në çdo sinkronizim.
+
+Përjashtimi i vetëm është `KOHA_PARA_SINKRONIZIMIT` (`1`): regjistrat që ekzistonin para se kjo të
+vinte marrin atë datë dhe flamurin. Të dyja gjysmat duhen — flamuri që të **arrijnë** te një cloud që
+nuk i ka parë kurrë, dhe data që të **humbin** kundër çdo rreshti që cloud-i e mban vërtet.
+
+#### Gjërat që nuk guxojnë të hiqen
+
+- **Flamuri nuk mjafton vetëm, prandaj ka edhe një kontroll të dytë.** Një herë në ditë numërohen të
+  dyja anët; kur cloud-i del më i shkurtër, `mungojneNeCloud` e pyet atë drejtpërdrejt se çka ka, dhe
+  çka mungon shënohet sërish për dërgim. Pa këtë, një regjistër i shënuar gabim si «i dërguar» nuk
+  shikohet më kurrë dhe numrat e dy anëve mbeten të ndryshëm përgjithmonë.
+- **Çdo fushë e ardhur nga jashtë kontrollohet** (`fushatENjeRreshti`), me të njëjtën ashpërsi si te
+  `kopja.ts` dhe si te sinjali (pika 7): rreshtat vijnë nga një bazë që e administron vetë
+  përdoruesi. Një `lloji` i panjohur e rrëzon rreshtin e nuk lexohet bridzh — te pishpiriku fiton
+  totali më i madh, dhe një lexim i gabuar do të shpallte fitues të fundit, në heshtje (pika 16).
+  Zeroja e `kufiri`-t dhe `false`-ja e `mbyllur`-it mbijetojnë, sepse atje mungesa do të thotë diçka
+  tjetër nga vlera (pikat 13 e 15).
+- **Migrimet rrinë te `skema.ts` dhe vetëm shtohen.** Ato bien te baza e dikujt tjetër, ku një
+  redaktim thjesht nuk do të zbatohej kurrë; gabimi rregullohet me numrin tjetër. Çdo fjali është e
+  rrethuar, që skripti të ofrohet si buton e jo si ritual — dhe prova `përsëritja e skriptit nuk
+  prish gjë` e lexon fjali për fjali.
+- **Verifikimi e pyet projektin, jo butonin.** Skripti bie te një SQL Editor, te një skedë tjetër,
+  jashtë çdo gjëje që aplikacioni e sheh — prandaj «a ra?» i bëhet vetë bazës (`verifikoSkemen`).
+- **Emri i pajisjes shkon me çdo rresht.** I njëjti email hyn kudo, prandaj llogaria nuk e thotë dot
+  cila pajisje e shkroi çka, dhe `updated_at` thotë kur e jo kush. Rri te `localStorage` e **nuk
+  sinkronizohet** — një id e sinkronizuar do t'i bënte të gjitha pajisjet të pohonin se janë e njëjta.
+- **Shkrimet e cloud-it nuk e nxisin një sinkronizim të ri.** `onNdryshimLokal` bie vetëm te shkrimet
+  e përdoruesit; `onBazaNdryshoi` bie te të dyja dhe e rifreskon ekranin. Pa atë ndarje, dy pajisje
+  do të ushqenin njëra-tjetrën pa fund.
+
+#### Çka e mban të gjallë pas muajsh
+
+Sinkronizimi bie vetvetiu, te sfondi, mbi një bazë që rritet — pra dështimet e tij nuk janë të
+dukshme sa ato të një butoni. Pesë gjëra e ndalojnë secilën nga mënyrat me të cilat ai ngrin pa u
+vënë re, dhe asnjëra nuk guxon të hiqet:
+
+- **Çdo `fetch` ka afat** (`kerko` te `supabase.ts`, 20s për lexim e 60s për dërgim). Pa të, një
+  portal wifi-je që i mban lidhjet hapur pa u përgjigjur e lë `nePritje` të zënë **përgjithmonë**:
+  çdo sinkronizim i mëpasshëm i bashkohet një premtimi që nuk zgjidhet, butoni rri i fikur, dhe
+  rruga e vetme jashtë është rihapja e skedës.
+- **Dështimet largohen dyfish** (`ecKeq`, nga një minutë deri te gjysmë ore). Një projekt i ndalur
+  përndryshe do të merrte një kërkesë çdo dhjetë minuta, te çdo ndërrim skede dhe pas çdo raundi —
+  pa rregulluar asgjë dhe duke pirë baterinë. Ngjarja `online` e heq pritjen, sepse atëherë shkaku
+  vërtet mund të ketë rënë; «Sinkronizo tani» e shpërfill fare, sepse kush e shtyp e di se po provon.
+- **Shtyrja e një jetimeje është e kufizuar** (pika më sipër). Tri prova, pastaj shënjuesi kalon.
+- **Premtimi i dështuar i bazës nuk ruhet.** `db()` e pastron `baza`-n te `catch`: i ruajtur, ai do
+  t'i kthehej çdo leximi të mëpasshëm, dhe një dështim i çastit do ta linte aplikacionin të vdekur
+  derisa të rihapej skeda. Po ashtu `blocked` (një skedë e vjetër e mban bazën — ekrani e thotë me
+  fjalë), `blocking` dhe `terminated`.
+- **Varret fshihen pas tre muajsh** (`pastroVarretEVjetra`, një herë në ditë bashkë me kontrollin e
+  dy anëve). Ata janë e vetmja gjë te kjo bazë që rritet pa kufi. Fshihen vetëm ata që cloud-i i ka
+  pranuar: një varr i padërguar është një fshirje që s'ka mbërritur askund.
+
+#### Faqja e bardhë është dështimi më i keq
+
+`Gardhi` te `pjeset/Gardhi.tsx` rri jashtë gjithçkaje te `main.tsx`. Pa të, një gabim vizatimi te
+cilido ekran e zbraz tërë pemën: pa tekst, pa buton, dhe pa asnjë shenjë se pikët janë ende te baza —
+pra pikërisht në atë çast njeriu mendon se e humbi mbrëmjen. Kartela thotë tri gjëra me radhë: të
+dhënat nuk humbën, ja si provohet sërish, dhe ja çka tha gabimi.
+
+Është i vetmi vend te projekti ku shkruhet një klasë komponenti, sepse `componentDidCatch` nuk ka
+hook që e zëvendëson.
+
+**Dhe `useNgarko` e hedh gabimin e vet gjatë vizatimit**, që të bjerë te po ai gardh. Kufijtë e
+React-it i kapin vetëm gabimet e vizatimit; një premtim i refuzuar u kalon pranë. Pa atë rresht, një
+bazë që nuk hapet dot — kuota e mbushur, IndexedDB e fikur në shfletim privat — do ta linte ekranin
+te «Duke lexuar…» **pa fund**. Kjo u provua me shfletues duke ia hequr `indexedDB`-në faqes.
+
+#### Çka nuk e preku
+
+Asnjë llogari: totalet, renditja, matrica dhe parashikimi lexojnë të njëjtat fusha si më parë.
+Rrugët e ndarjes (`#/shiko`, `#/lidhu`, `#/pergjigje`, `#/bashkohu`) mbeten pa bazë fare — kushti i
+pikës 7 është fjalë për fjalë i paprekur, dhe sinkronizimi nuk niset te ato rrugë sepse nuk niset
+askund pa projekt të lidhur. Dhe kopja rezervë mbetet aty ku ishte: ajo është rruga pa llogari, pa
+internet dhe pa varësi, dhe nuk zëvendësohet nga kjo.
 
 ## Sistemi vizual
 
@@ -1010,6 +1209,31 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - **Kandidatët e telefonit janë emra mDNS**, jo IP: `<uuid>.local`. Ata zgjidhen mes pajisjeve të së
   njëjtës rrjetë, prandaj punojnë — por i shtojnë ftesës dyzet karaktere, dhe kjo është arsyeja pse
   gishtëza paketohet si bajte e jo si heks.
+- **Një navigim vetëm me hash nuk i rikërkon skriptet.** Kjo e zë ngushtë provën me shfletues që
+  bllokon `**/*.js` për të mbushur bazën para se aplikacioni të nisë: pas `unroute`, një
+  `goto('…#/loja/1')` mbetet te i njëjti dokument dhe faqja rri pa JS — duket sikur aplikacioni nuk
+  vizaton fare. Duhet një `reload()` i vërtetë.
+- **Shtresa e rrjetit provohet me një Supabase të rremë, jo me atë të vërtetin.** Makina e provave
+  nuk e lëshon `*.supabase.co`, prandaj `deshmitare/supabase-i-rreme.mjs` mban pikërisht aq sa prek
+  `supabase.ts` — hyrjen, rifreskimin, `select`-in, `upsert`-in dhe `delete`-in — dhe
+  `deshmitare/rrjeti.mjs` e kalon tërë rrugën me shfletues: hyrje, tabela që mungon e njohur nga
+  `PGRST205`, «Run» te editori, verifikim, dërgim, dhe një pajisje e dytë krejt e pastër që e merr
+  grupin me lojtarët e duhur. Nuk bien me `npm test` (kërkojnë Playwright e një ndërtim, të dyja
+  jashtë varësive — pika 10), prandaj rrinë jashtë `test/`: çdo skedar brenda asaj dosjeje e merr
+  `node --test` vetvetiu.
+
+  E paprovuar mbetet vetëm ajo që një server i rremë nuk e imiton dot: reja e vërtetë e Supabase-it,
+  trigger-i i vërtetë i orës, dhe RLS-ja. Rruga e parë kur diçka nuk punon atje është skeda
+  «Network» dhe tabela te SQL Editor-i.
+
+  Dy gjendje dështimi u provuan vërtet me shfletues, sepse të dyja e linin faqen pa fjalë: një
+  regjistër i dëmtuar (një lojë pa `selectedPlayers`) tani nxjerr kartelën e gardhit e jo faqen e
+  bardhë, dhe një shfletues me `indexedDB`-në e hequr nxjerr po atë kartelë e jo një «Duke lexuar…»
+  të përhershëm.
+- **Migrimi i bazës rri jashtë `upgrade`-it.** Kursori që i vë `uid` çdo regjistri bie pas hapjes, te
+  një transaksion i zakonshëm, sepse brenda `upgrade`-it ai do ta mbante transaksionin e versionit
+  hapur sa zgjat leximi i tërë bazës. Çelësi `duhetStampim` e mban atë vendim, dhe bie vetëm kur
+  versioni i vjetër ishte 1 — një bazë e re nuk ka çka të stampojë.
 - **Nuk u provua me dy telefona të vërtetë.** Prova me shfletues i ngre të dy anët në të njëjtën
   makinë, prandaj ICE-ja lidhet mbi `192.0.2.2` e mDNS-i zgjidhet brenda së njëjtës Chrome. Rruga e
   parë kur diçka nuk punon në wifi të vërtetë është `chrome://webrtc-internals`, dhe dyshimi i parë

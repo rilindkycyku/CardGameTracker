@@ -5,6 +5,12 @@
  * (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`) — ai skedar është
  * kontrata e të dhënave dhe provat maten kundër tij. Teksti që sheh përdoruesi
  * është shqip; skema jo, që të mos këputet lidhja me burimin.
+ *
+ * Tri fusha i ka çdo regjistër që sinkronizohet (pika 19), dhe asnjëra nuk vjen
+ * nga ajo kontratë — prandaj janë shqip: `uid` (emri që i mbijeton pajisjes),
+ * `perditesuar` (kur u prek së fundi, me orën e serverit sapo të ketë kaluar
+ * një herë nga cloud-i) dhe `sinkPezull` («i ndryshuar këtu, ende i papranuar
+ * atje»). Numri `id` mbetet ai që ishte: çelës lokal, dhe asgjë më shumë.
  */
 
 /**
@@ -37,8 +43,54 @@ export type LlojiILojes = 'bridzh' | 'magarec' | 'domina' | 'pishpirik';
  */
 export type Drejtimi = 'poshte' | 'larte';
 
+/**
+ * Storet që sinkronizohen — dhe, meqë janë të gjithë, e tërë baza.
+ *
+ * Emrat janë ata të `objectStore`-ve, dhe të njëjtët udhëtojnë te kolona
+ * `store` e tabelës së cloud-it. Një store i pesë i shtuar nesër duhet të hyjë
+ * këtu me vetëdije: çka nuk është aty nuk del kurrë nga pajisja.
+ */
+export const STORET_SINK = ['groups', 'games', 'rounds'] as const;
+
+export type StoriSink = (typeof STORET_SINK)[number];
+
+/**
+ * Çka i shton sinkronizimi një regjistri të çfarëdoshëm.
+ *
+ * `uid` është emri i tij i vërtetë sapo të ketë më shumë se një pajisje: `id`-ja
+ * numerike e cakton baza lokale me `autoIncrement`, pra dy telefona e quajnë të
+ * dy `1` grupin e vet. Lidhjet brenda pajisjes mbeten numerike — indekset dhe
+ * rrugët lexohen njësoj — kurse jashtë saj udhëton vetëm `uid`-i.
+ *
+ * `perditesuar` nis si ora e pajisjes dhe bëhet ora e serverit sapo rreshti të
+ * ketë kaluar një herë nga cloud-i: pa këtë, dy telefona me orë të pabarabarta
+ * do të krahasoheshin me njësi të ndryshme.
+ *
+ * `sinkPezull` do të thotë «i ndryshuar këtu, ende i papranuar atje». Është
+ * flamur e jo krahasim datash: një telefon me orë të gabuar prapë e di **që** e
+ * ndryshoi diçka — gabon vetëm për kur.
+ */
+export type Sinkronizueshem = {
+  uid: string;
+  perditesuar?: number;
+  sinkPezull?: boolean;
+};
+
+/**
+ * Gurthemeli i një regjistri të fshirë.
+ *
+ * Fshirja duhet të udhëtojë si çdo ndryshim tjetër, përndryshe pajisja tjetër
+ * do ta shihte regjistrin që mban ende si «diçka që cloud-i s'e ka» dhe do ta
+ * ngarkonte sërish — pra fshirja do të zhbëhej vetvetiu te herën tjetër.
+ * Prandaj mbetet një rresht, me çelësin `${store}:${uid}`.
+ */
+export type Varri = Sinkronizueshem & {
+  celesi: string;
+  store: StoriSink;
+};
+
 /** Një shoqëri që luan bashkë rregullisht. Radha e `playerNames` ka kuptim. */
-export type Grupi = {
+export type Grupi = Sinkronizueshem & {
   id: number;
   /** Emri i grupit, p.sh. „Brigj". */
   name: string;
@@ -54,7 +106,7 @@ export type Grupi = {
  * renditja mbahen mbi këtë listë, jo mbi `playerNames` të grupit — kështu një
  * lojtar i shtuar ose i hequr më vonë nuk i prek lojërat e kaluara.
  */
-export type Loja = {
+export type Loja = Sinkronizueshem & {
   id: number;
   groupId: number;
   /** Data e lojës, `YYYY-MM-DD`. */
@@ -112,7 +164,7 @@ export type Loja = {
  * është — fiton më i vogli — dhe raundet, kopja rezervë e ndarja e rezultatit
  * nuk kanë nevojë për një rrugë të dytë.
  */
-export type Raundi = {
+export type Raundi = Sinkronizueshem & {
   id: number;
   gameId: number;
   roundNumber: number;

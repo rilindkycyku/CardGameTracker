@@ -88,20 +88,28 @@ fjalë: renditja, kurora dhe fjalia e fundit e lexojnë drejtimin nga vetë loja
   prin, sa vjen i dyti prapa, sa raunde kanë mbetur dhe kush përzien — dhe ka
   «Unë jam …»: prek emrin tënd, dhe del rreshti yt i matricës, kujt sa i del.
 - **Kopje rezervë** — nxjerrja dhe kthimi i tërë historikut si një skedar JSON.
+- **Sinkronizim mes pajisjeve, i zgjedhur** — nëse i do të njëjtat mbrëmje te
+  telefoni dhe te tableti, lidh **projektin tënd** Supabase: adresën dhe çelësin
+  i shkruan vetë, baza është e jotja, llogaria ekziston vetëm brenda saj, dhe
+  Tavolina nuk ka server të vetin as atëherë. Asnjë projekt nuk vjen i gatshëm me
+  aplikacionin — pa ato dy fusha nuk niset asnjë kërkesë. Rri e fikur derisa ta
+  lidhësh me dorë; pajisja e sapolidhur vetëm lexon derisa t'i thuash cila anë
+  është e vërteta.
 - **Punon pa internet, dhe instalohet** — një punëtor shërbimi i ruan skedarët e
   faqes me hapjen e parë, prandaj aplikacioni hapet i plotë edhe në «mënyrë
   avioni», dhe shtohet te ekrani kryesor i telefonit si aplikacion më vete. Kur
   del një version i ri, ai pret: fundfaqja e thotë, dhe kalimi bëhet me një
   prekje — kurrë nën këmbët e një loje që po shënohet.
 
-Punon pa internet. Të dhënat rrinë vetëm në shfletuesin e pajisjes.
+Punon pa internet. Të dhënat rrinë në shfletuesin e pajisjes — dhe, vetëm nëse e
+lidh vetë, edhe te projekti yt Supabase.
 
 ## Çka del nga pajisja
 
 Pikët, emrat dhe raundet rrinë te telefoni, dhe dalin vetëm kur i nxjerr vetë
 përdoruesi — një kopje rezervë, një kod QR, një lidhje e drejtpërdrejtë.
 
-Dy gjëra të tjera prekin një server, dhe të dyja thuhen te ekrani aty ku
+Tri gjëra të tjera prekin një server, dhe të tria thuhen te ekrani aty ku
 përdoren:
 
 - **Lidhja «me kod»** — te serveri i sinjalizimit shkojnë kodi dhe adresat e
@@ -110,6 +118,11 @@ përdoren:
   `/loja/[id]` ose `/shiko`, e asgjë tjetër. Adresa e vërtetë nuk del kurrë:
   brenda saj rri mbrëmja e ndarë, prandaj pastrohet para se të nisë. Pa cookie
   dhe pa asgjë të mbajtur mend për vizitorin.
+- **Sinkronizimi** — grupet, lojërat dhe raundet, pra emrat dhe pikët, shkruhen
+  te një bazë Supabase. Ajo bazë nuk është e jona: e krijon dhe e zotëron vetë
+  përdoruesi, hyn me një llogari që ekziston vetëm brenda saj, dhe rregulli
+  `row level security` i skriptit bën që rreshtat e një llogarie t'i shohë vetëm
+  ajo. Kërkon ta lidhësh me dorë; pa këtë, asnjë kërkesë nuk del.
 
 Për ta pasur atë numërim, «Web Analytics» ndizet një herë te paneli i projektit
 te Vercel; skripti vjen nga vetë domeni (`/_vercel/insights/…`), prandaj asnjë
@@ -202,6 +215,14 @@ src/
                       pa DOM, pa bazë
   ruajtja.ts          IndexedDB përmes `idb`
   kopja.ts            nxjerrja dhe leximi i kopjes rezervë
+  bashkimi.ts         rregullat e sinkronizimit: kush fiton, çka dërgohet, çka
+                      zbatohet — pa DOM, pa bazë, pa rrjetë
+  skema.ts            migrimet SQL të projektit të përdoruesit — pa DOM
+  projekti.ts         adresa, çelësi dhe mesazhet e gabimit — pa DOM, pa rrjetë
+  identiteti.ts       `uid`-i i një regjistri dhe emri i një pajisjeje — pa DOM
+  supabase.ts         klienti i vogël mbi `fetch`, dhe konfigurimi i ruajtur
+  sinkronizimi.ts     shkarko, zbato, dërgo — dhe katër format e një lidhjeje
+  pajisja.ts          emri e id-ja e këtij shfletuesi
   fusha.ts            teksti i fushës së pikëve, shenja e tij dhe data
   versioni.ts         versioni i `package.json`-it, i futur gjatë ndërtimit
   qr.ts               kodues QR i shkruar me dorë (byte, niveli L, v1–20)
@@ -225,7 +246,7 @@ src/
   ikonat.tsx          ikonat SVG inline
   style.css           sistemi i stilit
   pamjet/             Grupet · Grupi · Loja · Shiko · Lidhu · Pergjigja
-                      Bashkohu
+                      Bashkohu · Sinkronizimi
   pjeset/             Renditja · Raundet · Shlyerja · TabelaEPergjithshme
                       FutjaERaundit · LojtaretELojes · PanelaEKopjes
                       RregullatELojes
@@ -233,7 +254,7 @@ src/
                       PamjaERezultatit · KodiQR
                       FutjaEMagarecit · RrjetiIMagarecit · RaundetEMagarecit
                       PergjithshmetEMagarecit · Parashikimi
-                      PermbledhjaEPamjes · Vetja · Ndricimi
+                      PermbledhjaEPamjes · Vetja · Ndricimi · Gardhi
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it
@@ -255,8 +276,23 @@ test/
                          që punëtori nuk i prek fare
   tema.test.mjs          leximi i temës së ruajtur, dhe ngjyrat që rrinë të
                          shkruara te tre skedarë
+  bashkimi.test.mjs      kush fiton një përplasje, çka shtyhet, çka refuzohet
+  skema.test.mjs         migrimet: numrat, rregulli i sigurisë, dhe se
+                         përsëritja e skriptit nuk prish gjë
+  projekti.test.mjs      adresa, çelësi sekret që refuzohet, dhe përkthimi i
+                         gabimeve
+  identiteti.test.mjs    `uid`-et që nuk përsëriten, dhe emri i pajisjes
   logic.json             fleta origjinale, si burim provash
   sdp.json               SDP të vërteta të Chromium-it, si burim provash
+```
+
+Dy dëshmitarë rrinë jashtë `npm test`, sepse kërkojnë Playwright dhe një ndërtim
+të gatshëm:
+
+```
+deshmitare/
+  supabase-i-rreme.mjs   një Supabase sa për të provuar shtresën e rrjetit
+  rrjeti.mjs             hyrje → skript → verifikim → dërgim → pajisja e dytë
 ```
 
 Arsyetimi pas zgjidhjeve rri te [`CLAUDE.md`](CLAUDE.md).

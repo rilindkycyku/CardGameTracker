@@ -28,6 +28,16 @@ const ME_NUMER = ['grupi', 'loja'];
 const ME_PAKETE = ['shiko', 'lidhu', 'pergjigje', 'bashkohu'];
 
 /**
+ * Rrugët që mbajnë vetëm emrin e vet — pa numër dhe pa paketë.
+ *
+ * `#/sinkronizimi` nuk mban asgjë brenda hash-it: adresa e projektit, çelësi
+ * dhe email-i rrinë te `localStorage` e nuk kalojnë kurrë nga shiriti. Prandaj
+ * emri del ashtu si është, dhe hyn këtu me vetëdije — një rrugë që nuk shtohet
+ * te ky skedar numërohet si ekrani i parë (pika 18).
+ */
+const TE_THJESHTA = ['sinkronizimi'];
+
+/**
  * Emri i rrugës, ashtu si del te matja.
  *
  * Hyrja është hash-i pa `#` — `/loja/3`, `/shiko/<paketë>`, ose vargu i
@@ -47,6 +57,7 @@ export function shtegiIMates(hashi: string): string {
   }
 
   if (ME_PAKETE.includes(pjesa)) return `/${pjesa}`;
+  if (TE_THJESHTA.includes(pjesa)) return `/${pjesa}`;
 
   return '/';
 }

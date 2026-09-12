@@ -17,9 +17,15 @@ import {
   FORMATI,
 } from '../src/kopja.ts';
 
-const GRUPI = { id: 1, name: 'Brigj', playerNames: ['alfa', 'beta', 'delta'] };
+const GRUPI = {
+  id: 1,
+  uid: 'grup_aaaaaaaaaaaaaaaa',
+  name: 'Brigj',
+  playerNames: ['alfa', 'beta', 'delta'],
+};
 const LOJA = {
   id: 1,
+  uid: 'loje_aaaaaaaaaaaaaaaa',
   groupId: 1,
   date: '2026-03-08',
   selectedPlayers: ['alfa', 'beta'],
@@ -27,6 +33,7 @@ const LOJA = {
 };
 const RAUNDI = {
   id: 1,
+  uid: 'raund_aaaaaaaaaaaaaaaa',
   gameId: 1,
   roundNumber: 1,
   scores: { alfa: -20, beta: 100 },
@@ -45,7 +52,7 @@ test('kopja e nxjerrë lexohet pa humbje', () => {
 });
 
 test('lloji i lojës mbijeton kthimin', () => {
-  const magarec = { ...LOJA, id: 2, lloji: 'magarec' };
+  const magarec = { ...LOJA, id: 2, uid: 'loje_bbbbbbbbbbbbbbbb', lloji: 'magarec' };
   const dala = lexoKopjen(teksti(ndertoKopjen([GRUPI], [LOJA, magarec], [RAUNDI])));
 
   assert.equal(dala.ok, true);
@@ -55,10 +62,10 @@ test('lloji i lojës mbijeton kthimin', () => {
 });
 
 test('mbyllja e mbrëmjes mbijeton kthimin, edhe rihapja', () => {
-  const mbyllur = { ...LOJA, id: 2, mbyllur: true };
+  const mbyllur = { ...LOJA, id: 2, uid: 'loje_bbbbbbbbbbbbbbbb', mbyllur: true };
   // `false` nuk është mungesë: do të thotë «e rihapur me dorë», dhe po të
   // hidhej si e tillë, rregulli do ta mbyllte sërish menjëherë pas kthimit.
-  const rihapur = { ...LOJA, id: 3, mbyllur: false };
+  const rihapur = { ...LOJA, id: 3, uid: 'loje_cccccccccccccccc', mbyllur: false };
   const dala = lexoKopjen(
     teksti(ndertoKopjen([GRUPI], [LOJA, mbyllur, rihapur], [RAUNDI])),
   );
