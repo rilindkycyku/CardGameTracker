@@ -67,7 +67,7 @@ import {
   siguroSesionin,
 } from './supabase.ts';
 import type { Konfigurimi, Permbledhja } from './supabase.ts';
-import type { Grupi, Loja, StoriSink } from './tipet.ts';
+import type { Grupi, Loja } from './tipet.ts';
 
 export { KOHA_PARA_SINKRONIZIMIT, MENYRAT } from './bashkimi.ts';
 export type { Menyra, PermbledhjaELidhjes } from './bashkimi.ts';
@@ -636,13 +636,6 @@ export async function kaTePadergaura(): Promise<boolean> {
 export function fundiISinkronizimit(): Permbledhja | null {
   return lexoKonfigurimin().fundit;
 }
-
-/** Storet, për një ekran që do t'i emërtojë numrat me fjalë. */
-export const EMRAT_E_STOREVE: Record<StoriSink | string, string> = {
-  groups: 'grupe',
-  games: 'lojëra',
-  rounds: 'raunde',
-};
 
 /* ── Vetvetiu, pa e prekur kush ─────────────────────────────────────────── */
 

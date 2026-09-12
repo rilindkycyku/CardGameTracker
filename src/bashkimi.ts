@@ -350,6 +350,25 @@ export function sipasStorit(celesat: Iterable<string>): Record<string, number> {
 }
 
 /**
+ * Emri i një storeje me fjalë, në njëjës a shumës sipas numrit.
+ *
+ * Shqipja e ndan atë ndarje si çdo gjuhë tjetër — «1 grup», «2 grupe» — dhe një
+ * shumës i ngrirë do të lexohej si gabim përkthimi pikërisht te ekrani që i
+ * kërkon përdoruesit të vendosë mbi numrat që sheh.
+ */
+const NJESITE: Record<string, [string, string]> = {
+  groups: ['grup', 'grupe'],
+  games: ['lojë', 'lojëra'],
+  rounds: ['raund', 'raunde'],
+};
+
+export function njesiaEStorit(store: string, sa: number): string {
+  const cifti = NJESITE[store];
+  if (!cifti) return String(store);
+  return `${sa} ${sa === 1 ? cifti[0] : cifti[1]}`;
+}
+
+/**
  * A mban kjo pajisje ende ndonjë gjë të vetën.
  *
  * Nuk është e njëjta gjë me „e zbrazët": një shfletues i sapopastruar mund të

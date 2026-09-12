@@ -23,6 +23,7 @@ import {
   gjendjaLokale,
   mungojneNeCloud,
   ndryshimetLokale,
+  njesiaEStorit,
   numriLokal,
   oraEVlefshme,
   pajisjaPaTeDhena,
@@ -414,6 +415,17 @@ test('numrat e përmbledhjes nuk e numërojnë dy herë të njëjtin regjistër'
   assert.equal(p.teNjejta, 1);
   assert.equal(p.vetemLokale, 1);
   assert.equal(p.vetemCloud, 1);
+});
+
+test('njësia e numrave lexohet shqip, njëjës e shumës', () => {
+  // Del te ekrani ku përdoruesi vendos mbi numrat që sheh, prandaj «1 grupe» aty
+  // lexohet si gabim përkthimi e jo si hollësi.
+  assert.equal(njesiaEStorit('groups', 1), '1 grup');
+  assert.equal(njesiaEStorit('groups', 2), '2 grupe');
+  assert.equal(njesiaEStorit('games', 1), '1 lojë');
+  assert.equal(njesiaEStorit('games', 5), '5 lojëra');
+  assert.equal(njesiaEStorit('rounds', 1), '1 raund');
+  assert.equal(njesiaEStorit('rounds', 12), '12 raunde');
 });
 
 test('çelësi i një rreshti është i njëjti nga të dyja anët', () => {

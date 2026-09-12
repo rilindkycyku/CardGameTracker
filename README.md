@@ -286,6 +286,15 @@ test/
   sdp.json               SDP të vërteta të Chromium-it, si burim provash
 ```
 
+Dy dëshmitarë rrinë jashtë `npm test`, sepse kërkojnë Playwright dhe një ndërtim
+të gatshëm:
+
+```
+deshmitare/
+  supabase-i-rreme.mjs   një Supabase sa për të provuar shtresën e rrjetit
+  rrjeti.mjs             hyrje → skript → verifikim → dërgim → pajisja e dytë
+```
+
 Arsyetimi pas zgjidhjeve rri te [`CLAUDE.md`](CLAUDE.md).
 
 ## Stili

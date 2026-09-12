@@ -41,7 +41,7 @@ import type { Migrimi } from './skema.ts';
 
 const CELESI_RUAJTJES = 'tavolina.sinkronizimi';
 
-export { SKEMA_VERSIONI, SQL_INSTALIMI, TABELA } from './skema.ts';
+export { SKEMA_VERSIONI, SQL_INSTALIMI, TABELA, sqlPerMigrim } from './skema.ts';
 
 /** Përmbledhja e sinkronizimit të fundit, ashtu si e lexon ekrani. */
 export type Permbledhja = {
@@ -477,11 +477,14 @@ export async function rest(
  * përdoruesit me të brenda: një prekje, pastaj «Run». `verifikoSkemen` është
  * rruga prapa — çka ra pyetet te projekti, e jo te ai që shtypi butonin.
  */
-export function linkuSkriptit(url: string = lexoKonfigurimin().url): string {
+export function linkuSkriptit(
+  url: string = lexoKonfigurimin().url,
+  skripti: string = SQL_INSTALIMI,
+): string {
   const ref = referencaProjektit(url);
   if (!ref) return 'https://supabase.com/dashboard';
   return `https://supabase.com/dashboard/project/${ref}/sql/new?content=${encodeURIComponent(
-    SQL_INSTALIMI,
+    skripti,
   )}`;
 }
 

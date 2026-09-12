@@ -74,7 +74,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 315 prova, pa framework provash
+npm test          # node --test — 316 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -916,6 +916,22 @@ publik, dhe hyn me një llogari që ekziston vetëm brenda tij. Server i Tavolin
 **mos shto një të tillë** — as për të rele-uar diçka, as për „lehtësi". Sapo të ketë një, tërë pika 1
 bie bashkë me të.
 
+**Tabelën nuk e krijon dot aplikacioni, dhe kjo nuk është mangësi.** Çelësi publik që rri te
+pajisja arrin **vetëm** te PostgREST-i, i cili shërben rreshta; tabela, politika dhe trigger-i
+kërkojnë SQL, dhe asnjë cilësim i projektit nuk e bën atë çelës të aftë për të — e cila është
+pikërisht ajo që e ndal një kopje të vjedhur të `localStorage`-it nga rishkrimi i bazës. API-ja e
+dytë e Supabase-it (Management) e bën SQL-në, por `api.supabase.com` nuk pranon asnjë kërkesë
+ndër-origjinë nga një faqe, dhe do të kërkonte një kredencial që mbulon tërë llogarinë — pra ose një
+server i yni për ta rele-uar, ose një buton që nuk punon kurrë. FinanCarePersonal e pati atë rrugë
+dhe e hoqi për këto arsye; këtu nuk hyri kurrë.
+
+Prandaj ngritja është skripti: `linkuSkriptit` e hap SQL Editor-in e vetë përdoruesit me të brenda
+(një prekje, pastaj «Run»), krah një butoni që e kopjon, dhe `verifikoSkemen` është rruga prapa —
+çka ra pyetet te vetë baza e jo te ai që shtypi butonin. Një projekt përgjysmë merr vetëm migrimet
+që i mbeten (`sqlPerMigrim`), sepse njeriu që shikon njëzet rreshta SQL nuk e di cilët janë të rinj.
+Pas verifikimit sinkronizimi niset vetë: arsyeja pse dikush e hapi atë ekran ishte se sinkronizimi
+nuk punonte.
+
 **Asnjë projekt nuk vjen i shkruar te kodi**, dhe kjo është kërkesë e shprehur e pronarit: as adresë,
 as çelës, as varg mjedisi që do t'i fuste gjatë ndërtimit. `BOSH` te `supabase.ts` nis me `url` e
 `anonKey` të zbrazët, pra `eshteLidhur` del `false` dhe asnjë kërkesë nuk niset. Një „parazgjedhje e
@@ -1197,13 +1213,18 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   bllokon `**/*.js` për të mbushur bazën para se aplikacioni të nisë: pas `unroute`, një
   `goto('…#/loja/1')` mbetet te i njëjti dokument dhe faqja rri pa JS — duket sikur aplikacioni nuk
   vizaton fare. Duhet një `reload()` i vërtetë.
-- **Sinkronizimi nuk u provua kundër një projekti të vërtetë Supabase.** Makina e provave nuk e
-  lëshon `*.supabase.co`, prandaj ajo që u provua është gjithçka nën rrjetin: rregullat e bashkimit
-  me `node --test`, dhe me shfletues migrimi i bazës nga versioni 1 në 2 (`uid` i plotësuar te të tri
-  storet, data `1`, flamuri i vënë, stori `fshirjet` i krijuar) bashkë me kaskadën e fshirjes, e cila
-  lë varr për lojën dhe për secilin raund. E paprovuar mbetet vetëm shtresa e `fetch`-it: forma e
-  kërkesave PostgREST, `Prefer: resolution=merge-duplicates`, dhe sjellja e vërtetë e trigger-it të
-  orës. Rruga e parë kur diçka nuk punon atje është skeda «Network» dhe tabela te SQL Editor-i.
+- **Shtresa e rrjetit provohet me një Supabase të rremë, jo me atë të vërtetin.** Makina e provave
+  nuk e lëshon `*.supabase.co`, prandaj `deshmitare/supabase-i-rreme.mjs` mban pikërisht aq sa prek
+  `supabase.ts` — hyrjen, rifreskimin, `select`-in, `upsert`-in dhe `delete`-in — dhe
+  `deshmitare/rrjeti.mjs` e kalon tërë rrugën me shfletues: hyrje, tabela që mungon e njohur nga
+  `PGRST205`, «Run» te editori, verifikim, dërgim, dhe një pajisje e dytë krejt e pastër që e merr
+  grupin me lojtarët e duhur. Nuk bien me `npm test` (kërkojnë Playwright e një ndërtim, të dyja
+  jashtë varësive — pika 10), prandaj rrinë jashtë `test/`: çdo skedar brenda asaj dosjeje e merr
+  `node --test` vetvetiu.
+
+  E paprovuar mbetet vetëm ajo që një server i rremë nuk e imiton dot: reja e vërtetë e Supabase-it,
+  trigger-i i vërtetë i orës, dhe RLS-ja. Rruga e parë kur diçka nuk punon atje është skeda
+  «Network» dhe tabela te SQL Editor-i.
 
   Dy gjendje dështimi u provuan vërtet me shfletues, sepse të dyja e linin faqen pa fjalë: një
   regjistër i dëmtuar (një lojë pa `selectedPlayers`) tani nxjerr kartelën e gardhit e jo faqen e

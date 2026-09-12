@@ -19,11 +19,11 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { Ikona } from '../ikonat.tsx';
-import { MENYRAT } from '../bashkimi.ts';
+import { MENYRAT, njesiaEStorit } from '../bashkimi.ts';
 import type { Menyra, PermbledhjaELidhjes } from '../bashkimi.ts';
 import { pajisjaKjo, riemertoPajisjen } from '../pajisja.ts';
+import { kopjoTekstin } from '../sistemi.ts';
 import {
-  EMRAT_E_STOREVE,
   dukeSinkronizuar,
   fshiCloud,
   harroPajisjen,
@@ -38,6 +38,7 @@ import type { PajisjaERegjistruar } from '../sinkronizimi.ts';
 import {
   SQL_INSTALIMI,
   dil,
+  sqlPerMigrim,
   eshteKonfiguruar,
   eshteLidhur,
   gjendjaSkemes,
@@ -61,11 +62,11 @@ function gabimiIThene(err: unknown): string {
   return (err as Error)?.message || 'Diçka nuk shkoi.';
 }
 
-/** `{ groups: 2, games: 31 }` → «2 grupe · 31 lojëra». */
+/** `{ groups: 1, games: 31 }` → «1 grup · 31 lojëra». */
 function meFjale(numrat: Record<string, number>): string {
   const pjeset = Object.entries(numrat)
     .filter(([, sa]) => sa > 0)
-    .map(([store, sa]) => `${sa} ${EMRAT_E_STOREVE[store] ?? store}`);
+    .map(([store, sa]) => njesiaEStorit(store, sa));
   return pjeset.length > 0 ? pjeset.join(' · ') : 'asgjë';
 }
 
@@ -338,12 +339,22 @@ function Puna({ konfigurimi }: { konfigurimi: Konfigurimi }) {
     void lexoSkemen();
   }, [lexoSkemen]);
 
+  /**
+   * Pyet projektin se ku arriti, dhe niset menjëherë nëse u krye.
+   *
+   * Numri i nisjes është ai që projekti e ka tashmë e jo zero: një projekt te
+   * migrimi 1 nuk ka pse të ripyetet për të, dhe `verifikoSkemen` e lexon atë
+   * numër si «çka mbetet». Pas suksesit sinkronizohet pa u shtypur gjë tjetër —
+   * arsyeja pse dikush e hapi këtë ekran ishte pikërisht se sinkronizimi nuk
+   * punonte, prandaj fundi i punës nuk është një njoftim që pret një prekje.
+   */
   async function verifiko() {
     caktoPunen(true);
     caktoGabimin(null);
     try {
-      await verifikoSkemen(0);
+      await verifikoSkemen(skema?.mungon ? 0 : (skema?.versioni ?? 0));
       await lexoSkemen();
+      await sinkronizo().catch(() => undefined);
     } catch (err) {
       caktoGabimin(gabimiIThene(err));
     } finally {
@@ -379,27 +390,19 @@ function Puna({ konfigurimi }: { konfigurimi: Konfigurimi }) {
             ))}
           </ul>
 
+          <Skripti url={konfigurimi.url} nga={skema.mungon ? 0 : skema.versioni} />
+
           <div className="veprimet">
-            <a
+            <button
+              type="button"
               className="buton buton--kryesor"
-              href={linkuSkriptit(konfigurimi.url)}
-              target="_blank"
-              rel="noreferrer"
+              disabled={pune}
+              onClick={() => void verifiko()}
             >
-              <Ikona emri="ndaj" />
-              Hap skriptin te projekti
-            </a>
-            <button type="button" className="buton" disabled={pune} onClick={() => void verifiko()}>
               <Ikona emri="ruaj" />
-              E ekzekutova
+              E ekzekutova — kontrollo
             </button>
           </div>
-
-          <p className="ndihma">
-            Lidhja e hap SQL Editor-in tënd me skriptin brenda; mbetet vetëm
-            «Run». Përsëritja nuk prish gjë. Nëse dashte ta shohësh i pari:
-          </p>
-          <textarea className="kodi-fusha" readOnly rows={6} value={SQL_INSTALIMI} />
         </div>
 
         {gabimi && (
@@ -421,6 +424,74 @@ function Puna({ konfigurimi }: { konfigurimi: Konfigurimi }) {
       <Gjendja konfigurimi={konfigurimi} />
       <Pajisjet />
       <Rrezikshme />
+    </>
+  );
+}
+
+/**
+ * Skripti: hapja te projekti, kopjimi, dhe teksti i plotë.
+ *
+ * Krijimin e tabelës nuk e bën dot aplikacioni, dhe kjo nuk është mangësi por
+ * vetë forma e Supabase-it: çelësi që rri te kjo pajisje arrin **vetëm** te
+ * PostgREST-i, i cili shërben rreshta. Tabela, politika dhe trigger-i kërkojnë
+ * SQL, dhe asnjë cilësim i projektit nuk e bën atë çelës të aftë për të — e
+ * cila është pikërisht ajo që e ndal një kopje të vjedhur të `localStorage`-it
+ * nga rishkrimi i bazës. Prandaj ky hap i vetëm bëhet te projekti i përdoruesit.
+ *
+ * Nga një projekt që ka mbetur përgjysmë kërkohet vetëm ajo që i mbetet
+ * (`sqlPerMigrim`), e jo skripti i plotë: përsëritja nuk prish gjë, por një
+ * njeri që shikon njëzet rreshta SQL nuk e di se cilët prej tyre janë të rinj.
+ */
+function Skripti({ url, nga }: { url: string; nga: number }) {
+  const skripti = nga > 0 ? sqlPerMigrim(nga) : SQL_INSTALIMI;
+  const [kopjuar, caktoKopjuar] = useState(false);
+  const [deshtoi, caktoDeshtimin] = useState(false);
+
+  async function kopjo() {
+    // `kopjoTekstin` kthen `false` e nuk hesht: jashtë një konteksti të sigurt
+    // tabela e fragmenteve mungon fare, dhe pa këtë butoni shtypej e nuk
+    // ndodhte kurrgjë.
+    if (await kopjoTekstin(skripti)) {
+      caktoDeshtimin(false);
+      caktoKopjuar(true);
+      setTimeout(() => caktoKopjuar(false), 2500);
+    } else {
+      caktoDeshtimin(true);
+    }
+  }
+
+  return (
+    <>
+      <div className="veprimet">
+        <a
+          className="buton buton--kryesor"
+          href={linkuSkriptit(url, skripti)}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Ikona emri="ndaj" />
+          Hap SQL Editor-in
+        </a>
+        <button type="button" className="buton" onClick={() => void kopjo()}>
+          <Ikona emri={kopjuar ? 'ruaj' : 'ngarko'} />
+          {kopjuar ? 'U kopjua' : 'Kopjo skriptin'}
+        </button>
+      </div>
+
+      <p className="ndihma">
+        Lidhja e hap redaktorin tënd me skriptin brenda — mbetet vetëm «Run».
+        Ekzekutohet një herë, dhe përsëritja nuk prish gjë: çdo fjali e tij
+        kontrollon vetë a ekziston.
+      </p>
+
+      {deshtoi && (
+        <p className="njoftim njoftim--kujdes">
+          <Ikona emri="kujdes" />
+          <span>Kopjimi nuk u lejua nga shfletuesi — zgjidhe tekstin poshtë me dorë.</span>
+        </p>
+      )}
+
+      <textarea className="kodi-fusha" readOnly rows={6} value={skripti} />
     </>
   );
 }
