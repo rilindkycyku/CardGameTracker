@@ -77,7 +77,8 @@ export function lexoKodin(teksti: string): string | null {
   if (!pastruar) return null;
 
   // Adresa lexohet e para: pa këtë, shkronjat e «bashkohu» do të hynin te kodi.
-  const gjetja = pastruar.match(/#\/bashkohu\/([^/?#\s]+)/i);
+  // Të dyja mënyrat me kod e ndajnë këtë formë, sepse e ndajnë vetë kodin.
+  const gjetja = pastruar.match(/#\/(?:bashkohu|takohu)\/([^/?#\s]+)/i);
   const trupi = gjetja ? gjetja[1]! : pastruar;
 
   const kodi = trupi

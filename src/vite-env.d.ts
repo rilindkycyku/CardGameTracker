@@ -9,6 +9,16 @@
  */
 interface ImportMetaEnv {
   readonly VITE_PEER_SERVER?: string;
+
+  /**
+   * Serverat ICE të mënyrës së takimit, të ndarë me presje.
+   *
+   * E zbrazët, dhe kështu rri te prodhimi, do të thotë asnjë — pra vetëm
+   * kandidatë brenda rrjetës, dhe asnjë i tretë i kontaktuar (pika 7). Kush ka
+   * një TURN të vetin e shton këtu, dhe atëherë ajo mënyrë punon edhe nëpër
+   * rrjeta të ndryshme.
+   */
+  readonly VITE_ICE_SERVERS?: string;
 }
 
 interface ImportMeta {

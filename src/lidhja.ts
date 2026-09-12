@@ -64,7 +64,7 @@ export function kaWebRTC(): boolean {
 }
 
 /** Pret sa mbledhen kandidatët, ose sa mbaron afati. */
-function mbledhKandidatet(pc: RTCPeerConnection): Promise<void> {
+export function mbledhKandidatet(pc: RTCPeerConnection): Promise<void> {
   if (pc.iceGatheringState === 'complete') return Promise.resolve();
 
   return new Promise((zgjidh) => {

@@ -134,7 +134,21 @@ export function strategjia(
    * Aty rri edhe arsyeja e dytë: ai trafik shkon te një server, pra te
    * shmangja, dhe punëtori nuk hyn mes saj.
    */
-  if (kerkesa.url.slice(rrenja.length).startsWith('/_vercel/')) {
+  const brendshmi = kerkesa.url.slice(rrenja.length);
+
+  if (brendshmi.startsWith('/_vercel/')) {
+    return 'anashkalo';
+  }
+
+  /*
+   * `/api/` është serveri i sinjalizimit (pika 1), dhe nuk preket për të
+   * njëjtën arsye: një ftesë e ruajtur do të kthehej pasi vargu i saj të kishte
+   * vdekur te serveri, dhe lidhja do të dështonte pa asnjë shpjegim — ose, më
+   * keq, dy vizitorë do të merrnin të njëjtën ftesë e do ta prishnin njëri
+   * tjetrit lidhjen. Shtegu rri te e njëjta origjinë, por nuk është skedar i
+   * faqes.
+   */
+  if (brendshmi.startsWith('/api/')) {
     return 'anashkalo';
   }
 

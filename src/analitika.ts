@@ -25,7 +25,7 @@ const ME_NUMER = ['grupi', 'loja'];
  * hapet një fotografi e çastit është numër që thotë diçka; çka kishte brenda
  * ajo fotografi nuk është puna e askujt.
  */
-const ME_PAKETE = ['shiko', 'lidhu', 'pergjigje', 'bashkohu'];
+const ME_PAKETE = ['shiko', 'lidhu', 'pergjigje', 'bashkohu', 'takohu'];
 
 /**
  * Rrugët që mbajnë vetëm emrin e vet — pa numër dhe pa paketë.

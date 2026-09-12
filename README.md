@@ -81,6 +81,10 @@ fjalë: renditja, kurora dhe fjalia e fundit e lexojnë drejtimin nga vetë loja
     çka del nga pajisja. Serveri që bie nuk e mbaron mbrëmjen: lidhja provohet
     sërish vetvetiu, kodi i shkruar në letër mbetet i njëjti, dhe ana që shikon
     rilidhet pa e prekur kush.
+  - **Takim** — i njëjti kod i vetëm, por serveri që i lidh dy telefonat është
+    i vetë aplikacionit, dhe preket vetëm sa zgjat lidhja. Kërkon të njëjtin
+    wifi, si mënyra pa server — ajo që ndërron është numri i skanimeve, nga dy
+    në një. Nëpër të kalojnë vetëm kredencialet e lidhjes, kurrë pikët.
 - **Ose një fotografi e çastit** — rezultati shkon brenda vetë adresës dhe
   adresa bëhet kod QR. Punon edhe atje ku rrjeta i ndan pajisjet nga
   njëra-tjetra, dhe edhe nëpër mesazh.
@@ -233,7 +237,10 @@ src/
   ndarja.ts           rezultati i paketuar brenda një adrese
   sinjalizimi.ts      SDP-ja e ngjeshur brenda një adrese — pa DOM, pa WebRTC
   lidhja.ts           kanali WebRTC dhe rruga e sinjalit mes skedave
-  lidhjaMeServer.ts   mënyra me kod, e vetmja që prek një server
+  lidhjaMeServer.ts   mënyra me kod, përmes një serveri të huaj
+  takimi.ts           adresat e sinjalizimit tonë dhe kontrolli i tyre —
+                      pa DOM, pa rrjetë
+  lidhjaMeTakim.ts    mënyra me takim: i njëjti kanal, sinjalizimi ynë
   ngarko.ts           lexo-nga-baza si hook
   sherbimi.ts         çka ruhet për punë pa internet, dhe çka nuk preket —
                       pa DOM, pa `caches`
@@ -288,7 +295,7 @@ test/
   sdp.json               SDP të vërteta të Chromium-it, si burim provash
 ```
 
-Tre dëshmitarë rrinë jashtë `npm test`, sepse kërkojnë Playwright dhe një ndërtim
+Katër dëshmitarë rrinë jashtë `npm test`, sepse kërkojnë Playwright dhe një ndërtim
 të gatshëm:
 
 ```
@@ -297,7 +304,15 @@ deshmitare/
   rrjeti.mjs             hyrje → skript → verifikim → dërgim → pajisja e dytë
   lidhja-me-kod.mjs      lidhja me kod kundër një `peerjs-server` lokal, i cili
                          vritet në mes të mbrëmjes dhe kthehet
+  takimi.mjs             shtrëngimi i plotë mes dy shfletuesve, dy skanime
+                         njëkohësisht, dhe serveri që nuk preket më pas
 ```
+
+Mënyra «Takim» e mban gjendjen e shtrëngimit te një Redis i vogël: te Vercel-i
+shtohet nga paneli (Storage → Upstash), dhe atëherë `KV_REST_API_URL` e
+`KV_REST_API_TOKEN` vijnë vetë. Pa të, serveri bie te kujtesa e çastit dhe
+lidhja del herë po e herë jo — ekrani e thotë me fjalë, dhe dy mënyrat e tjera
+punojnë si gjithmonë.
 
 Arsyetimi pas zgjidhjeve rri te [`CLAUDE.md`](CLAUDE.md).
 
