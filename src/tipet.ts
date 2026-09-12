@@ -10,15 +10,32 @@
 /**
  * Çka luhet atë mbrëmje.
  *
- * `bridzh` është numëruesi i pikëve — ai me të cilin nisi gjithçka. `magarec`
- * është loja e shkronjave: kush e humb raundin merr një shkronjë, dhe kush e
- * mbush fjalën „MAGAREC" e humb mbrëmjen. Dy lojëra të ndryshme, i njëjti grup
- * dhe e njëjta tavolinë — prandaj rrinë te e njëjta bazë e jo te dy aplikacione.
+ * Katër lojëra, një tavolinë. `bridzh` është numëruesi i pikëve — ai me të
+ * cilin nisi gjithçka. `magarec` është loja e shkronjave: kush e humb raundin
+ * merr një shkronjë, dhe kush e mbush fjalën „MAGAREC" e humb mbrëmjen.
+ * `domina` është skeda e tretë e së njëjtës fletë: gurët e mbetur në dorë
+ * shënohen si pikë, dhe luhet derisa dikujt t'i mbushen njëqind. `pishpirik`
+ * erdhi nga tavolina e jo nga fleta, dhe është i vetmi ku fiton totali më i
+ * madh.
  *
- * Emri i fushës është shqip sepse nuk vjen nga `logic.json`-i: ai skedar njeh
- * vetëm bridzhin, dhe kontrata me të janë vetëm katër emrat e tij.
+ * I njëjti grup dhe e njëjta bazë — prandaj rrinë te një aplikacion i vetëm e
+ * jo te katër. Çka i ndan rri i tëri te `lojerat.ts`.
+ *
+ * Emri i fushës është shqip sepse nuk vjen nga `logic.json`: ai skedar njeh
+ * vetëm bridzhin (dhe një skedë domine pa emër fushe), dhe kontrata me të janë
+ * vetëm katër emrat e tij.
  */
-export type LlojiILojes = 'bridzh' | 'magarec';
+export type LlojiILojes = 'bridzh' | 'magarec' | 'domina' | 'pishpirik';
+
+/**
+ * Kush fiton: totali më i vogël („poshtë") apo më i madhi („lart").
+ *
+ * Tri lojëra nga katër e fitojnë me më të voglin, dhe kjo është e kundërta e
+ * asaj që pret syri te një tabelë pikësh — prandaj ekrani e thotë me fjalë.
+ * Pishpiriku shkon nga ana tjetër, dhe pikërisht sepse është përjashtim, asnjë
+ * renditje nuk e mbart drejtimin brenda vetes: i jepet.
+ */
+export type Drejtimi = 'poshte' | 'larte';
 
 /** Një shoqëri që luan bashkë rregullisht. Radha e `playerNames` ka kuptim. */
 export type Grupi = {
@@ -50,6 +67,28 @@ export type Loja = {
    * atëherë lexohet `bridzh` — `llojiILojes()` e bën këtë leximin e vetëm.
    */
   lloji?: LlojiILojes;
+  /**
+   * Deri te sa pikë luhet kjo mbrëmje — kur loja e ka atë pyetje.
+   *
+   * Domina luhet deri te njëqind a dyqind e pesëdhjetë, dhe pishpiriku deri te
+   * njëqind e një, njëqind e njëzet a njëqind e pesëdhjetë e një: kufiri nuk
+   * është rregull i lojës, është marrëveshje e tavolinës para se të ndahen
+   * letrat. Prandaj rri te loja e jo te regjistri.
+   *
+   * Tri gjendje, si te `mbyllur` dhe për të njëjtën arsye — që mungesa të mos
+   * ngatërrohet me zgjedhjen:
+   *
+   *   • **mungon** → vlen kufiri i parazgjedhur i asaj loje (`lojerat.ts`).
+   *     Kështu lexohen të gjitha lojërat e shkruara para se kjo fushë të
+   *     ekzistonte, dhe ato nuk ndërrojnë kuptim.
+   *   • **numër** → pikërisht ai kufi, i zgjedhur te ekrani kur nisi mbrëmja.
+   *   • **`0`** → pa kufi fare: luhet derisa shoqëria të ngrihet, dhe fleta
+   *     mbyllet me dorë (pika 15).
+   *
+   * Bridzhi dhe magareci nuk e shkruajnë kurrë: i pari mbaron me raundet, dhe
+   * te i dyti kufiri është vetë fjala — shtatë shkronja, e jo marrëveshje.
+   */
+  kufiri?: number;
   /**
    * A është mbyllur mbrëmja me dorë — dhe pse fusha ka tri gjendje e jo dy.
    *

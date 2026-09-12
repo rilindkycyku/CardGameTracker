@@ -25,15 +25,20 @@
       crossorigin="anonymous"
     />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- iOS-i nuk e lexon ikonën e manifestit dhe as SVG-në: i duhet një PNG e
+         vetën, dhe mbi të vë vetë maskën me qoshe të rrumbullakuara — prandaj
+         kjo është e njëjta ikonë me qoshet katrore. Të dyja PNG-të nxirren nga
+         `public/ikona.svg`, që vizatimi të mbetet një. -->
+    <link rel="apple-touch-icon" href="/ikona-180.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="Bridzh" />
+    <meta name="apple-mobile-web-app-title" content="Tavolina" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="application-name" content="Bridzh" />
+    <meta name="application-name" content="Tavolina" />
 
-    <title>Bridzh — pikët e mbrëmjes</title>
+    <title>Tavolina — pikët e mbrëmjes</title>
     <meta
       name="description"
-      content="Numërues pikësh për bridzhin kosovar: raundet, totalet, renditja dhe shlyerja. Punon pa internet, të dhënat rrinë në telefon."
+      content="Numërues pikësh për lojërat e tavolinës — bridzh, magarec, domina, pishpirik: raundet, totalet, renditja dhe shlyerja. Punon pa internet, të dhënat rrinë në telefon."
     />
     <!-- Aplikacion personal me të dhëna vetëm lokale: s'ka çka të indeksohet. -->
     <meta name="robots" content="noindex" />

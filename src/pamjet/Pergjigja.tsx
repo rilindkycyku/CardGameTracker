@@ -39,7 +39,7 @@ export function Pergjigja({ kodi }: { kodi: string }) {
       <header className="kreu">
         <ShenjaEFaqes />
         <div>
-          <p className="kreu__mbi">Bridzh</p>
+          <p className="kreu__mbi">Tavolina</p>
           <h1 className="kreu__titull">
             {pranuar ? 'U lidh' : 'Duke dorëzuar kodin…'}
           </h1>

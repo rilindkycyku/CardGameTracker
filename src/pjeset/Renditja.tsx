@@ -1,9 +1,14 @@
 /**
  * Renditja e lojës — vendi, lojtari, totali.
  *
- * Fiton totali më i vogël, prandaj rreshti i parë është ai me më pak pikë. Kjo
- * është e kundërta e asaj që pret syri te një tabelë pikësh, prandaj vendi i
- * parë ka mbushjen smerald dhe shiritin anësor.
+ * Te tri lojërat nga katër fiton totali më i vogël, prandaj rreshti i parë është
+ * ai me më pak pikë. Kjo është e kundërta e asaj që pret syri te një tabelë
+ * pikësh, prandaj vendi i parë ka mbushjen smerald dhe shiritin anësor — dhe
+ * përshkrimi i tabelës e thotë me fjalë nga cila anë lexohet.
+ *
+ * Pishpiriku shkon nga ana tjetër, dhe atë e thotë `drejtimi`: rreshtat vijnë
+ * tashmë të renditur nga thirrësi, por kurora nuk merret dot nga radha e tyre —
+ * ajo kërkon të dihet cili total është fitues (pika 14).
  *
  * Kur dikush hyri në mes të lojës, shtohet kolona „raunde" dhe një shënim mbi
  * tabelë. Numrat nuk ndryshojnë — totali mbetet shuma e pikëve — por një total
@@ -14,16 +19,19 @@
 import { memo } from 'react';
 
 import { fituesit } from '../llogaritjet.ts';
-import type { RreshtiRenditjes } from '../tipet.ts';
+import type { Drejtimi, RreshtiRenditjes } from '../tipet.ts';
 import { Ikona } from '../ikonat.tsx';
 
 function RenditjaBrenda({
   rreshtat,
   luajtur,
+  drejtimi = 'poshte',
 }: {
   rreshtat: RreshtiRenditjes[];
   /** Sa raunde ka luajtur secili. Jepet vetëm kur nuk kanë luajtur njësoj. */
   luajtur?: Record<string, number> | null;
+  /** Nga cila anë fitohet — që kurora të mos shkojë te fundi i tabelës. */
+  drejtimi?: Drejtimi;
 }) {
   /*
    * Kurora u takon të gjithëve që e ndajnë totalin më të vogël.
@@ -34,7 +42,7 @@ function RenditjaBrenda({
    * veta te 360 pikë ajo mbi të parin e listës do të thoshte diçka që nuk ka
    * ndodhur, prandaj ose u takon të gjithëve, ose askujt.
    */
-  const pare = new Set(fituesit(rreshtat));
+  const pare = new Set(fituesit(rreshtat, drejtimi));
 
   return (
     <section>
@@ -56,7 +64,11 @@ function RenditjaBrenda({
       <div className="tabela-mbeshtjellese">
         <table className="tabela">
           <caption className="vetem-lexues">
-            Renditja e lojtarëve sipas totalit, nga më i vogli te më i madhi.
+            Renditja e lojtarëve sipas totalit,{' '}
+            {drejtimi === 'larte'
+              ? 'nga më i madhi te më i vogli'
+              : 'nga më i vogli te më i madhi'}
+            .
           </caption>
           <thead>
             <tr>

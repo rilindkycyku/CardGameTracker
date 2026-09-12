@@ -68,9 +68,10 @@ test('mbyllja e mbrëmjes mbijeton kthimin, edhe rihapja', () => {
 });
 
 test('lloji i panjohur refuzohet, jo lexohet si bridzh', () => {
-  // Do të vinte nga një version më i ri. I vizatuar si bridzh, shkronjat e tij
-  // do të dilnin pikë pa e thënë kush.
-  const i_huaj = { ...LOJA, lloji: 'domina' };
+  // Do të vinte nga një version më i ri. I vizatuar si bridzh, shkronjat ose
+  // pikët e tij do të dilnin pikë bridzhi pa e thënë kush — dhe te një lojë ku
+  // fiton totali më i madh, edhe fituesi do të dilte i gabuar.
+  const i_huaj = { ...LOJA, lloji: 'remi' };
   const dala = lexoKopjen(teksti(ndertoKopjen([GRUPI], [i_huaj], [])));
 
   assert.equal(dala.ok, false);
@@ -176,7 +177,7 @@ test('kopja e zbrazët është e vlefshme', () => {
 });
 
 test('emri i skedarit mban datën me dy shifra', () => {
-  assert.equal(emriISkedarit(new Date(2026, 2, 8)), 'bridzh-2026-03-08.json');
+  assert.equal(emriISkedarit(new Date(2026, 2, 8)), 'tavolina-2026-03-08.json');
 });
 
 test('përmbledhja e numëron shumësin shqip', () => {
@@ -185,4 +186,47 @@ test('përmbledhja e numëron shumësin shqip', () => {
     permbledhja(ndertoKopjen([GRUPI, GRUPI], [LOJA, LOJA], [])),
     '2 grupe · 2 lojëra · 0 raunde',
   );
+});
+
+test('kopja i pranon të katër llojet e lojërave', () => {
+  // Një kopje e nxjerrë nga një telefon ku luhet edhe domina duhet të kthehet e
+  // tëra; refuzimi i një loje do të thoshte humbje e tërë historikut.
+  for (const lloji of ['bridzh', 'magarec', 'domina', 'pishpirik']) {
+    const loja = { ...LOJA, lloji };
+    const dala = lexoKopjen(teksti(ndertoKopjen([GRUPI], [loja], [])));
+
+    assert.equal(dala.ok, true, lloji);
+    assert.equal(dala.kopja.games[0].lloji, lloji, lloji);
+  }
+});
+
+test('kufiri i mbrëmjes mbijeton kopjen, dhe ai i shpikur refuzohet', () => {
+  // Zeroja është «pa kufi» dhe kalon; një numër i thyer a negativ do të bënte
+  // një mbrëmje që ose nuk mbaron kurrë, ose mbaron para raundit të parë.
+  for (const kufiri of [100, 250, 0]) {
+    const dala = lexoKopjen(
+      teksti(ndertoKopjen([GRUPI], [{ ...LOJA, lloji: 'domina', kufiri }], [])),
+    );
+
+    assert.equal(dala.ok, true, String(kufiri));
+    assert.equal(dala.kopja.games[0].kufiri, kufiri, String(kufiri));
+  }
+
+  for (const kufiri of [-1, 12.5, '100', Infinity]) {
+    const dala = lexoKopjen(
+      teksti(ndertoKopjen([GRUPI], [{ ...LOJA, lloji: 'domina', kufiri }], [])),
+    );
+
+    assert.equal(dala.ok, false, String(kufiri));
+    assert.match(dala.gabimi, /kufi/i, String(kufiri));
+  }
+});
+
+test('loja pa kufi del nga kopja pa fushën', () => {
+  // Si te `lloji`: një lojë e vjetër del ashtu si hyri, pa një fushë të shtuar
+  // rrugës që do të thoshte diçka që askush nuk e zgjodhi.
+  const dala = lexoKopjen(teksti(ndertoKopjen([GRUPI], [LOJA], [])));
+
+  assert.equal(dala.ok, true);
+  assert.ok(!('kufiri' in dala.kopja.games[0]));
 });

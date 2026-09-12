@@ -25,6 +25,7 @@ import {
   dataNgaNumrat,
   dataShqip,
   eshteIMbushur,
+  llojiILojes,
   lojeratESortuara,
   matricaEShlyerjes,
   permbledhja,
@@ -685,5 +686,95 @@ test('fituesi i çdo mbrëmjeje të `logic.json`-it është ai me totalin më t�
       grupi.players.filter((p) => totalat[p] === meIVogli),
       grupi.id,
     );
+  }
+});
+
+/* ── Drejtimi: kush fiton ────────────────────────────────────────────────── */
+
+test('renditja zbritshëm te loja që fitohet me totalin më të madh', () => {
+  // Pishpiriku mbledh pikë drejt 101-shit; i pari është ai që i ka më shumë.
+  // Pa drejtimin, i njëjti varg do ta shpallte të parin atë që mbeti prapa.
+  const totalat = { alfa: 63, beta: 88, gama: 21 };
+
+  assert.deepEqual(renditja(['alfa', 'beta', 'gama'], totalat, 'larte'), [
+    { rank: 1, player: 'beta', total: 88 },
+    { rank: 2, player: 'alfa', total: 63 },
+    { rank: 3, player: 'gama', total: 21 },
+  ]);
+
+  // Parazgjedhja mbetet ajo e tri lojërave të tjera, pa e shkruar kush.
+  assert.deepEqual(
+    renditja(['alfa', 'beta', 'gama'], totalat),
+    renditja(['alfa', 'beta', 'gama'], totalat, 'poshte'),
+  );
+});
+
+test('fituesi i një loje me drejtim të kundërt është ai me më shumë pikë', () => {
+  const rreshtat = [
+    { rank: 1, player: 'beta', total: 88 },
+    { rank: 2, player: 'alfa', total: 63 },
+    { rank: 3, player: 'gama', total: 88 },
+  ];
+
+  // Merret nga totali e jo nga rreshti i parë — dhe barazimi nuk ndahet sipas
+  // radhës së listës (pika 14), as kur drejtimi është i kundërt.
+  assert.deepEqual(fituesit(rreshtat, 'larte'), ['beta', 'gama']);
+  assert.deepEqual(fituesit(rreshtat), ['alfa']);
+});
+
+test('tabela e grupit e ndjek drejtimin te fitoret dhe te radha', () => {
+  const lojerat = [
+    {
+      selectedPlayers: ['alfa', 'beta'],
+      raundet: [{ id: 1, gameId: 1, roundNumber: 1, scores: { alfa: 30, beta: 70 } }],
+    },
+  ];
+
+  const poshte = tabelaEPergjithshme(lojerat);
+  assert.equal(poshte[0].player, 'alfa');
+  assert.equal(poshte[0].fitore, 1);
+
+  const larte = tabelaEPergjithshme(lojerat, 'larte');
+  assert.equal(larte[0].player, 'beta');
+  assert.equal(larte[0].fitore, 1);
+});
+
+test('lloji i lojës i njeh të katërt, dhe të panjohurën e lexon bridzh', () => {
+  assert.equal(llojiILojes({}), 'bridzh');
+  assert.equal(llojiILojes({ lloji: 'bridzh' }), 'bridzh');
+  assert.equal(llojiILojes({ lloji: 'magarec' }), 'magarec');
+  assert.equal(llojiILojes({ lloji: 'domina' }), 'domina');
+  assert.equal(llojiILojes({ lloji: 'pishpirik' }), 'pishpirik');
+
+  // Lojërat e shkruara para se të vinte magareci nuk e kanë fushën fare, dhe
+  // ato janë bridzh. Një vlerë e shpikur lexohet po ashtu bridzh: te baza vjen
+  // vetëm nga ky aplikacion, dhe kopja e ardhur nga jashtë refuzohet më parë,
+  // te `kopja.ts`.
+  assert.equal(llojiILojes({ lloji: 'remi' }), 'bridzh');
+});
+
+test('mbrëmja e dominës te `logic.json` lexohet me të njëjtat llogari', () => {
+  /*
+   * Skeda „Domina" e fletës është e njëjta tabelë me atë të bridzhit: numra për
+   * raund, totale, dhe matricë shlyerjeje. Ajo që ndryshon rri jashtë kësaj
+   * llogarie — llogaritësi që s'e ka, dhe fundi që nuk numërohet me raunde.
+   *
+   * Renditja e saj nuk provohet: `domina_1.standings` doli e cunguar nga
+   * nxjerrja e automatizuar, një rresht nga tre lojtarë (pika 8).
+   */
+  const grupi = burimi.groups.find((g) => g.id === 'domina_1');
+  const raundet = raundetE(grupi);
+
+  assert.deepEqual(totalet(grupi.players, raundet), grupi.totals);
+
+  const matrica = matricaEShlyerjes(
+    grupi.players,
+    totalet(grupi.players, raundet),
+  );
+
+  for (const i of grupi.players) {
+    for (const j of grupi.players) {
+      assert.equal(matrica[i][j], grupi.settlement_matrix[i][j], `${i}→${j}`);
+    }
   }
 });

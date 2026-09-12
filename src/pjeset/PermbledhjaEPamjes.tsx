@@ -17,6 +17,7 @@ import {
   perziersiIRaundit,
   raundetELojes,
 } from '../llogaritjet.ts';
+import { rregullat } from '../lojerat.ts';
 import { FJALA, fjalaE, rreshtatEMagarecit } from '../magareci.ts';
 import type { Pamja } from '../ndarja.ts';
 import type { RreshtiRenditjes } from '../tipet.ts';
@@ -39,6 +40,7 @@ export function PermbledhjaEPamjes({
    */
   perfundoi?: boolean;
 }) {
+  const rregulli = rregullat(pamja.lloji);
   const magarec = pamja.lloji === 'magarec';
   const emrat = pamja.totalet.map(([emri]) => emri);
 
@@ -52,19 +54,21 @@ export function PermbledhjaEPamjes({
    * duhet. Por këtu shkruhet një fjali, dhe «delta prin» me tre veta te 360
    * pikë do të ishte e pavërtetë.
    */
-  const pareter = fituesit(rreshtat);
+  const pareter = fituesit(rreshtat, rregulli.drejtimi);
 
   /* I pari që nuk është baras me kreun — atij i matet largësia. */
   const tjetri = rreshtat.find((rreshti) => rreshti.total !== pari.total) ?? null;
 
-  // Raundet e mbetura vlejnë vetëm te bridzhi: magareci mbaron kur mbushet
-  // fjala, e jo pas një numri raundesh (pika 13).
-  const gjithsej = magarec ? 0 : raundetELojes(emrat);
-  const mbetur = magarec ? 0 : Math.max(0, gjithsej - pamja.raunde);
+  // Raundet e mbetura vlejnë vetëm te bridzhi: te tri lojërat e tjera mbrëmja
+  // mbaron kur dikush e arrin kufirin e vet — fjalën, njëqindshin, 101-shin —
+  // e jo pas një numri raundesh (pika 13).
+  const meRaunde = rregulli.raundePerLojtar !== null;
+  const gjithsej = meRaunde ? raundetELojes(emrat) : 0;
+  const mbetur = meRaunde ? Math.max(0, gjithsej - pamja.raunde) : 0;
 
   // Kush përzien raundin që vjen. Pas raundit të fundit nuk ka më kush.
   const perziersi =
-    perfundoi || (!magarec && mbetur === 0)
+    perfundoi || (meRaunde && mbetur === 0)
       ? null
       : perziersiIRaundit(emrat, pamja.raunde + 1);
 
@@ -99,7 +103,10 @@ export function PermbledhjaEPamjes({
         {tjetri
           ? magarec
             ? `${tjetri.player} vjen me ${fjalaE(tjetri.total) || 'asnjë shkronjë'}`
-            : `${tjetri.player} vjen ${tjetri.total - pari.total} pikë prapa`
+            : // Largësia me vlerë absolute, sepse te pishpiriku i pari e ka
+              // totalin më të madh: një zbritje e shkruar në një drejtim të
+              // vetëm do të dilte negative pikërisht atje.
+              `${tjetri.player} vjen ${Math.abs(tjetri.total - pari.total)} pikë prapa`
           : rreshtat.length > 1
             ? 'të gjithë janë baras'
             : 'i vetmi te tavolina'}
@@ -109,19 +116,50 @@ export function PermbledhjaEPamjes({
         <li>
           <Ikona emri="shlyerja" />
           <span>
-            {magarec
-              ? `${pamja.raunde} ${pamja.raunde === 1 ? 'raund' : 'raunde'}`
-              : `${pamja.raunde} nga ${gjithsej} raunde`}
+            {meRaunde
+              ? `${pamja.raunde} nga ${gjithsej} raunde`
+              : `${pamja.raunde} ${pamja.raunde === 1 ? 'raund' : 'raunde'}`}
           </span>
         </li>
 
-        {!magarec && (
+        {meRaunde && (
           <li>
             <Ikona emri="luaj" />
             <span>
               {perfundoi || mbetur === 0
                 ? 'loja mbaroi'
                 : `edhe ${mbetur} ${mbetur === 1 ? 'raund' : 'raunde'}`}
+            </span>
+          </li>
+        )}
+
+        {/*
+          Te domina e pishpiriku «sa ka mbetur» nuk matet me raunde, por me
+          pikë: sa i duhen atij që prin deri te kufiri. Te pishpiriku ai numër
+          është fitorja që afrohet; te domina është mbrëmja që mbaron, dhe kush
+          e arrin e humb — prandaj aty matet ai që i ka më shumë.
+        */}
+        {/*
+          Kufiri vjen nga vetë paketa e jo nga regjistri: mbrëmja mund të jetë
+          nisur deri te një numër tjetër, ose pa kufi fare — dhe atëherë ky
+          rresht nuk shkruhet, në vend që të shpikë parazgjedhjen.
+        */}
+        {!magarec && !meRaunde && pamja.kufiri !== null && pamja.kufiri > 0 && (
+          <li>
+            <Ikona emri={rregulli.drejtimi === 'larte' ? 'luaj' : 'kujdes'} />
+            <span>
+              {(() => {
+                const kufiri = pamja.kufiri!;
+                const afer =
+                  rregulli.drejtimi === 'larte'
+                    ? pari
+                    : [...rreshtat].sort((a, b) => b.total - a.total)[0]!;
+                const mbeturPike = Math.max(0, kufiri - afer.total);
+
+                return mbeturPike === 0
+                  ? `${afer.player} e arriti ${kufiri}-shin`
+                  : `${afer.player} — edhe ${mbeturPike} deri te ${kufiri}`;
+              })()}
             </span>
           </li>
         )}

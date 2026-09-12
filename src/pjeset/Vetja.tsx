@@ -20,20 +20,32 @@
 import { useState } from 'react';
 
 import { shlyerjaEVetes } from '../llogaritjet.ts';
+import { rregullat } from '../lojerat.ts';
 import { FJALA, fjalaE, mbushur } from '../magareci.ts';
-import type { RreshtiRenditjes } from '../tipet.ts';
+import type { LlojiILojes, RreshtiRenditjes } from '../tipet.ts';
 import { Ikona } from '../ikonat.tsx';
 
 export function Vetja({
   rreshtat,
   totalet,
-  magarec,
+  lloji,
+  kufiri,
 }: {
   /** Renditja e gatshme, që emrat të dalin sipas vendit. */
   rreshtat: RreshtiRenditjes[];
   totalet: Record<string, number>;
-  magarec: boolean;
+  /** Çka u luajt — rreshti i vetes lexohet ndryshe te secila lojë. */
+  lloji: LlojiILojes;
+  /**
+   * Kufiri me të cilin luhet ajo mbrëmje, ose `null` kur s'ka.
+   *
+   * Vjen nga paketa e jo nga regjistri: «të mbeten 12 pikë deri te 120» duhet
+   * të thotë numrin e asaj tavoline, e jo parazgjedhjen e lojës.
+   */
+  kufiri: number | null;
 }) {
+  const rregulli = rregullat(lloji);
+  const magarec = lloji === 'magarec';
   const [vetja, caktoVeten] = useState<string | null>(null);
 
   const emrat = rreshtat.map((rreshti) => rreshti.player);
@@ -67,19 +79,25 @@ export function Vetja({
         <p className="ndihma" data-hapesire="lart">
           Prek emrin tënd, dhe rreshti yt del i veçuar: vendi, sa je larg të
           parit
-          {magarec ? ', dhe sa shkronja të kanë mbetur.' : ', dhe kujt sa i del.'}
+          {magarec
+            ? ', dhe sa shkronja të kanë mbetur.'
+            : rregulli.shlyerja
+              ? ', dhe kujt sa i del.'
+              : ', dhe sa të mbetet deri te fundi.'}
         </p>
       ) : magarec ? (
         <VetjaEMagarecit imi={imi} pari={pari} />
+      ) : rregulli.shlyerja ? (
+        <VetjaEShlyerjes imi={imi} pari={pari} emrat={emrat} totalet={totalet} />
       ) : (
-        <VetjaEBridzhit imi={imi} pari={pari} emrat={emrat} totalet={totalet} />
+        <VetjaEPikeve imi={imi} pari={pari} kufiri={kufiri} />
       )}
     </section>
   );
 }
 
 /** Vendi, largësia nga i pari, dhe shlyerja kundrejt secilit. */
-function VetjaEBridzhit({
+function VetjaEShlyerjes({
   imi,
   pari,
   emrat,
@@ -143,6 +161,51 @@ function VetjaEBridzhit({
             ? `Gjithsej të vjen ${-neto} nga tërë tavolina.`
             : 'Gjithsej del baras.'}{' '}
         Matrica e plotë rri poshtë.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Vendi, largësia nga i pari, dhe sa më mbetet deri te kufiri.
+ *
+ * Te pishpiriku diferenca mes dy lojtarëve nuk shlyhet me para — pikët janë
+ * rrugë drejt 101-shit, e jo borxh — prandaj matrica nuk vizatohet fare dhe
+ * rreshti i vetes thotë atë që pyetet vërtet: sa larg jam nga ai që prin, dhe
+ * sa më ka mbetur deri te fundi.
+ *
+ * Drejtimi është i kundërt me atë të tri lojërave të tjera, prandaj fjalët
+ * shkruhen këtu e nuk rimerren: «je 12 pikë prapa» do të thoshte të kundërtën
+ * nëse do të ishte shkruar një herë për të katërt.
+ */
+function VetjaEPikeve({
+  imi,
+  pari,
+  kufiri,
+}: {
+  imi: RreshtiRenditjes;
+  pari: RreshtiRenditjes;
+  /** Totali që e mbyll mbrëmjen, ose `null` kur loja nuk ka të tillë. */
+  kufiri: number | null;
+}) {
+  const mbetur = kufiri === null ? null : Math.max(0, kufiri - imi.total);
+
+  return (
+    <div className="kartela vetja" data-hapesire="lart">
+      <p className="vetja__krye">
+        <span className="vetja__vendi">{imi.rank}</span>
+        <span className="vetja__emri">{imi.player}</span>
+        <span className="vetja__totali">{imi.total}</span>
+      </p>
+
+      <p className="ndihma">
+        {imi.total === pari.total
+          ? 'Ti prin — fiton totali më i madh.'
+          : `Je ${pari.total - imi.total} pikë prapa, dhe prin ${pari.player}.`}
+        {mbetur !== null &&
+          (mbetur === 0
+            ? ` E ke arritur ${kufiri}-shin.`
+            : ` Të mbeten ${mbetur} pikë deri te ${kufiri}.`)}
       </p>
     </div>
   );

@@ -9,6 +9,7 @@
  * Vetë leximi nuk prek as bazën as `window`-in, që të provohet drejtpërdrejt.
  */
 
+import { RADHA } from './lojerat.ts';
 import type { Grupi, Kopja, LlojiILojes, Loja, Raundi } from './tipet.ts';
 
 export const FORMATI = 'cardgametracker';
@@ -36,10 +37,16 @@ export function ndertoKopjen(
   };
 }
 
-/** Emri i skedarit: `bridzh-2026-03-08.json`. */
+/**
+ * Emri i skedarit: `tavolina-2026-03-08.json`.
+ *
+ * Emri i vjetër ishte `bridzh-…`, nga koha kur kjo ishte vetëm një lojë. Skedari
+ * i vjetër lexohet ende — emri nuk hyn fare te leximi — dhe kush e ka te
+ * telefoni nuk ka pse ta riemërtojë.
+ */
 export function emriISkedarit(tani: Date = new Date()): string {
   const dy = (n: number) => String(n).padStart(2, '0');
-  return `bridzh-${tani.getFullYear()}-${dy(tani.getMonth() + 1)}-${dy(tani.getDate())}.json`;
+  return `tavolina-${tani.getFullYear()}-${dy(tani.getMonth() + 1)}-${dy(tani.getDate())}.json`;
 }
 
 function eshteVarg(v: unknown): v is unknown[] {
@@ -51,16 +58,21 @@ function eshteNumer(v: unknown): v is number {
 }
 
 /**
- * Lloji i një loje të kopjes: `bridzh`, `magarec`, ose mungon.
+ * Lloji i një loje të kopjes: njëra nga të katërt, ose mungon.
  *
  * Mungesa është e ligjshme — lojërat e shkruara para se të vinte magareci nuk e
  * kanë fushën, dhe lexohen bridzh. Një vlerë e panjohur jo: ajo do të vinte nga
- * një version më i ri, dhe vizatimi i saj si bridzh do t'i tregonte shkronjat si
- * pikë pa e thënë kush. Prandaj kopja refuzohet e tëra, si te çdo fushë tjetër.
+ * një version më i ri, dhe vizatimi i saj si bridzh do t'i tregonte shkronjat
+ * ose pikët e një loje tjetër pa e thënë kush — te pishpiriku edhe fituesin e
+ * gabuar, sepse atje fiton totali më i madh. Prandaj kopja refuzohet e tëra, si
+ * te çdo fushë tjetër.
+ *
+ * Lista vjen nga regjistri: një lojë e pestë e shtuar atje lexohet edhe këtu,
+ * pa e prekur këtë skedar.
  */
 function llojiIKopjes(v: unknown): LlojiILojes | null | undefined {
   if (v === undefined || v === null) return undefined;
-  return v === 'bridzh' || v === 'magarec' ? v : null;
+  return RADHA.find((lloji) => lloji === v) ?? null;
 }
 
 /**
@@ -146,6 +158,25 @@ export function lexoKopjen(teksti: string): Lexuar {
     // Fusha shkruhet vetëm kur vjen: një lojë e vjetër del nga kopja ashtu si
     // hyri, pa një `lloji: undefined` të shtuar rrugës.
     if (lloji) loja.lloji = lloji;
+
+    /*
+     * Kufiri i mbrëmjes: numër i plotë jo negativ, ose asgjë.
+     *
+     * Zeroja është e ligjshme dhe do të thotë «pa kufi» (pika 13). Një numër i
+     * thyer ose negativ jo: do të bënte një mbrëmje që ose nuk mbaron kurrë,
+     * ose mbaron para raundit të parë — dhe as njëra as tjetra nuk duket te
+     * fleta derisa të jetë vonë.
+     */
+    if (l.kufiri !== undefined) {
+      if (!eshteNumer(l.kufiri) || l.kufiri < 0 || !Number.isInteger(l.kufiri)) {
+        return {
+          ok: false,
+          gabimi: `Loja e ${l.date} ka një kufi që nuk qëndron (${String(l.kufiri)}).`,
+        };
+      }
+
+      loja.kufiri = l.kufiri;
+    }
     // E njëjta arsye, dhe e njëjta kujdes: `false` nuk është mungesë. Ajo do të
     // thotë «e rihapur me dorë», dhe një `if (l.mbyllur)` do ta humbte.
     if (typeof l.mbyllur === 'boolean') loja.mbyllur = l.mbyllur;

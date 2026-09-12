@@ -126,14 +126,22 @@ export async function shtoLoje(
   date: string,
   selectedPlayers: string[],
   lloji: LlojiILojes = 'bridzh',
+  kufiri?: number,
 ): Promise<number> {
-  const id = await (await db()).add('games', {
+  const loja = {
     groupId,
     date,
     selectedPlayers,
     createdAt: Date.now(),
     lloji,
-  } as Loja);
+  } as Loja;
+
+  // Kufiri shkruhet vetëm kur zgjidhet: një lojë pa të lexon parazgjedhjen e
+  // llojit, dhe ashtu lexohen edhe të gjitha ato që u shkruan para se kjo fushë
+  // të ekzistonte. Zeroja është zgjedhje e vërtetë — «pa kufi» — prandaj hyn.
+  if (kufiri !== undefined) loja.kufiri = kufiri;
+
+  const id = await (await db()).add('games', loja);
   return id as number;
 }
 

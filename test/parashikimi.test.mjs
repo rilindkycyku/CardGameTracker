@@ -393,3 +393,30 @@ test('numra të prishur nuk e rrëzojnë parashikimin', () => {
   assert.equal(parashikimiIBridzhit(PLAYERS, {}, -5).raunde, 0);
   assert.equal(parashikimiIMagarecit(PLAYERS, {}, 2.7).raunde, 2);
 });
+
+/* ── Lojërat që nuk parashikohen ─────────────────────────────────────────── */
+
+test('domina dhe pishpiriku nuk premtojnë raunde të mbetura', () => {
+  /*
+   * Parashikimi mat kufij të arritshëm, dhe ata kërkojnë që një raund t’i ketë
+   * kufijtë e vet. Te bridzhi janë −40 e +200; te magareci një shkronjë. Te
+   * domina e pishpiriku sa bën një dorë nuk e thotë rregulli, prandaj kthehet
+   * zero — «nuk parashikohet» — dhe ekrani e heq bllokun fare (pika 12).
+   */
+  const players = ['alfa', 'beta', 'gama'];
+  const totalet = { alfa: 61, beta: 44, gama: 12 };
+
+  for (const lloji of ['domina', 'pishpirik']) {
+    assert.equal(raundetEMbetura(lloji, players, totalet, 3), 0, lloji);
+
+    const p = parashikimi(lloji, players, totalet, 5);
+    assert.equal(p.raunde, 0, lloji);
+
+    // Me zero raunde përpara, asnjë vend nuk ndryshon — dhe kjo është e vërteta
+    // e vetme që mund të thuhet atje.
+    for (const rreshti of p.rreshtat) {
+      assert.equal(rreshti.meIMiri, rreshti.vendi, `${lloji}: ${rreshti.player}`);
+      assert.equal(rreshti.meIKeqi, rreshti.vendi, `${lloji}: ${rreshti.player}`);
+    }
+  }
+});

@@ -14,12 +14,18 @@
  * e jo pikë, prandaj një diferencë mes dy lojtarëve nuk do të thoshte asgjë që
  * shlyhet. Rrjeti i plotë del nga po ato totale — shkronja është vetë totali —
  * prandaj paketa nuk u bë as një bajt më e gjatë për të.
+ *
+ * Pishpiriku është pa shlyerje për arsye tjetër dhe me të njëjtin përfundim:
+ * atje pikët mblidhen drejt 101-shit e nuk paguhen, prandaj `total[i] − total[j]`
+ * nuk është shumë që i del njërit. Çka vizatohet për cilën lojë rri te
+ * `lojerat.ts`, e jo te tri `if`-a nëpër këtë skedar.
  */
 
 import { dataShqip, matricaEShlyerjes, renditja } from '../llogaritjet.ts';
+import { rregullat } from '../lojerat.ts';
 import { FJALA, rreshtatEMagarecit } from '../magareci.ts';
 import type { Pamja } from '../ndarja.ts';
-import type { RreshtiRenditjes } from '../tipet.ts';
+import type { LlojiILojes, RreshtiRenditjes } from '../tipet.ts';
 import { Ikona, ShenjaEFaqes } from '../ikonat.tsx';
 import { Parashikimi } from './Parashikimi.tsx';
 import { PermbledhjaEPamjes } from './PermbledhjaEPamjes.tsx';
@@ -35,7 +41,7 @@ export function LidhjaEKeqe({ titulli, shpjegimi }: { titulli: string; shpjegimi
       <header className="kreu">
         <ShenjaEFaqes />
         <div>
-          <p className="kreu__mbi">Bridzh</p>
+          <p className="kreu__mbi">Tavolina</p>
           <h1 className="kreu__titull">Lidhja nuk lexohet</h1>
         </div>
       </header>
@@ -75,10 +81,14 @@ export function PamjaERezultatit({
    */
   perfundoi?: boolean;
 }) {
+  const rregulli = rregullat(pamja.lloji);
   const emrat = pamja.totalet.map(([emri]) => emri);
   const totalat = Object.fromEntries(pamja.totalet);
   const magarec = pamja.lloji === 'magarec';
-  const rreshtat = renditja(emrat, totalat);
+  // Drejtimi vjen nga lloji i paketës e jo nga ky ekran: te pishpiriku i pari
+  // është ai me më shumë pikë, dhe një renditje e ngritur pa të do ta kthente
+  // fletën përmbys pikërisht te ana që vetëm lexon.
+  const rreshtat = renditja(emrat, totalat, rregulli.drejtimi);
 
   return (
     <>
@@ -103,10 +113,16 @@ export function PamjaERezultatit({
                 ende asnjë raund
               </span>
             )}
-            {magarec && (
+            {/*
+              Çka u luajt rri te kreu për çdo lojë veç bridzhit — ai është
+              parazgjedhja e këtij aplikacioni që nga dita e parë, dhe një
+              etiketë «Bridzh» mbi çdo fletë do të ishte zhurmë. Te magareci
+              shkruhet vetë fjala që mbushet: ajo është edhe emri, edhe rregulli.
+            */}
+            {pamja.lloji !== 'bridzh' && (
               <span className="etiketa etiketa--hapur">
                 <Ikona emri="luaj" />
-                {FJALA}
+                {magarec ? FJALA : rregulli.emri}
               </span>
             )}
           </p>
@@ -135,7 +151,7 @@ export function PamjaERezultatit({
 
           {pamja.raunde > 0 && (
             <>
-              <Vetja rreshtat={rreshtat} totalet={totalat} magarec />
+              <Vetja rreshtat={rreshtat} totalet={totalat} lloji="magarec" kufiri={null} />
 
               {!perfundoi && (
                 <Parashikimi
@@ -149,7 +165,9 @@ export function PamjaERezultatit({
           )}
         </>
       ) : (
-        <PjesaEBridzhit
+        <PjesaEPikeve
+          lloji={pamja.lloji}
+          kufiri={pamja.kufiri}
           emrat={emrat}
           totalat={totalat}
           rreshtat={rreshtat}
@@ -162,19 +180,30 @@ export function PamjaERezultatit({
 }
 
 /**
- * Renditja, vetja dhe shlyerja e bridzhit — i njëjti vizatim si te ekrani i lojës.
+ * Renditja, vetja dhe shlyerja e lojërave me pikë — i njëjti vizatim si te
+ * ekrani i lojës.
  *
  * «Unë jam» rri mes renditjes dhe matricës me qëllim: renditja thotë ku janë të
  * gjithë, rreshti i vetes thotë ku je ti, dhe matrica e plotë mbetet poshtë për
  * kë e do të tërën. Kush skanoi kodin e gjen përgjigjen e vet pa e prekur atë.
+ *
+ * Tri lojëra e ndajnë këtë vizatim, dhe dy gjëra i ndajnë ato mes vete:
+ * shlyerja (bridzh e domina po, pishpiriku jo) dhe parashikimi (vetëm bridzhi).
+ * Të dyja lexohen nga regjistri, prandaj një lojë e pestë nuk e prek këtë
+ * skedar fare.
  */
-function PjesaEBridzhit({
+function PjesaEPikeve({
+  lloji,
+  kufiri,
   emrat,
   totalat,
   rreshtat,
   raunde,
   perfundoi,
 }: {
+  lloji: LlojiILojes;
+  /** Kufiri me të cilin u luajt, nga paketa; `null` kur nuk thuhet. */
+  kufiri: number | null;
   emrat: string[];
   totalat: Record<string, number>;
   rreshtat: RreshtiRenditjes[];
@@ -183,17 +212,24 @@ function PjesaEBridzhit({
   /** Mbi një fletë të mbyllur nuk parashikohet asgjë. */
   perfundoi: boolean;
 }) {
+  const rregulli = rregullat(lloji);
+
   return (
     <>
-      <Renditja rreshtat={rreshtat} />
+      <Renditja rreshtat={rreshtat} drejtimi={rregulli.drejtimi} />
 
       {raunde > 0 && (
         <>
-          <Vetja rreshtat={rreshtat} totalet={totalat} magarec={false} />
+          <Vetja
+            rreshtat={rreshtat}
+            totalet={totalat}
+            lloji={lloji}
+            kufiri={kufiri}
+          />
 
-          {!perfundoi && (
+          {!perfundoi && rregulli.parashikimi && (
             <Parashikimi
-              lloji="bridzh"
+              lloji={lloji}
               players={emrat}
               totalet={totalat}
               luajtur={raunde}
@@ -202,10 +238,12 @@ function PjesaEBridzhit({
         </>
       )}
 
-      <Shlyerja
-        players={rreshtat.map((rreshti) => rreshti.player)}
-        matrica={matricaEShlyerjes(emrat, totalat)}
-      />
+      {rregulli.shlyerja && (
+        <Shlyerja
+          players={rreshtat.map((rreshti) => rreshti.player)}
+          matrica={matricaEShlyerjes(emrat, totalat)}
+        />
+      )}
     </>
   );
 }

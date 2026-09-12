@@ -27,6 +27,11 @@
  *
  * Shenja ka butonin e vet sepse tastiera numerike e Androidit s'ka minus;
  * arsyetimi i plotë dhe përpunimi i tekstit rrinë te `fusha.ts`.
+ *
+ * I njëjti bllok shënon edhe raundet e dominës e të pishpirikut, vetëm pa
+ * llogaritës: atje numri numërohet te tavolina — gurët e mbetur në dorë,
+ * pikët e dorës — dhe aplikacioni nuk i njeh as gurët as letrat. Ajo që mbetet
+ * është pikërisht ky rrjet fushash, dhe ai është i njëjti për të tri.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -49,6 +54,8 @@ export function FutjaERaundit({
   players,
   roundNumber,
   fillestare,
+  llogaritesi = true,
+  ndihma,
   onRuaj,
   onAnulo,
 }: {
@@ -56,6 +63,18 @@ export function FutjaERaundit({
   roundNumber: number;
   /** Pikët ekzistuese kur raundi po redaktohet; `null` kur është i ri. */
   fillestare?: Record<string, number | null> | null;
+  /**
+   * A ka kjo lojë llogaritës raundi.
+   *
+   * Vetëm bridzhi e ka, sepse vetëm ai ka formulë: mbyllësi merr −40 ose −20,
+   * i mbyllti 200 ose 100, dhe i hapuri dorën e vet një a dy herë. Te domina e
+   * pishpiriku numri numërohet te tavolina, ku janë gurët dhe letrat — atje
+   * aplikacioni nuk ka çka të llogarisë, dhe një buton «Llogaritësi» që hap një
+   * kuti të zbrazët do të ishte premtim i pambajtur.
+   */
+  llogaritesi?: boolean;
+  /** Shënimi nën fushat: çka pritet të dalë ai numër, kur rregulli e thotë. */
+  ndihma?: string;
   onRuaj: (scores: Record<string, number | null>) => void;
   onAnulo?: () => void;
 }) {
@@ -65,7 +84,9 @@ export function FutjaERaundit({
   // pse të kërkojë një prekje para çdo raundi. Redaktimi nis i mbyllur — atje
   // fushat mbajnë tashmë pikët e shënuara, dhe prekja është pikërisht ajo që
   // duhet rregulluar me dorë.
-  const [hapurLlogaritesi, hapLlogaritesin] = useState(!fillestare);
+  const [hapurLlogaritesi, hapLlogaritesin] = useState(
+    llogaritesi && !fillestare,
+  );
   // Pikët e fundit të llogaritura rrinë këtu e jo brenda llogaritësit, sepse
   // butoni që i ruan rri te rreshti i ngjitur poshtë — përndryshe do të binte
   // nën fund të ekranit pikërisht kur lojtarët janë shumë.
@@ -84,12 +105,12 @@ export function FutjaERaundit({
   // te gjendja e vet e nisjes: hapur për raund të ri, mbyllur për redaktim.
   useEffect(() => {
     caktoVlerat(nga(players, fillestare));
-    hapLlogaritesin(!fillestare);
+    hapLlogaritesin(llogaritesi && !fillestare);
     // Pikët e llogaritësit nuk zbrazen këtu: ky efekt shkon pas atij të
     // llogaritësit të sapomontuar, dhe do t'i fshinte pikërisht pikët që ai
     // sapo i njoftoi — butoni «Ruaj» do të mbetej i fikur. Me llogaritësin e
     // mbyllur ato nuk lexohen fare, dhe hapja e tij i njofton prapë.
-  }, [players, fillestare, roundNumber]);
+  }, [players, fillestare, roundNumber, llogaritesi]);
 
   // Me llogaritësin hapur ruhen pikët e tij, prandaj edhe përmbledhja e
   // rreshtit tregon ato: një „shuma 0" nën një llogaritës që thotë 110 do të
@@ -212,6 +233,8 @@ export function FutjaERaundit({
         </div>
       )}
 
+      {ndihma && !hapurLlogaritesi && <p className="ndihma">{ndihma}</p>}
+
       {hapurLlogaritesi && (
         <Llogaritesi
           key={`${roundNumber}:${ruajtje}`}
@@ -257,17 +280,19 @@ export function FutjaERaundit({
             {fillestare ? 'Ruaj ndryshimet' : `Ruaj raundin ${roundNumber}`}
           </button>
 
-          <button
-            type="button"
-            className="buton"
-            aria-expanded={hapurLlogaritesi}
-            onClick={() =>
-              hapurLlogaritesi ? mbyllLlogaritesin() : hapLlogaritesin(true)
-            }
-          >
-            <Ikona emri="llogaritesi" />
-            {hapurLlogaritesi ? 'Mbyll llogaritësin' : 'Llogaritësi'}
-          </button>
+          {llogaritesi && (
+            <button
+              type="button"
+              className="buton"
+              aria-expanded={hapurLlogaritesi}
+              onClick={() =>
+                hapurLlogaritesi ? mbyllLlogaritesin() : hapLlogaritesin(true)
+              }
+            >
+              <Ikona emri="llogaritesi" />
+              {hapurLlogaritesi ? 'Mbyll llogaritësin' : 'Llogaritësi'}
+            </button>
+          )}
 
           {onAnulo && (
             <button type="button" className="buton" onClick={onAnulo}>

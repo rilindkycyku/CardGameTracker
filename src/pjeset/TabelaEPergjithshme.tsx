@@ -5,10 +5,15 @@
  * lidhte: kush kishte fituar më shumë mbahej mend me gojë, dhe zakonisht
  * mbahej mend gabim. Kjo është ajo llogari, e bërë nga vetë raundet.
  *
- * Radha është sipas fitoreve, dhe kur fitoret janë të barabarta sipas
- * mesatares më të vogël — sepse fiton totali më i vogël. Mesatarja rri krah
- * fitoreve e jo në vend të tyre: kush luan më shumë mbrëmje ka më shumë raste
- * të fitojë, dhe kush luan pak i ka të dyja shifrat të vogla.
+ * Radha është sipas fitoreve, dhe kur fitoret janë të barabarta sipas mesatares
+ * në drejtimin që e fiton loja. Mesatarja rri krah fitoreve e jo në vend të
+ * tyre: kush luan më shumë mbrëmje ka më shumë raste të fitojë, dhe kush luan
+ * pak i ka të dyja shifrat të vogla.
+ *
+ * Një tabelë për lojë. Pikët e bridzhit dhe ato të dominës mblidhen njësoj si
+ * numra, por nuk janë e njëjta gjë — dhe ato të pishpirikut fitohen nga ana
+ * tjetër — prandaj emri i lojës rri te titulli, dhe grupi i ka aq tabela sa
+ * lojëra ka luajtur (pika 16).
  *
  * Shuma e papërpunuar e totaleve nuk shfaqet, edhe pse llogaritet: mbledh
  * mbrëmje me nga tre raunde bashkë me mbrëmje me nga dymbëdhjetë, prandaj
@@ -24,10 +29,13 @@ import { Ikona } from '../ikonat.tsx';
 function TabelaEPergjithshmeBrenda({
   rreshtat,
   lojera,
+  emriILojes,
 }: {
   rreshtat: RreshtiPergjithshem[];
   /** Sa lojëra të luajtura ka grupi — për titullin. */
   lojera: number;
+  /** Çka u luajt — `Bridzh`, `Domina`, `Pishpirik`. Rri te titulli. */
+  emriILojes: string;
 }) {
   if (rreshtat.length === 0) return null;
 
@@ -35,7 +43,7 @@ function TabelaEPergjithshmeBrenda({
     <section>
       <h2 className="titull-seksioni">
         <Ikona emri="renditja" />
-        Të përgjithshmet
+        Të përgjithshmet · {emriILojes}
         <span className="titull-seksioni__numri">
           {lojera} {lojera === 1 ? 'lojë' : 'lojëra'}
         </span>
@@ -44,8 +52,13 @@ function TabelaEPergjithshmeBrenda({
       <div className="tabela-mbeshtjellese">
         <table className="tabela">
           <caption className="vetem-lexues">
-            Përmbledhja e të gjitha lojërave të grupit: lojëra të luajtura,
-            fitore dhe totali mesatar për lojë.
+            {/*
+              Emri rri në kllapa e jo i lakuar: „të bridzhit", „të dominës", „të
+              pishpirikut" — secili lakohet ndryshe, dhe një rregull i vetëm mbi
+              të katërt do të nxirrte shqipe të thyer te njëri prej tyre.
+            */}
+            Përmbledhja e mbrëmjeve ({emriILojes}): lojëra të luajtura, fitore
+            dhe totali mesatar për lojë.
           </caption>
           <thead>
             <tr>

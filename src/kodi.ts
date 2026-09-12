@@ -35,6 +35,13 @@ export const GJATESIA = 8;
  * Reja publike e PeerJS-it përdoret me një çelës të përbashkët, prandaj emrat e
  * çdo aplikacioni rrinë bashkë. Pa parathënje, një kod tetëkarakterësh i këtij
  * aplikacioni mund të përplasej me emrin e ndonjë tjetri.
+ *
+ * Mbeti `bridzh` edhe pasi aplikacioni u quajt „Tavolina", dhe jo nga harresa:
+ * kjo nuk është emër që lexon njeriu, është pjesë e telit. Të dy telefonat e
+ * ndërtojnë të njëjtin emër nga i njëjti kod, prandaj një parathënje e ndërruar
+ * do të thoshte se telefoni me versionin e ri nuk lidhet me atë që ende nuk e
+ * ka rifreskuar faqen — dhe kjo pikërisht atëherë kur po ulen te tavolina. Kur
+ * të ndërrohet, duhet të ndërrohet te të dy njëkohësisht.
  */
 export const PARATHENJA = 'bridzh';
 

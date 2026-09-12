@@ -1330,6 +1330,19 @@ th.numri {
     background-color 0.15s ease;
 }
 
+/**
+ * Çelësi me katër njësi — lojërat, te ekrani ku nis mbrëmja.
+ *
+ * Me katër emra («Bridzh», «Magarec», «Domina», «Pishpirik») një rresht i vetëm
+ * i shtyp nën gjerësinë ku emri lexohet, te telefoni i ngushtë. Rrjeti i lë të
+ * bien në dy rreshta sapo nuk hyjnë, dhe secili mbetet mbi 2.75rem — kufiri nën
+ * të cilin gishti nuk e zë.
+ */
+.celesi--rrjet {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+}
+
 .celesi__njesi[aria-pressed='true'] {
   background: var(--hapur);
   border-color: var(--hapur);
@@ -1752,6 +1765,22 @@ th.numri {
   font-size: 0.78rem;
   letter-spacing: 0.04em;
   opacity: 0.75;
+}
+
+/**
+ * Rreshti i versionit të ri te fundfaqja.
+ *
+ * Rri i mbledhur dhe pa ngjyrë alarmi: nuk ka gabuar asgjë — faqja e ruajtur
+ * punon — thjesht ka dalë diçka më e re. Butoni mban lartësinë e vet, që gishti
+ * ta zërë pa e kërkuar.
+ */
+.fundfaqja__i-ri {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
 }
 
 .zemra {

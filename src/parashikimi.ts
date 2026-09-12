@@ -7,8 +7,11 @@
  * një raundi. Këtu ata kufij dihen, prandaj përgjigjja del nga llogaria e jo
  * nga syri.
  *
- * Të dyja lojërat e veçojnë saktësisht një lojtar për raund — mbyllësin te
- * bridzhi, humbësin te magareci — dhe pikërisht ajo i bën kufijtë të numërueshëm:
+ * Dy nga katër lojërat e veçojnë saktësisht një lojtar për raund — mbyllësin te
+ * bridzhi, humbësin te magareci — dhe pikërisht ajo i bën kufijtë të numërueshëm.
+ * Domina dhe pishpiriku nuk e bëjnë: atje një dorë u jep pikë disave njëherësh,
+ * dhe sa — atë nuk e thotë rregulli. Prandaj ato nuk parashikohen, dhe blloku
+ * hiqet nga ekrani e nuk mbushet me numra të hamendësuar:
  *
  *   • **Bridzh** — mbyllësi merr −40 (hant), dhe kush s'hap fare merr 200.
  *     Pra brenda një raundi një lojtar bie së shumti 40 pikë, dhe ngjitet së
@@ -38,6 +41,7 @@
  */
 
 import { raundetELojes } from './llogaritjet.ts';
+import { rregullat } from './lojerat.ts';
 import { FJALA } from './magareci.ts';
 import { DENIMI_I_MBYLLUR, PIKET_E_MBYLLESIT } from './pikezimi.ts';
 import type { LlojiILojes } from './tipet.ts';
@@ -104,11 +108,14 @@ export type Parashikimi = {
 /**
  * Sa raunde i kanë mbetur kësaj mbrëmjeje.
  *
- * Të dyja lojërat e kanë fundin e vet, dhe asnjëra nuk kërkon që numri të
- * hamendësohet: bridzhi mbaron pas dy raundeve për lojtar, magareci kur
- * dikujt i mbushet fjala. E dyta është kufi i sipërm e jo numër i saktë —
- * fjala mund të mbushet edhe shumë më herët — prandaj parashikimi i magarecit
- * lexohet «deri në fund të mbrëmjes, më e largëta».
+ * Dy lojëra e japin këtë numër pa e hamendësuar: bridzhi mbaron pas dy raundeve
+ * për lojtar, magareci kur dikujt i mbushet fjala. E dyta është kufi i sipërm e
+ * jo numër i saktë — fjala mund të mbushet edhe shumë më herët — prandaj
+ * parashikimi i magarecit lexohet «deri në fund të mbrëmjes, më e largëta».
+ *
+ * Dy të tjerat nuk e japin: domina e pishpiriku mbarojnë kur dikush e arrin
+ * kufirin e pikëve, dhe sa pikë bën një dorë nuk e thotë rregulli. Atje kthehet
+ * zero — «nuk parashikohet» — dhe ekrani e heq bllokun.
  *
  * Ky është vendi i vetëm ku bëhet ai dallim. Një `lloji === 'magarec'` i
  * shpërndarë nëpër ekrane do të harrohej pikërisht atje ku ndryshon kufiri.
@@ -119,6 +126,12 @@ export function raundetEMbetura(
   totalet: Record<string, number>,
   luajtur: number,
 ): number {
+  // Domina e pishpiriku nuk e japin këtë numër, dhe kjo nuk është mangësi që
+  // mbulohet me një hamendje: fundi i tyre varet nga sa pikë bën një dorë, dhe
+  // atë nuk e kufizon rregulli. Zero do të thotë «nuk parashikohet», dhe ekrani
+  // e heq bllokun fare (`rregullat().parashikimi`).
+  if (!rregullat(lloji).parashikimi) return 0;
+
   if (lloji === 'magarec') return raundetMeTeShumta(players, totalet);
 
   return Math.max(0, raundetELojes(players) - Math.max(0, Math.trunc(luajtur)));
@@ -329,6 +342,14 @@ export function parashikimi(
   totalet: Record<string, number>,
   raunde: number,
 ): Parashikimi {
+  // Lojërat pa kufij të numërueshëm nuk parashikohen fare, dhe kthimi i tyre e
+  // thotë pikërisht atë: zero raunde përpara, pra asgjë që ndryshon. Një rënie
+  // e heshtur te llogaria e bridzhit do të nxirrte numra që duken të matur —
+  // «−40 për raund» mbi një dorë pishpiriku — dhe ata janë të shpikur.
+  if (!rregullat(lloji).parashikimi) {
+    return parashikimiIBridzhit(players, totalet, 0);
+  }
+
   return lloji === 'magarec'
     ? parashikimiIMagarecit(players, totalet, raunde)
     : parashikimiIBridzhit(players, totalet, raunde);

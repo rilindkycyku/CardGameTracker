@@ -52,7 +52,7 @@ function Forma({ keq }: { keq: boolean }) {
       <header className="kreu">
         <ShenjaEFaqes />
         <div>
-          <p className="kreu__mbi">Bridzh</p>
+          <p className="kreu__mbi">Tavolina</p>
           <h1 className="kreu__titull">Bashkohu me kod</h1>
         </div>
       </header>
@@ -176,7 +176,7 @@ function Lidhur({ kodi }: { kodi: string }) {
           <Ikona emri="drejtperdrejt" />
         </div>
         <div>
-          <p className="kreu__mbi">Bridzh · {shfaqKodin(kodi)}</p>
+          <p className="kreu__mbi">Tavolina · {shfaqKodin(kodi)}</p>
           <h1 className="kreu__titull">
             {gjendja.gabimi ? 'Nuk u lidh' : 'Duke u lidhur…'}
           </h1>

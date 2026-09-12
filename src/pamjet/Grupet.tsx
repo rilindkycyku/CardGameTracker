@@ -1,14 +1,19 @@
 /**
  * Ekrani i parë — grupet.
  *
- * Një grup është shoqëria që luan bashkë: „Brigj", „Domina". Emrat e lojtarëve
+ * Një grup është shoqëria që luan bashkë: „Brigj", „Mendja". Emrat e lojtarëve
  * futen një herë dhe pastaj vetëm zgjidhen, sepse shkrimi i gjashtë emrave në
  * telefon para çdo loje do të ishte pengesa që e lë aplikacionin pa përdorur.
+ *
+ * Grupi nuk i takon një loje të vetme: e njëjta shoqëri luan bridzh një mbrëmje
+ * e pishpirik tjetrën, prandaj çka luhet zgjidhet te loja e jo te grupi.
  */
 
 import { useRef, useState } from 'react';
 
 import { emratERinj } from '../fusha.ts';
+import { kaloTeIRi, useVersionIRi } from '../instalimi.ts';
+import { RADHA, rregullat } from '../lojerat.ts';
 import { Ikona, ShenjaEFaqes, Zemra } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import { PanelaEKopjes } from '../pjeset/PanelaEKopjes.tsx';
@@ -24,18 +29,26 @@ export function Grupet() {
   }, []);
 
   const [hapurFormen, hapFormen] = useState(false);
+  const versionIRi = useVersionIRi();
 
   return (
     <div className="faqja">
       <header className="kreu">
         <ShenjaEFaqes />
         <div>
-          <p className="kreu__mbi">Bridzh kosovar</p>
+          <p className="kreu__mbi">Lojërat e tavolinës</p>
           <h1 className="kreu__titull">Pikët e mbrëmjes</h1>
           <p className="kreu__meta">
+            {/*
+              Dikur këtu rrinte «Fiton totali më i vogël». Ajo ishte e vërtetë
+              sa kohë kishte vetëm bridzh e magarec; me pishpirikun në tavolinë
+              nuk është më, dhe një rregull i shkruar gabi te faqja e parë është
+              më keq se asnjë. Rregulli i secilës lojë rri atje ku zgjidhet çka
+              luhet, dhe këtu mbetet vetëm se cilat janë.
+            */}
             <span className="etiketa">
               <Ikona emri="info" />
-              Fiton totali më i vogël
+              {RADHA.map((lloji) => rregullat(lloji).emri).join(' · ')}
             </span>
           </p>
         </div>
@@ -156,6 +169,25 @@ export function Grupet() {
           Bërë me <Zemra /> për tavolinën.
         </p>
         <p className="fundfaqja__versioni">v{VERSIONI}</p>
+
+        {/*
+          Versioni i ri rri e pret, dhe nuk merr pushtetin pa u thënë.
+
+          Faqja tani ruhet te koshi i punëtorit të shërbimit, prandaj ajo që
+          hapet është ajo që u ruajt — edhe kur serveri ka diçka më të re. Pa
+          këtë rresht, «e ke të renë apo të vjetrën?» do të kthehej pikërisht
+          pyetja që numri i versionit erdhi ta mbyllte. Rri këtu sepse këtu rri
+          numri, dhe shfaqet vetëm kur ka vërtet çka të merret.
+        */}
+        {versionIRi && (
+          <p className="fundfaqja__i-ri">
+            <span>Ka një version më të ri.</span>
+            <button type="button" className="buton buton--vogel" onClick={kaloTeIRi}>
+              <Ikona emri="ruaj" />
+              Merre tani
+            </button>
+          </p>
+        )}
       </footer>
     </div>
   );

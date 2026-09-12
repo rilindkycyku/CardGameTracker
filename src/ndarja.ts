@@ -20,7 +20,9 @@
  * matin drejtpërdrejt.
  */
 
+import { kufiriILojes } from './fundi.ts';
 import { dataShqip, llojiILojes, raundetELojes } from './llogaritjet.ts';
+import { llojiNgaShenja, rregullat } from './lojerat.ts';
 import { fjalaE } from './magareci.ts';
 import {
   fushat,
@@ -38,11 +40,26 @@ export type Pamja = {
   /**
    * Çka u luajt.
    *
-   * Numri është i njëjti bajt te të dyja lojërat — pikë te bridzhi, shkronja te
-   * magareci — prandaj pa këtë fushë ana që shikon nuk ka nga ta dijë se `3`
+   * Numri është i njëjti bajt te të gjitha lojërat — pikë te bridzhi, shkronja
+   * te magareci — prandaj pa këtë fushë ana që shikon nuk ka nga ta dijë se `3`
    * do të thotë „MAG". Kjo është arsyeja e vetme pse paketa u bë versioni 2.
+   *
+   * Domina dhe pishpiriku hynë te e njëjta fushë, me nga një shkronjë të re,
+   * dhe versioni mbeti 2: aplikacioni i djeshëm një paketë pishpiriku e refuzon
+   * fare — shkronja nuk njihet — dhe kjo është pikërisht ajo që duhet. Aty fiton
+   * totali më i madh, prandaj një lexim si bridzh do ta shpallte fituesin e
+   * gabuar pa e thënë kush.
    */
   lloji: LlojiILojes;
+  /**
+   * Deri te sa pikë luhej ajo mbrëmje, ose `null` kur kjo nuk thuhet.
+   *
+   * `0` do të thotë «pa kufi». `null` do të thotë se paketa nuk e mban fare —
+   * bridzhi e magareci nuk e kanë atë pyetje, dhe as paketat e vjetra nuk e
+   * kishin — dhe atëherë ana që shikon nuk shkruan asnjë numër për të, në vend
+   * që të shpikë parazgjedhjen.
+   */
+  kufiri: number | null;
   /** Data e lojës, `YYYY-MM-DD`. */
   data: string;
   /** Sa raunde ishin shënuar kur u ndau. */
@@ -60,8 +77,41 @@ const FUSHA = 6;
 /** Sa fusha kishte versioni i parë, ai pa lloj. */
 const FUSHA_1 = 5;
 
-/** Lloji brenda paketës rri një shkronjë: çdo bajt është pikë te kodi QR. */
-const SHENJA: Record<LlojiILojes, string> = { bridzh: 'b', magarec: 'm' };
+/**
+ * Lloji brenda paketës rri një shkronjë: çdo bajt është pikë te kodi QR.
+ *
+ * Shkronjat vijnë nga regjistri i lojërave e nuk shkruhen dy herë — aty rrinë
+ * bashkë me gjithçka tjetër që e ndan një lojë nga tjetra, dhe një listë e dytë
+ * këtu do të harrohej te loja e pestë.
+ *
+ * **Kufiri i mbrëmjes hipën te e njëjta fushë**, si shifra pas shkronjës:
+ * `d100`, `p0`, `b`. Kjo nuk është kursim shkathtësie, është përputhshmëri:
+ * një fushë e re do ta bënte paketën versioni 3, dhe atëherë çdo aplikacion i
+ * djeshëm do t'i refuzonte edhe paketat e bridzhit — ndërsa kështu ai i lexon
+ * ato si më parë (`b` dhe `m` mbeten fjalë për fjalë ato që ishin), dhe
+ * refuzon vetëm dominën e pishpirikun, të cilat nuk i njeh gjithsesi.
+ *
+ * Shifrat shkruhen vetëm kur loja e ka atë pyetje; `0` do të thotë «pa kufi».
+ */
+function shenjaE(lloji: LlojiILojes, kufiri: number | null): string {
+  const shkronja = rregullat(lloji).shenja;
+  return kufiri === null ? shkronja : `${shkronja}${kufiri}`;
+}
+
+/** Shkronja e paketës dhe shifrat e saj, ose `null` kur nuk lexohet. */
+function llojiDheKufiri(
+  fusha: string,
+): { lloji: LlojiILojes; kufiri: number | null } | null {
+  // Katër shifra mjaftojnë për çdo kufi tavoline, dhe e mbajnë fushën të
+  // ngushtë: çka vjen nga jashtë lexohet me alfabet të ngushtë, kudo.
+  const pjeset = /^([a-z])(\d{0,4})$/.exec(fusha);
+  if (!pjeset) return null;
+
+  const lloji = llojiNgaShenja(pjeset[1]!);
+  if (lloji === null) return null;
+
+  return { lloji, kufiri: pjeset[2] ? Number(pjeset[2]) : null };
+}
 
 /* ── Paketimi ───────────────────────────────────────────────────────────── */
 
@@ -111,7 +161,7 @@ export function paketo(pamja: Pamja): string {
 
   const trupi = [
     VERSIONI,
-    SHENJA[pamja.lloji],
+    shenjaE(pamja.lloji, pamja.kufiri),
     ike(pamja.grupi),
     pamja.data,
     pamja.raunde,
@@ -143,8 +193,9 @@ export function shpaketo(kodi: string): Pamja | null {
   const shenja = version === 1 ? 'b' : trupi.shift();
   const [grupi, data, raunde, totalet] = trupi as [string, string, string, string];
 
-  const lloji = shenja === 'm' ? 'magarec' : shenja === 'b' ? 'bridzh' : null;
-  if (lloji === null) return null;
+  const lexuar = llojiDheKufiri(shenja ?? '');
+  if (lexuar === null) return null;
+  const { lloji, kufiri } = lexuar;
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return null;
 
@@ -174,6 +225,7 @@ export function shpaketo(kodi: string): Pamja | null {
     return {
       grupi: decodeURIComponent(grupi),
       lloji,
+      kufiri,
       data,
       raunde: saRaunde,
       totalet: cifte,
@@ -190,9 +242,18 @@ export function pamjaELojes(
   totalat: Record<string, number>,
   saRaunde: number,
 ): Pamja {
+  const lloji = llojiILojes(loja);
+
   return {
     grupi: emriIGrupit,
-    lloji: llojiILojes(loja),
+    lloji,
+    // Kufiri shkruhet vetëm te lojërat që e kanë atë pyetje. Te bridzhi e
+    // magareci ai do të ishin tri shifra që nuk i lexon kush: i pari mbaron me
+    // raundet, dhe te i dyti kufiri është vetë fjala.
+    kufiri:
+      rregullat(lloji).kufijteEMundshem.length > 0
+        ? (kufiriILojes(loja) ?? 0)
+        : null,
     data: loja.date,
     raunde: saRaunde,
     totalet: loja.selectedPlayers.map((emri) => [emri, totalat[emri] ?? 0]),
@@ -227,18 +288,31 @@ export function adresaEPamjes(rrenja: string, pamja: Pamja): string {
  * Te magareci numri nuk thotë asgjë vetëm — `3` lexohet „MAG" — prandaj aty
  * shkruhet fjala. Kush s'ka marrë ende asnjë shkronjë del me një vizë, që
  * rreshti të mos mbetet gjysmak.
+ *
+ * Radha e rreshtave vjen e gatshme nga thirrësi, dhe me të edhe drejtimi: te
+ * pishpiriku i pari është ai me më shumë pikë. Ky funksion nuk rendit asgjë —
+ * ai vetëm e shkruan atë që i jepet.
  */
 export function tekstiINdarjes(pamja: Pamja, rreshtat: RreshtiRenditjes[]): string {
+  const rregulli = rregullat(pamja.lloji);
   const magarec = pamja.lloji === 'magarec';
-  const gjithsej = raundetELojes(pamja.totalet.map(([emri]) => emri));
+
+  // «5 nga 8 raunde» vlen vetëm te bridzhi, sepse vetëm atje gjatësia e
+  // mbrëmjes numërohet me raunde (pika 13). Te tri të tjerat numri i thjeshtë
+  // është e gjithë e vërteta që dihet.
+  const raunde =
+    rregulli.raundePerLojtar === null
+      ? `${pamja.raunde} ${pamja.raunde === 1 ? 'raund' : 'raunde'}`
+      : `${pamja.raunde} nga ${raundetELojes(pamja.totalet.map(([emri]) => emri))} raunde`;
 
   const kreu = [
     pamja.grupi,
-    magarec ? 'Magarec' : null,
+    // Bridzhi rri pa emër sepse ai është parazgjedhja e këtij aplikacioni që
+    // nga dita e parë; të tjerat thonë çka u luajt, që një listë pikësh e
+    // ngjitur te një bisedë të mos lexohet si bridzh.
+    pamja.lloji === 'bridzh' ? null : rregulli.emri,
     dataShqip(pamja.data),
-    magarec
-      ? `${pamja.raunde} ${pamja.raunde === 1 ? 'raund' : 'raunde'}`
-      : `${pamja.raunde} nga ${gjithsej} raunde`,
+    raunde,
   ]
     .filter(Boolean)
     .join(' · ');

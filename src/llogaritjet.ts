@@ -11,6 +11,7 @@
  */
 
 import type {
+  Drejtimi,
   Grupi,
   LlojiILojes,
   Loja,
@@ -95,18 +96,31 @@ export function totalet(
 }
 
 /**
- * Renditja: totali më i vogël fiton, prandaj ngjitshëm.
+ * Renditja sipas totalit, në drejtimin që e fiton loja.
+ *
+ * Te tri lojërat nga katër fiton totali më i vogël, prandaj radha është
+ * ngjitshëm dhe parazgjedhja mbetet ajo — kështu e numëron edhe tabela
+ * origjinale. Pishpiriku shkon zbritshëm, sepse atje mblidhen pikë e nuk
+ * dënohet me to.
+ *
+ * Drejtimi jepet e nuk merret me mend nga lloji: ky funksion thirret edhe mbi
+ * një paketë të ardhur nga jashtë, ku lloji rri fushë më vete, dhe një lexim i
+ * dytë i tij këtu do të dilte jashtë sinkronie me atë të `lojerat.ts`.
  *
  * Barazimet nuk trajtohen veçmas — `sort` i JavaScript-it është i qëndrueshëm,
  * prandaj dy totale të njëjta mbeten në radhën e lojtarëve, dhe vendi është
- * thjesht pozicioni. Kështu vepron edhe tabela origjinale.
+ * thjesht pozicioni. Kush shpall një fitues me fjalë e merr nga `fituesit`,
+ * pikërisht sepse ajo radhë nuk e ndan dot barazimin (pika 14).
  */
 export function renditja(
   players: string[],
   totals: Record<string, number>,
+  drejtimi: Drejtimi = 'poshte',
 ): RreshtiRenditjes[] {
+  const shenja = drejtimi === 'larte' ? -1 : 1;
+
   return [...players]
-    .sort((a, b) => (totals[a] ?? 0) - (totals[b] ?? 0))
+    .sort((a, b) => shenja * ((totals[a] ?? 0) - (totals[b] ?? 0)))
     .map((player, i) => ({ rank: i + 1, player, total: totals[player] ?? 0 }));
 }
 
@@ -145,16 +159,21 @@ export function matricaEShlyerjes(
  * nuk fitoi asgjë. Prandaj çdo fjali që shpall një fitues merret prej këtej, e
  * jo prej `rreshtat[0]`.
  */
-export function fituesit(rreshtat: RreshtiRenditjes[]): string[] {
+export function fituesit(
+  rreshtat: RreshtiRenditjes[],
+  drejtimi: Drejtimi = 'poshte',
+): string[] {
   if (rreshtat.length === 0) return [];
 
-  // Totali më i vogël merret nga tërë vargu e jo nga `rreshtat[0]`: thirrësit e
+  // Totali fitues merret nga tërë vargu e jo nga `rreshtat[0]`: thirrësit e
   // japin të renditur, por një funksion që shpall fituesin nuk ka pse ta besojë
   // atë — dhe kostoja e një kalimi mbi gjashtë rreshta nuk matet.
-  const meIVogli = Math.min(...rreshtat.map((rreshti) => rreshti.total));
+  const totalet = rreshtat.map((rreshti) => rreshti.total);
+  const fitues =
+    drejtimi === 'larte' ? Math.max(...totalet) : Math.min(...totalet);
 
   return rreshtat
-    .filter((rreshti) => rreshti.total === meIVogli)
+    .filter((rreshti) => rreshti.total === fitues)
     .map((rreshti) => rreshti.player);
 }
 
@@ -351,7 +370,11 @@ export function sot(tani: Date = new Date()): string {
  * atje ku ndryshon vizatimi.
  */
 export function llojiILojes(loja: { lloji?: LlojiILojes }): LlojiILojes {
-  return loja.lloji === 'magarec' ? 'magarec' : 'bridzh';
+  const lloji = loja.lloji;
+
+  return lloji === 'magarec' || lloji === 'domina' || lloji === 'pishpirik'
+    ? lloji
+    : 'bridzh';
 }
 
 /** Lojërat e një grupi, më e reja e para. */
@@ -431,11 +454,17 @@ export type RreshtiPergjithshem = {
  *     dhe nuk e fiton dot atë me zero pikë.
  *
  * Radha: më shumë fitore i pari, dhe kur fitoret janë të barabarta, mesatarja
- * më e vogël — sepse fiton totali më i vogël. Barazimi i plotë e mban radhën e
- * paraqitjes, si te `renditja`.
+ * në drejtimin që e fiton loja — më e vogla te bridzhi e domina, më e madhja te
+ * pishpiriku. Barazimi i plotë e mban radhën e paraqitjes, si te `renditja`.
+ *
+ * Një tabelë për lojë, e jo një për grup: pikët e bridzhit dhe ato të dominës
+ * mblidhen njësoj si numra, por nuk janë e njëjta gjë, dhe një mesatare mbi të
+ * dyja do të ishte numër që nuk i përgjigjet asnjë pyetjeje. Ekrani i grupit i
+ * ndan lojërat para se ta thërrasë (pika 16).
  */
 export function tabelaEPergjithshme(
   lojerat: { selectedPlayers: string[]; raundet: Raundi[] }[],
+  drejtimi: Drejtimi = 'poshte',
 ): RreshtiPergjithshem[] {
   const mbledhur = new Map<
     string,
@@ -448,7 +477,7 @@ export function tabelaEPergjithshme(
     if (shenuan.length === 0) continue;
 
     const totalat = totalet(shenuan, loja.raundet);
-    const fituesi = renditja(shenuan, totalat)[0]?.player;
+    const fituesi = renditja(shenuan, totalat, drejtimi)[0]?.player;
 
     for (const player of shenuan) {
       const rreshti = mbledhur.get(player) ?? {
@@ -473,7 +502,13 @@ export function tabelaEPergjithshme(
       totali: r.totali,
       mesatarja: r.totali / r.lojera,
     }))
-    .sort((a, b) => b.fitore - a.fitore || a.mesatarja - b.mesatarja);
+    .sort(
+      (a, b) =>
+        b.fitore - a.fitore ||
+        (drejtimi === 'larte'
+          ? b.mesatarja - a.mesatarja
+          : a.mesatarja - b.mesatarja),
+    );
 }
 
 /**
@@ -485,10 +520,11 @@ export function tabelaEPergjithshme(
 export function renditjaELojes(
   selectedPlayers: string[],
   raundet: Raundi[],
+  drejtimi: Drejtimi = 'poshte',
 ): RreshtiRenditjes[] {
   const luajtur = raundetELuajtura(selectedPlayers, raundet);
   const shenuan = selectedPlayers.filter((p) => (luajtur[p] ?? 0) > 0);
   if (shenuan.length === 0) return [];
 
-  return renditja(shenuan, totalet(shenuan, raundet));
+  return renditja(shenuan, totalet(shenuan, raundet), drejtimi);
 }
