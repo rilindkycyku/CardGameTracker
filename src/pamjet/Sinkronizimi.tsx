@@ -202,7 +202,7 @@ function Lidhja({ konfiguruar }: { konfiguruar: boolean }) {
               inputMode="url"
               autoComplete="off"
               value={url}
-              placeholder="abcdefghij.supabase.co"
+              placeholder="projekti-yt.supabase.co"
               onChange={(e) => caktoUrl(e.target.value)}
             />
           </label>

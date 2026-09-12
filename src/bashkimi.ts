@@ -63,6 +63,25 @@ import type { Grupi, LlojiILojes, Loja, Raundi, StoriSink, Varri } from './tipet
  */
 export const KOHA_PARA_SINKRONIZIMIT = 1;
 
+/**
+ * Një orë që `Date` e lexon dot.
+ *
+ * `new Date(x).toISOString()` **hedh** `RangeError` për çdo numër jashtë
+ * ±8.64e15, dhe ajo thirrje bie te ndërtimi i çdo rreshti që dërgohet. Pra një
+ * regjistër i vetëm i dëmtuar — një `perditesuar` i shkruar gabim nga një
+ * version i ardhshëm, ose një bazë e prekur me dorë — nuk do ta ndalte veten,
+ * do ta ndalte **çdo** dërgim të asaj pajisjeje, përgjithmonë dhe pa shpjegim.
+ *
+ * Zeroja është zgjedhja e sigurt: rreshti niset gjithsesi, dhe orën e vërtetë ia
+ * vë trigger-i i serverit sapo ta pranojë.
+ */
+const KUFIRI_I_ORES = 8.64e15;
+
+export function oraEVlefshme(ms: unknown): number {
+  const i = Number(ms);
+  return Number.isFinite(i) && Math.abs(i) <= KUFIRI_I_ORES ? i : 0;
+}
+
 /** Çelësi i një regjistri te të dyja anët: `${store}:${uid}`. */
 export function celesiRreshtit(store: string, uid: string): string {
   return `${store}:${uid}`;
@@ -481,6 +500,8 @@ export type Plani = {
   anashkaluar: number;
   /** Rreshta që presin prindin e vet — kthehen te sinkronizimi tjetër. */
   shtyre: number;
+  /** Çelësat e tyre, që thirrësi të dijë a janë të njëjtët si herën e kaluar. */
+  shtyreCelesat: string[];
   /** Shënjuesi i ri i shkarkimit. Nuk e kalon kurrë rreshtin më të hershëm që u
    * shty: përndryshe ai nuk do të rishkarkohej më kurrë. */
   maxTs: number;
@@ -505,6 +526,15 @@ export type Plani = {
  * rreshti im që po kthehet»: çdo dërgim e shënon orën me të cilën përfundoi
  * rreshti, prandaj jehona përputhet deri te milisekondi dhe kapërcehet.
  *
+ * `lejoShtyrjen` e mban shënjuesin nën rreshtin më të hershëm që pret prindin e
+ * vet — sjellja e zakonshme, dhe ajo që bën që një raund i mbërritur para lojës
+ * së vet të kthehet herën tjetër. Me `false` ata rreshta numërohen thjesht si të
+ * kapërcyer dhe shënjuesi kalon mbi ta. Kjo nuk është zgjedhje stili: një rresht
+ * cloud-i prindi i të cilit **nuk ekziston më** nuk zbatohet dot kurrë, dhe me
+ * shtyrjen gjithmonë të lejuar ai do ta mbante shënjuesin në vend përgjithmonë —
+ * pra sinkronizimi do të pushonte së ecuri fare, në heshtje, dhe asnjë mbrëmje e
+ * re nuk do të zbriste më. Thirrësi e fik pas disa provave të kota.
+ *
  * `cloudFiton` e heq rregullin 1 për një sinkronizim të vetëm. Nuk është për
  * punën e përditshme — është për çastin kur një pajisje i bashkohet një kopjeje
  * që nuk e ka takuar kurrë (`MENYRAT.BASHKO`/`MENYRAT.MERR`), ku «i padërguar»
@@ -522,12 +552,16 @@ export function planiIAplikimit(
     pezull?: Set<string>;
     uidet: Record<StoriSink, Set<string>>;
   },
-  { cloudFiton = false }: { cloudFiton?: boolean } = {},
+  {
+    cloudFiton = false,
+    lejoShtyrjen = true,
+  }: { cloudFiton?: boolean; lejoShtyrjen?: boolean } = {},
 ): Plani {
   const shkruaj: ShkrimiSink[] = [];
   const fshi: FshirjaSink[] = [];
   let anashkaluar = 0;
   let shtyre = 0;
+  const shtyreCelesat: string[] = [];
   let maxTs = 0;
   let mePakShtyre = Infinity;
 
@@ -600,10 +634,14 @@ export function planiIAplikimit(
       }
 
       if (prindiIPanjohur(store, fushat)) {
-        // Shënjuesi nuk kalon mbi të: kthehet herën tjetër, kur prindi ka gjasë
-        // të ketë mbërritur.
-        mePakShtyre = Math.min(mePakShtyre, rr.perditesuar);
         shtyre++;
+        shtyreCelesat.push(celesi);
+        // Shënjuesi nuk kalon mbi të: kthehet herën tjetër, kur prindi ka gjasë
+        // të ketë mbërritur. Kur thirrësi e ka parë të njëjtin rresht të mbetur
+        // disa herë me radhë, prindi nuk po vjen — dhe atëherë shënjuesi kalon,
+        // sepse një jetimë e përhershme nuk vlen sa një sinkronizim i ngrirë.
+        if (lejoShtyrjen) mePakShtyre = Math.min(mePakShtyre, rr.perditesuar);
+        else maxTs = Math.max(maxTs, rr.perditesuar);
         continue;
       }
 
@@ -624,7 +662,7 @@ export function planiIAplikimit(
 
   if (mePakShtyre !== Infinity) maxTs = Math.min(maxTs, mePakShtyre - 1);
 
-  return { shkruaj, fshi, celesat, anashkaluar, shtyre, maxTs };
+  return { shkruaj, fshi, celesat, anashkaluar, shtyre, shtyreCelesat, maxTs };
 }
 
 /* ── Kur një pajisje i bashkohet një kopjeje ────────────────────────────── */

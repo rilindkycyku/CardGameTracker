@@ -24,6 +24,7 @@ import {
   mungojneNeCloud,
   ndryshimetLokale,
   numriLokal,
+  oraEVlefshme,
   pajisjaPaTeDhena,
   permbledhjaELidhjes,
   planiIAplikimit,
@@ -201,6 +202,45 @@ test('raundi pa lojën e vet shtyhet, dhe shënjuesi nuk kalon mbi të', () => {
   // te 8000 do të zbresë sërish herën tjetër dhe do të njihet si jehonë, kurse
   // ai te 7000 do të gjejë prindin e vet.
   assert.equal(plani.maxTs, 6999);
+});
+
+test('pas disa provave rreshti i shtyrë quhet jetim dhe shënjuesi kalon', () => {
+  /*
+   * Kjo është e vetmja rrugë jashtë një ngrirjeje të përhershme. Një rresht
+   * cloud-i prindi i të cilit **nuk ekziston më** — një lojë e fshirë ndërsa
+   * raundet e saj mbetën — nuk zbatohet dot kurrë; me shtyrjen gjithmonë të
+   * lejuar ai do ta mbante shënjuesin në vend, dhe që nga ai çast asnjë mbrëmje
+   * e re nuk do të zbriste më. Në heshtje, dhe përgjithmonë.
+   */
+  const g = gjendja({ groups: [GRUPI()] });
+  const rreshtat = [
+    rreshti('rounds', 'raund_b', 7000, { ...DATA_E_RAUNDIT, gameUid: 'loje_e_zhdukur' }),
+    rreshti('groups', 'grup_a', 8000, DATA_E_GRUPIT),
+  ];
+
+  // Sa kohë lejohet, shënjuesi ndalet nën rreshtin jetim.
+  const duke = planiIAplikimit(rreshtat, ana(g), { lejoShtyrjen: true });
+  assert.equal(duke.maxTs, 6999);
+  assert.deepEqual(duke.shtyreCelesat, ['rounds:raund_b']);
+
+  // Me shtyrjen e fikur, ai numërohet si i kapërcyer dhe shënjuesi ecën.
+  const mjaft = planiIAplikimit(rreshtat, ana(g), { lejoShtyrjen: false });
+  assert.equal(mjaft.maxTs, 8000);
+  assert.equal(mjaft.shkruaj.length, 1);
+});
+
+test('një orë e pamundur bëhet zero, e nuk rrëzon tërë dërgimin', () => {
+  /*
+   * `new Date(x).toISOString()` hedh `RangeError` jashtë ±8.64e15, dhe ajo
+   * thirrje bie te ndërtimi i çdo rreshti. Pa këtë kufi, një regjistër i vetëm i
+   * dëmtuar do ta ndalte çdo dërgim të asaj pajisjeje — jo vetëm të vetin.
+   */
+  assert.equal(oraEVlefshme(1700000000000), 1700000000000);
+  for (const i of [NaN, Infinity, -Infinity, 1e30, '', null, undefined, {}]) {
+    assert.equal(oraEVlefshme(i), 0, `u pranua ${String(i)}`);
+  }
+  // Dhe pikërisht kjo është ajo që `Date` e lexon dot.
+  assert.doesNotThrow(() => new Date(oraEVlefshme(1e30)).toISOString());
 });
 
 test('prindi dhe fëmija të mbërritur bashkë zbatohen te i njëjti sinkronizim', () => {

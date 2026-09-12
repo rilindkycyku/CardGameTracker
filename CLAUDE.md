@@ -74,7 +74,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 311 prova, pa framework provash
+npm test          # node --test — 315 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -916,6 +916,15 @@ publik, dhe hyn me një llogari që ekziston vetëm brenda tij. Server i Tavolin
 **mos shto një të tillë** — as për të rele-uar diçka, as për „lehtësi". Sapo të ketë një, tërë pika 1
 bie bashkë me të.
 
+**Asnjë projekt nuk vjen i shkruar te kodi**, dhe kjo është kërkesë e shprehur e pronarit: as adresë,
+as çelës, as varg mjedisi që do t'i fuste gjatë ndërtimit. `BOSH` te `supabase.ts` nis me `url` e
+`anonKey` të zbrazët, pra `eshteLidhur` del `false` dhe asnjë kërkesë nuk niset. Një „parazgjedhje e
+përshtatshme" këtu do të thoshte se mbrëmjet e çdo instalimi shkojnë te baza e dikujt tjetër, dhe
+kjo nuk do të dukej te asnjë ekran. Prova `asnjë projekt Supabase nuk vjen i shkruar te kodi` e lexon
+tërë `src/`-në kundër kësaj — host projekti, çelës i të dy formave, dhe emrat e mundshëm të vargjeve
+të mjedisit. Vend-mbajtësja te forma është `projekti-yt.supabase.co` pikërisht që të mos ketë formën
+e një reference të vërtetë.
+
 Kjo shmangje pranohet vetëm nën këto kushte, dhe nëse dikush e prek një prej tyre, shmangja nuk
 qëndron më:
 
@@ -1003,6 +1012,44 @@ nuk i ka parë kurrë, dhe data që të **humbin** kundër çdo rreshti që clou
 - **Shkrimet e cloud-it nuk e nxisin një sinkronizim të ri.** `onNdryshimLokal` bie vetëm te shkrimet
   e përdoruesit; `onBazaNdryshoi` bie te të dyja dhe e rifreskon ekranin. Pa atë ndarje, dy pajisje
   do të ushqenin njëra-tjetrën pa fund.
+
+#### Çka e mban të gjallë pas muajsh
+
+Sinkronizimi bie vetvetiu, te sfondi, mbi një bazë që rritet — pra dështimet e tij nuk janë të
+dukshme sa ato të një butoni. Pesë gjëra e ndalojnë secilën nga mënyrat me të cilat ai ngrin pa u
+vënë re, dhe asnjëra nuk guxon të hiqet:
+
+- **Çdo `fetch` ka afat** (`kerko` te `supabase.ts`, 20s për lexim e 60s për dërgim). Pa të, një
+  portal wifi-je që i mban lidhjet hapur pa u përgjigjur e lë `nePritje` të zënë **përgjithmonë**:
+  çdo sinkronizim i mëpasshëm i bashkohet një premtimi që nuk zgjidhet, butoni rri i fikur, dhe
+  rruga e vetme jashtë është rihapja e skedës.
+- **Dështimet largohen dyfish** (`ecKeq`, nga një minutë deri te gjysmë ore). Një projekt i ndalur
+  përndryshe do të merrte një kërkesë çdo dhjetë minuta, te çdo ndërrim skede dhe pas çdo raundi —
+  pa rregulluar asgjë dhe duke pirë baterinë. Ngjarja `online` e heq pritjen, sepse atëherë shkaku
+  vërtet mund të ketë rënë; «Sinkronizo tani» e shpërfill fare, sepse kush e shtyp e di se po provon.
+- **Shtyrja e një jetimeje është e kufizuar** (pika më sipër). Tri prova, pastaj shënjuesi kalon.
+- **Premtimi i dështuar i bazës nuk ruhet.** `db()` e pastron `baza`-n te `catch`: i ruajtur, ai do
+  t'i kthehej çdo leximi të mëpasshëm, dhe një dështim i çastit do ta linte aplikacionin të vdekur
+  derisa të rihapej skeda. Po ashtu `blocked` (një skedë e vjetër e mban bazën — ekrani e thotë me
+  fjalë), `blocking` dhe `terminated`.
+- **Varret fshihen pas tre muajsh** (`pastroVarretEVjetra`, një herë në ditë bashkë me kontrollin e
+  dy anëve). Ata janë e vetmja gjë te kjo bazë që rritet pa kufi. Fshihen vetëm ata që cloud-i i ka
+  pranuar: një varr i padërguar është një fshirje që s'ka mbërritur askund.
+
+#### Faqja e bardhë është dështimi më i keq
+
+`Gardhi` te `pjeset/Gardhi.tsx` rri jashtë gjithçkaje te `main.tsx`. Pa të, një gabim vizatimi te
+cilido ekran e zbraz tërë pemën: pa tekst, pa buton, dhe pa asnjë shenjë se pikët janë ende te baza —
+pra pikërisht në atë çast njeriu mendon se e humbi mbrëmjen. Kartela thotë tri gjëra me radhë: të
+dhënat nuk humbën, ja si provohet sërish, dhe ja çka tha gabimi.
+
+Është i vetmi vend te projekti ku shkruhet një klasë komponenti, sepse `componentDidCatch` nuk ka
+hook që e zëvendëson.
+
+**Dhe `useNgarko` e hedh gabimin e vet gjatë vizatimit**, që të bjerë te po ai gardh. Kufijtë e
+React-it i kapin vetëm gabimet e vizatimit; një premtim i refuzuar u kalon pranë. Pa atë rresht, një
+bazë që nuk hapet dot — kuota e mbushur, IndexedDB e fikur në shfletim privat — do ta linte ekranin
+te «Duke lexuar…» **pa fund**. Kjo u provua me shfletues duke ia hequr `indexedDB`-në faqes.
 
 #### Çka nuk e preku
 
@@ -1146,6 +1193,10 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - **Kandidatët e telefonit janë emra mDNS**, jo IP: `<uuid>.local`. Ata zgjidhen mes pajisjeve të së
   njëjtës rrjetë, prandaj punojnë — por i shtojnë ftesës dyzet karaktere, dhe kjo është arsyeja pse
   gishtëza paketohet si bajte e jo si heks.
+- **Një navigim vetëm me hash nuk i rikërkon skriptet.** Kjo e zë ngushtë provën me shfletues që
+  bllokon `**/*.js` për të mbushur bazën para se aplikacioni të nisë: pas `unroute`, një
+  `goto('…#/loja/1')` mbetet te i njëjti dokument dhe faqja rri pa JS — duket sikur aplikacioni nuk
+  vizaton fare. Duhet një `reload()` i vërtetë.
 - **Sinkronizimi nuk u provua kundër një projekti të vërtetë Supabase.** Makina e provave nuk e
   lëshon `*.supabase.co`, prandaj ajo që u provua është gjithçka nën rrjetin: rregullat e bashkimit
   me `node --test`, dhe me shfletues migrimi i bazës nga versioni 1 në 2 (`uid` i plotësuar te të tri
@@ -1153,6 +1204,11 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   lë varr për lojën dhe për secilin raund. E paprovuar mbetet vetëm shtresa e `fetch`-it: forma e
   kërkesave PostgREST, `Prefer: resolution=merge-duplicates`, dhe sjellja e vërtetë e trigger-it të
   orës. Rruga e parë kur diçka nuk punon atje është skeda «Network» dhe tabela te SQL Editor-i.
+
+  Dy gjendje dështimi u provuan vërtet me shfletues, sepse të dyja e linin faqen pa fjalë: një
+  regjistër i dëmtuar (një lojë pa `selectedPlayers`) tani nxjerr kartelën e gardhit e jo faqen e
+  bardhë, dhe një shfletues me `indexedDB`-në e hequr nxjerr po atë kartelë e jo një «Duke lexuar…»
+  të përhershëm.
 - **Migrimi i bazës rri jashtë `upgrade`-it.** Kursori që i vë `uid` çdo regjistri bie pas hapjes, te
   një transaksion i zakonshëm, sepse brenda `upgrade`-it ai do ta mbante transaksionin e versionit
   hapur sa zgjat leximi i tërë bazës. Çelësi `duhetStampim` e mban atë vendim, dhe bie vetëm kur

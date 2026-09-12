@@ -76,8 +76,50 @@ let baza: Promise<IDBPDatabase<Skema>> | null = null;
  */
 let duhetStampim = false;
 
+/**
+ * Dëgjuesit e «baza nuk hapet dot», për ekranin që duhet ta thotë me fjalë.
+ *
+ * Ka një shkak të vetëm të zakonshëm dhe një zgjidhje të vetme: një skedë tjetër
+ * e mban bazën hapur te versioni i vjetër, prandaj migrimi pret. Pa këtë
+ * njoftim faqja rri te «Duke lexuar…» pa fund, dhe askush nuk ka nga ta marrë
+ * me mend se duhet mbyllur skeda tjetër.
+ */
+const degjuesitEBllokimit = new Set<(bllokuar: boolean) => void>();
+
+export function onBllokimBaze(fn: (bllokuar: boolean) => void): () => void {
+  degjuesitEBllokimit.add(fn);
+  return () => degjuesitEBllokimit.delete(fn);
+}
+
+function njoftoBllokimin(bllokuar: boolean): void {
+  for (const fn of degjuesitEBllokimit) fn(bllokuar);
+}
+
 function db(): Promise<IDBPDatabase<Skema>> {
   baza ??= openDB<Skema>(EMRI, VERSIONI, {
+    /*
+     * Një skedë tjetër e mban bazën te versioni i vjetër. Pa këtë, hapja pret
+     * pa fund dhe faqja rri e zbrazët pa thënë pse.
+     */
+    blocked() {
+      njoftoBllokimin(true);
+    },
+    /*
+     * Kjo skedë e mban bazën, dhe një skedë tjetër po e migron. Lidhja mbyllet
+     * që ajo të vazhdojë: ky ekran do të lexonte gjithsesi me skemën e gabuar.
+     */
+    blocking(_iVjetri, _iRi, ngjarja) {
+      (ngjarja.target as IDBPDatabase<Skema> | null)?.close();
+      baza = null;
+    },
+    /*
+     * Shfletuesi e mbylli lidhjen nën këmbët tona — ndodh kur sistemi liron
+     * vend. Hapja tjetër e ngre sërish; pa këtë, çdo lexim i mëpasshëm do të
+     * binte mbi një lidhje të vdekur.
+     */
+    terminated() {
+      baza = null;
+    },
     upgrade(baza, iVjetri, _iRi, tx) {
       if (iVjetri < 1) {
         baza.createObjectStore('groups', { keyPath: 'id', autoIncrement: true });
@@ -107,13 +149,26 @@ function db(): Promise<IDBPDatabase<Skema>> {
         if (iVjetri >= 1) duhetStampim = true;
       }
     },
-  }).then(async (hapur) => {
-    if (duhetStampim) {
-      duhetStampim = false;
-      await stampoTeVjetrat(hapur);
-    }
-    return hapur;
-  });
+  })
+    .then(async (hapur) => {
+      njoftoBllokimin(false);
+      if (duhetStampim) {
+        duhetStampim = false;
+        // Jo fatale: pa `uid` një regjistër thjesht nuk sinkronizohet, kurse
+        // mbrëmja para syve lexohet njësoj. Rrjeta e dytë rri te vetë shkrimet,
+        // të cilat e plotësojnë `uid`-in që mungon sapo preket regjistri.
+        await stampoTeVjetrat(hapur).catch(() => undefined);
+      }
+      return hapur;
+    })
+    .catch((err: unknown) => {
+      // Premtimi i dështuar **nuk** mbahet: i ruajtur, ai do t'i kthehej çdo
+      // leximi të mëpasshëm, dhe një dështim i çastit — kuota, një skedë që
+      // bllokoi, një shfletues që e mbylli bazën — do ta linte aplikacionin të
+      // vdekur derisa të rihapej skeda. Kështu leximi tjetër provon sërish.
+      baza = null;
+      throw err;
+    });
 
   return baza;
 }
@@ -191,6 +246,20 @@ function stampo<T extends object>(
   return Object.assign(rekordi, { perditesuar: Date.now(), sinkPezull: true });
 }
 
+/**
+ * Rrjeta e dytë e `uid`-it.
+ *
+ * Stampimi i migrimit ua vë të gjithëve (`stampoTeVjetrat`), por ai është
+ * përpjekje e mirë e jo garanci: mund të bjerë te kuota, ose te një skedë që e
+ * mbylli faqen në mes. Prandaj çdo shkrim i përdoruesit e plotëson atë që
+ * mungon — regjistri që preket e merr emrin e vet, dhe pa të nuk do të dilte
+ * kurrë nga pajisja.
+ */
+function meUid<T extends { uid?: string }>(rekordi: T, store: StoriSink): T {
+  if (!rekordi.uid) rekordi.uid = uidIRi(PREFIKSAT[store]);
+  return rekordi;
+}
+
 /** Varri i një regjistri të sapofshirë — i shënuar si i padërguar, si çdo
  * ndryshim tjetër i kësaj pajisjeje. */
 function varri(store: StoriSink, uid: string): Varri {
@@ -221,7 +290,7 @@ export async function shtoGrup(
 }
 
 export async function ruajGrup(grupi: Grupi): Promise<void> {
-  await (await db()).put('groups', stampo(grupi));
+  await (await db()).put('groups', stampo(meUid(grupi, 'groups')));
   njofto();
 }
 
@@ -299,7 +368,7 @@ export async function shtoLoje(
 }
 
 export async function ruajLoje(loja: Loja): Promise<void> {
-  await (await db()).put('games', stampo(loja));
+  await (await db()).put('games', stampo(meUid(loja, 'games')));
   njofto();
 }
 
@@ -342,7 +411,7 @@ export async function shtoRaund(
 }
 
 export async function ruajRaund(raundi: Raundi): Promise<void> {
-  await (await db()).put('rounds', stampo(raundi));
+  await (await db()).put('rounds', stampo(meUid(raundi, 'rounds')));
   njofto();
 }
 
@@ -699,6 +768,43 @@ export async function shenoPezull(
 
   await tx.done;
   return numri;
+}
+
+/**
+ * Sa gjatë mbahet varri i një regjistri të fshirë.
+ *
+ * Varret rriten dhe nuk zvogëlohen kurrë vetvetiu: një shoqëri që fshin një
+ * mbrëmje të gabuar çdo muaj për pesë vjet mbart gjashtëdhjetë rreshta që nuk i
+ * lexon kush. Vetë ato janë të vogla, por rriten **për gjithmonë**, dhe kjo është
+ * e vetmja gjë te kjo bazë që nuk ka kufi.
+ *
+ * Tre muaj janë shumë më gjatë se sa i duhet një fshirjeje për të mbërritur te
+ * pajisja tjetër. Nëse ajo pajisje ka qenë e fikur më gjatë, ajo prapë nuk e
+ * ringjall regjistrin: kur varri i kalon të tre muajt ai hiqet vetëm nga kjo
+ * pajisje, kurse rreshti i cloud-it mbetet aty ku është dhe vazhdon ta thotë se
+ * regjistri është fshirë.
+ */
+const MOSHA_E_VARREVE = 90 * 24 * 60 * 60 * 1000;
+
+/**
+ * Heq varret e vjetra që cloud-i i ka pranuar tashmë.
+ *
+ * Vetëm ata: një varr ende i padërguar është një fshirje që nuk ka mbërritur
+ * askund, dhe heqja e tij do ta zhbënte atë fshirje te çdo pajisje tjetër.
+ */
+export async function pastroVarretEVjetra(tani = Date.now()): Promise<number> {
+  const tx = (await db()).transaction('fshirjet', 'readwrite');
+  let sa = 0;
+
+  for (const varri of await tx.store.getAll()) {
+    if (varri.sinkPezull) continue;
+    if (tani - (Number(varri.perditesuar) || 0) < MOSHA_E_VARREVE) continue;
+    await tx.store.delete(varri.celesi);
+    sa++;
+  }
+
+  await tx.done;
+  return sa;
 }
 
 /**

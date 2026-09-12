@@ -9,6 +9,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 import {
   kontrolloCelesin,
@@ -103,4 +105,65 @@ test('gabimet e projektit përkthehen te diçka me të cilën njeriu vepron', ()
   // Çka nuk njihet kalon me fjalët e vetë serverit: anglisht, por të vërteta.
   assert.equal(mesazhiGabimit(500, { message: 'boom' }), 'boom');
   assert.match(mesazhiGabimit(500, null), /500/);
+});
+
+/* ── Projekti është i përdoruesit, kurrë i yni ──────────────────────────── */
+
+/** Çdo skedar burimi, që një prekje e vetme diku të mos e kalojë provën poshtë. */
+function burimet(dosja = 'src') {
+  const dala = [];
+  for (const hyrja of readdirSync(dosja, { withFileTypes: true })) {
+    const shtegu = join(dosja, hyrja.name);
+    if (hyrja.isDirectory()) dala.push(...burimet(shtegu));
+    else if (/\.tsx?$/.test(hyrja.name)) dala.push([shtegu, readFileSync(shtegu, 'utf8')]);
+  }
+  return dala;
+}
+
+/** Teksti pa komente — atje ku rrinë shembujt dhe shpjegimet. */
+function paKomente(kodi) {
+  return kodi.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+}
+
+test('asnjë projekt Supabase nuk vjen i shkruar te kodi', () => {
+  /*
+   * Kushti i pronarit, dhe ai që e mban pikën 1 të qëndrueshme: projektin e
+   * sjell **përdoruesi**, me dorë, te ekrani i sinkronizimit. Një adresë a çelës
+   * i ngritur këtu — qoftë edhe si „parazgjedhje e përshtatshme" — do të thoshte
+   * se mbrëmjet e çdo instalimi shkojnë te një bazë e dikujt tjetër, dhe kjo nuk
+   * do të dukej te asnjë ekran.
+   *
+   * Lexohet i tërë burimi e jo një skedar i vetëm, sepse një parazgjedhje e tillë
+   * do të hynte pikërisht atje ku nuk e pret kush.
+   */
+  for (const [shtegu, kodi] of burimet()) {
+    const pastruar = paKomente(kodi);
+
+    // Një host i vërtetë projekti: njëzet karaktere para `.supabase.co`. Vetë
+    // `supabase.com` (paneli) lejohet — ajo lidhje ndërtohet nga adresa që
+    // shkruan përdoruesi — dhe po ashtu një vend-mbajtëse si
+    // `projekti-yt.supabase.co`, e cila nuk ka formën e një reference.
+    const hosti = pastruar.match(/[a-z0-9]{8,}\.supabase\.(co|in|net)/i);
+    assert.equal(hosti, null, `${shtegu} mban një projekt të shkruar: ${hosti?.[0]}`);
+
+    // As nga ndërtimi: një varg mjedisi do ta fuste të njëjtën gjë pa u parë
+    // fare te kodi.
+    assert.equal(/VITE_SUPABASE|SUPABASE_URL|SUPABASE_KEY/i.test(pastruar), false, shtegu);
+
+    // Dhe asnjë çelës: të dy format që lëshon Supabase.
+    assert.equal(/sb_publishable_[A-Za-z0-9_-]{10,}/.test(pastruar), false, shtegu);
+    assert.equal(/sb_secret_[A-Za-z0-9_-]{10,}/.test(pastruar), false, shtegu);
+    assert.equal(/eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}/.test(pastruar), false, shtegu);
+  }
+});
+
+test('konfigurimi i ri nis i zbrazët', () => {
+  // `BOSH` është ajo që lexon një shfletues që nuk e ka prekur kurrë ekranin, dhe
+  // `eshteLidhur` mbi të duhet të dalë `false` — pra asnjë kërkesë nuk niset.
+  const kodi = readFileSync('src/supabase.ts', 'utf8');
+  const bosh = kodi.slice(kodi.indexOf('const BOSH'), kodi.indexOf('const degjuesit'));
+
+  assert.match(bosh, /url: '',/);
+  assert.match(bosh, /anonKey: '',/);
+  assert.match(bosh, /refreshToken: '',/);
 });

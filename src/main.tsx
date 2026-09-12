@@ -5,6 +5,7 @@ import { App } from './App.tsx';
 import { regjistroPunetorin } from './instalimi.ts';
 import { nisMatjen } from './matja.ts';
 import { nisTemen } from './ndricimi.ts';
+import { Gardhi, NjoftimiIBazes } from './pjeset/Gardhi.tsx';
 import { nisAutomatikun } from './sinkronizimi.ts';
 import './style.css';
 
@@ -21,9 +22,20 @@ nisTemen();
 const rrenja = document.getElementById('app');
 if (!rrenja) throw new Error('Mungon #app te index.html');
 
+/*
+ * Gardhi rri jashtë gjithçkaje.
+ *
+ * Një gabim vizatimi te cilido ekran e zbraz tërë pemën, dhe pa të kjo do të
+ * ishte faqe e bardhë: pa tekst, pa buton, dhe pa asnjë shenjë se pikët janë
+ * ende te baza. Brenda tij, njoftimi i bazës rri sipër aplikacionit sepse është
+ * e vetmja gjë që ka kuptim kur asnjë ekran nuk lexon dot.
+ */
 createRoot(rrenja).render(
   <StrictMode>
-    <App />
+    <Gardhi>
+      <NjoftimiIBazes />
+      <App />
+    </Gardhi>
   </StrictMode>,
 );
 

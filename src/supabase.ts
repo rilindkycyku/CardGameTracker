@@ -80,6 +80,17 @@ export type Konfigurimi = {
   lidhjaVerifikuar: boolean | null;
   /** «Herën tjetër dërgo gjithçka, pa i besuar flamurëve.» */
   ngaFillimiTjeter: boolean;
+  /**
+   * Sa sinkronizime me radhë kanë mbetur te të njëjtët rreshta të shtyrë.
+   *
+   * Një rresht cloud-i prindi i të cilit nuk ekziston më nuk zbatohet dot kurrë,
+   * dhe pa këtë numërues ai do ta mbante shënjuesin në vend përgjithmonë — pra
+   * sinkronizimi do të pushonte së ecuri në heshtje. Te tri, shtyrja fiket një
+   * herë dhe shënjuesi kalon.
+   */
+  ngecur: number;
+  /** Çelësat e shtyrë herën e fundit, për ta ditur a janë të njëjtët. */
+  shtyreFundit: string;
   /** Kur u numëruan për herë të fundit të dyja anët kundër njëra-tjetrës. */
   kontrolluarMe: number;
   /** Kur e nënshkroi kjo pajisje rreshtin e vet te projekti. */
@@ -101,6 +112,8 @@ const BOSH: Konfigurimi = {
   skemaVersioni: 0,
   lidhjaVerifikuar: null,
   ngaFillimiTjeter: false,
+  ngecur: 0,
+  shtyreFundit: '',
   kontrolluarMe: 0,
   pajisjaShenuarMe: 0,
   fundit: null,
@@ -175,6 +188,47 @@ function gabimi(mesazhi: string, kodi?: string): GabimiSinkut {
   return Object.assign(new Error(mesazhi), kodi ? { kodi } : {});
 }
 
+/**
+ * Sa pritet një kërkesë para se të quhet e vdekur.
+ *
+ * Pa këtë kufi, `fetch`-i nuk kthehet **kurrë** te disa gjendje rrjeti — portali
+ * i një kafeneje që i mban lidhjet hapur pa u përgjigjur është klasika. Pasoja
+ * nuk është një sinkronizim i humbur: `nePritje` te `sinkronizimi.ts` mbetet i
+ * zënë përgjithmonë, pra çdo sinkronizim i mëpasshëm i bashkohet një premtimi që
+ * nuk zgjidhet dot, butoni rri i fikur, dhe rruga e vetme jashtë është rihapja e
+ * skedës. Një kërkesë e ndërprerë është thjesht një gabim si çdo tjetër.
+ *
+ * Dërgimi merr më gjatë sepse bart deri në 250 rreshta; leximet janë të vogla.
+ */
+const PRITJA = 20_000;
+const PRITJA_E_DERGIMIT = 60_000;
+
+/**
+ * `fetch` që dorëzohet, dhe që nuk hedh kurrë diçka veç `GabimiSinkut`.
+ *
+ * `AbortSignal.timeout` mungon te shfletuesit e vjetër, prandaj ora mbahet me
+ * dorë — dhe `clearTimeout` bie te `finally`, që një kërkesë e shpejtë të mos
+ * lërë prapa një orë që zgjohet njëzet sekonda më vonë.
+ */
+async function kerko(adresa: string, opsionet: RequestInit, pritja = PRITJA): Promise<Response> {
+  const nderprerja = new AbortController();
+  const ora = setTimeout(() => nderprerja.abort(), pritja);
+
+  try {
+    return await fetch(adresa, { ...opsionet, signal: nderprerja.signal });
+  } catch (err) {
+    // Ndërprerja jonë dhe një rrjetë e rënë janë e njëjta gjë për thirrësin:
+    // kërkesa nuk mori përgjigje. Dallimi thuhet me fjalë, që «nuk u arrit» të
+    // mos lexohet si «projekti tha jo».
+    if ((err as Error)?.name === 'AbortError') {
+      throw gabimi('Projekti nuk u përgjigj brenda kohës — provo sërish.', 'rrjeti');
+    }
+    throw gabimi('Projekti nuk u arrit — kontrollo internetin.', 'rrjeti');
+  } finally {
+    clearTimeout(ora);
+  }
+}
+
 async function trupi(res: Response): Promise<Record<string, unknown> | null> {
   const tekst = await res.text();
   if (!tekst) return null;
@@ -190,19 +244,11 @@ async function fetchAuth(
   shtegu: string,
   body: unknown,
 ): Promise<Record<string, unknown>> {
-  let res: Response;
-  try {
-    res = await fetch(`${k.url}/auth/v1/${shtegu}`, {
-      method: 'POST',
-      headers: { apikey: k.anonKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-  } catch {
-    throw gabimi(
-      'Projekti nuk u arrit — kontrollo internetin dhe adresën e projektit.',
-      'rrjeti',
-    );
-  }
+  const res = await kerko(`${k.url}/auth/v1/${shtegu}`, {
+    method: 'POST',
+    headers: { apikey: k.anonKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
 
   const data = await trupi(res);
   if (!res.ok) {
@@ -347,7 +393,7 @@ export async function dil(): Promise<Konfigurimi> {
   const k = lexoKonfigurimin();
   try {
     if (k.accessToken) {
-      await fetch(`${k.url}/auth/v1/logout`, {
+      await kerko(`${k.url}/auth/v1/logout`, {
         method: 'POST',
         headers: { apikey: k.anonKey, Authorization: `Bearer ${k.accessToken}` },
       });
@@ -381,9 +427,9 @@ export async function rest(
   } = {},
 ): Promise<unknown> {
   const k = await siguroSesionin();
-  let res: Response;
-  try {
-    res = await fetch(`${k.url}/rest/v1/${shtegu}`, {
+  const res = await kerko(
+    `${k.url}/rest/v1/${shtegu}`,
+    {
       method,
       headers: {
         apikey: k.anonKey,
@@ -392,10 +438,9 @@ export async function rest(
         ...headers,
       },
       body: body === undefined ? undefined : JSON.stringify(body),
-    });
-  } catch {
-    throw gabimi('Projekti nuk u arrit — kontrollo internetin.', 'rrjeti');
-  }
+    },
+    method === 'GET' ? PRITJA : PRITJA_E_DERGIMIT,
+  );
 
   if (res.ok) return kthePergjigjen ? res : trupi(res);
 
@@ -564,14 +609,9 @@ export async function ndryshoCelesin(celesiIRi: string): Promise<Konfigurimi> {
   if (!kontrolli.ok) throw gabimi(kontrolli.gabimi, 'celesi');
 
   const k = await siguroSesionin();
-  let res: Response;
-  try {
-    res = await fetch(`${k.url}/rest/v1/${TABELA}?select=record_id&limit=1`, {
-      headers: { apikey: kontrolli.vlera, Authorization: `Bearer ${k.accessToken}` },
-    });
-  } catch {
-    throw gabimi('Projekti nuk u arrit — kontrollo internetin.', 'rrjeti');
-  }
+  const res = await kerko(`${k.url}/rest/v1/${TABELA}?select=record_id&limit=1`, {
+    headers: { apikey: kontrolli.vlera, Authorization: `Bearer ${k.accessToken}` },
+  });
 
   if (!res.ok) {
     const data = await trupi(res);

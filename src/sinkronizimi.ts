@@ -35,6 +35,7 @@ import {
   mungojneNeCloud,
   ndryshimetLokale,
   numriLokal,
+  oraEVlefshme,
   permbledhjaELidhjes,
   planiIAplikimit,
   uidetLokale,
@@ -51,6 +52,7 @@ import {
   gjendjaSink,
   onNdryshimLokal,
   pastroPerSink,
+  pastroVarretEVjetra,
   shenoPezull,
   shenoTeDerguarat,
   zbatoPlanin,
@@ -108,7 +110,7 @@ export function rreshtiPerServer(
     // Dërgohet për një projekt skripti i të cilit është më i vjetër se trigger-i
     // i orës; aty ku ai ekziston, e mbivendos me orën e vetë serverit — e cila
     // është tërë qëllimi i tij.
-    updated_at: new Date(rr.perditesuar).toISOString(),
+    updated_at: new Date(oraEVlefshme(rr.perditesuar)).toISOString(),
     deleted: rr.fshire,
     data: rr.fshire ? null : rr.data,
     ...(pajisja ? { device_id: pajisja.id, device_name: pajisja.emri } : {}),
@@ -347,6 +349,9 @@ export async function riparoTani(): Promise<number> {
   return riparoKopjen(await gjendjaSink());
 }
 
+/** Sa herë provohet një rresht i shtyrë para se të quhet jetim. */
+const PROVAT_E_SHTYRJES = 3;
+
 /** Sa shpesh numërohen të dyja anët kundër njëra-tjetrës. */
 const NDERMJET_KONTROLLEVE = 24 * 60 * 60 * 1000;
 
@@ -376,8 +381,13 @@ async function riparoNeseMungon(
     // I shkruar para punës e jo pas: një kontroll që bie përgjysmë nuk duhet të
     // bjerë te çdo sinkronizim i mëpasshëm.
     ruajKonfigurimin({ kontrolluarMe: Date.now() });
-    if (neCloud === null || neCloud >= numriLokal(gjendja)) return 0;
-    return await riparoKopjen(gjendja);
+
+    const sa = neCloud === null || neCloud >= numriLokal(gjendja) ? 0 : await riparoKopjen(gjendja);
+
+    // E njëjta dritare një-ditore mban edhe fshirjen e varreve të vjetra: ato
+    // janë e vetmja gjë te kjo bazë që rritet pa kufi (`ruajtja.ts`).
+    await pastroVarretEVjetra().catch(() => 0);
+    return sa;
   } catch {
     // Kontrolli nuk është sinkronizimi. Çkado që shkoi keq këtu, ndryshimet që
     // mban kjo pajisje e meritojnë dërgimin e vet.
@@ -461,10 +471,15 @@ async function ekzekuto({
     // shfletues para se të kishte ku ta dërgonte.
     const cloudFiton = menyra === MENYRAT.MERR || menyra === MENYRAT.BASHKO;
     const lokale = gjendjaLokale(gjendja);
+
+    // Pas tri sinkronizimesh me radhë te të njëjtët rreshta të shtyrë, prindi
+    // nuk po vjen: ata janë jetimë te cloud-i, dhe shënjuesi duhet të kalojë mbi
+    // ta ose sinkronizimi ngrin përgjithmonë.
+    const lejoShtyrjen = (Number(k.ngecur) || 0) < PROVAT_E_SHTYRJES;
     const plani = planiIAplikimit(
       rreshtat,
       { ...lokale, uidet: uidetLokale(gjendja) },
-      { cloudFiton },
+      { cloudFiton, lejoShtyrjen },
     );
     await zbatoPlanin(plani);
 
@@ -514,10 +529,24 @@ async function ekzekuto({
       kerkohetVendim: paVendim,
     };
 
+    // Të njëjtët çelësa të shtyrë sërish do të thonë se asgjë nuk lëvizi; çdo
+    // ndryshim i tyre e nis numërimin nga e para, sepse atëherë prindërit po
+    // mbërrijnë vërtet dhe shtyrja po bën punën e vet.
+    const shenjaEShtyrjes = plani.shtyreCelesat.join(',');
+    const ngecur = !lejoShtyrjen
+      ? 0
+      : plani.shtyre === 0
+        ? 0
+        : shenjaEShtyrjes === k.shtyreFundit
+          ? (Number(k.ngecur) || 0) + 1
+          : 1;
+
     ruajKonfigurimin({
       pulledAt: pulledAt ? new Date(pulledAt).toISOString() : '',
       pushedAt: nisi,
       ngaFillimiTjeter: false,
+      ngecur,
+      shtyreFundit: lejoShtyrjen ? shenjaEShtyrjes : '',
       // Përgjigjja e pyetjes është ajo që e mbyll atë, dhe mbetet e mbyllur.
       ...(menyra ? { lidhjaVerifikuar: true } : {}),
       fundit: permbledhja,
@@ -637,6 +666,33 @@ const INTERVALI = 10 * 60_000;
 let kohaFundit = 0;
 let afati: ReturnType<typeof setTimeout> | null = null;
 
+/**
+ * Sa dështime me radhë, dhe kur lejohet prova tjetër.
+ *
+ * Pa këtë, një projekt i ndalur — ose thjesht një telefon pas një portali wifi —
+ * do të merrte një kërkesë çdo dhjetë minuta, te çdo ndërrim skede dhe pas çdo
+ * raundi të shënuar, për sa kohë të rrinte ashtu. Kjo nuk e rregullon asgjë dhe e
+ * pi baterinë; prova tjetër largohet dyfish çdo herë, deri te gjysmë ore.
+ *
+ * Vetëm rruga automatike e lexon. «Sinkronizo tani» e përdoruesit nis gjithmonë:
+ * kush e shtyp atë buton e di vetë se po provon sërish.
+ */
+let deshtime = 0;
+let gatiMe = 0;
+
+const PRITJA_E_PARE = 60_000;
+const PRITJA_ME_E_GJATE = 30 * 60_000;
+
+function ecMire(): void {
+  deshtime = 0;
+  gatiMe = 0;
+}
+
+function ecKeq(): void {
+  deshtime = Math.min(deshtime + 1, 6);
+  gatiMe = Date.now() + Math.min(PRITJA_E_PARE * 2 ** (deshtime - 1), PRITJA_ME_E_GJATE);
+}
+
 function aMundNisim(): boolean {
   const k = lexoKonfigurimin();
   // Çelësi i ekranit e fik gjithçka këtu: disa njerëz i duan pikët te një bazë
@@ -648,10 +704,14 @@ function aMundNisim(): boolean {
 function provo(): void {
   if (!aMundNisim()) return;
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+  if (Date.now() < gatiMe) return;
+
   kohaFundit = Date.now();
   // Një sinkronizim automatik që dështon — wifi-ja e një kafeneje pas një portali
-  // — nuk guxon ta rrëzojë aplikacionin: mbrëmja para syve është e plotë me a pa të.
-  void sinkronizo().catch(() => undefined);
+  // — nuk guxon ta rrëzojë aplikacionin: mbrëmja para syve është e plotë me a pa
+  // të. Prandaj gabimi kapet këtu dhe nuk shkon askund veç te numëruesi; ekrani i
+  // sinkronizimit e lexon të fundit nga vetë konfigurimi.
+  void sinkronizo().then(ecMire, ecKeq);
 }
 
 /**
@@ -676,7 +736,12 @@ export function nisAutomatikun(): void {
     provo();
   });
 
-  window.addEventListener('online', provo);
+  // Rrjeti sapo u kthye, pra arsyeja e dështimeve të mëparshme mund të ketë rënë:
+  // pritja e gjatë hiqet që prova të bjerë menjëherë.
+  window.addEventListener('online', () => {
+    ecMire();
+    provo();
+  });
   setInterval(() => {
     if (document.visibilityState === 'visible') provo();
   }, INTERVALI);

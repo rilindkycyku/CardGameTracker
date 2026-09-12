@@ -89,10 +89,12 @@ fjalë: renditja, kurora dhe fjalia e fundit e lexojnë drejtimin nga vetë loja
   «Unë jam …»: prek emrin tënd, dhe del rreshti yt i matricës, kujt sa i del.
 - **Kopje rezervë** — nxjerrja dhe kthimi i tërë historikut si një skedar JSON.
 - **Sinkronizim mes pajisjeve, i zgjedhur** — nëse i do të njëjtat mbrëmje te
-  telefoni dhe te tableti, lidh **projektin tënd** Supabase: baza është e jotja,
-  llogaria ekziston vetëm brenda saj, dhe Tavolina nuk ka server të vetin as
-  atëherë. Rri e fikur derisa ta lidhësh me dorë; pajisja e sapolidhur vetëm
-  lexon derisa t'i thuash cila anë është e vërteta.
+  telefoni dhe te tableti, lidh **projektin tënd** Supabase: adresën dhe çelësin
+  i shkruan vetë, baza është e jotja, llogaria ekziston vetëm brenda saj, dhe
+  Tavolina nuk ka server të vetin as atëherë. Asnjë projekt nuk vjen i gatshëm me
+  aplikacionin — pa ato dy fusha nuk niset asnjë kërkesë. Rri e fikur derisa ta
+  lidhësh me dorë; pajisja e sapolidhur vetëm lexon derisa t'i thuash cila anë
+  është e vërteta.
 - **Punon pa internet, dhe instalohet** — një punëtor shërbimi i ruan skedarët e
   faqes me hapjen e parë, prandaj aplikacioni hapet i plotë edhe në «mënyrë
   avioni», dhe shtohet te ekrani kryesor i telefonit si aplikacion më vete. Kur
@@ -252,7 +254,7 @@ src/
                       PamjaERezultatit · KodiQR
                       FutjaEMagarecit · RrjetiIMagarecit · RaundetEMagarecit
                       PergjithshmetEMagarecit · Parashikimi
-                      PermbledhjaEPamjes · Vetja · Ndricimi
+                      PermbledhjaEPamjes · Vetja · Ndricimi · Gardhi
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it
