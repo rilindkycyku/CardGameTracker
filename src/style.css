@@ -57,18 +57,19 @@
    * Drita është baza, dhe terri vjen te blloku poshtë — sipas atributit që vë
    * `ndricimi.ts`, qoftë sepse e zgjodhi njeriu, qoftë sepse e thotë telefoni.
    *
+   * Kjo bazë është edhe ajo që del para se JS-i ta stampojë atributin, dhe
+   * prandaj rri pikërisht e parazgjedhjes (`tema.ts`): kush nuk e ka prekur
+   * çelësin — pra shumica — nuk sheh asnjë ndërrim te hapja. Kush zgjodhi
+   * terrin sheh një çast drite, dhe ai është çmimi i të pasurit parazgjedhje
+   * që CSS-i e di vetë; `prefers-color-scheme` nuk do ta dinte cilën zgjedhje
+   * mban ky telefon.
+   *
    * `color-scheme` shkruhet i plotë te secila temë e jo `light dark` te të dyja:
    * ai vendos edhe çka bëjnë kontrollet e sistemit — `<select>`-i i mbyllësit,
    * shiritat e rrëshqitjes — dhe një temë e zgjedhur me dorë do t'i linte ato
    * te ajo e telefonit.
    */
   color-scheme: light;
-
-  /*
-   * Sfondi i territ rri i emëruar sepse lexohet dy herë: te blloku i territ,
-   * dhe te rreshti që e mbulon çastin para se JS-i ta stampojë atributin.
-   */
-  --sfond-i-territ: #080f1a;
 
   --sfond: #f1f5f9;
   --siperfaqe: #ffffff;
@@ -128,7 +129,7 @@
 :root[data-tema='terr'] {
   color-scheme: dark;
 
-  --sfond: var(--sfond-i-territ);
+  --sfond: #080f1a;
   --siperfaqe: #0f1827;
   --siperfaqe-2: #162033;
   --gjurma: #1e2d45;
@@ -161,20 +162,6 @@
 
   --hije-1: 0 1px 2px rgb(0 0 0 / 40%);
   --hije-2: 0 1px 2px rgb(0 0 0 / 40%), 0 20px 50px -12px rgb(0 0 0 / 75%);
-}
-
-/*
- * Çasti para se JS-i ta stampojë atributin, te një telefon që rri në terr.
- *
- * Nga faqja atëherë duket vetëm sfondi — `#app` rri i zbrazët derisa React-i të
- * vizatojë — prandaj mjafton ai: pa këtë rresht çdo hapje do të ndizte një të
- * bardhë të plotë për një çast, pikërisht te ora kur luhet.
- */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-tema]) {
-    color-scheme: dark;
-    background-color: var(--sfond-i-territ);
-  }
 }
 
 *,

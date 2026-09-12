@@ -67,7 +67,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 263 prova, pa framework provash
+npm test          # node --test — 265 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -896,24 +896,37 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 
 - Dy ngjyra theksi: smeraldi (`--hapur`) dhe ciani (`--theks`). Veprimi kryesor merr smeraldin e
   plotë.
-- Tema e errët nuk është shtojcë: mbrëmja është ora kur luhet. Por ajo mbetet vetëm parazgjedhje:
-  ndriçimin e zgjedh çelësi te fundfaqja — «Sistemi», «Dritë», «Terr» — dhe **tri gjendje e jo dy**,
-  sepse pa të parën nuk kthehesh dot te ajo që bën vetë telefoni (e njëjta trenjëshe si `mbyllur` te
-  pika 15). Vendimet rrinë te `tema.ts` e provohen me `node --test`; `ndricimi.ts` njeh
+- **Tema e parazgjedhur është drita, me kërkesë të pronarit.** Tema e errët mbetet e plotë dhe një
+  prekje larg — mbrëmja është ora kur luhet — por nuk vjen më vetvetiu, dhe as sistemi nuk pyetet pa
+  u kërkuar. Kjo është zgjedhje e pronarit e jo rrjedhojë e kodit: mos e ndërro pa e pyetur. Numri i
+  vetëm që e mban është `TEMA_E_PARAZGJEDHUR` te `tema.ts`, dhe prova `hapja e parë është drita, me
+  kërkesë të pronarit` e lexon pikërisht atë vendim.
+
+  Ndriçimin e zgjedh çelësi te fundfaqja — «Sistemi», «Dritë», «Terr» — dhe **tri gjendje e jo dy**,
+  sepse pa të parën nuk kthehesh dot te ndërrimi automatik i telefonit (e njëjta trenjëshe si
+  `mbyllur` te pika 15). Vendimet rrinë te `tema.ts` e provohen me `node --test`; `ndricimi.ts` njeh
   `document`-in, `localStorage`-in e `matchMedia`-n (pika 1).
 
   **Tokenat e territ rrinë të shkruar një herë**, te `:root[data-tema='terr']`, dhe atributin e vë
   `ndricimi.ts` — të zgjidhur, pra pa dallim a e zgjodhi njeriu a e tha telefoni. Me
   `prefers-color-scheme` ai bllok do të duhej dy herë: brenda pyetjes, dhe jashtë saj për terrin e
-  zgjedhur mbi një telefon që rri në dritë. Mbetet një pyetje e vetme te CSS-i, dhe ajo mbulon
-  vetëm çastin para se JS-i ta stampojë atributin: `--sfond-i-territ`, që hapja të mos ndizet e
-  bardhë. `color-scheme` shkruhet i plotë te secila temë — ai vendos edhe kontrollet e sistemit —
-  dhe blloku i shtypjes i emërton të dyja, përndryshe atributi do t'i mposhtte tokenat e letrës.
+  zgjedhur mbi një telefon që rri në dritë. Prandaj **te CSS-i nuk ka asnjë `prefers-color-scheme`**
+  — sistemi pyetet te një vend i vetëm, dhe prova `sistemi pyetet te një vend i vetëm` e mban këtë
+  të matur.
 
-  **Ngjyra e shiritit është e treta që e di temën**, krah tokenave dhe metave te `index.html`. Ato
-  meta e pyesin sistemin, prandaj `ndricimi.ts` i heq dhe lë një të vetme sapo tema vihet — pa këtë,
-  te aplikacioni i instaluar shiriti do të mbetej i errët mbi një faqe të bardhë. Prova
-  `ngjyrat e shiritit janë ato të index.html-it` i lexon të dy skedarët që të mos ndahen.
+  **Çasti para se atributi të stampohet e mban parazgjedhjen**, sepse e mban vetë `:root`-i. Kush
+  nuk e ka prekur çelësin nuk sheh asnjë ndërrim te hapja; kush zgjodhi terrin sheh një çast drite,
+  dhe ai është çmimi i të pasurit një parazgjedhje që CSS-i e di vetë. Sa kohë parazgjedhja ishte
+  ajo e telefonit, atë çast e mbulonte një pyetje e vetme te CSS-i — nëse parazgjedhja ndërron
+  sërish, ajo pyetje kthehet bashkë me të.
+
+  `color-scheme` shkruhet i plotë te secila temë — ai vendos edhe kontrollet e sistemit — dhe blloku
+  i shtypjes i emërton të dyja, përndryshe atributi do t'i mposhtte tokenat e letrës.
+
+  **Ngjyra e shiritit është e treta që e di temën**, krah tokenave dhe metës te `index.html`. Ajo
+  meta mban ngjyrën e parazgjedhjes e jo një çift me `media`: me `media` shiriti do të ndiqte
+  telefonin e jo zgjedhjen, pra do të dilte i errët mbi një faqe të bardhë te aplikacioni i
+  instaluar. `ndricimi.ts` e ndërron sapo tema vihet, dhe dy prova i lidhin të tri vendet.
 - Teksti është Quicksand me peshë 500 (`--shkronja`); numrat e kolonave mbeten monospace
   (`--shkronja-numrat`), sepse te një tabelë pikësh shifrat duhet të bien mbi njëra-tjetrën dhe
   Quicksand-i i ka proporcionale.

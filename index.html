@@ -8,9 +8,13 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#047857" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#080f1a" media="(prefers-color-scheme: dark)" />
+    <!-- Ngjyrat e parazgjedhjes, e jo të sistemit: temën e zgjedh aplikacioni
+         (`tema.ts`), dhe `ndricimi.ts` e ndërron këtë meta sapo ta dijë cilën
+         mban ky telefon. Me `media="(prefers-color-scheme: …)"` shiriti do të
+         ndiqte telefonin e jo zgjedhjen — pra do të dilte i errët mbi një faqe
+         të bardhë te aplikacioni i instaluar. -->
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#047857" />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23047857'/%3E%3Cg fill='white'%3E%3Crect x='7' y='8' width='9' height='14' rx='2' transform='rotate(-12 11.5 15)'/%3E%3Crect x='15' y='10' width='9' height='14' rx='2' transform='rotate(9 19.5 17)'/%3E%3C/g%3E%3C/svg%3E"

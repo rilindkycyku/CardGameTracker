@@ -278,6 +278,7 @@ Kontrasti mbetet **WCAG AA** në dritë e në terr: teksti mbi veprimin kryesor
 del 5.5:1 dhe 7.6:1, dhe kufijtë e kontrolleve mbi 3:1 sipas WCAG 1.4.11.
 
 **Ndriçimin e zgjedh tavolina**, nga çelësi te fundfaqja e ekranit të parë:
-«Sistemi», «Dritë», «Terr». Parazgjedhja mbetet ajo e telefonit — ora kur luhet
-e ka atë në terr gjithsesi — dhe zgjedhja mbahet mend te vetë shfletuesi, jo te
-baza: nuk është e dhënë loje, nuk hyn te kopja rezervë dhe nuk del nga pajisja.
+«Sistemi», «Dritë», «Terr». Hapet te **drita**; tema e errët rri e plotë një
+prekje larg, dhe «Sistemi» e kthen ndërrimin automatik të telefonit. Zgjedhja
+mbahet mend te vetë shfletuesi, jo te baza: nuk është e dhënë loje, nuk hyn te
+kopja rezervë dhe nuk del nga pajisja.

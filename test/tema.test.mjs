@@ -16,19 +16,38 @@ import {
   CELESI_I_TEMES,
   NGJYRAT_E_SHIRITIT,
   TEMAT,
+  TEMA_E_PARAZGJEDHUR,
   lexoTemen,
   temaEZbatuar,
 } from '../src/tema.ts';
 
-test('tema e ruajtur lexohet, dhe çdo tjetër lexohet «sistemi»', () => {
+test('hapja e parë është drita, me kërkesë të pronarit', () => {
+  /*
+   * Parazgjedhja e ndiqte telefonin, dhe tani e ndjek tavolinën. Kjo prekje e
+   * lexon pikërisht atë vendim: nëse dikush e kthen te «sistemi» pa e pyetur,
+   * bie këtu e nuk mbetet për t'u vënë re te një telefon i huaj.
+   */
+  assert.equal(TEMA_E_PARAZGJEDHUR, 'drite');
+  assert.equal(lexoTemen(null), 'drite');
+});
+
+test('tema e ruajtur lexohet, dhe çdo tjetër lexohet parazgjedhja', () => {
   for (const { tema } of TEMAT) {
     assert.equal(lexoTemen(tema), tema);
   }
 
+  // «sistemi» rri te lista, pra kush e zgjedh e merr sërish telefonin: ajo që
+  // ndryshoi është vetëm se nuk vjen më vetvetiu.
+  assert.equal(lexoTemen('sistemi'), 'sistemi');
+
   // Mungesa është hapja e parë; pjesa tjetër janë vlera që s'i shkruan ky kod —
   // një version i vjetër, ose dikush që e preku çelësin me dorë.
-  for (const e_panjohur of [null, '', 'drit', 'DRITE', 'dark', '{"tema":"terr"}']) {
-    assert.equal(lexoTemen(e_panjohur), 'sistemi', `«${e_panjohur}» nuk u lexua sistemi`);
+  for (const e_panjohur of ['', 'drit', 'DRITE', 'dark', '{"tema":"terr"}']) {
+    assert.equal(
+      lexoTemen(e_panjohur),
+      TEMA_E_PARAZGJEDHUR,
+      `«${e_panjohur}» nuk u lexua parazgjedhja`,
+    );
   }
 });
 
@@ -44,7 +63,10 @@ test('«sistemi» e ndjek telefonin, dy të tjerat jo', () => {
 
 test('çdo temë del te çelësi, me emrin dhe ikonën e vet', () => {
   assert.equal(TEMAT.length, 3);
-  assert.equal(TEMAT[0].tema, 'sistemi', 'sistemi rri i pari: aty kthehesh');
+  assert.ok(
+    TEMAT.some(({ tema }) => tema === TEMA_E_PARAZGJEDHUR),
+    'parazgjedhja duhet të dalë te çelësi, përndryshe nuk kthehesh dot te ajo',
+  );
 
   const emrat = new Set(TEMAT.map(({ emri }) => emri));
   const ikonat = new Set(TEMAT.map(({ ikona }) => ikona));
@@ -57,45 +79,45 @@ test('çdo temë del te çelësi, me emrin dhe ikonën e vet', () => {
   }
 });
 
-test('ngjyrat e shiritit janë ato të index.html-it', () => {
+test('ngjyra e shiritit është ajo e index.html-it', () => {
   /*
-   * Metat e `index.html`-it e pyesin sistemin, prandaj `ndricimi.ts` i
-   * zëvendëson me një të vetme sapo tema zgjidhet me dorë. Nëse ndërron njëra
-   * anë, shiriti i aplikacionit të instaluar del me një ngjyrë që faqja nuk e
-   * ka askund — dhe kjo nuk duket te asnjë ekran zhvillimi.
+   * Meta e `index.html`-it mban parazgjedhjen, pra atë që del para se JS-i të
+   * ngarkohet; `ndricimi.ts` e ndërron pastaj. Nëse ndërron njëra anë, shiriti
+   * i aplikacionit të instaluar del me një ngjyrë që faqja nuk e ka askund —
+   * dhe kjo nuk duket te asnjë ekran zhvillimi.
    */
   const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
-  const ngjyra = (skema) => {
-    const gjetur = html.match(
-      new RegExp(`theme-color"\\s+content="(#[0-9a-f]{6})"\\s+media="\\(prefers-color-scheme: ${skema}\\)"`),
-    );
-    assert.ok(gjetur, `mungon meta e temës për «${skema}»`);
-    return gjetur[1];
-  };
+  const metat = html.match(/<meta name="theme-color"[^>]*>/g) ?? [];
+  assert.equal(metat.length, 1, 'një meta e vetme, dhe pa `media`');
+  assert.ok(!metat[0].includes('media'), 'me `media` shiriti do të ndiqte telefonin');
+  assert.match(metat[0], new RegExp(`content="${NGJYRAT_E_SHIRITIT[TEMA_E_PARAZGJEDHUR]}"`));
 
-  assert.equal(NGJYRAT_E_SHIRITIT.drite, ngjyra('light'));
-  assert.equal(NGJYRAT_E_SHIRITIT.terr, ngjyra('dark'));
+  // E njëjta gjë për skemën: parazgjedhja, jo «light dark».
+  assert.match(html, /<meta name="color-scheme" content="light" \/>/);
 });
 
-test('sfondi i territ shkruhet një herë te CSS-i', () => {
+test('ngjyra e territ është sfondi i tij te CSS-i', () => {
+  // Shiriti dhe faqja bashkohen te qoshja e sipërme e ekranit: dy ngjyra aty
+  // duken si dy faqe të ngjitura.
+  const css = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8');
+  const terri = css.slice(css.indexOf(":root[data-tema='terr']"));
+
+  assert.match(terri.slice(0, 400), new RegExp(`--sfond: ${NGJYRAT_E_SHIRITIT.terr};`));
+});
+
+test('sistemi pyetet te një vend i vetëm', () => {
   /*
-   * Blloku i territ dhe rreshti që mbulon çastin para JS-it e duan të njëjtën
-   * ngjyrë. I shkruar dy herë, ndërrimi i njërit do ta linte hapjen e faqes me
-   * një sfond që s'i takon asnjë teme — dhe vetëm për një çast, pra i padukshëm
-   * te çdo provë që shikon ekranin e mbaruar.
+   * Terri vjen nga atributi e jo nga një pyetje e dytë drejt sistemit: dy
+   * burime do të thoshin dy kopje tokenash (shih `ndricimi.ts`). Dhe tani që
+   * parazgjedhja nuk është më ajo e telefonit, një `prefers-color-scheme` i
+   * mbetur te CSS-i do ta kthente atë prapa për një çast te çdo hapje.
    */
   const css = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8');
 
-  assert.match(css, /--sfond-i-territ: (#[0-9a-f]{6});/);
-  assert.equal(css.match(/--sfond-i-territ: #[0-9a-f]{6};/g).length, 1);
-  assert.equal(css.match(/var\(--sfond-i-territ\)/g).length, 2);
-
-  // Terri vjen nga atributi, e jo nga një pyetje e dytë drejt sistemit: dy
-  // burime do të thoshte dy kopje tokenash (shih `ndricimi.ts`).
   assert.match(css, /:root\[data-tema='terr'\] \{/);
-  // Vetëm rregulli, jo përmendjet te komentet: prandaj kreu i rreshtit.
-  assert.equal(css.match(/^@media \(prefers-color-scheme: dark\)/gm).length, 1);
+  // Vetëm rregullat, jo përmendjet te komentet: prandaj kreu i rreshtit.
+  assert.equal(css.match(/^@media \(prefers-color-scheme/gm), null);
 });
 
 test('çelësi i ruajtjes nuk përplaset me atë të sinjalit', () => {

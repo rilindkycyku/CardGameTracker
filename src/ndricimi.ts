@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 import {
   CELESI_I_TEMES,
   NGJYRAT_E_SHIRITIT,
+  TEMA_E_PARAZGJEDHUR,
   lexoTemen,
   temaEZbatuar,
   type Tema,
@@ -29,7 +30,7 @@ const PYETJA_E_TERRIT = '(prefers-color-scheme: dark)';
  * para se të vizatohet gjë (`main.tsx`) — shumë para se çelësi te fundfaqja të
  * ekzistojë.
  */
-let zgjedhur: Tema = 'sistemi';
+let zgjedhur: Tema = TEMA_E_PARAZGJEDHUR;
 
 /** Çelësat në ekran që duan ta dinë kur ndërron. */
 const degjuesit = new Set<(tema: Tema) => void>();
@@ -41,10 +42,10 @@ function sistemiNeTerr(): boolean {
 /**
  * Shiriti i shfletuesit: një meta e vetme, pa `media`.
  *
- * Dy metat e `index.html`-it e pyesin sistemin, dhe te renditja e tyre fiton e
- * para që përputhet — pra një e tretë e shtuar poshtë nuk do të lexohej kurrë.
- * Prandaj ato hiqen sapo JS-i merr përsipër zgjedhjen; deri atëherë kanë bërë
- * punën e vet, që është pikërisht hapja e parë.
+ * Te `index.html` rri ajo e parazgjedhjes, që shiriti të jetë i saktë edhe para
+ * se JS-i të ngarkohet; këtu vetëm i ndërrohet ngjyra. Metat me `media` do të
+ * pyesnin sistemin, dhe një temë e zgjedhur me dorë do t'i linte pas — prandaj
+ * po qe se ndonjë mbetet nga një version i vjetër i ruajtur te koshi, hiqet.
  */
 function ngjyrosShiritin(ngjyra: string): void {
   for (const e_vjeter of document.querySelectorAll('meta[name="theme-color"][media]')) {
@@ -81,7 +82,7 @@ export function nisTemen(): void {
   try {
     ruajtur = window.localStorage.getItem(CELESI_I_TEMES);
   } catch {
-    // Ruajtja e ndaluar (dritare private) do të thotë vetëm «sistemi».
+    // Ruajtja e ndaluar (dritare private) do të thotë vetëm parazgjedhja.
   }
 
   zgjedhur = lexoTemen(ruajtur);
