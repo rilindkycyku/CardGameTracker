@@ -159,7 +159,7 @@ export function Ikona({
  */
 export function ShenjaEFaqes() {
   return (
-    <svg className="marka" viewBox="0 0 44 44" role="img" aria-label="Bridzh">
+    <svg className="marka" viewBox="0 0 44 44" role="img" aria-label="Tavolina">
       <rect className="marka__fusha" width="44" height="44" rx="12" />
       <g className="marka__letrat">
         <rect x="10.5" y="12" width="12.5" height="18" rx="2.6" transform="rotate(-12 16.75 21)" />

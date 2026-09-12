@@ -21,6 +21,7 @@ import {
   sot,
   tabelaEPergjithshme,
 } from '../llogaritjet.ts';
+import { RADHA, rregullat } from '../lojerat.ts';
 import { FJALA, fjalaE, pergjithshmetEMagarecit } from '../magareci.ts';
 import { perfundoiMbremja } from '../fundi.ts';
 import { emratERinj } from '../fusha.ts';
@@ -86,7 +87,7 @@ export function Grupi({ id }: { id: number }) {
    * Renditja e secilës lojë dilte më parë brenda JSX-it, te `.map()`. Atje
    * llogaritej sërish te çdo vizatim, dhe rezultati as nuk mund të mbahej.
    */
-  const { pergjithshmet, magarecat, saLuajtura, renditjet } = useMemo(() => {
+  const { tabelat, magarecat, saMagareca, renditjet } = useMemo(() => {
     const raundetELojes = (loja: Loja) => raunde?.[loja.id] ?? BOSH;
     const luajtura = lojerat.filter((loja) => raundetELojes(loja).length > 0);
     const eLlojit = (lloji: LlojiILojes) =>
@@ -97,19 +98,44 @@ export function Grupi({ id }: { id: number }) {
           raundet: raundetELojes(loja),
         }));
 
-    const bridzhi = eLlojit('bridzh');
     const magarecet = eLlojit('magarec');
 
     return {
-      // Dy tabela e jo një: aty mblidhen pikë me qindra, këtu shkronja nga zero
-      // në shtatë, dhe një mesatare mbi të dyja do të ishte numër pa kuptim.
-      pergjithshmet: tabelaEPergjithshme(bridzhi),
+      /*
+       * Një tabelë për lojë, e jo një për grup.
+       *
+       * Pikët e bridzhit dhe ato të dominës mblidhen njësoj si numra, por nuk
+       * janë e njëjta gjë — dhe ato të pishpirikut fitohen nga ana tjetër.
+       * Magareci rri veç për arsyen e vjetër: aty numri është shkronjë nga zero
+       * në shtatë, dhe një mesatare mbi të dyja do të ishte numër pa kuptim.
+       *
+       * Tabelat e lojërave që grupi nuk i ka luajtur dalin bosh, dhe vetë
+       * tabela nuk vizatohet fare kur s'ka rreshta — prandaj një grup që luan
+       * vetëm bridzh nuk e sheh kurrë fjalën «pishpirik».
+       */
+      tabelat: RADHA.filter((lloji) => lloji !== 'magarec').map((lloji) => {
+        const lojerat = eLlojit(lloji);
+
+        return {
+          lloji,
+          emri: rregullat(lloji).emri,
+          lojera: lojerat.length,
+          rreshtat: tabelaEPergjithshme(lojerat, rregullat(lloji).drejtimi),
+        };
+      }),
       magarecat: pergjithshmetEMagarecit(magarecet),
-      saLuajtura: { bridzh: bridzhi.length, magarec: magarecet.length },
+      saMagareca: magarecet.length,
       renditjet: new Map(
         lojerat.map((loja) => [
           loja.id,
-          renditjaELojes(loja.selectedPlayers, raundetELojes(loja)),
+          // Drejtimi vjen nga lloji i asaj mbrëmjeje: te një grup që luan edhe
+          // pishpirik, dy rreshta të njëjtë të kësaj liste renditen nga anë të
+          // kundërta, dhe kjo është e vërteta e secilit.
+          renditjaELojes(
+            loja.selectedPlayers,
+            raundetELojes(loja),
+            rregullat(llojiILojes(loja)).drejtimi,
+          ),
         ]),
       ),
     };
@@ -206,9 +232,16 @@ export function Grupi({ id }: { id: number }) {
         />
       )}
 
-      <TabelaEPergjithshme rreshtat={pergjithshmet} lojera={saLuajtura.bridzh} />
+      {tabelat.map((tabela) => (
+        <TabelaEPergjithshme
+          key={tabela.lloji}
+          rreshtat={tabela.rreshtat}
+          lojera={tabela.lojera}
+          emriILojes={tabela.emri}
+        />
+      ))}
 
-      <PergjithshmetEMagarecit rreshtat={magarecat} lojera={saLuajtura.magarec} />
+      <PergjithshmetEMagarecit rreshtat={magarecat} lojera={saMagareca} />
 
       <section>
         <h2 className="titull-seksioni">
@@ -240,10 +273,20 @@ export function Grupi({ id }: { id: number }) {
                       {(raunde?.[loja.id] ?? BOSH).length === 1 ? 'raund' : 'raunde'}
                       {' · '}
                       {loja.selectedPlayers.length} lojtarë
-                      {llojiILojes(loja) === 'magarec' && (
+                      {/*
+                        Çka u luajt shkruhet për çdo lojë veç bridzhit — ai është
+                        parazgjedhja, dhe një «Bridzh» te çdo rresht do të ishte
+                        zhurmë te një listë ku shumica janë bridzh. Te magareci
+                        del vetë fjala që mbushet.
+                      */}
+                      {llojiILojes(loja) !== 'bridzh' && (
                         <>
                           {' · '}
-                          <span className="njesi__lloji">{FJALA}</span>
+                          <span className="njesi__lloji">
+                            {llojiILojes(loja) === 'magarec'
+                              ? FJALA
+                              : rregullat(llojiILojes(loja)).emri}
+                          </span>
                         </>
                       )}
                       {/*
@@ -440,23 +483,23 @@ function ZgjedhjaELojtareve({
       <div className="futja">
         <div className="fusha">
           <span className="fusha__etiketa">Çka luhet</span>
-          <div className="celesi" role="group" aria-label="Lloji i lojës">
-            <button
-              type="button"
-              className="celesi__njesi"
-              aria-pressed={lloji === 'bridzh'}
-              onClick={() => caktoLlojin('bridzh')}
-            >
-              Bridzh
-            </button>
-            <button
-              type="button"
-              className="celesi__njesi"
-              aria-pressed={lloji === 'magarec'}
-              onClick={() => caktoLlojin('magarec')}
-            >
-              {FJALA}
-            </button>
+          {/*
+            Katër lojëra te një çelës i vetëm, në radhën e regjistrit. Rrjeti i
+            lejon të bien në dy rreshta te telefoni i ngushtë, dhe secili buton
+            mbetet mbi 2.75rem — po ai kufi si te fushat e pikëve (pika 2).
+          */}
+          <div className="celesi celesi--rrjet" role="group" aria-label="Lloji i lojës">
+            {RADHA.map((njeri) => (
+              <button
+                type="button"
+                key={njeri}
+                className="celesi__njesi"
+                aria-pressed={lloji === njeri}
+                onClick={() => caktoLlojin(njeri)}
+              >
+                {rregullat(njeri).emri}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -501,10 +544,12 @@ function ZgjedhjaELojtareve({
         </div>
 
         <p className="ndihma">
-          {lloji === 'magarec'
-            ? `Kush e humb raundin merr një shkronjë; kush e mbush ${FJALA}-in e humb mbrëmjen.`
-            : 'Pikët shënohen për raund, dhe fiton totali më i vogël.'}
-          {' '}
+          {/*
+            Rregulli i lojës së zgjedhur, ashtu si rri te regjistri. Kjo është
+            edhe kontrolli i fundit para se të niset mbrëmja: kush e preku
+            çelësin pa dashje e sheh menjëherë se po nis një lojë tjetër.
+          */}
+          {rregullat(lloji).rregulli}{' '}
           {mefundit && mefundit.length >= 2
             ? 'Nisur nga lojtarët e lojës së fundit. Numri tregon radhën e kolonave.'
             : 'Numri tregon radhën e kolonave. Duhen së paku dy lojtarë.'}

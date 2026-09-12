@@ -9,6 +9,7 @@
  * Vetë leximi nuk prek as bazën as `window`-in, që të provohet drejtpërdrejt.
  */
 
+import { RADHA } from './lojerat.ts';
 import type { Grupi, Kopja, LlojiILojes, Loja, Raundi } from './tipet.ts';
 
 export const FORMATI = 'cardgametracker';
@@ -36,10 +37,16 @@ export function ndertoKopjen(
   };
 }
 
-/** Emri i skedarit: `bridzh-2026-03-08.json`. */
+/**
+ * Emri i skedarit: `tavolina-2026-03-08.json`.
+ *
+ * Emri i vjetër ishte `bridzh-…`, nga koha kur kjo ishte vetëm një lojë. Skedari
+ * i vjetër lexohet ende — emri nuk hyn fare te leximi — dhe kush e ka te
+ * telefoni nuk ka pse ta riemërtojë.
+ */
 export function emriISkedarit(tani: Date = new Date()): string {
   const dy = (n: number) => String(n).padStart(2, '0');
-  return `bridzh-${tani.getFullYear()}-${dy(tani.getMonth() + 1)}-${dy(tani.getDate())}.json`;
+  return `tavolina-${tani.getFullYear()}-${dy(tani.getMonth() + 1)}-${dy(tani.getDate())}.json`;
 }
 
 function eshteVarg(v: unknown): v is unknown[] {
@@ -51,16 +58,21 @@ function eshteNumer(v: unknown): v is number {
 }
 
 /**
- * Lloji i një loje të kopjes: `bridzh`, `magarec`, ose mungon.
+ * Lloji i një loje të kopjes: njëra nga të katërt, ose mungon.
  *
  * Mungesa është e ligjshme — lojërat e shkruara para se të vinte magareci nuk e
  * kanë fushën, dhe lexohen bridzh. Një vlerë e panjohur jo: ajo do të vinte nga
- * një version më i ri, dhe vizatimi i saj si bridzh do t'i tregonte shkronjat si
- * pikë pa e thënë kush. Prandaj kopja refuzohet e tëra, si te çdo fushë tjetër.
+ * një version më i ri, dhe vizatimi i saj si bridzh do t'i tregonte shkronjat
+ * ose pikët e një loje tjetër pa e thënë kush — te pishpiriku edhe fituesin e
+ * gabuar, sepse atje fiton totali më i madh. Prandaj kopja refuzohet e tëra, si
+ * te çdo fushë tjetër.
+ *
+ * Lista vjen nga regjistri: një lojë e pestë e shtuar atje lexohet edhe këtu,
+ * pa e prekur këtë skedar.
  */
 function llojiIKopjes(v: unknown): LlojiILojes | null | undefined {
   if (v === undefined || v === null) return undefined;
-  return v === 'bridzh' || v === 'magarec' ? v : null;
+  return RADHA.find((lloji) => lloji === v) ?? null;
 }
 
 /**

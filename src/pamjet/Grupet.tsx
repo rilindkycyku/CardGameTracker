@@ -1,14 +1,18 @@
 /**
  * Ekrani i parë — grupet.
  *
- * Një grup është shoqëria që luan bashkë: „Brigj", „Domina". Emrat e lojtarëve
+ * Një grup është shoqëria që luan bashkë: „Brigj", „Mendja". Emrat e lojtarëve
  * futen një herë dhe pastaj vetëm zgjidhen, sepse shkrimi i gjashtë emrave në
  * telefon para çdo loje do të ishte pengesa që e lë aplikacionin pa përdorur.
+ *
+ * Grupi nuk i takon një loje të vetme: e njëjta shoqëri luan bridzh një mbrëmje
+ * e pishpirik tjetrën, prandaj çka luhet zgjidhet te loja e jo te grupi.
  */
 
 import { useRef, useState } from 'react';
 
 import { emratERinj } from '../fusha.ts';
+import { RADHA, rregullat } from '../lojerat.ts';
 import { Ikona, ShenjaEFaqes, Zemra } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
 import { PanelaEKopjes } from '../pjeset/PanelaEKopjes.tsx';
@@ -30,12 +34,19 @@ export function Grupet() {
       <header className="kreu">
         <ShenjaEFaqes />
         <div>
-          <p className="kreu__mbi">Bridzh kosovar</p>
+          <p className="kreu__mbi">Lojërat e tavolinës</p>
           <h1 className="kreu__titull">Pikët e mbrëmjes</h1>
           <p className="kreu__meta">
+            {/*
+              Dikur këtu rrinte «Fiton totali më i vogël». Ajo ishte e vërtetë
+              sa kohë kishte vetëm bridzh e magarec; me pishpirikun në tavolinë
+              nuk është më, dhe një rregull i shkruar gabi te faqja e parë është
+              më keq se asnjë. Rregulli i secilës lojë rri atje ku zgjidhet çka
+              luhet, dhe këtu mbetet vetëm se cilat janë.
+            */}
             <span className="etiketa">
               <Ikona emri="info" />
-              Fiton totali më i vogël
+              {RADHA.map((lloji) => rregullat(lloji).emri).join(' · ')}
             </span>
           </p>
         </div>

@@ -8,14 +8,29 @@ të dhënave (`playerNames`, `selectedPlayers`, `roundNumber`, `scores`), për a
 
 ## Çka është kjo
 
-**Bridzh** — një numërues pikësh që i përgjigjet një pyetjeje: *sa ka secili, dhe kush kujt sa i
-del*. Zëvendëson një fletë Google Sheets-i që mbahej me dorë për bridzhin kosovar, varianti i
-xhin-ramit që luhet me 14 letra, mbyllet me 51 pikë dhe mbaron pasi secili i ka përzier
-letrat dy herë.
+**Tavolina** — një numërues pikësh që i përgjigjet një pyetjeje: *sa ka secili, dhe kush kujt sa i
+del*. Zëvendëson një fletë Google Sheets-i që mbahej me dorë për lojërat e një shoqërie.
 
-Ajo fletë ka edhe një skedë të dytë — **Magarec** — dhe tani e ka edhe aplikacioni: kush e humb
-raundin merr një shkronjë, dhe kush e mbush fjalën „MAGAREC" e humb mbrëmjen. Rregullat te
-[pika 11](#11-magareci-është-lojë-e-dytë-jo-aplikacion-i-dytë); ajo që vlen këtu është se të dyja
+U quajt „Bridzh" derisa mbante një lojë të vetme: bridzhin kosovar, varianti i xhin-ramit që luhet
+me 14 letra, mbyllet me 51 pikë dhe mbaron pasi secili i ka përzier letrat dy herë. Tani mban katër,
+dhe emri i vjetër do të gënjente te tri prej tyre. Ai emër mbeti vetëm te një vend, dhe atje me
+arsye: parathënja `bridzh-` e emrit te serveri i sinjalizimit (`kodi.ts`) është pjesë e telit e jo
+fjalë që lexon njeriu — ndërrimi i saj do t'i ndante dy telefonat që nuk e kanë rifreskuar faqen
+njëkohësisht.
+
+Katër lojëra, një tavolinë:
+
+| Loja | Raundi | Mbaron | Fiton | Shlyhet |
+| --- | --- | --- | --- | --- |
+| **Bridzh** | pikët, ose llogaritësi hant/normal | dy raunde për lojtar | më i vogli | po |
+| **Magarec** | një prekje: kush e humbi | kur mbushet fjala „MAGAREC" | më i vogli | jo |
+| **Domina** | gurët e mbetur në dorë | kur dikujt i mbushen 100 pikë | më i vogli | po |
+| **Pishpirik** | pikët e dorës (25 + 10 për pishpirik) | kur dikush arrin 101 | **më i madhi** | jo |
+
+Dy të parat vijnë nga dy skedat e para të asaj flete, domina nga e treta, dhe pishpiriku nga vetë
+tavolina — atë skedë fleta nuk e pati kurrë. Rregullat te
+[pika 11](#11-magareci-është-lojë-e-dytë-jo-aplikacion-i-dytë) dhe
+[pika 16](#16-një-lojë-e-re-hyn-te-regjistri-jo-te-ekranet); ajo që vlen këtu është se të katërta
 janë e njëjta tavolinë, i njëjti grup dhe e njëjta bazë.
 
 Tri gjëra e përcaktojnë çdo vendim këtu:
@@ -47,7 +62,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 201 prova, pa framework provash
+npm test          # node --test — 225 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -62,8 +77,9 @@ ndryshim që përdoruesi e sheh.
 
 ### 1. Logjika rri te module që nuk njohin as bazën, as React-in, as `window`-in
 
-`llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `parashikimi.ts`, `fundi.ts`, `fusha.ts`, `qr.ts`,
-`paketa.ts`, `ndarja.ts`, `sinjalizimi.ts` dhe `kodi.ts` importohen drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
+`llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `lojerat.ts`, `parashikimi.ts`, `fundi.ts`,
+`fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts` dhe `kodi.ts` importohen
+drejtpërdrejt nga `node --test`, pa bundler dhe pa DOM — prandaj `npm test`
 zgjat nën një sekondë dhe nuk ka çka të prishet mes provës dhe kodit.
 
 `lidhja.ts`, `lidhjaMeServer.ts`, `sistemi.ts` dhe `ruajtja.ts` nuk hyjnë te kjo listë me qëllim: e
@@ -221,10 +237,15 @@ dilte 2.5 piksela për modul me gjashtë lojtarë — 2.1 me tetë emra të gjat
 skanimi nga një ekran në tjetrin nis të dështojë. Tani zë rreshtin e vet dhe merr 18rem, si ftesa.
 Kjo nuk është zbukurim: një kod që nuk lexohet është e njëjta gjë me një kod që nuk ekziston.
 
-Paketa është te versioni **2**, dhe fusha e shtuar është një shkronjë: `b` a `m`, lloji i lojës.
-Pa të ana që shikon nuk ka nga ta dijë se `3` do të thotë „MAG" e jo tri pikë — numri është i njëjti
-bajt te të dyja lojërat. Versioni 1 lexohet ende dhe lexohet bridzh: një adresë e ndarë dje te një
-bisedë nuk ka pse të vdesë sot, dhe atëherë kishte vetëm bridzh gjithsesi.
+Paketa është te versioni **2**, dhe fusha e shtuar është një shkronjë: lloji i lojës — `b`, `m`,
+`d`, `p`. Pa të ana që shikon nuk ka nga ta dijë se `3` do të thotë „MAG" e jo tri pikë — numri
+është i njëjti bajt te të katër lojërat. Versioni 1 lexohet ende dhe lexohet bridzh: një adresë e
+ndarë dje te një bisedë nuk ka pse të vdesë sot, dhe atëherë kishte vetëm bridzh gjithsesi.
+
+Dy shkronjat e fundit hynë pa e ngritur versionin, dhe kjo është zgjedhje: një aplikacion i vjetër
+një paketë domine e refuzon fare — shkronjën nuk e njeh — dhe kjo është pikërisht ajo që duhet. Te
+pishpiriku fiton totali më i madh, prandaj një lexim „si bridzh" do të shpallte fitues atë që mbeti
+i fundit, në heshtje. Shkronjat rrinë te `lojerat.ts` dhe nuk riciklohen kurrë.
 
 #### Sinjalizimi kalon nëpër kamerën e telefonit
 
@@ -355,8 +376,15 @@ me atë skedar. Gjithçka tjetër — emrat e moduleve, e funksioneve, e kompone
 teksti në ekran — është shqip.
 
 Fushat e reja janë shqip, sepse nuk janë pjesë e asaj kontrate: `lloji` te `Loja` e thotë çka u
-luajt atë mbrëmje. Ai skedar njeh vetëm bridzhin, prandaj lista e emrave anglisht mbetet ajo që
-është dhe nuk zgjatet.
+luajt atë mbrëmje — `bridzh`, `magarec`, `domina` a `pishpirik`. Ai skedar njeh vetëm bridzhin (dhe
+një skedë domine pa emër fushe), prandaj lista e emrave anglisht mbetet ajo që është dhe nuk
+zgjatet.
+
+Skeda „Domina" e fletës nuk është dëshmi e dobët: raundi i vetëm i shënuar u jep dy lojtarëve 21 e
+38 dhe të tretit asgjë, pra secili shkruan sa i mbetën në dorë, dhe totalet e matrica dalin nga po
+ato llogari si te bridzhi. Prova `mbrëmja e dominës te logic.json lexohet me të njëjtat llogari` e
+mban këtë të matur. Ajo që fleta nuk e thotë është kufiri — njëqindshi vjen nga rregulli i lojës, jo
+nga tabela — dhe rri i shkruar një herë te `KUFIRI_I_DOMINES`.
 
 Dy fusha të `logic.json`-it nuk përdoren dot, sepse dolën të cunguara nga nxjerrja e
 automatizuar dhe jo nga tabela: `domina_1.standings` (një rresht nga tre lojtarë) dhe
@@ -427,16 +455,23 @@ ekran të dytë:
   fare te magareci.
 
 Lojërat e shkruara para tij nuk e kanë fushën `lloji` dhe lexohen bridzh — `llojiILojes()` është
-vendi i vetëm ku bëhet ai lexim. Një vlerë e panjohur te një kopje rezervë refuzohet e nuk lexohet
+vendi i vetëm ku bëhet ai lexim (pika 16). Një vlerë e panjohur te një kopje rezervë refuzohet e nuk lexohet
 bridzh: do të vinte nga një version më i ri, dhe shkronjat e tij do të dilnin pikë pa e thënë kush.
 
 ### 12. Parashikimi mat kufij të arritshëm, jo gjasa
 
 Pas renditjes vjen gjithmonë e njëjta pyetje rreth tavolinës: *a e arrin dot i dyti të parin nëse
 luajmë edhe një raund?* `parashikimi.ts` i përgjigjet asaj, dhe ajo që e bën të përgjigjshme është
-se të dyja lojërat veçojnë saktësisht një lojtar për raund — mbyllësin te bridzhi, humbësin te
+se dy nga katër lojërat veçojnë saktësisht një lojtar për raund — mbyllësin te bridzhi, humbësin te
 magareci. Prandaj kufijtë e një raundi janë numra, e jo hamendje: −40 poshtë dhe +200 lart te
 bridzhi (pra 240 pikë diferencë për raund), një shkronjë te magareci.
+
+**Domina dhe pishpiriku nuk parashikohen fare, dhe blloku hiqet nga ekrani.** Atje një dorë u jep
+pikë disave njëherësh, dhe sa — atë nuk e thotë rregulli: gurët e mbetur në dorë janë nga zero deri
+diku, dhe pishpirikët e një dore nuk kanë numër të caktuar. Një tabelë «vendi më i mirë» mbi ta do
+të ishte e mbushur me numra që duken të matur e nuk janë. `rregullat().parashikimi` e mban këtë
+dallim, dhe `raundetEMbetura` kthen zero atje — pra edhe titulli «edhe N raunde» nuk shkruhet dot
+gabim. Mos i „plotëso" me kufij të zgjedhur me dorë.
 
 Katër gjëra e mbajnë të ndershëm, dhe asnjëra nuk guxon të hiqet:
 
@@ -453,12 +488,13 @@ Katër gjëra e mbajnë të ndershëm, dhe asnjëra nuk guxon të hiqet:
   vonë do të ishte numër i shpikur. Prandaj vendi këtu është «sa veta kanë më pak, plus një», dhe
   prova `vendi i tanishëm rri mes vendit më të mirë dhe atij më të keq` e mban të matur.
 
-**Horizonti nuk hamendësohet.** Të dyja lojërat e kanë fundin e vet, prandaj «sa ka mbetur» është
-numër që del nga vetë loja, dhe `raundetEMbetura` është vendi i vetëm ku bëhet ai dallim: te bridzhi
-dy raunde për lojtar minus ato të luajtura (pika 13), te magareci sa mund të luhen më së shumti para
-se të mbushet fjala (`raundetMeTeShumta`). E dyta është kufi i sipërm e jo numër i saktë — fjala
-mund të mbushet shumë më herët — prandaj ekrani e shkruan «së shumti» krah numrit. Mos e zëvendëso
-asnjërin me një numër të zgjedhur me dorë.
+**Horizonti nuk hamendësohet.** Të dyja lojërat që parashikohen e kanë fundin e vet, prandaj «sa ka
+mbetur» është numër që del nga vetë loja, dhe `raundetEMbetura` është vendi i vetëm ku bëhet ai
+dallim: te bridzhi dy raunde për lojtar minus ato të luajtura (pika 13), te magareci sa mund të luhen
+më së shumti para se të mbushet fjala (`raundetMeTeShumta`), dhe te dy të tjerat zero — «nuk
+parashikohet». E dyta është kufi i sipërm e jo numër i saktë — fjala mund të mbushet shumë më herët —
+prandaj ekrani e shkruan «së shumti» krah numrit. Mos e zëvendëso asnjërin me një numër të zgjedhur
+me dorë.
 
 Ekrani ka dy çelësa e jo pesë, sepse vetëm dy pyetje bëhen vërtet: *sikur të luajmë edhe një raund*,
 dhe *deri në fund*. Me një raund të mbetur të dyja janë e njëjta gjë, dhe çelësi zhduket.
@@ -470,27 +506,34 @@ ngushtojnë atë, dhe numri i raundeve që premton e mban premtimin me saktësis
 Për magarecin të njëjtat mbrëmje lexohen sërish si shkronja — raundin e humb ai që mori më shumë
 pikë — sepse pikët me qindra nuk hyjnë te një llogari ku totali shkon nga zero në shtatë.
 
-### 13. Përzierja vlen te të dyja lojërat; dy rrotullimet vetëm te bridzhi
+### 13. Përzierja vlen te të gjitha lojërat; dy rrotullimet vetëm te bridzhi
 
 Dy rregulla që preken, por nuk janë një — dhe ngatërrimi i tyre është gabimi i lehtë këtu:
 
-- **Përzierja** kalon një vend çdo raund te **të dyja** lojërat. Edhe magareci luhet me letra te e
-  njëjta tavolinë, prandaj edhe atje dikush i përzien.
+- **Përzierja** kalon një vend çdo raund te **të katërta** lojërat. Edhe magareci e pishpiriku luhen
+  me letra te e njëjta tavolinë, dhe edhe gurët e dominës i përzien dikush — prandaj kush e bën
+  ndërrohet çdo raund, kudo.
 - **Gjatësia** është vetëm e **bridzhit**: dy raunde për lojtar, pra tavolina rrotullohet saktësisht
-  dy herë dhe aty mbaron mbrëmja. **Magareci nuk e njeh atë kufi fare** — atje mbrëmja mbaron kur
-  dikujt i mbushet fjala (pika 11), dhe mund të zgjasë shumë më gjatë ose të mbarojë te raundi i
-  shtatë. Mos ia vër magarecit një fund të numëruar me raunde.
+  dy herë dhe aty mbaron mbrëmja. **Tri lojërat e tjera nuk e njohin atë kufi fare** — atje mbrëmja
+  mbaron kur dikush e arrin kufirin e vet të totalit: fjala te magareci (pika 11), njëqind pikët te
+  domina, 101-shi te pishpiriku. Mos u vër atyre një fund të numëruar me raunde.
+
+  Të tri kufijtë janë i njëjti rregull parë nga ana e numrit, prandaj `mbaroiSipasRregullit` i pyet
+  të njëjtat dy gjëra: a numërohet mbrëmja me raunde (`raundePerLojtar`), dhe nëse jo, a e ka arritur
+  ndonjë total kufirin (`arritiKufirin`). Ajo që ndryshon është kuptimi — te magareci e te domina ai
+  që e arriti humbi, te pishpiriku fitoi — dhe atë e thotë ekrani, jo ajo llogari.
 
 `perziersiIRaundit` nuk mban gjendje: raundi i parë i takon të parit të `selectedPlayers`, i dyti të
 dytit, dhe pas të fundit nis prapë nga kreu. Kjo punon vetëm sepse radha e emrave ruhet që nga
 futja — kutia e emrave e thotë («Radha ruhet — kështu ulen rreth tavolinës»), dhe fleta e vjetër i
 mbante ashtu për të njëjtën arsye.
 
-`raundetELojes` (`lojtarë × 2`) është rregulli i dytë, dhe del vetëm te bridzhi. Dy vende e thërrasin,
-dhe të dyja e ndajnë llojin para se ta bëjnë: `Loja` me `magarec ? 0 : …`, dhe `raundetEMbetura` te
-`parashikimi.ts` me një kthim të hershëm te rreshti i parë. Mos e thirr nga një ekran që u shërben të
-dyja lojërave pa e ndarë llojin — prova `kufiri i bridzhit nuk e mbyll një mbrëmje magareci` e mban
-këtë të matur.
+`raundetELojes` (`lojtarë × 2`) është rregulli i dytë, dhe del vetëm te bridzhi. Kush e thërret e
+ndan llojin para se ta bëjë, dhe pyetja është gjithmonë e njëjta — `rregullat(lloji).raundePerLojtar`:
+`Loja` e `PermbledhjaEPamjes` e lexojnë për të vendosur nëse shkruhet «4 nga 8 raunde» apo vetëm
+«4 raunde», dhe `raundetEMbetura` te `parashikimi.ts` me një kthim të hershëm. Mos e thirr nga një
+ekran që u shërben të katërta lojërave pa e ndarë llojin — provat `kufiri i bridzhit nuk e mbyll një
+mbrëmje magareci` dhe `kufiri i bridzhit nuk e mbyll një mbrëmje domine` e mbajnë këtë të matur.
 
 **Rregulli nuk u shpik — fleta e dëshmon.** Çdo mbrëmje bridzhi te `logic.json` ka saktësisht dy
 raunde për lojtar, dhe prova `çdo mbrëmje bridzhi e logic.json-it ka saktësisht dy raunde për
@@ -503,9 +546,9 @@ sa herë lexohen. Prandaj shtimi ose heqja e dikujt mes lojës (pika 5) e rirend
 e tanishme, dhe te bridzhi e zgjat ose e shkurton mbrëmjen vetvetiu. Kjo është e vërteta e tavolinës: kush u
 ngrit nuk përzien më, dhe letrat nuk e presin.
 
-**Fundi mbyll futjen te të dyja lojërat, dhe vizatohet një herë.** `mbaroiSipasRregullit` te
-`fundi.ts` e bën atë dallim një herë të vetme — fjala e mbushur te magareci, dy raundet për lojtar te
-bridzhi — dhe nga aty poshtë ekrani pyet vetëm «a mbaroi». Butonat nuk rrinë të fikur, hiqen: një
+**Fundi mbyll futjen te të katërta lojërat, dhe vizatohet një herë.** `mbaroiSipasRregullit` te
+`fundi.ts` e bën atë dallim një herë të vetme — dy raundet për lojtar te bridzhi, kufiri i totalit te
+tri të tjerat — dhe nga aty poshtë ekrani pyet vetëm «a mbaroi». Butonat nuk rrinë të fikur, hiqen: një
 raund i shënuar pas fundit do ta bënte fletën të gënjejë.
 
 Kufiri i bridzhit nuk ngec dot mbi një raund të vërtetë, dhe kjo varet nga pika 5: hiqet vetëm ai që
@@ -529,10 +572,15 @@ tre lojtarë dhe gjashtë raunde normale, ku secili mbyll dy herë, të tre dali
 fitoi» atëherë është e pavërtetë, dhe kurora mbi rreshtin e parë po ashtu — të dyja e shpallin një
 fitues që nuk e ka ndarë kush.
 
-Prandaj `fituesit()` te `llogaritjet.ts` kthen **të gjithë** ata që e ndajnë totalin më të vogël, dhe
+Prandaj `fituesit()` te `llogaritjet.ts` kthen **të gjithë** ata që e ndajnë totalin fitues, dhe
 çdo vend që shpall një fitues merret prej andej e jo prej `rreshtat[0]`: shenja e fundit te `Loja`,
 kreu i `PermbledhjaEPamjes`, dhe kurora te `Renditja`. Vendet mbeten ashtu si ishin; ndryshon vetëm
-ajo që thuhet me fjalë a me ikonë. Provat `barazimi te kreu nuk ndahet sipas radhës së listës` dhe
+ajo që thuhet me fjalë a me ikonë.
+
+„Totali fitues" do të thotë më i vogli te tri lojërat, dhe më i madhi te pishpiriku. Drejtimi i
+jepet — `fituesit(rreshtat, drejtimi)` — e nuk merret me mend brenda: i njëjti funksion thirret edhe
+mbi një paketë të ardhur nga jashtë, ku lloji rri fushë më vete, dhe një lexim i dytë i tij aty do
+të dilte jashtë sinkronie me regjistrin (pika 16). Provat `barazimi te kreu nuk ndahet sipas radhës së listës` dhe
 `fituesi i çdo mbrëmjeje të logic.json-it është ai me totalin më të vogël` e mbajnë këtë të matur.
 
 ### 15. Mbrëmja e kryer lexohet, nuk shënohet
@@ -562,16 +610,69 @@ dhe rregulli do ta mbyllte sërish në çast. Prandaj lexohet me `??` e jo me `|
 **Rihapja rri gjithmonë një prekje larg.** Mbyllja nuk fshin asgjë dhe nuk është e pakthyeshme; kjo
 është kushti nën të cilin një ekran pa redaktim qëndron fare.
 
-**Fjalia e fundit i ndan katër raste, sepse të katërt janë të vërteta të ndryshme**
-(`ShenjaEFundit` te `Loja`): magareci i mbushur, magareci i mbyllur pa u mbushur, bridzhi i mbaruar
-sipas rregullit, dhe bridzhi i mbyllur herët. Te i fundit shkruhet **«prin»** e jo «fitoi» — raundet
-që kishin mbetur do ta ndërronin atë radhë, dhe fleta nuk guxon ta shpallë të përfunduar një gjë që
-u ndërpre. Nga e njëjta arsye `perfundoi` i heq nga përmbledhja dy faktet që shikojnë përpara: sa
-raunde kanë mbetur, dhe kush përzien atë që vjen.
+**Fjalia e fundit i ndan rastet, sepse janë të vërteta të ndryshme** (`ShenjaEFundit` te `Loja`):
+magareci i mbushur, magareci i mbyllur pa u mbushur, mbrëmja e mbaruar sipas rregullit, dhe ajo e
+mbyllur herët. Te e mbaruara sipas rregullit fjalia e thotë edhe **si** mbaroi, dhe ajo ndryshon me
+lojën: «8 raunde, 2 për lojtar» te bridzhi, «delta i mbushi 100 pikët» te domina — emri i atij që e
+mbylli mbrëmjen, pa të cilin «fitoi» mbetet pa shkak — dhe «i pari te 101» te pishpiriku, ku
+pikërisht ai që e arriti kufirin është fituesi.
+
+Te mbyllja e hershme shkruhet **«prin»** e jo «fitoi» — raundet që kishin mbetur do ta ndërronin atë
+radhë, dhe fleta nuk guxon ta shpallë të përfunduar një gjë që u ndërpre. Nga e njëjta arsye
+`perfundoi` i heq nga përmbledhja dy faktet që shikojnë përpara: sa raunde kanë mbetur, dhe kush
+përzien atë që vjen.
+
+E njëjta fjali vizatohet edhe brenda kartelës kur rregulli e mbaron mbrëmjen por fleta është rihapur
+me dorë, dhe merret nga i njëjti komponent: dy kopje të saj do të dilnin jashtë sinkronie pikërisht
+atje ku njëra shpall fitues e tjetra jo.
 
 **Paketa nuk e mori këtë fushë**, dhe nuk ka pse ta marrë: kur mbrëmja mbaron sipas rregullit, ana
 që shikon e nxjerr vetë nga totalet e numri i raundeve (pika 2). Jashtë mbetet vetëm mbyllja e
 hershme me dorë, dhe ajo nuk vlen sa një fushë e re te një kod QR (pika 7).
+
+### 16. Një lojë e re hyn te regjistri, jo te ekranet
+
+`lojerat.ts` mban gjithçka që e ndan një lojë nga tjetra, dhe asgjë tjetër: emrin, shkronjën e
+paketës, drejtimin e fitores, njësinë, gjatësinë, kufirin e totalit, dhe tri po-a-jo — llogaritës,
+shlyerje, parashikim. Katër rreshta të dhënash, dhe tre funksione mbi ta.
+
+Ekziston sepse numri i vendeve që duhet ta dinin lojën nuk rritet me një kur shtohet një lojë — rritet
+me dhjetë. Me dy lojëra një `lloji === 'magarec'` i shpërndarë nëpër ekrane ishte i durueshëm; me
+katër, i njëjti `if` do të kërkohej te renditja, te kurora, te fjalia e fundit, te futja e raundit,
+te tabela e grupit, te teksti i ndarjes, te përmbledhja e pamjes dhe te dy blloqet e parashikimit —
+dhe ai që harrohet nuk duket si gabim, duket si numër.
+
+Prandaj ekranet pyesin **çka thotë rregulli**, e jo **cila lojë është**:
+
+- `rregullat(lloji).drejtimi` → `renditja` dhe `fituesit`. Parazgjedhja e të dyve mbetet `poshte`,
+  sepse tri lojëra nga katër fitohen ashtu dhe kështu e numëron edhe fleta origjinale.
+- `rregullat(lloji).raundePerLojtar` → a shkruhet «4 nga 8 raunde» apo «4 raunde» (pika 13).
+- `rregullat(lloji).kufiriITotalit` → fundi i mbrëmjes për tri lojërat pa numërim raundesh, dhe
+  rreshti «edhe 39 deri te 100» te përmbledhja.
+- `rregullat(lloji).llogaritesi`, `.shlyerja`, `.parashikimi` → a vizatohen ato tri blloqe.
+
+Tri gjëra nuk guxojnë të ndryshojnë:
+
+- **Shkronja e paketës nuk riciklohet kurrë.** Ajo shkruhet brenda një adrese që rri te një bisedë
+  për muaj me radhë (pika 7). Prova `çdo lojë e regjistrit ka shkronjën e vet` e mban të matur.
+- **`llojiILojes()` mbetet leximi i vetëm i fushës.** Mungesa lexohet bridzh — lojërat e shkruara
+  para magarecit nuk e kanë fushën — kurse një vlerë e panjohur te një **kopje rezervë** refuzohet e
+  tëra (`kopja.ts`): ajo do të vinte nga një version më i ri, dhe pikët e një loje të panjohur do
+  të dilnin pikë bridzhi, me fituesin e gabuar te ajo ku fiton më i madhi.
+- **Tabela e grupit ndahet sipas lojës.** Pikët e bridzhit e ato të dominës mblidhen njësoj si
+  numra, por nuk janë e njëjta gjë, dhe ato të pishpirikut fitohen nga ana tjetër — një mesatare mbi
+  të gjitha do të ishte numër që nuk i përgjigjet asnjë pyetjeje. `Grupi` e thërret
+  `tabelaEPergjithshme` një herë për lojë, me drejtimin e saj; magareci e ka tabelën e vet që më
+  parë (pika 11). Tabela pa rreshta nuk vizatohet, prandaj një grup që luan vetëm bridzh nuk e sheh
+  kurrë fjalën „pishpirik".
+
+**Ajo që regjistri nuk e mban është vetë loja.** Pishpiriku ka njëzet e pesë pikë për dorë dhe dhjetë
+për çdo pishpirik; domina i numëron gurët e mbetur në dorë. Asnjëra nuk hyri te kodi si formulë, dhe
+asnjëra nuk ka llogaritës: numri numërohet te tavolina, ku janë letrat dhe gurët, dhe aplikacioni nuk
+i njeh as të parat as të dytët. Ajo që ka bridzhi — `pikezimi.ts` — e ka sepse aty shumëzohet e
+mblidhet me kokë në orën dy të natës, jo sepse aplikacioni i njeh letrat. Kufijtë e pikëve (100, 101)
+janë e vetmja gjë e rregullave të tyre që shkruhet, dhe rrinë konstante me emër te `lojerat.ts`:
+nëse shoqëria luan deri te 150, ndërrohet një numër i vetëm.
 
 ## Sistemi vizual
 

@@ -126,7 +126,7 @@ export function Lidhu({ kodi }: { kodi: string }) {
           <Ikona emri="drejtperdrejt" />
         </div>
         <div>
-          <p className="kreu__mbi">Bridzh</p>
+          <p className="kreu__mbi">Tavolina</p>
           <h1 className="kreu__titull">Edhe një hap</h1>
         </div>
       </header>

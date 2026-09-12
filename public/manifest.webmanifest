@@ -1,7 +1,7 @@
 {
-  "name": "Bridzh — pikët e mbrëmjes",
-  "short_name": "Bridzh",
-  "description": "Numërues pikësh për bridzhin kosovar.",
+  "name": "Tavolina — pikët e mbrëmjes",
+  "short_name": "Tavolina",
+  "description": "Numërues pikësh për lojërat e tavolinës: bridzh, magarec, domina, pishpirik.",
   "lang": "sq",
   "start_url": "/",
   "scope": "/",

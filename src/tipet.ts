@@ -10,15 +10,32 @@
 /**
  * Çka luhet atë mbrëmje.
  *
- * `bridzh` është numëruesi i pikëve — ai me të cilin nisi gjithçka. `magarec`
- * është loja e shkronjave: kush e humb raundin merr një shkronjë, dhe kush e
- * mbush fjalën „MAGAREC" e humb mbrëmjen. Dy lojëra të ndryshme, i njëjti grup
- * dhe e njëjta tavolinë — prandaj rrinë te e njëjta bazë e jo te dy aplikacione.
+ * Katër lojëra, një tavolinë. `bridzh` është numëruesi i pikëve — ai me të
+ * cilin nisi gjithçka. `magarec` është loja e shkronjave: kush e humb raundin
+ * merr një shkronjë, dhe kush e mbush fjalën „MAGAREC" e humb mbrëmjen.
+ * `domina` është skeda e tretë e së njëjtës fletë: gurët e mbetur në dorë
+ * shënohen si pikë, dhe luhet derisa dikujt t'i mbushen njëqind. `pishpirik`
+ * erdhi nga tavolina e jo nga fleta, dhe është i vetmi ku fiton totali më i
+ * madh.
  *
- * Emri i fushës është shqip sepse nuk vjen nga `logic.json`-i: ai skedar njeh
- * vetëm bridzhin, dhe kontrata me të janë vetëm katër emrat e tij.
+ * I njëjti grup dhe e njëjta bazë — prandaj rrinë te një aplikacion i vetëm e
+ * jo te katër. Çka i ndan rri i tëri te `lojerat.ts`.
+ *
+ * Emri i fushës është shqip sepse nuk vjen nga `logic.json`: ai skedar njeh
+ * vetëm bridzhin (dhe një skedë domine pa emër fushe), dhe kontrata me të janë
+ * vetëm katër emrat e tij.
  */
-export type LlojiILojes = 'bridzh' | 'magarec';
+export type LlojiILojes = 'bridzh' | 'magarec' | 'domina' | 'pishpirik';
+
+/**
+ * Kush fiton: totali më i vogël („poshtë") apo më i madhi („lart").
+ *
+ * Tri lojëra nga katër e fitojnë me më të voglin, dhe kjo është e kundërta e
+ * asaj që pret syri te një tabelë pikësh — prandaj ekrani e thotë me fjalë.
+ * Pishpiriku shkon nga ana tjetër, dhe pikërisht sepse është përjashtim, asnjë
+ * renditje nuk e mbart drejtimin brenda vetes: i jepet.
+ */
+export type Drejtimi = 'poshte' | 'larte';
 
 /** Një shoqëri që luan bashkë rregullisht. Radha e `playerNames` ka kuptim. */
 export type Grupi = {

@@ -1,14 +1,20 @@
-# Bridzh — pikët e mbrëmjes
+# Tavolina — pikët e mbrëmjes
 
-Numërues pikësh për **bridzhin kosovar**, varianti i xhin-ramit që luhet me 14
-letra dhe mbyllet me 51 pikë. Zëvendëson fletën e Google Sheets-it: shënon
-pikët e secilit raund dhe nxjerr vetë totalet, renditjen dhe shlyerjen.
+Numërues pikësh për lojërat e një tavoline. Zëvendëson fletën e Google
+Sheets-it: shënon pikët e secilit raund dhe nxjerr vetë totalet, renditjen dhe
+shlyerjen.
 
-Fiton **totali më i vogël**.
+Katër lojëra, një grup, një bazë:
 
-Mban edhe **magarecin** — lojën e shkronjave të skedës tjetër të asaj flete:
-kush e humb raundin merr një shkronjë, dhe kush e mbush fjalën „MAGAREC" e humb
-mbrëmjen.
+| Loja | Raundi | Mbaron | Fiton |
+| --- | --- | --- | --- |
+| **Bridzh** — xhin-rami kosovar me 14 letra, mbyllja me 51 pikë | pikët e secilit, ose llogaritësi hant/normal | pas dy raundeve për lojtar | totali më i vogël |
+| **Magarec** — loja e shkronjave | një prekje: kush e humbi | kur dikujt i mbushet fjala „MAGAREC" | më pak shkronja |
+| **Domina** — gurët e mbetur në dorë | pikët e secilit | kur dikujt i mbushen 100 pikë | totali më i vogël |
+| **Pishpirik** — 25 pikë për dorë, plus 10 për çdo pishpirik | pikët e dorës | kur dikush arrin 101 | **totali më i madh** |
+
+Pishpiriku është i vetmi që fitohet nga ana tjetër, dhe ekrani e thotë atë me
+fjalë: renditja, kurora dhe fjalia e fundit e lexojnë drejtimin nga vetë loja.
 
 ## Çka bën
 
@@ -23,11 +29,15 @@ mbrëmjen.
   hant/normal, i cili e ruan raundin vetë me një prekje.
 - **Data ditë/muaj/vit** — shkruhet me numra dhe vijat dalin vetë; poshtë saj
   rri data me fjalë, që të mos ngatërrohet ditë me muaj.
-- **Magarec** — para lojës zgjidhet çka luhet. Te magareci raundi ka një pyetje
-  të vetme: kush e humbi. Prekja e emrit e ruan raundin, shkronja shkon te ai, e
-  rrjeti M-A-G-A-R-E-C tregon ku janë të gjithë. Kur dikujt i mbushet fjala,
-  mbrëmja mbaron.
-- **Renditja** — ngjitshëm sipas totalit, i pari është ai me më pak pikë. Kur
+- **Çka luhet** — zgjidhet para lojës, dhe çelësi nis te loja e fundit e grupit.
+  Te magareci raundi ka një pyetje të vetme: kush e humbi. Prekja e emrit e ruan
+  raundin, shkronja shkon te ai, e rrjeti M-A-G-A-R-E-C tregon ku janë të gjithë.
+- **Domina dhe pishpirik** — i njëjti rrjet fushash si te bridzhi, pa
+  llogaritës: numri numërohet te tavolina, ku janë gurët e letrat. Mbrëmja
+  mbaron kur dikush e arrin kufirin e pikëve — 100 te domina, 101 te
+  pishpiriku — dhe fjalia e fundit e thotë se kush e arriti.
+- **Renditja** — sipas totalit, në drejtimin që e fiton loja: i pari është ai me
+  më pak pikë kudo veç pishpirikut. Kur
   nuk kanë luajtur të gjithë njësoj, shtohet kolona „raunde" dhe një shënim.
   Barazimi te kreu nuk fshihet: kurora u shkon të gjithëve që e ndajnë totalin
   më të vogël.
@@ -41,13 +51,17 @@ mbrëmjen.
   mbetur, dhe brenda sa raundeve. Tabela jep vendin më të mirë e më të keq që
   mund të arrijë secili, për raundin tjetër ose deri në fund. Numrat vijnë nga
   vetë rregulli: një raund mbyll 240 pikë diferencë te bridzhi, dhe një shkronjë
-  te magareci.
+  te magareci. Te domina e pishpiriku blloku nuk del fare: sa bën një dorë atje
+  nuk e thotë rregulli, dhe një parashikim pa kufij do të ishte numër i shpikur.
 - **Shlyerja** — matrica N×N e diferencave, `matrica[i][j] = total[i] − total[j]`,
-  me lojtarët sipas renditjes.
+  me lojtarët sipas renditjes. Del te bridzhi e te domina; te magareci e te
+  pishpiriku jo, sepse atje diferenca nuk paguhet me para.
 - **Historik sipas ditës** — një grup ka shumë lojëra, edhe dy të njëjtën ditë,
   secila me renditjen e vet përfundimtare aty për aty.
-- **Të përgjithshmet** — një tabelë për tërë grupin: lojëra, fitore dhe totali
-  mesatar për lojë, e llogaritur nga vetë raundet.
+- **Të përgjithshmet** — një tabelë për secilën lojë që grupi ka luajtur:
+  lojëra, fitore dhe totali mesatar, e llogaritur nga vetë raundet. Tabelat rrinë
+  të ndara sepse numrat nuk janë të njëjtë lloj — pikë bridzhi, pikë domine,
+  shkronja, pikë pishpiriku.
 - **Redaktim dhe fshirje** — çdo raund ndryshohet pas ruajtjes; gjithçka
   rillogaritet vetvetiu.
 - **Pikët drejtpërdrejt** — kush rri rreth tavolinës i shikon pikët në
@@ -92,6 +106,20 @@ redaktueshme, dhe «Vendosi te fushat» i shkruan pikët aty pa i ruajtur: te
 fletët e vjetra ka raunde që nuk dalin nga rregullat, dhe një aplikacion që
 pranon vetëm kombinimet e lejuara nuk do t’i shënonte dot.
 
+## Rregullat e dominës dhe të pishpirikut
+
+Asnjëra nuk ka llogaritës: numri vjen i numëruar nga tavolina.
+
+| | Raundi | Mbaron | Fiton |
+| --- | --- | --- | --- |
+| **Domina** | sa gurë i mbetën secilit në dorë | kur dikujt i mbushen 100 | totali më i vogël |
+| **Pishpirik** | pikët e dorës — 25 gjithsej, plus 10 për çdo pishpirik | kur dikush arrin 101 | totali më i madh |
+
+Te pishpiriku një dorë e plotë ndan 25 pikë: nga një për secilin as, dam, mbret,
+fant e dhjetë (22 me dhjetën e bastunit dy e dyshin e lules një), dhe tri për
+shumicën e letrave. Ai numër rri shkruar nën fushat, që një dorë e numëruar
+gabim të bjerë në sy para se të ruhet.
+
 ## Rregullat e magarecit
 
 Një shkronjë për raund, dhe shtatë shkronja e mbarojnë mbrëmjen:
@@ -112,7 +140,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build
 npm run preview
-npm test          # node --test — 150 prova, pa framework provash
+npm test          # node --test — 225 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i.
@@ -125,6 +153,8 @@ src/
   App.tsx             shpërndarja e rrugëve
   rruga.ts            rrugëtimi me hash
   tipet.ts            tipet e të dhënave
+  lojerat.ts          regjistri i katër lojërave: kush fiton, me çka mbaron
+                      mbrëmja, a ka llogaritës, a shlyhet — pa DOM, pa bazë
   llogaritjet.ts      totalet, renditja, matrica, gjatësia e lojës dhe kush
                       përzien — pa DOM, pa bazë;
                       `permbledhja` i jep totalet, raundet e luajtura dhe
@@ -160,6 +190,8 @@ src/
 
 test/
   llogaritjet.test.mjs   totalet, renditja, matrica — kundër `logic.json`-it
+  lojerat.test.mjs       regjistri: shkronjat e paketës, drejtimet, kufijtë
+  fundi.test.mjs         kur mbaron mbrëmja e secilës lojë, dhe mbyllja me dorë
   fusha.test.mjs         futja e pikëve negative pa tastierë me minus, dhe
                          data ditë/muaj/vit sa shkruhet
   pikezimi.test.mjs      rregullat — kundër raundeve të vërteta

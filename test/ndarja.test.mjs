@@ -328,3 +328,49 @@ test('një total i ndryshuar me dorë refuzohet', () => {
 
   assert.equal(ndryshuar, null, 'asnjë karakter i ndërruar nuk duhet të kalojë');
 });
+
+/* ── Lojërat e reja brenda paketës ───────────────────────────────────────── */
+
+test('paketa e mban llojin e dominës dhe të pishpirikut', () => {
+  // Numri është i njëjti bajt te të katër lojërat. Pa këtë fushë, `88` te një
+  // paketë pishpiriku do të lexohej pikë bridzhi — dhe fituesi do të dilte ai
+  // me më pak, pra pikërisht i fundit.
+  for (const lloji of ['domina', 'pishpirik']) {
+    const dala = shpaketo(paketo({ ...PAMJA, lloji }));
+    assert.equal(dala.lloji, lloji, lloji);
+    assert.deepEqual(dala.totalet, PAMJA.totalet, lloji);
+  }
+});
+
+test('secila lojë merr shkronjën e vet brenda trupit', () => {
+  const shenjat = new Set();
+
+  for (const lloji of ['bridzh', 'magarec', 'domina', 'pishpirik']) {
+    const trupi = Buffer.from(
+      paketo({ ...PAMJA, lloji }).replace(/-/g, '+').replace(/_/g, '/'),
+      'base64',
+    ).toString('utf8');
+
+    shenjat.add(trupi.split('|')[1]);
+  }
+
+  assert.equal(shenjat.size, 4);
+});
+
+test('teksti i pishpirikut e shkruan emrin e lojës dhe raundet e thjeshta', () => {
+  // «5 nga 8 raunde» vlen vetëm te bridzhi: vetëm atje gjatësia numërohet me
+  // raunde. Dhe pa emrin e lojës, një listë e ngjitur te një bisedë do të
+  // lexohej bridzh — ku fiton ai me më pak.
+  const teksti = tekstiINdarjes(
+    { ...PAMJA, lloji: 'pishpirik', raunde: 5 },
+    [
+      { rank: 1, player: 'beta', total: 88 },
+      { rank: 2, player: 'alfa', total: 41 },
+    ],
+  );
+
+  assert.match(teksti, /Pishpirik/);
+  assert.match(teksti, /5 raunde/);
+  assert.doesNotMatch(teksti, /nga \d+ raunde/);
+  assert.match(teksti, /1\. beta 88/);
+});
