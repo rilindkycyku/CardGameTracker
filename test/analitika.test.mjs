@@ -59,6 +59,16 @@ test('paketa dhe kodi nuk dalin nga pajisja', () => {
   }
 });
 
+test('ekrani i sinkronizimit numërohet me emrin e vet', () => {
+  /*
+   * Kjo rrugë nuk mban asgjë brenda hash-it — adresa e projektit, çelësi dhe
+   * email-i rrinë te `localStorage` e nuk kalojnë kurrë nga shiriti — prandaj
+   * emri del i plotë. Rri e shkruar këtu me vetëdije: një rrugë që nuk shtohet
+   * te ai skedar numërohet si ekrani i parë (pika 18).
+   */
+  assert.equal(shtegiIMates('/sinkronizimi'), '/sinkronizimi');
+});
+
 test('një rrugë e panjohur nuk kalon tekst nga jashtë', () => {
   // Dalja është gjithmonë një nga emrat e shkruar te moduli: një rrugë e re e
   // shtuar nesër nuk rrjedh vetvetiu — duhet shtuar edhe atje.

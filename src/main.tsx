@@ -5,6 +5,7 @@ import { App } from './App.tsx';
 import { regjistroPunetorin } from './instalimi.ts';
 import { nisMatjen } from './matja.ts';
 import { nisTemen } from './ndricimi.ts';
+import { nisAutomatikun } from './sinkronizimi.ts';
 import './style.css';
 
 /*
@@ -44,3 +45,13 @@ regjistroPunetorin();
  * (`matja.ts`). Gjatë zhvillimit nuk nis fare.
  */
 nisMatjen();
+
+/*
+ * Sinkronizimi, kur përdoruesi e ka lidhur një projekt të vetin (pika 19).
+ *
+ * Pa projekt të lidhur kjo thirrje nuk prek asgjë: `nisAutomatikun` e lexon
+ * konfigurimin dhe kthehet. Rri këtu për të njëjtën arsye si dy të mësipërmet —
+ * bëhet një herë për tërë jetën e skedës, e jo te një efekt që `StrictMode` e
+ * thërret dy herë.
+ */
+nisAutomatikun();

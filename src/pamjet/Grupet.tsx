@@ -20,6 +20,7 @@ import { CelesiINdricimit } from '../pjeset/Ndricimi.tsx';
 import { PanelaEKopjes } from '../pjeset/PanelaEKopjes.tsx';
 import { grupet as lexoGrupet, numriILojerave, shtoGrup } from '../ruajtja.ts';
 import { shko } from '../rruga.ts';
+import { eshteKonfiguruar, eshteLidhur, lexoKonfigurimin } from '../supabase.ts';
 import { VERSIONI } from '../versioni.ts';
 
 export function Grupet() {
@@ -158,6 +159,14 @@ export function Grupet() {
       <PanelaEKopjes onKthyer={rifresko} />
 
       {/*
+        Sinkronizimi rri krah kopjes rezervë sepse është e njëjta pyetje e parë —
+        «ku shkojnë këto të dhëna kur ndërroj telefonin?» — dhe dy përgjigje të
+        ndryshme: skedari, ose projekti yt (pika 19). Mbetet lidhje e jo panel:
+        ngritja bëhet një herë, kurse ky ekran hapet çdo mbrëmje.
+      */}
+      <LidhjaESinkronizimit />
+
+      {/*
         Versioni rri te ekrani i parë, jo te ndonjë ekran „rreth".
 
         Aplikacioni hapet nga një adresë dhe telefoni e mban në cache: pa një
@@ -213,6 +222,47 @@ export function Grupet() {
         )}
       </footer>
     </div>
+  );
+}
+
+/**
+ * Hyrja te sinkronizimi, me gjendjen e shkruar krah saj.
+ *
+ * Teksti ndryshon me gjendjen sepse pyetja ndryshon: kush nuk e ka lidhur ende
+ * pyet «çka është kjo», kurse kush e ka lidhur pyet «a po punon». Konfigurimi
+ * lexohet te vizatimi e nuk mbahet te gjendja — ky ekran rivizatohet gjithsesi
+ * pas çdo shkrimi, dhe një kopje e dytë do të dilte jashtë sinkronie pikërisht
+ * pas shkëputjes.
+ */
+function LidhjaESinkronizimit() {
+  const konfigurimi = lexoKonfigurimin();
+  const lidhur = eshteLidhur(konfigurimi);
+  const konfiguruar = eshteKonfiguruar(konfigurimi);
+
+  return (
+    <section>
+      <h2 className="titull-seksioni">
+        <Ikona emri="reja" />
+        Sinkronizimi
+      </h2>
+
+      <div className="kartela">
+        <p className="ndihma">
+          {lidhur
+            ? `Mbrëmjet shkojnë te projekti yt Supabase (${konfigurimi.email}).`
+            : konfiguruar
+              ? 'Projekti është i shkruar, por sesioni ka skaduar — hyr sërish.'
+              : 'Nëse i do të njëjtat mbrëmje te dy telefona, lidhi me një projekt Supabase që e zotëron vetë. Pa këtë, gjithçka rri vetëm te ky shfletues.'}
+        </p>
+
+        <div className="veprimet">
+          <a className="buton" href="#/sinkronizimi">
+            <Ikona emri="sinkronizimi" />
+            {lidhur ? 'Shiko gjendjen' : 'Lidh një projekt'}
+          </a>
+        </div>
+      </div>
+    </section>
   );
 }
 

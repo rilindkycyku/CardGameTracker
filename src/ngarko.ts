@@ -9,6 +9,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
+import { onBazaNdryshoi } from './ruajtja.ts';
+
 export type Ngarkesa<T> = {
   /** `null` derisa leximi i parë të mbarojë. */
   te_dhenat: T | null;
@@ -21,6 +23,11 @@ export function useNgarko<T>(lexo: () => Promise<T>, varet: unknown[]): Ngarkesa
   const [numeruesi, rinumero] = useState(0);
 
   const rifresko = useCallback(() => rinumero((n) => n + 1), []);
+
+  // Sinkronizimi shkruan te baza pa e prekur asnjë ekran (pika 19), prandaj
+  // rileximi duhet të vijë nga baza e jo nga një prekje: pa këtë, mbrëmja e
+  // mbërritur nga telefoni tjetër do të dukej vetëm pas një rifreskimi faqeje.
+  useEffect(() => onBazaNdryshoi(rifresko), [rifresko]);
 
   useEffect(() => {
     let gjalle = true;

@@ -9,8 +9,9 @@
  * Vetë leximi nuk prek as bazën as `window`-in, që të provohet drejtpërdrejt.
  */
 
+import { PREFIKSAT, uidIRi, uidIVlefshem } from './identiteti.ts';
 import { RADHA } from './lojerat.ts';
-import type { Grupi, Kopja, LlojiILojes, Loja, Raundi } from './tipet.ts';
+import type { Grupi, Kopja, LlojiILojes, Loja, Raundi, StoriSink } from './tipet.ts';
 
 export const FORMATI = 'cardgametracker';
 export const VERSIONI_I_KOPJES = 1;
@@ -19,6 +20,22 @@ export const VERSIONI_I_KOPJES = 1;
 export type Lexuar =
   | { ok: true; kopja: Kopja }
   | { ok: false; gabimi: string };
+
+/**
+ * Heq nga një regjistër llogaritë e sinkronizimit të kësaj pajisjeje.
+ *
+ * `uid`-i mbetet, dhe kjo është e qëllimshme: ai është emri i regjistrit te çdo
+ * pajisje, prandaj një kopje e kthyer diku tjetër e mban të njëjtin identitet
+ * dhe nuk krijon dublikatë te cloud-i. `perditesuar` e `sinkPezull` jo — ato
+ * thonë çka di **ky** shfletues për cloud-in, dhe skedari nuk ka ku ta dijë atë
+ * për shfletuesin që do ta lexojë. Kthimi i vë sërish (`zevendeso`).
+ */
+function paLlogarite<T extends { perditesuar?: number; sinkPezull?: boolean }>(rekordi: T): T {
+  const { perditesuar: _koha, sinkPezull: _pezull, ...pjesa } = rekordi;
+  void _koha;
+  void _pezull;
+  return pjesa as T;
+}
 
 /** Ndërton objektin që shkruhet në skedar. */
 export function ndertoKopjen(
@@ -31,9 +48,9 @@ export function ndertoKopjen(
     format: FORMATI,
     version: VERSIONI_I_KOPJES,
     exportedAt: tani.toISOString(),
-    groups,
-    games,
-    rounds,
+    groups: groups.map(paLlogarite),
+    games: games.map(paLlogarite),
+    rounds: rounds.map(paLlogarite),
   };
 }
 
@@ -55,6 +72,21 @@ function eshteVarg(v: unknown): v is unknown[] {
 
 function eshteNumer(v: unknown): v is number {
   return typeof v === 'number' && Number.isFinite(v);
+}
+
+/**
+ * `uid`-i i një regjistri të kopjes, ose një i ri.
+ *
+ * Mungesa është e ligjshme: çdo skedar i nxjerrë para se të vinte sinkronizimi
+ * e ka fushën bosh, dhe një kopje e djeshme nuk ka pse të vdesë sot (si te
+ * `lloji`). Përsëritja jo — dy regjistra me të njëjtin emër do të shkriheshin
+ * te cloud-i pa e thënë kush — prandaj i dyti merr një emër të ri e nuk e rrëzon
+ * tërë skedarin: çka shkruan te ai regjistër është e plotë gjithsesi.
+ */
+function uidIKopjes(v: unknown, store: StoriSink, pare: Set<string>): string {
+  const i = uidIVlefshem(v) && !pare.has(v) ? v : uidIRi(PREFIKSAT[store]);
+  pare.add(i);
+  return i;
 }
 
 /**
@@ -115,6 +147,8 @@ export function lexoKopjen(teksti: string): Lexuar {
     return { ok: false, gabimi: 'Kopjes i mungon ndonjë prej listave.' };
   }
 
+  const uidet = new Set<string>();
+
   const groups: Grupi[] = [];
   for (const v of o.groups) {
     const g = v as Record<string, unknown>;
@@ -123,6 +157,7 @@ export function lexoKopjen(teksti: string): Lexuar {
     }
     groups.push({
       id: g.id,
+      uid: uidIKopjes(g.uid, 'groups', uidet),
       name: g.name,
       playerNames: g.playerNames.map(String),
     });
@@ -150,6 +185,7 @@ export function lexoKopjen(teksti: string): Lexuar {
 
     const loja: Loja = {
       id: l.id,
+      uid: uidIKopjes(l.uid, 'games', uidet),
       groupId: l.groupId,
       date: l.date,
       selectedPlayers: l.selectedPlayers.map(String),
@@ -206,6 +242,7 @@ export function lexoKopjen(teksti: string): Lexuar {
 
     rounds.push({
       id: r.id,
+      uid: uidIKopjes(r.uid, 'rounds', uidet),
       gameId: r.gameId,
       roundNumber: r.roundNumber,
       scores,
