@@ -226,6 +226,48 @@ h3 {
   gap: var(--rreshtimi);
 }
 
+/* ── Dy shtylla ─────────────────────────────────────────────────────────── */
+
+/**
+ * Ndarja e zakonshme e një ekrani të gjerë: ajo për të cilën erdhe, dhe pjesa
+ * tjetër.
+ *
+ * Tableta e mbajtur anash është gati dyfishi i gjerësisë së një telefoni, dhe
+ * një kolonë e vetme aty do të thotë dy pëllëmbë të zbrazëta majtas e djathtas
+ * dhe një rrëshqitje e gjatë në mes. Prandaj blloqet dytësore — ato që preken
+ * një herë në mbrëmje ose asnjë — kalojnë krah asaj që lexohet, e jo nën të.
+ *
+ * Te telefoni nuk ndërron asgjë: një kolonë, dhe radha e shkruar te HTML-ja
+ * mbetet radha e leximit — e para shtylla kryesore, pastaj ajo anësore.
+ *
+ * Ekrani i lojës e ka ndarjen e vet (`.loja__pune`): atje e majta është futja e
+ * raundit, një bllok i ngushtë e i ngjitur, dhe e djathta rezultati — pra
+ * përmasat shkojnë nga ana tjetër.
+ */
+.shtyllat,
+.shtyllat__kryesore,
+.shtyllat__anesore {
+  display: grid;
+  /* Si te `.loja__pune`: kolona e parazgjedhur matet sipas përmbajtjes, dhe një
+     tabelë e gjerë do ta shtynte faqen anash në vend që të rrëshqiste vetë. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--rreshtimi);
+}
+
+@media (min-width: 62rem) {
+  .shtyllat {
+    /* 22rem është gjerësia nën të cilën tabela e përgjithshme — vendi, lojtari,
+       lojëra, fitore, mesatarja — nis të rrëshqasë brenda vetes. */
+    grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.9fr);
+    align-items: start;
+  }
+
+  .shtyllat__kryesore,
+  .shtyllat__anesore {
+    align-content: start;
+  }
+}
+
 /* ── Ekrani i lojës ─────────────────────────────────────────────────────── */
 
 /**
@@ -255,7 +297,7 @@ h3 {
  * nën të cilën kreu i tyre («Mbyll lojën më herët» me shigjetën) nis të thyhet.
  */
 @media (min-width: 48rem) {
-  .faqja--loja {
+  .faqja--gjere {
     max-width: 54rem;
   }
 
@@ -286,7 +328,7 @@ h3 {
  * rreshti i rrjetit dhe `position: sticky` mbetet pa ku të lëvizë.
  */
 @media (min-width: 62rem) {
-  .faqja--loja {
+  .faqja--gjere {
     max-width: 78rem;
   }
 
@@ -1339,13 +1381,36 @@ th.numri {
 }
 
 /**
- * Emri i mbyllësit rri i shkruar, prandaj mund të dalë i gjatë.
+ * Çelësi i emrave — më i ngushtë se ai i lojërave, sepse janë më shumë.
  *
- * Çelësi i emrave është i njëjti `.celesi--rrjet` si te lojërat — dy për rresht
- * te telefoni, më shumë kur ka vend — dhe një emër që nuk hyn pritet me tri
- * pika: rreshti nuk guxon të zgjatet sa emri, sepse nën të rri lista e duarve me
- * të njëjtat gjerësi.
+ * Emrat e lojërave janë katër dhe të njohur («Pishpirik»); emrat e tavolinës
+ * janë deri tetë dhe të shkurtër. 6rem i vë tre për rresht te telefoni e jo dy,
+ * pra tetë veta zënë tri rreshta në vend të katrave — dhe ajo lartësi i hiqet
+ * pikërisht duarve që shënohen poshtë (pika 6).
  */
+.celesi--emra {
+  grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+}
+
+/**
+ * Nga pesë lojtarë e tutje shtrëngohet, si fushat dhe tabelat.
+ *
+ * Ulet ajri dhe shkronja; lartësia mbetet 2.75rem, sepse ai është caku nën të
+ * cilin gishti nuk e zë — dhe një prekje e gabuar këtu e shkruan raundin te
+ * lojtari i gabuar.
+ */
+.celesi--emra[data-shume] {
+  grid-template-columns: repeat(auto-fit, minmax(5.2rem, 1fr));
+  gap: 0.3rem;
+}
+
+.celesi--emra[data-shume] .celesi__njesi {
+  padding-inline: 0.4rem;
+  font-size: 0.85rem;
+}
+
+/* Një emër që nuk hyn pritet me tri pika: rreshti nuk guxon të zgjatet sa emri,
+   sepse nën të rri lista e duarve me të njëjtat gjerësi. */
 .celesi__njesi--emer {
   overflow: hidden;
   text-overflow: ellipsis;

@@ -34,7 +34,7 @@ export function Grupet() {
   const versionIRi = useVersionIRi();
 
   return (
-    <div className="faqja">
+    <div className="faqja faqja--gjere">
       <header className="kreu">
         <ShenjaEFaqes />
         <div>
@@ -56,115 +56,128 @@ export function Grupet() {
         </div>
       </header>
 
-      <section>
-        <h2 className="titull-seksioni">
-          <Ikona emri="grupi" />
-          Grupet
-          {te_dhenat && (
-            <span className="titull-seksioni__numri">{te_dhenat.length}</span>
-          )}
-        </h2>
-
-        {te_dhenat === null ? (
-          <p className="ndihma">Duke lexuar…</p>
-        ) : te_dhenat.length === 0 ? (
-          <div className="zbrazet">
-            <p className="zbrazet__titull">Ende asnjë grup</p>
-            <p>
-              Nis me shoqërinë me të cilën luan më shpesh. Emrat futen një herë;
-              para çdo loje zgjedh vetëm kush erdhi.
-            </p>
-            <button
-              type="button"
-              className="buton buton--kryesor"
-              onClick={() => hapFormen(true)}
-            >
-              <Ikona emri="shto" />
-              Krijo grupin e parë
-            </button>
-          </div>
-        ) : (
-          <ul className="lista lista--dysh">
-            {te_dhenat.map(({ grupi, lojera }) => (
-              <li key={grupi.id}>
-                <a className="njesi" href={`#/grupi/${grupi.id}`}>
-                  <span className="njesi__shkronja njesi__shkronja--hapur">
-                    {grupi.name.slice(0, 1).toUpperCase()}
-                  </span>
-                  <span className="njesi__krye">
-                    <span className="njesi__emri">{grupi.name}</span>
-                    <span className="njesi__meta">
-                      {grupi.playerNames.length}{' '}
-                      {grupi.playerNames.length === 1 ? 'lojtar' : 'lojtarë'} ·{' '}
-                      {lojera} {lojera === 1 ? 'lojë' : 'lojëra'}
-                    </span>
-                  </span>
-                  <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {te_dhenat !== null && te_dhenat.length > 0 && !hapurFormen && (
-          <div className="veprimet" data-hapesire="lart">
-            <button
-              type="button"
-              className="buton"
-              onClick={() => hapFormen(true)}
-            >
-              <Ikona emri="shto" />
-              Grup i ri
-            </button>
-          </div>
-        )}
-
-        {hapurFormen && (
-          <FormaEGrupit
-            onRuajtur={() => {
-              hapFormen(false);
-              rifresko();
-            }}
-            onAnulo={() => hapFormen(false)}
-          />
-        )}
-      </section>
-
       {/*
-        Hyrja e atij që vjen vetëm të shikojë.
-        Pa të, kodi i shkurtër do të ishte i papërdorshëm pa skanuar një kod QR —
-        dhe pikërisht diktimi me zë është arsyeja pse ai kod ekziston.
+        Ekrani i gjerë i ndan dy pyetjet e tij: te cili grup po luhet sonte,
+        dhe ku shkojnë këto të dhëna. E para është arsyeja pse hapet faqja,
+        prandaj rri majtas dhe e merr gjerësinë; tri të tjerat preken një herë
+        — kur dikush hyn si shikues, kur nxirret një kopje, kur lidhet
+        projekti — dhe te telefoni rrinë poshtë saj ashtu si më parë.
       */}
-      <details className="detaje">
-        <summary className="detaje__krye">
-          <span>Bashkohu me kod</span>
-          <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
-        </summary>
+      <div className="shtyllat">
+        <div className="shtyllat__kryesore">
+          <section>
+            <h2 className="titull-seksioni">
+              <Ikona emri="grupi" />
+              Grupet
+              {te_dhenat && (
+                <span className="titull-seksioni__numri">{te_dhenat.length}</span>
+              )}
+            </h2>
 
-        <div className="detaje__trupi">
-          <p className="ndihma">
-            Nëse dikush tjetër mban pikët dhe ta dha një kod, hyr me të dhe
-            shiko pikët drejtpërdrejt.
-          </p>
+            {te_dhenat === null ? (
+              <p className="ndihma">Duke lexuar…</p>
+            ) : te_dhenat.length === 0 ? (
+              <div className="zbrazet">
+                <p className="zbrazet__titull">Ende asnjë grup</p>
+                <p>
+                  Nis me shoqërinë me të cilën luan më shpesh. Emrat futen një herë;
+                  para çdo loje zgjedh vetëm kush erdhi.
+                </p>
+                <button
+                  type="button"
+                  className="buton buton--kryesor"
+                  onClick={() => hapFormen(true)}
+                >
+                  <Ikona emri="shto" />
+                  Krijo grupin e parë
+                </button>
+              </div>
+            ) : (
+              <ul className="lista lista--dysh">
+                {te_dhenat.map(({ grupi, lojera }) => (
+                  <li key={grupi.id}>
+                    <a className="njesi" href={`#/grupi/${grupi.id}`}>
+                      <span className="njesi__shkronja njesi__shkronja--hapur">
+                        {grupi.name.slice(0, 1).toUpperCase()}
+                      </span>
+                      <span className="njesi__krye">
+                        <span className="njesi__emri">{grupi.name}</span>
+                        <span className="njesi__meta">
+                          {grupi.playerNames.length}{' '}
+                          {grupi.playerNames.length === 1 ? 'lojtar' : 'lojtarë'} ·{' '}
+                          {lojera} {lojera === 1 ? 'lojë' : 'lojëra'}
+                        </span>
+                      </span>
+                      <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
 
-          <div className="veprimet" data-hapesire="lart">
-            <a className="buton" href="#/bashkohu">
-              <Ikona emri="drejtperdrejt" />
-              Fut kodin
-            </a>
-          </div>
+            {te_dhenat !== null && te_dhenat.length > 0 && !hapurFormen && (
+              <div className="veprimet" data-hapesire="lart">
+                <button
+                  type="button"
+                  className="buton"
+                  onClick={() => hapFormen(true)}
+                >
+                  <Ikona emri="shto" />
+                  Grup i ri
+                </button>
+              </div>
+            )}
+
+            {hapurFormen && (
+              <FormaEGrupit
+                onRuajtur={() => {
+                  hapFormen(false);
+                  rifresko();
+                }}
+                onAnulo={() => hapFormen(false)}
+              />
+            )}
+          </section>
         </div>
-      </details>
 
-      <PanelaEKopjes onKthyer={rifresko} />
+        <div className="shtyllat__anesore">
+          {/*
+            Hyrja e atij që vjen vetëm të shikojë.
+            Pa të, kodi i shkurtër do të ishte i papërdorshëm pa skanuar një kod QR —
+            dhe pikërisht diktimi me zë është arsyeja pse ai kod ekziston.
+          */}
+          <details className="detaje">
+            <summary className="detaje__krye">
+              <span>Bashkohu me kod</span>
+              <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+            </summary>
 
-      {/*
-        Sinkronizimi rri krah kopjes rezervë sepse është e njëjta pyetje e parë —
-        «ku shkojnë këto të dhëna kur ndërroj telefonin?» — dhe dy përgjigje të
-        ndryshme: skedari, ose projekti yt (pika 19). Mbetet lidhje e jo panel:
-        ngritja bëhet një herë, kurse ky ekran hapet çdo mbrëmje.
-      */}
-      <LidhjaESinkronizimit />
+            <div className="detaje__trupi">
+              <p className="ndihma">
+                Nëse dikush tjetër mban pikët dhe ta dha një kod, hyr me të dhe
+                shiko pikët drejtpërdrejt.
+              </p>
+
+              <div className="veprimet" data-hapesire="lart">
+                <a className="buton" href="#/bashkohu">
+                  <Ikona emri="drejtperdrejt" />
+                  Fut kodin
+                </a>
+              </div>
+            </div>
+          </details>
+
+          <PanelaEKopjes onKthyer={rifresko} />
+
+          {/*
+            Sinkronizimi rri krah kopjes rezervë sepse është e njëjta pyetje e parë —
+            «ku shkojnë këto të dhëna kur ndërroj telefonin?» — dhe dy përgjigje të
+            ndryshme: skedari, ose projekti yt (pika 19). Mbetet lidhje e jo panel:
+            ngritja bëhet një herë, kurse ky ekran hapet çdo mbrëmje.
+          */}
+          <LidhjaESinkronizimit />
+        </div>
+      </div>
 
       {/*
         Versioni rri te ekrani i parë, jo te ndonjë ekran „rreth".

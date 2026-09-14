@@ -798,7 +798,7 @@ export function Loja({ id }: { id: number }) {
   );
 
   return (
-    <div className="faqja faqja--loja">
+    <div className="faqja faqja--gjere">
       <a
         className="shtegu"
         href={grupi ? `#/grupi/${grupi.id}` : '#/'}

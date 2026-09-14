@@ -341,6 +341,14 @@ me qëllim:
 Kontrasti mbetet **WCAG AA** në dritë e në terr: teksti mbi veprimin kryesor
 del 5.5:1 dhe 7.6:1, dhe kufijtë e kontrolleve mbi 3:1 sipas WCAG 1.4.11.
 
+**Tableta e mbajtur anash i merr dy shtylla.** Te telefoni gjithçka rri një
+kolonë e vetme dhe lexohet nga lart poshtë. Sapo ekrani ka gjerësi, ajo për të
+cilën hapet faqja rri majtas — grupet, historiku, futja e raundit — dhe çka
+preket një herë në mbrëmje ose asnjë kalon djathtas: kopja rezervë,
+sinkronizimi, përgjithshmet, rregullat, lojtarët. Te ekrani i lojës futja
+ngjitet me rrëshqitjen, pra raundi shënohet me renditjen para syve. Radha e
+leximit mbetet e njëjta te çdo gjerësi.
+
 **Ndriçimin e zgjedh tavolina**, nga çelësi te fundfaqja e ekranit të parë:
 «Sistemi», «Dritë», «Terr». Hapet te **drita**; tema e errët rri e plotë një
 prekje larg, dhe «Sistemi» e kthen ndërrimin automatik të telefonit. Zgjedhja

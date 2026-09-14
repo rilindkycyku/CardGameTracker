@@ -170,9 +170,21 @@ dhe të dy butonat e daljes rrinë të fikur derisa të zgjidhet. Mos i kthe par
 **Mbyllësi zgjidhet me emra të shkruar, jo me listë të shpalosur.** Ishte `<select>`: dy prekje —
 hape, zgjidhe — dhe lista vizatohej nga sistemi, pra me shkronja e gjerësi që nuk i vendos faqja.
 Lojtarët janë dy deri tetë dhe hyjnë të gjithë në ekran, prandaj rrinë butona me `aria-pressed`
-(`.celesi--rrjet`, i njëjti çelës si te lojërat): një prekje, caku mbi 2.75rem, dhe kush mbylli
+(`.celesi--emra`, i njëjti çelës si te lojërat): një prekje, caku mbi 2.75rem, dhe kush mbylli
 duket pa u hapur asgjë. Prekja e dytë mbi të njëjtin emër nuk e zbraz zgjedhjen — raundi nuk ruhet
 dot pa mbyllës gjithsesi, prandaj zbrazja nuk hap asnjë rrugë, vetëm i fshin pikët e llogaritura.
+
+Emrat e shkruar e kanë një çmim që lista nuk e kishte: **lartësia rritet me lojtarët** — me tetë
+veta te telefoni ata zunë katër rreshta mbi duart, pra pikërisht atë që i kushton bllokut më të
+përdorur të mbrëmjes. Dy gjëra e mbajnë të shkurtër, dhe të dyja duhen:
+
+- **Sapo zgjidhet mbyllësi, rreshtat mblidhen te një i vetëm** — emri i zgjedhur dhe «Ndërro».
+  Pyetja është përgjigjur, dhe hapësira i kthehet duarve që shënohen menjëherë pas saj. Me tetë
+  lojtarë kjo e shkurton llogaritësin nga 897px në 741px. Gjendja nuk pastrohet kurrkund: `key`-i i
+  llogaritësit mban numrin e raundit, pra çdo raund i ri e ringre bllokun nga e para.
+- **Nga pesë lojtarë e tutje shtrëngohet** (`data-shume`, si te fushat e te tabelat): ulen ajri dhe
+  shkronja, kurse caku i prekjes mbetet 2.75rem. Kolona bie te 5.2rem, pra tre emra për rresht te
+  telefoni e jo dy.
 
 Llogaritësi hant/normal ka dy dalje, dhe të dyja duhen:
 
@@ -1337,6 +1349,13 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   për krah dhe futja ngjitet (`position: sticky`), me kufi lartësie e rrëshqitje të vetën, sepse një
   bllok i ngjitur më i gjatë se ekrani i mban rreshtat e mesit të paarritshëm. Panelat nuk kthehen
   mes futjes dhe renditjes: atje ata shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
+- **Dy ekranet e tjera e ndajnë gjerësinë me `.shtyllat`**, një ndarje e vetme e përbashkët: majtas
+  ajo për të cilën hapet faqja — grupet te ballina, historiku te grupi — dhe djathtas
+  (`.shtyllat__anesore`) çka preket një herë a asnjë: bashkimi me kod, kopja rezervë, sinkronizimi,
+  përgjithshmet, lojtarët e grupit, fshirja. Mbi 62rem dalin dy shtylla, nën të mbetet një, dhe radha
+  e HTML-së është radha e leximit në të dyja rastet. Gjerësinë e faqes e hap `.faqja--gjere` (54rem
+  mbi 48rem, 78rem mbi 62rem); pa atë modifikues faqja mbetet 47rem dhe shtyllat nuk kanë ku të
+  hapen — ishte pikërisht ajo që i priste kolonat e tabelës së përgjithshme te grupi.
 
 ## Gjëra që të zënë ngushtë
 
