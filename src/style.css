@@ -215,6 +215,7 @@ h3 {
 }
 
 .faqja {
+  --rreshtimi: clamp(1.5rem, 4.5vw, 2.2rem);
   max-width: 47rem;
   margin-inline: auto;
   padding-block: clamp(1.25rem, 4vw, 2.25rem) 4rem;
@@ -222,7 +223,101 @@ h3 {
   padding-right: max(var(--hapesira), env(safe-area-inset-right, 0px));
   display: flex;
   flex-direction: column;
-  gap: clamp(1.5rem, 4.5vw, 2.2rem);
+  gap: var(--rreshtimi);
+}
+
+/* ── Ekrani i lojës ─────────────────────────────────────────────────────── */
+
+/**
+ * Tri grupe, një radhë: futja, çka doli prej saj, dhe panelat që preken rrallë.
+ *
+ * Te telefoni kjo rri një kolonë e vetme dhe lexohet nga lart poshtë. Grupet
+ * nuk e ndërrojnë pamjen atje — kanë të njëjtën hapësirë mes bllokve si `.faqja`
+ * — por e mbajnë radhën të shkruar te një vend, dhe i japin ekranit të gjerë
+ * diçka për të ndarë në kolona.
+ */
+.loja__pune,
+.loja__panelat,
+.loja__rezultatet {
+  display: grid;
+  /* `minmax(0, 1fr)` e jo kolona e parazgjedhur: ajo matet sipas përmbajtjes,
+     dhe tabela e shlyerjes me gjashtë lojtarë do ta zgjeronte tërë faqen jashtë
+     telefonit. Tabela rrëshqet brenda mbështjellëses së vet, kurrë faqja. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--rreshtimi);
+}
+
+/**
+ * Dy panela për rresht sapo ka gjerësi për to.
+ *
+ * Secili prej tyre është një `<details>` i mbledhur ose një kartelë e shkurtër,
+ * dhe në telefon ata zënë pesë rreshta radhazi mbi asgjë. 18rem është gjerësia
+ * nën të cilën kreu i tyre («Mbyll lojën më herët» me shigjetën) nis të thyhet.
+ */
+@media (min-width: 48rem) {
+  .faqja--loja {
+    max-width: 54rem;
+  }
+
+  .loja__panelat {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  /* Hapësirën e mban rrjeti; margjina e dy detajeve ngjitur do t'i ulte vetëm
+     ata të kolonës së dytë dhe krerët do të dilnin jashtë vije. */
+  .loja__panelat > .detaje + .detaje {
+    margin-top: 0;
+  }
+}
+
+/**
+ * Futja majtas, rezultati djathtas.
+ *
+ * Kjo është pyetja e dyfishtë e çdo raundi — «sa bëri secili» dhe «ku jemi
+ * tani» — dhe në një kolonë të vetme përgjigjja e dytë rri gjithmonë një
+ * rrëshqitje poshtë. Te tableta ajo hapësirë ishte aty pa punë.
+ *
+ * Kufiri është 62rem: nën të, kolona e futjes bie nën 23rem, dhe atje rreshti
+ * «emri, dora, pikët» i llogaritësit nis të shtypet — ai bllok përdoret dhjetëra
+ * herë në mbrëmje (pika 6) dhe nuk paguan dot për pamjen e kolonës tjetër.
+ *
+ * `align-items: start` nuk është zbukurim: pa të, kolona e futjes zgjatet sa
+ * rreshti i rrjetit dhe `position: sticky` mbetet pa ku të lëvizë.
+ */
+@media (min-width: 62rem) {
+  .faqja--loja {
+    max-width: 78rem;
+  }
+
+  .loja__pune {
+    grid-template-columns: minmax(23rem, 27rem) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  /**
+   * Futja e ndjek rrëshqitjen e tabelës: raundi shënohet me renditjen para syve,
+   * dhe askush nuk ngjitet lart për të shtypur «Ruaj raundin».
+   *
+   * Lartësia dhe rrëshqitja e vet nuk janë zbukurim. Me tetë lojtarë kartela del
+   * më e gjatë se ekrani, dhe një bllok i ngjitur më i gjatë se ekrani i mban
+   * rreshtat e mesit të paarritshëm — sa rri i ngjitur, rrëshqitja e faqes nuk e
+   * lëviz. Me kufi lartësie ai rrëshqet brenda vetes, dhe rreshti i veprimeve
+   * mbetet i ngjitur në fund të tij, ashtu si te telefoni (pika 6).
+   */
+  .loja__futja {
+    position: sticky;
+    top: var(--hapesira);
+    max-height: calc(100dvh - 2 * var(--hapesira));
+    overflow: auto;
+    scrollbar-gutter: stable;
+  }
+
+  /* Rreshti i rrjetit është sa kolona më e gjatë; pa këtë, blloqet e shtyllës
+     së rezultatit do të ndaheshin sa të mbushnin tërë atë lartësi. */
+  .loja__rezultatet {
+    align-content: start;
+  }
 }
 
 .vetem-lexues {
@@ -938,10 +1033,12 @@ th.numri {
 }
 
 /* Një rresht për lojtar: emri majtas, numri djathtas, gjerësi e plotë në
-   telefon. Rrjeti me `auto-fit` i vë dy për rresht sapo ka vend. */
+   telefon. Rrjeti me `auto-fit` i vë dy për rresht sapo ka vend.
+   15rem e jo 13rem: kontrolli i bashkuar mban tri pjesë — shenjën, numrin dhe
+   mbledhësen — dhe nën këtë gjerësi emri mbetet pa vend fare. */
 .futja__rrjeti {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: 0.55rem;
 }
 
@@ -1021,12 +1118,14 @@ th.numri {
   text-overflow: ellipsis;
 }
 
+/* Numri rri në mes të kontrollit të bashkuar — shenja majtas, mbledhësja
+   djathtas — prandaj nuk ka qoshe të vetat fare. */
 .futja__njesi input {
-  width: 5rem;
+  width: 4.6rem;
   min-height: 2.75rem;
   padding: 0.4rem 0.6rem;
   border: 1px solid var(--kufiri-veprues);
-  border-radius: 0 var(--rreze-3) var(--rreze-3) 0;
+  border-radius: 0;
   background: var(--siperfaqe);
   color: var(--teksti);
   font: inherit;
@@ -1240,32 +1339,17 @@ th.numri {
 }
 
 /**
- * Mbyllësi dhe lloji i mbylljes në një rresht të vetëm.
+ * Emri i mbyllësit rri i shkruar, prandaj mund të dalë i gjatë.
  *
- * Më parë ishin dy fusha të plota me nga një etiketë secila, të shtresuara në
- * telefon — njëqind e dyzet piksela për dy kontrolle. Etiketa tani është një
- * për të dyja, dhe rreshti bie te lartësia e një kontrolli.
+ * Çelësi i emrave është i njëjti `.celesi--rrjet` si te lojërat — dy për rresht
+ * te telefoni, më shumë kur ka vend — dhe një emër që nuk hyn pritet me tri
+ * pika: rreshti nuk guxon të zgjatet sa emri, sepse nën të rri lista e duarve me
+ * të njëjtat gjerësi.
  */
-.llogaritesi__krye {
-  display: flex;
-  gap: 0.4rem;
-}
-
-.llogaritesi__krye select {
-  flex: 1;
-  min-width: 0;
-  min-height: 2.75rem;
-  padding: 0.4rem 0.5rem;
-  border: 1px solid var(--kufiri-veprues);
-  border-radius: var(--rreze-2);
-  background: var(--siperfaqe);
-  color: var(--teksti);
-  font: inherit;
-  font-weight: 650;
-}
-
-.llogaritesi__krye .celesi {
-  flex: none;
+.celesi__njesi--emer {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .llogaritesi__lista {
@@ -1286,7 +1370,7 @@ th.numri {
  */
 .llogaritesi__njesi {
   display: grid;
-  grid-template-columns: 1fr 5rem 3.2rem;
+  grid-template-columns: minmax(0, 1fr) auto 3rem;
   align-items: center;
   gap: 0.5rem;
   padding: 0.25rem 0.6rem;
@@ -1302,12 +1386,19 @@ th.numri {
   white-space: nowrap;
 }
 
+/* Dora dhe mbledhësja e saj janë një kontroll i vetëm, si shenja dhe numri te
+   fushat: e ndara do të dukeshin dy fusha, dhe rreshti ka vetëm një pyetje. */
+.llogaritesi__vlera {
+  display: flex;
+  align-items: center;
+}
+
 .llogaritesi__dora {
-  width: 100%;
+  width: 4.4rem;
   min-height: 2.75rem;
   padding: 0.35rem 0.6rem;
   border: 1px solid var(--kufiri-veprues);
-  border-radius: var(--rreze-3);
+  border-radius: var(--rreze-3) 0 0 var(--rreze-3);
   background: var(--siperfaqe);
   color: var(--teksti);
   font: inherit;
@@ -1331,6 +1422,191 @@ th.numri {
   font-variant-numeric: tabular-nums;
   text-align: right;
   color: var(--teksti);
+}
+
+/* ── Mbledhësja e dorës ─────────────────────────────────────────────────── */
+
+/**
+ * Butoni që e hap — pjesa e fundit e kontrollit të bashkuar.
+ *
+ * Kufiri majtas hiqet dhe qoshet e djathta i mban vetë: shenja, numri dhe ky
+ * lexohen si një kontroll i vetëm, jo si tre butona krah njëri-tjetrit. Gjerësia
+ * mbetet 2.75rem edhe te rreshtat e shtrënguar (pika 6).
+ */
+.mbledhesja__hap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  min-height: 2.75rem;
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--kufiri-veprues);
+  border-left: 0;
+  border-radius: 0 var(--rreze-3) var(--rreze-3) 0;
+  background: var(--siperfaqe-2);
+  color: var(--teksti-zbehte);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.mbledhesja__hap:hover {
+  border-color: var(--hapur);
+  color: var(--hapur);
+}
+
+/**
+ * Kutia — e vetmja gjë në këtë aplikacion që e merr ekranin për vete.
+ *
+ * Është `<dialog>` i vërtetë e jo një shtresë e bërë me dorë: fokusi mbetet
+ * brenda, «Esc» e mbyll, dhe kthimi prapa e lë ekranin ashtu si ishte. Asnjëra
+ * prej tyre nuk shkruhet dot me tri `div`-a pa gabuar diku.
+ *
+ * Sfondi i saj shkruhet me ngjyrë të plotë e jo me token: `::backdrop` nuk e
+ * trashëgon gjithkund paletën e faqes, dhe një mbulesë që zhduket te terri do ta
+ * linte kutinë të varur mbi tekst të lexueshëm.
+ */
+.kutia {
+  width: min(22rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  margin: auto;
+  padding: clamp(1rem, 4vw, 1.35rem);
+  border: 1px solid var(--kufiri);
+  border-radius: var(--rreze);
+  background: var(--siperfaqe);
+  color: var(--teksti);
+  box-shadow: var(--hije-2);
+}
+
+.kutia::backdrop {
+  background: rgb(9 14 24 / 0.55);
+}
+
+.kutia__krye {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.5rem;
+  margin: 0 0 0.7rem;
+}
+
+.kutia__titull {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.kutia__ndihma {
+  font-size: 0.85rem;
+  color: var(--teksti-zbehte);
+}
+
+/**
+ * Shfaqja: termat majtas, shuma djathtas.
+ *
+ * Termat rrinë të dukshëm sepse ata janë e vërteta që mban tavolina — «10 + 15 +
+ * 5» thotë edhe se cila letër u harrua, kurse «30» nuk thotë asgjë përveç vetes.
+ */
+.mbledhesja__shfaqja {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--kufiri);
+  border-radius: var(--rreze-2);
+  background: var(--siperfaqe-2);
+}
+
+.mbledhesja__termat {
+  overflow: hidden;
+  font-family: var(--shkronja-numrat);
+  font-size: 0.9rem;
+  color: var(--teksti-zbehte);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mbledhesja__shuma {
+  flex: none;
+  font-family: var(--shkronja-numrat);
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/**
+ * Tastiera e vet, dhe jo ajo e sistemit.
+ *
+ * Tastiera numerike e Androidit nuk ka «+» — e njëjta mungesë që i detyroi
+ * shenjës te fushat një buton të vetin (`fusha.ts`) — prandaj një mbledhje e
+ * shkruar si tekst nuk shtypej dot fare në telefon. Tastet janë 3rem e jo
+ * 2.75rem: këtu shtypen me radhë e shpejt, dhe një shifër e gabuar nuk duket.
+ */
+.mbledhesja__tastiera {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+  margin-block: 0.6rem;
+}
+
+.mbledhesja__tast {
+  min-height: 3rem;
+  padding: 0.3rem;
+  border: 1px solid var(--kufiri-veprues);
+  border-radius: var(--rreze-2);
+  background: var(--siperfaqe);
+  color: var(--teksti);
+  font: inherit;
+  font-family: var(--shkronja-numrat);
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.mbledhesja__tast:hover {
+  border-color: var(--hapur);
+  color: var(--hapur);
+}
+
+/* «+» është veprimi i kësaj kutie, prandaj dallohet nga shifrat. */
+.mbledhesja__tast--shto {
+  background: var(--hapur-zbehte);
+  border-color: var(--hapur);
+  color: var(--hapur);
+  font-size: 1.35rem;
+}
+
+/**
+ * Telefoni i kthyer anash — aty ekrani është nën 400px i lartë.
+ *
+ * Kutia rrëshqet gjithsesi, por «Gati» nën buzë do të thoshte se veprimi i
+ * fundit kërkon një rrëshqitje që askush nuk e pret. Ulet vetëm ajri dhe tasti
+ * bie te 2.5rem: caku i prekjes mbetet mbi gishtin, sepse te një tastierë me
+ * dymbëdhjetë taste gabimi kapet menjëherë — numri del në ekran.
+ */
+@media (max-height: 32rem) {
+  .kutia {
+    padding: 0.8rem;
+  }
+
+  .kutia__krye {
+    margin-bottom: 0.5rem;
+  }
+
+  .mbledhesja__tastiera {
+    gap: 0.3rem;
+    margin-block: 0.45rem;
+  }
+
+  .mbledhesja__tast {
+    min-height: 2.5rem;
+  }
 }
 
 /* Çelësi hant / normal. */
@@ -1926,12 +2202,17 @@ th.numri {
     grid-template-columns: 1fr;
   }
 
-  /* Rreshti i llogaritësit mbetet një rresht edhe këtu: emri, dora, pikët hyjnë
-     brenda 390px, dhe shtrirja në tri rreshta e trefishonte lartësinë e tij. */
+  /* Rreshti i llogaritësit mbetet një rresht edhe këtu: emri, dora me mbledhësen
+     e vet, dhe pikët hyjnë brenda 390px, dhe shtrirja në tri rreshta e
+     trefishonte lartësinë e tij. */
   .llogaritesi__njesi {
-    grid-template-columns: 1fr 4.5rem 3rem;
+    grid-template-columns: minmax(0, 1fr) auto 2.6rem;
     gap: 0.4rem;
     padding-inline: 0.5rem;
+  }
+
+  .llogaritesi__dora {
+    width: 3.8rem;
   }
 }
 

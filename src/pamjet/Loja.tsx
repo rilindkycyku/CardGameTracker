@@ -15,7 +15,14 @@
  * Renditja e blloqeve ndjek atë që pyetet më shpesh gjatë lojës: para së
  * gjithash futja e raundit të radhës, sepse ajo bëhet dhjetëra herë në mbrëmje;
  * pastaj kush prin; pastaj tabela e plotë; shlyerja në fund, sepse ajo shihet
- * kur mbaron loja.
+ * kur mbaron loja. Panelat që preken një herë a asnjë — lojtarët, ndarja,
+ * rregullat, kufiri, mbyllja — rrinë bashkë pas tyre: mes futjes dhe renditjes
+ * ata shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
+ *
+ * Radha mbetet e njëjta te çdo gjerësi; ndryshon vetëm sa prej saj hyn në ekran
+ * njëherësh. Te tableta dhe te kompjuteri futja e renditja rrinë krah për krah
+ * (`.loja__pune`), dhe panelat dalin dy për rresht — gjerësia ishte aty edhe më
+ * parë, thjesht rrinte e zbrazët.
  *
  * Asnjë total nuk ruhet. Sa herë ndryshon një raund, gjithçka rillogaritet nga
  * raundet — prandaj redaktimi i raundit të tretë në raundin e dhjetë e rregullon
@@ -652,8 +659,146 @@ export function Loja({ id }: { id: number }) {
     );
   }
 
+  /*
+   * Mbyllja e mbrëmjes — i njëjti bllok, dy vende.
+   *
+   * Kur rregulli e ka mbaruar lojën, ky është veprimi i radhës dhe hap radhën e
+   * panelave: fleta mbyllet dhe mbrëmja del ashtu si e sheh kush skanon kodin.
+   * Këtu arrihet vetëm pas një rihapjeje — përndryshe ekrani do të ishte mbyllur
+   * vetë — prandaj teksti nuk e përsërit fundin, e thotë kthimin.
+   *
+   * Sa kohë loja vazhdon, mbyllja e hershme rri e mbledhur dhe e fundit mes
+   * panelave: është e rrallë dhe e mban një pyetje — ajo i mbyll raundet që
+   * kishin mbetur, dhe ato nuk shënohen dot derisa loja të rihapet.
+   */
+  const mbyllja = raundet.length > 0 && (
+    mbaroi ? (
+      <section>
+        <div className="veprimet">
+          <button
+            type="button"
+            className="buton buton--kryesor"
+            onClick={mbyll}
+          >
+            <Ikona emri="renditja" />
+            Mbyll lojën
+          </button>
+        </div>
+      </section>
+    ) : (
+      <details className="detaje">
+        <summary className="detaje__krye">
+          <span>Mbyll lojën më herët</span>
+          <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+        </summary>
+        <div className="detaje__trupi">
+          <p className="ndihma">
+            {paraFundit(rregulli, gjithsej, kufiri)} Mbrëmja del si fletë e mbyllur —
+            pa futje e pa redaktim — dhe rihapet me një prekje kur duhet.
+          </p>
+          <div className="veprimet">
+            <button type="button" className="buton" onClick={mbyll}>
+              <Ikona emri="renditja" />
+              Mbyll lojën
+            </button>
+          </div>
+        </div>
+      </details>
+    )
+  );
+
+  /*
+   * Çka doli nga raundet — kush prin, raundet e shënuara dhe shlyerja.
+   *
+   * Rri te një ndryshore e jo drejtpërdrejt te vizatimi, sepse te ekrani i gjerë
+   * kjo shtyllë vendoset krah futjes: dy kolona e duan bllokun të tërin, dhe një
+   * listë e shpërndarë nëpër `return` nuk hyn dot brenda njërës.
+   */
+  const rezultatet = magarec ? (
+    <>
+      {/*
+        Rrjeti rri edhe kur s'ka ende asnjë raund: shtatë rreshta të zbrazët
+        e thonë vetë lojën — kaq shkronja ka, dhe kush i mbush i humbi.
+      */}
+      <RrjetiIMagarecit players={players} shkronjat={totalat} />
+
+      {raundet.length > 0 && (
+        <Parashikimi
+          lloji="magarec"
+          players={players}
+          totalet={totalat}
+          luajtur={raundet.length}
+        />
+      )}
+
+      {raundet.length === 0 ? (
+        <div className="zbrazet">
+          <p className="zbrazet__titull">Ende asnjë raund</p>
+          <p>
+            Prek atë që e humbi raundin e parë. Shkronjat dalin vetë, një
+            për raund, derisa dikujt t'i mbushet fjala.
+          </p>
+        </div>
+      ) : (
+        <RaundetEMagarecit
+          raundet={raundetMeShkronja}
+          dukeRedaktuar={dukeRedaktuar}
+          onRedakto={redakto}
+          onFshi={fshi}
+        />
+      )}
+    </>
+  ) : raundet.length === 0 ? (
+    <div className="zbrazet">
+      <p className="zbrazet__titull">Ende asnjë raund</p>
+      <p>
+        Shëno pikët e raundit të parë te blloku i futjes. Renditja{' '}
+        {rregulli.shlyerja ? 'dhe shlyerja dalin' : 'del'} vetë sapo të ketë
+        numra.
+      </p>
+    </div>
+  ) : (
+    <>
+      <Renditja
+        rreshtat={rreshtat}
+        luajtur={barabarte ? null : luajtur}
+        drejtimi={rregulli.drejtimi}
+      />
+
+      {/*
+        Parashikimi kërkon kufij të numërueshëm për një raund, dhe ata i ka
+        vetëm bridzhi mes lojërave me pikë: te domina e pishpiriku sa bën
+        një dorë nuk e thotë rregulli (pika 12).
+      */}
+      {rregulli.parashikimi && (
+        <Parashikimi
+          lloji={lloji}
+          players={players}
+          totalet={totalat}
+          luajtur={raundet.length}
+        />
+      )}
+
+      <Raundet
+        players={players}
+        raundet={raundet}
+        totalet={totalat}
+        dukeRedaktuar={dukeRedaktuar}
+        onRedakto={redakto}
+        onFshi={fshi}
+      />
+
+      {/*
+        Shlyerja vlen aty ku diferenca paguhet — bridzh e domina. Te
+        pishpiriku pikët mblidhen drejt 101-shit e nuk janë borxh, prandaj
+        matrica nuk vizatohet fare, si te magareci.
+      */}
+      {rregulli.shlyerja && <Shlyerja players={rendituar} matrica={matrica} />}
+    </>
+  );
+
   return (
-    <div className="faqja">
+    <div className="faqja faqja--loja">
       <a
         className="shtegu"
         href={grupi ? `#/grupi/${grupi.id}` : '#/'}
@@ -701,290 +846,187 @@ export function Loja({ id }: { id: number }) {
         </div>
       </header>
 
-      <section>
-        <h2 className="titull-seksioni">
-          <Ikona
-            emri={
-              raundiQeRedaktohet
-                ? 'redakto'
-                : mbaroi
-                  ? magarec
-                    ? 'kujdes'
-                    : 'renditja'
-                  : 'shto'
-            }
-          />
-          {raundiQeRedaktohet
-            ? `Raundi ${raundiQeRedaktohet.roundNumber}`
-            : mbaroi
-              ? 'Loja mbaroi'
-              : `Raundi ${iRadhes}`}
+      {/*
+        Puna e mbrëmjes: futja e raundit dhe çka doli prej saj, të dyja bashkë.
 
-          {perziersi && !(mbaroi && !raundiQeRedaktohet) && (
-            <span className="titull-seksioni__perziersi">
-              përzien <strong>{perziersi}</strong>
-            </span>
-          )}
-        </h2>
-
-        <div className="kartela kartela--kryesore">
-          {mbaroi && !raundiQeRedaktohet ? (
-            /*
-             * Mbrëmja ka mbaruar, prandaj raund i ri nuk ka — te të dyja lojërat,
-             * secila me fundin e vet: fjala e mbushur te magareci, dy raundet për
-             * lojtar te bridzhi.
-             *
-             * Butonat nuk rrinë të fikur, hiqen: një raund i shënuar pas fundit
-             * do ta bënte fletën të gënjejë. Dy rrugë mbeten të hapura, dhe të
-             * dyja janë të vërteta të tavolinës — raundi i shënuar gabim
-             * rregullohet nga lista poshtë, dhe kush u ul vonë shtohet te
-             * lojtarët, e atëherë te bridzhi mbrëmja zgjatet vetvetiu.
-             */
-            <>
-              {/*
-                E njëjta fjali si te fleta e mbyllur, nga i njëjti vend: dy kopje
-                të saj do të dilnin jashtë sinkronie pikërisht atje ku njëra
-                shpall fitues e tjetra jo (pika 14).
-              */}
-              <ShenjaEFundit
-                rregulli={rregulli}
-                mbaroi
-                magareciILojes={magareciILojes}
-                pareter={pareter}
-                total={rreshtat[0]?.total ?? 0}
-                raunde={raundet.length}
-                gjithsej={gjithsej}
-                kufiri={kufiri}
-                kaloiKufirin={kaloiKufirin}
-              />
-              <p className="ndihma" data-hapesire="lart">
-                Për një mbrëmje tjetër, nis një lojë të re te grupi. Nëse ndonjë
-                raund u shënua gabim, ndërroje ose fshije nga lista poshtë
-                {rregulli.raundePerLojtar === null
-                  ? '.'
-                  : '; dhe nëse dikush u ul vonë, shtoje te lojtarët — mbrëmja zgjatet me dy raunde.'}
-              </p>
-            </>
-          ) : !magarec ? (
-            <FutjaERaundit
-              players={players}
-              roundNumber={raundiQeRedaktohet?.roundNumber ?? iRadhes}
-              fillestare={raundiQeRedaktohet?.scores ?? null}
-              llogaritesi={rregulli.llogaritesi}
-              ndihma={rregulli.shenimi ?? undefined}
-              onRuaj={ruaj}
-              onAnulo={
-                raundiQeRedaktohet ? () => caktoRedaktimin(null) : undefined
-              }
-            />
-          ) : (
-            <FutjaEMagarecit
-              players={players}
-              roundNumber={raundiQeRedaktohet?.roundNumber ?? iRadhes}
-              shkronjat={shkronjatPara}
-              humbesi={
+        Te telefoni kjo mbetet një kolonë e vetme dhe radha lexohet nga lart —
+        futja, pastaj renditja. Sapo ekrani ka gjerësi (tableta, kompjuteri),
+        të dyja rrinë krah për krah: futja majtas e ngjitur, renditja djathtas.
+        Ajo gjerësi ishte aty edhe më parë, thjesht rrinte e zbrazët — kurse
+        renditja, ajo që pyetet pas çdo raundi, ishte disa panela poshtë.
+      */}
+      <div className="loja__pune">
+        <div className="loja__futja">
+          <h2 className="titull-seksioni">
+            <Ikona
+              emri={
                 raundiQeRedaktohet
-                  ? humbesiIRaundit(players, raundiQeRedaktohet)
-                  : null
-              }
-              onRuaj={(humbesi) => void ruaj(raundiIHumbjes(players, humbesi))}
-              onAnulo={
-                raundiQeRedaktohet ? () => caktoRedaktimin(null) : undefined
+                  ? 'redakto'
+                  : mbaroi
+                    ? magarec
+                      ? 'kujdes'
+                      : 'renditja'
+                    : 'shto'
               }
             />
-          )}
-        </div>
-      </section>
+            {raundiQeRedaktohet
+              ? `Raundi ${raundiQeRedaktohet.roundNumber}`
+              : mbaroi
+                ? 'Loja mbaroi'
+                : `Raundi ${iRadhes}`}
 
-      {/*
-        Te magareci numri krah emrit është shkronja e jo raundi i shënuar: aty
-        secili shënon `0` te çdo raund, prandaj raundet e luajtura do t'i ndalnin
-        të gjithëve heqjen. Kush ka marrë shkronja mbetet te loja — ato janë
-        pjesë e historikut të asaj mbrëmjeje — dhe kush u ngrit pa marrë asnjë
-        hiqet lirisht.
-      */}
-      <LojtaretELojes
-        players={players}
-        grupi={grupi ?? undefined}
-        luajtur={magarec ? totalat : luajtur}
-        onShto={shtoLojtar}
-        onHiq={hiqLojtar}
-      />
+            {perziersi && !(mbaroi && !raundiQeRedaktohet) && (
+              <span className="titull-seksioni__perziersi">
+                përzien <strong>{perziersi}</strong>
+              </span>
+            )}
+          </h2>
 
-      {players.length > 0 && pamja && (
-        <Ndarja pamja={pamja} rreshtat={rreshtat} />
-      )}
-
-      {/*
-        Mbyllja e mbrëmjes.
-
-        Kur rregulli e ka mbaruar lojën, ky është veprimi i radhës dhe rri i
-        dukshëm: fleta mbyllet dhe mbrëmja del ashtu si e sheh kush skanon kodin.
-        Këtu arrihet vetëm pas një rihapjeje — përndryshe ekrani do të ishte
-        mbyllur vetë — prandaj teksti nuk e përsërit fundin, e thotë kthimin.
-
-        Mbyllja e hershme rri e mbledhur sepse është e rrallë dhe e mban një
-        pyetje: ajo i mbyll raundet që kishin mbetur, dhe ato nuk shënohen dot
-        derisa loja të rihapet.
-      */}
-      {/*
-        Kufiri ndërrohet edhe mes mbrëmjes.
-
-        Pa këtë, një kufi i zgjedhur gabim te nisja do ta mbyllte fletën në mes
-        të lojës, dhe rruga e vetme prapa do të ishte rihapja pas çdo raundi
-        (pika 15). Rri i mbledhur sepse preket rrallë — një herë, nëse preket
-        fare — dhe ndryshimi ruhet aty për aty: mbrëmja mbaron ose vazhdon sipas
-        numrit të ri, pa asnjë buton të dytë.
-      */}
-      {/*
-        Rregullat e lojës, një prekje larg dhe të mbledhura.
-
-        Rrinë këtu krah dy panelave të tjerë e jo mbi bllokun e futjes: ai
-        përdoret dhjetëra herë në mbrëmje (pika 6), kurse kjo pyetje bëhet një
-        herë — dhe kur bëhet, bëhet me letrat në dorë.
-      */}
-      <RregullatELojes rregulli={rregulli} />
-
-      {rregulli.kufijteEMundshem.length > 0 && (
-        <details className="detaje">
-          <summary className="detaje__krye">
-            <span>
-              Deri te {kufiri === null ? 'pa kufi' : `${kufiri} pikë`}
-            </span>
-            <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
-          </summary>
-          <div className="detaje__trupi">
-            <p className="ndihma">
-              Deri ku luhet e vendos tavolina, prandaj ndërrohet edhe tani. Nëse
-              dikush e ka kaluar tashmë numrin e ri, mbrëmja mbyllet menjëherë —
-              dhe rihapet po aq lehtë.
-            </p>
-            <ZgjedhjaEKufirit
-              kufijte={rregulli.kufijteEMundshem}
-              vlera={kufiri ?? PA_KUFI}
-              onNdrysho={ndrroKufirin}
-            />
+          <div className="kartela kartela--kryesore">
+            {mbaroi && !raundiQeRedaktohet ? (
+              /*
+               * Mbrëmja ka mbaruar, prandaj raund i ri nuk ka — te të dyja lojërat,
+               * secila me fundin e vet: fjala e mbushur te magareci, dy raundet për
+               * lojtar te bridzhi.
+               *
+               * Butonat nuk rrinë të fikur, hiqen: një raund i shënuar pas fundit
+               * do ta bënte fletën të gënjejë. Dy rrugë mbeten të hapura, dhe të
+               * dyja janë të vërteta të tavolinës — raundi i shënuar gabim
+               * rregullohet nga lista poshtë, dhe kush u ul vonë shtohet te
+               * lojtarët, e atëherë te bridzhi mbrëmja zgjatet vetvetiu.
+               */
+              <>
+                {/*
+                  E njëjta fjali si te fleta e mbyllur, nga i njëjti vend: dy kopje
+                  të saj do të dilnin jashtë sinkronie pikërisht atje ku njëra
+                  shpall fitues e tjetra jo (pika 14).
+                */}
+                <ShenjaEFundit
+                  rregulli={rregulli}
+                  mbaroi
+                  magareciILojes={magareciILojes}
+                  pareter={pareter}
+                  total={rreshtat[0]?.total ?? 0}
+                  raunde={raundet.length}
+                  gjithsej={gjithsej}
+                  kufiri={kufiri}
+                  kaloiKufirin={kaloiKufirin}
+                />
+                <p className="ndihma" data-hapesire="lart">
+                  Për një mbrëmje tjetër, nis një lojë të re te grupi. Nëse ndonjë
+                  raund u shënua gabim, ndërroje ose fshije nga lista e raundeve
+                  {rregulli.raundePerLojtar === null
+                    ? '.'
+                    : '; dhe nëse dikush u ul vonë, shtoje te lojtarët — mbrëmja zgjatet me dy raunde.'}
+                </p>
+              </>
+            ) : !magarec ? (
+              <FutjaERaundit
+                players={players}
+                roundNumber={raundiQeRedaktohet?.roundNumber ?? iRadhes}
+                fillestare={raundiQeRedaktohet?.scores ?? null}
+                llogaritesi={rregulli.llogaritesi}
+                ndihma={rregulli.shenimi ?? undefined}
+                onRuaj={ruaj}
+                onAnulo={
+                  raundiQeRedaktohet ? () => caktoRedaktimin(null) : undefined
+                }
+              />
+            ) : (
+              <FutjaEMagarecit
+                players={players}
+                roundNumber={raundiQeRedaktohet?.roundNumber ?? iRadhes}
+                shkronjat={shkronjatPara}
+                humbesi={
+                  raundiQeRedaktohet
+                    ? humbesiIRaundit(players, raundiQeRedaktohet)
+                    : null
+                }
+                onRuaj={(humbesi) => void ruaj(raundiIHumbjes(players, humbesi))}
+                onAnulo={
+                  raundiQeRedaktohet ? () => caktoRedaktimin(null) : undefined
+                }
+              />
+            )}
           </div>
-        </details>
-      )}
+        </div>
 
-      {raundet.length > 0 &&
-        (mbaroi ? (
-          <section>
-            <div className="veprimet">
-              <button
-                type="button"
-                className="buton buton--kryesor"
-                onClick={mbyll}
-              >
-                <Ikona emri="renditja" />
-                Mbyll lojën
-              </button>
-            </div>
-          </section>
-        ) : (
+        <div className="loja__rezultatet">{rezultatet}</div>
+      </div>
+
+      {/*
+        Panelat rrinë bashkë poshtë, dhe të gjithë të mbledhur.
+
+        Secili prej tyre preket një herë në mbrëmje, ose asnjë: kush u ul, ku
+        shpërndahet fleta, çka thotë rregulli, deri ku luhet, kur mbyllet. Mbi
+        renditje ata e shtynin poshtë pikërisht atë që pyetet pas çdo raundi;
+        këtu rrinë një rrëshqitje larg, dhe te ekrani i gjerë dy për rresht.
+      */}
+      <div className="loja__panelat">
+        {mbaroi && mbyllja}
+
+        {/*
+          Te magareci numri krah emrit është shkronja e jo raundi i shënuar: aty
+          secili shënon `0` te çdo raund, prandaj raundet e luajtura do t'i ndalnin
+          të gjithëve heqjen. Kush ka marrë shkronja mbetet te loja — ato janë
+          pjesë e historikut të asaj mbrëmjeje — dhe kush u ngrit pa marrë asnjë
+          hiqet lirisht.
+        */}
+        <LojtaretELojes
+          players={players}
+          grupi={grupi ?? undefined}
+          luajtur={magarec ? totalat : luajtur}
+          onShto={shtoLojtar}
+          onHiq={hiqLojtar}
+        />
+
+        {players.length > 0 && pamja && (
+          <Ndarja pamja={pamja} rreshtat={rreshtat} />
+        )}
+
+        {/*
+          Rregullat e lojës, një prekje larg dhe të mbledhura.
+
+          Rrinë këtu krah panelave të tjerë e jo mbi bllokun e futjes: ai
+          përdoret dhjetëra herë në mbrëmje (pika 6), kurse kjo pyetje bëhet një
+          herë — dhe kur bëhet, bëhet me letrat në dorë.
+        */}
+        <RregullatELojes rregulli={rregulli} />
+
+        {/*
+          Kufiri ndërrohet edhe mes mbrëmjes.
+
+          Pa këtë, një kufi i zgjedhur gabim te nisja do ta mbyllte fletën në mes
+          të lojës, dhe rruga e vetme prapa do të ishte rihapja pas çdo raundi
+          (pika 15). Rri i mbledhur sepse preket rrallë — një herë, nëse preket
+          fare — dhe ndryshimi ruhet aty për aty: mbrëmja mbaron ose vazhdon sipas
+          numrit të ri, pa asnjë buton të dytë.
+        */}
+        {rregulli.kufijteEMundshem.length > 0 && (
           <details className="detaje">
             <summary className="detaje__krye">
-              <span>Mbyll lojën më herët</span>
+              <span>
+                Deri te {kufiri === null ? 'pa kufi' : `${kufiri} pikë`}
+              </span>
               <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
             </summary>
             <div className="detaje__trupi">
               <p className="ndihma">
-                {paraFundit(rregulli, gjithsej, kufiri)} Mbrëmja del si fletë e mbyllur —
-                pa futje e pa redaktim — dhe rihapet me një prekje kur duhet.
+                Deri ku luhet e vendos tavolina, prandaj ndërrohet edhe tani. Nëse
+                dikush e ka kaluar tashmë numrin e ri, mbrëmja mbyllet menjëherë —
+                dhe rihapet po aq lehtë.
               </p>
-              <div className="veprimet">
-                <button type="button" className="buton" onClick={mbyll}>
-                  <Ikona emri="renditja" />
-                  Mbyll lojën
-                </button>
-              </div>
+              <ZgjedhjaEKufirit
+                kufijte={rregulli.kufijteEMundshem}
+                vlera={kufiri ?? PA_KUFI}
+                onNdrysho={ndrroKufirin}
+              />
             </div>
           </details>
-        ))}
+        )}
 
-      {magarec ? (
-        <>
-          {/*
-            Rrjeti rri edhe kur s'ka ende asnjë raund: shtatë rreshta të zbrazët
-            e thonë vetë lojën — kaq shkronja ka, dhe kush i mbush i humbi.
-          */}
-          <RrjetiIMagarecit players={players} shkronjat={totalat} />
-
-          {raundet.length > 0 && (
-            <Parashikimi
-              lloji="magarec"
-              players={players}
-              totalet={totalat}
-              luajtur={raundet.length}
-            />
-          )}
-
-          {raundet.length === 0 ? (
-            <div className="zbrazet">
-              <p className="zbrazet__titull">Ende asnjë raund</p>
-              <p>
-                Prek atë që e humbi raundin e parë. Shkronjat dalin vetë, një
-                për raund, derisa dikujt t'i mbushet fjala.
-              </p>
-            </div>
-          ) : (
-            <RaundetEMagarecit
-              raundet={raundetMeShkronja}
-              dukeRedaktuar={dukeRedaktuar}
-              onRedakto={redakto}
-              onFshi={fshi}
-            />
-          )}
-        </>
-      ) : raundet.length === 0 ? (
-        <div className="zbrazet">
-          <p className="zbrazet__titull">Ende asnjë raund</p>
-          <p>
-            Shëno pikët e raundit të parë më lart. Renditja{' '}
-            {rregulli.shlyerja ? 'dhe shlyerja dalin' : 'del'} vetë sapo të ketë
-            numra.
-          </p>
-        </div>
-      ) : (
-        <>
-          <Renditja
-            rreshtat={rreshtat}
-            luajtur={barabarte ? null : luajtur}
-            drejtimi={rregulli.drejtimi}
-          />
-
-          {/*
-            Parashikimi kërkon kufij të numërueshëm për një raund, dhe ata i ka
-            vetëm bridzhi mes lojërave me pikë: te domina e pishpiriku sa bën
-            një dorë nuk e thotë rregulli (pika 12).
-          */}
-          {rregulli.parashikimi && (
-            <Parashikimi
-              lloji={lloji}
-              players={players}
-              totalet={totalat}
-              luajtur={raundet.length}
-            />
-          )}
-
-          <Raundet
-            players={players}
-            raundet={raundet}
-            totalet={totalat}
-            dukeRedaktuar={dukeRedaktuar}
-            onRedakto={redakto}
-            onFshi={fshi}
-          />
-
-          {/*
-            Shlyerja vlen aty ku diferenca paguhet — bridzh e domina. Te
-            pishpiriku pikët mblidhen drejt 101-shit e nuk janë borxh, prandaj
-            matrica nuk vizatohet fare, si te magareci.
-          */}
-          {rregulli.shlyerja && <Shlyerja players={rendituar} matrica={matrica} />}
-        </>
-      )}
+        {!mbaroi && mbyllja}
+      </div>
     </div>
   );
 }

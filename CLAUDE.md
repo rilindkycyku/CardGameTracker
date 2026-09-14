@@ -91,7 +91,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 336 prova, pa framework provash
+npm test          # node --test — 347 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -164,8 +164,15 @@ mbushura — nuk fshihet asgjë.
 **Mbyllësi nuk vjen i zgjedhur**, dhe kjo rrjedh nga rreshti më sipër. Sa kohë llogaritësi hapej me
 prekje, i pari i listës ishte parazgjedhje e padëmshme; me të hapur vetvetiu, ai emër del i zgjedhur
 pa e prekur kush, dhe një prekje e vetme e «Ruaj raundin» e shkruan raundin te lojtari i gabuar.
-Prandaj `<select>`-i nis te «Kush mbylli?», pikët nuk llogariten fare pa përgjigje (`pike` del
-`null`), dhe të dy butonat e daljes rrinë të fikur derisa të zgjidhet. Mos i kthe parazgjedhje.
+Prandaj asnjë emër nuk nis i shtypur, pikët nuk llogariten fare pa përgjigje (`pike` del `null`),
+dhe të dy butonat e daljes rrinë të fikur derisa të zgjidhet. Mos i kthe parazgjedhje.
+
+**Mbyllësi zgjidhet me emra të shkruar, jo me listë të shpalosur.** Ishte `<select>`: dy prekje —
+hape, zgjidhe — dhe lista vizatohej nga sistemi, pra me shkronja e gjerësi që nuk i vendos faqja.
+Lojtarët janë dy deri tetë dhe hyjnë të gjithë në ekran, prandaj rrinë butona me `aria-pressed`
+(`.celesi--rrjet`, i njëjti çelës si te lojërat): një prekje, caku mbi 2.75rem, dhe kush mbylli
+duket pa u hapur asgjë. Prekja e dytë mbi të njëjtin emër nuk e zbraz zgjedhjen — raundi nuk ruhet
+dot pa mbyllës gjithsesi, prandaj zbrazja nuk hap asnjë rrugë, vetëm i fshin pikët e llogaritura.
 
 Llogaritësi hant/normal ka dy dalje, dhe të dyja duhen:
 
@@ -222,6 +229,20 @@ e tij. Tri gjëra e mbajnë të përdorshëm, dhe asnjëra nuk guxon të hiqet p
   ia heq fuqinë `sticky`-t brenda.
 - **Nga pesë lojtarë e tutje shtrëngohen rreshtat dhe tabelat** (`data-shume`). Ulet vetëm ajri:
   fushat dhe butonat mbeten 2.75rem, sepse ai është kufiri nën të cilin gishti nuk i zë.
+
+**Çdo fushë pikësh ka mbledhësen e vet** (`Mbledhesja`, aritmetika te `mbledhja.ts`): një kuti me
+tastierë të vetën që i mbledh letrat ose gurët një nga një — «10 + 15 + 5» — dhe «Gati» e shkruan
+shumën te fusha e atij lojtari. Termat rrinë të dukshëm sa kohë kutia është hapur, sepse ata thonë
+edhe cila letër u harrua; shuma vetëm veten. Tri gjëra aty nuk janë zgjedhje stili:
+
+- **Tastiera është e vetja.** Ajo e Androidit nuk ka as «+» as «−» — e njëjta mungesë që i dha
+  shenjës te fushat një buton të vetin — prandaj një mbledhje e shkruar si tekst nuk shtypej dot
+  fare në telefon.
+- **Është `<dialog>` i vërtetë** dhe i vetmi te ky aplikacion: fokusi mbetet brenda, «Esc» e mbyll,
+  dhe ekrani kthehet ashtu si ishte. Një panel i shpalosur nën rresht do t'i shtynte gjashtë a tetë
+  rreshtat e tjerë pikërisht kur syri po krahason dorën e radhës.
+- **Nuk prek shenjën.** Kthen gjithmonë një numër pa shenjë; te fushat ruhet minusi që kishte
+  rreshti, sepse «−» aty do të thotë mbyllje e jo dorë më e vogël.
 
 Llogaritësi nuk ka çelës „s'hapi / hapi" — dora e thotë. Fushë e zbrazët do të thotë që lojtari
 nuk hapi, prandaj merr dënimin fiks; çdo numër do të thotë që hapi, dhe ai numër është dora.
@@ -1309,6 +1330,13 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - `--kufiri-veprues` (≥3:1 sipas WCAG 1.4.11) për çdo gjë që klikohet; `--kufiri` është vetëm
   dekorativ. Mos e përdor kufirin dekorativ për një kontroll.
 - `env(safe-area-inset-*)` me `viewport-fit=cover` për pamjen e instaluar. Ka edhe stil për shtypje.
+- **Ekrani i lojës ka tri grupe, dhe radha e tyre nuk ndërron me gjerësinë**: futja e raundit
+  (`.loja__futja`), çka doli prej saj (`.loja__rezultatet`) dhe panelat që preken një herë a asnjë
+  (`.loja__panelat` — lojtarët, ndarja, rregullat, kufiri, mbyllja). Ndërron vetëm sa prej tyre hyn
+  në ekran njëherësh: mbi 48rem panelat dalin dy për rresht, mbi 62rem futja dhe renditja rrinë krah
+  për krah dhe futja ngjitet (`position: sticky`), me kufi lartësie e rrëshqitje të vetën, sepse një
+  bllok i ngjitur më i gjatë se ekrani i mban rreshtat e mesit të paarritshëm. Panelat nuk kthehen
+  mes futjes dhe renditjes: atje ata shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
 
 ## Gjëra që të zënë ngushtë
 
