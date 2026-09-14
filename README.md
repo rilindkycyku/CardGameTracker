@@ -26,7 +26,11 @@ fjalë: renditja, kurora dhe fjalia e fundit e lexojnë drejtimin nga vetë loja
   aty, nga grupi ose si emër krejt i ri; raundet e shkuara nuk i preken dhe
   totali i tij nis nga hera e parë që shënon.
 - **Futje e raundit** — një numër për lojtar, ose përmes llogaritësit
-  hant/normal, i cili e ruan raundin vetë me një prekje.
+  hant/normal, i cili e ruan raundin vetë me një prekje. Kush mbylli zgjidhet
+  duke prekur emrin, jo nga një listë e shpalosur.
+- **Mbledhësja e dorës** — çdo fushë pikësh ka një kuti me tastierë të vetën që
+  i mbledh letrat ose gurët një nga një («10 + 15 + 5»), sepse tastiera numerike
+  e telefonit nuk ka «+». Termat rrinë të dukshëm derisa të shtypet «Gati».
 - **Data ditë/muaj/vit** — shkruhet me numra dhe vijat dalin vetë; poshtë saj
   rri data me fjalë, që të mos ngatërrohet ditë me muaj.
 - **Rregullat brenda aplikacionit** — çdo lojë i ka të vetat te një panel i
@@ -230,6 +234,8 @@ src/
   sinkronizimi.ts     shkarko, zbato, dërgo — dhe katër format e një lidhjeje
   pajisja.ts          emri e id-ja e këtij shfletuesi
   fusha.ts            teksti i fushës së pikëve, shenja e tij dhe data
+  mbledhja.ts         mbledhja e dorës: termat, fshirja prapa dhe shuma —
+                      pa DOM, pa React
   versioni.ts         versioni i `package.json`-it, i futur gjatë ndërtimit
   qr.ts               kodues QR i shkruar me dorë (byte, niveli L, v1–20)
   paketa.ts           base64 i sigurt për adresa, dhe nënshkrimi
@@ -257,7 +263,8 @@ src/
   pamjet/             Grupet · Grupi · Loja · Shiko · Lidhu · Pergjigja
                       Bashkohu · Sinkronizimi
   pjeset/             Renditja · Raundet · Shlyerja · TabelaEPergjithshme
-                      FutjaERaundit · LojtaretELojes · PanelaEKopjes
+                      FutjaERaundit · Mbledhesja · LojtaretELojes
+                      PanelaEKopjes
                       RregullatELojes
                       Ndarja · Drejtperdrejt · PaServer · MeServer
                       PamjaERezultatit · KodiQR
@@ -271,6 +278,8 @@ test/
   fundi.test.mjs         kur mbaron mbrëmja e secilës lojë, dhe mbyllja me dorë
   fusha.test.mjs         futja e pikëve negative pa tastierë me minus, dhe
                          data ditë/muaj/vit sa shkruhet
+  mbledhja.test.mjs      termat e mbledhur, «+» i shtypur dy herë dhe fshirja
+                         prapa mbi një term të mbyllur
   pikezimi.test.mjs      rregullat — kundër raundeve të vërteta
   magareci.test.mjs      shkronjat, fjala e mbushur dhe tabela e grupit
   parashikimi.test.mjs   kufijtë e një raundi, dhe ligjet që vendi i mundshëm

@@ -44,6 +44,7 @@ import {
 } from '../pikezimi.ts';
 import { negative, ndrroShenjen as ndrro, numri, pastro } from '../fusha.ts';
 import { Ikona } from '../ikonat.tsx';
+import { Mbledhesja } from './Mbledhesja.tsx';
 
 type Vlerat = Record<string, string>;
 
@@ -227,6 +228,24 @@ export function FutjaERaundit({
                   onKeyDown={(e) => neTaste(e, i)}
                   aria-label={`Pikët e ${player} për raundin ${roundNumber}`}
                 />
+                {/*
+                  Mbledhësja rri brenda të njëjtit kontroll, e treta pas shenjës
+                  dhe numrit: dora mblidhet te tavolina — gurët e mbetur, letrat
+                  e mbetura — dhe deri tani ajo mbledhje bëhej jashtë
+                  aplikacionit. Shenjën nuk e prek: kthen një numër pa shenjë dhe
+                  e ruan atë që ka fusha, sepse «−» aty do të thotë mbyllje e jo
+                  dorë më e vogël.
+                */}
+                <Mbledhesja
+                  emri={player}
+                  vlera={vlerat[player] ?? ''}
+                  onCakto={(teksti) =>
+                    caktoVlerat((v) => ({
+                      ...v,
+                      [player]: negative(v[player]) ? `-${teksti}` : teksti,
+                    }))
+                  }
+                />
               </div>
             </div>
           ))}
@@ -381,40 +400,57 @@ function Llogaritesi({
 
   return (
     <div className="llogaritesi">
+      {/*
+        Mbyllësi zgjidhet me emra të prekshëm, jo me listë të shpalosur.
+
+        Një `<select>` i kërkonte dy prekje — hape, zgjidhe — dhe lista e tij
+        vizatohet nga sistemi: shkronja të vogla, të tjera nga faqja, dhe te
+        tableta një kolonë e ngushtë në mes të ekranit. Emrat janë dy deri tetë
+        dhe hyjnë të gjithë në ekran, prandaj rrinë të shkruar: një prekje, caku
+        mbi 2.75rem, dhe kush mbylli duket pa hapur asgjë.
+
+        Prekja e dytë mbi të njëjtin emër nuk e zhbën zgjedhjen. Raundi nuk
+        ruhet dot pa mbyllës gjithsesi (pika 3), prandaj zbrazja nuk hap asnjë
+        rrugë — vetëm do t'i fshinte pikët e llogaritura me një prekje të
+        pakujdesshme. Mbyllësi i gabuar ndërrohet duke prekur atë të duhurin.
+      */}
       <div className="fusha">
         <span className="fusha__etiketa">Kush e mbylli, dhe si</span>
-        <div className="llogaritesi__krye">
-          <select
-            value={mbyllesi}
-            onChange={(e) => caktoMbyllesin(e.target.value)}
-            aria-label="Lojtari që mbylli raundin"
-          >
-            <option value="">Kush mbylli?</option>
-            {players.map((player) => (
-              <option key={player} value={player}>
-                {player}
-              </option>
-            ))}
-          </select>
+        <div
+          className="celesi celesi--rrjet"
+          role="group"
+          aria-label="Lojtari që mbylli raundin"
+        >
+          {players.map((player) => (
+            <button
+              key={player}
+              type="button"
+              className="celesi__njesi celesi__njesi--emer"
+              aria-pressed={mbyllesi === player}
+              onClick={() => caktoMbyllesin(player)}
+            >
+              {player}
+            </button>
+          ))}
+        </div>
 
-          <div className="celesi">
-            <button
-              type="button"
-              className="celesi__njesi"
-              aria-pressed={lloji === 'normal'}
-              onClick={() => caktoLlojin('normal')}
-            >
-              Normal
-            </button>
-            <button
-              type="button"
-              className="celesi__njesi"
-              aria-pressed={lloji === 'hant'}
-              onClick={() => caktoLlojin('hant')}
-            >
-              Hant
-            </button>
-          </div>
+        <div className="celesi">
+          <button
+            type="button"
+            className="celesi__njesi"
+            aria-pressed={lloji === 'normal'}
+            onClick={() => caktoLlojin('normal')}
+          >
+            Normal
+          </button>
+          <button
+            type="button"
+            className="celesi__njesi"
+            aria-pressed={lloji === 'hant'}
+            onClick={() => caktoLlojin('hant')}
+          >
+            Hant
+          </button>
         </div>
       </div>
 
@@ -427,21 +463,35 @@ function Llogaritesi({
         {tjeret.map((player) => (
           <li className="llogaritesi__njesi" key={player}>
             <span className="llogaritesi__emri">{player}</span>
-            <input
-              className="llogaritesi__dora"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              placeholder="s’hapi"
-              value={duart[player] ?? ''}
-              onChange={(e) =>
-                caktoDuart((d) => ({
-                  ...d,
-                  [player]: e.target.value.replace(/[^0-9]/g, ''),
-                }))
-              }
-              aria-label={`Pikët në dorë të ${player}`}
-            />
+            <div className="llogaritesi__vlera">
+              <input
+                className="llogaritesi__dora"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                placeholder="s’hapi"
+                value={duart[player] ?? ''}
+                onChange={(e) =>
+                  caktoDuart((d) => ({
+                    ...d,
+                    [player]: e.target.value.replace(/[^0-9]/g, ''),
+                  }))
+                }
+                aria-label={`Pikët në dorë të ${player}`}
+              />
+              {/*
+                Këtu dora është fjalë për fjalë një mbledhje letrash, prandaj
+                mbledhësja rri krah fushës e jo diku poshtë: kush i numëron
+                letrat një nga një e shtyp atë, kush e di shumën shkruan numrin.
+              */}
+              <Mbledhesja
+                emri={player}
+                vlera={duart[player] ?? ''}
+                onCakto={(teksti) =>
+                  caktoDuart((d) => ({ ...d, [player]: teksti }))
+                }
+              />
+            </div>
             <span
               className="llogaritesi__pike"
               title={shpjegimi(lloji, gjendjet[player]!)}
