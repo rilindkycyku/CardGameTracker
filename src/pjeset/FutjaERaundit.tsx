@@ -470,7 +470,15 @@ function Llogaritesi({
           )}
         </div>
 
-        <div className="celesi">
+        {/*
+          Vija mes emrave dhe mbylljes.
+
+          Janë dy pyetje te një bllok — kush mbylli, dhe si — dhe pa asgjë mes
+          tyre butonat lexohen si një listë e vetme: «Normal» del si emri i
+          radhës pas «Lesa». Etiketa e bllokut i thotë të dyja bashkë, prandaj
+          ndarja e tyre nuk mund të mbetet te fjalët.
+        */}
+        <div className="celesi llogaritesi__si">
           <button
             type="button"
             className="celesi__njesi"

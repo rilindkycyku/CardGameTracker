@@ -81,7 +81,7 @@ export function Lidhu({ kodi }: { kodi: string }) {
 
   if (pamja) {
     return (
-      <div className="faqja">
+      <div className="faqja faqja--gjere">
         <PamjaERezultatit
           pamja={pamja}
           etiketa={{
@@ -120,7 +120,7 @@ export function Lidhu({ kodi }: { kodi: string }) {
   }
 
   return (
-    <div className="faqja">
+    <div className="faqja faqja--fokus">
       <header className="kreu">
         <div className="njesi__shkronja njesi__shkronja--hapur marka">
           <Ikona emri="drejtperdrejt" />

@@ -343,11 +343,13 @@ del 5.5:1 dhe 7.6:1, dhe kufijtë e kontrolleve mbi 3:1 sipas WCAG 1.4.11.
 
 **Tableta e mbajtur anash i merr dy shtylla.** Te telefoni gjithçka rri një
 kolonë e vetme dhe lexohet nga lart poshtë. Sapo ekrani ka gjerësi, ajo për të
-cilën hapet faqja rri majtas — grupet, historiku, futja e raundit — dhe çka
-preket një herë në mbrëmje ose asnjë kalon djathtas: kopja rezervë,
-sinkronizimi, përgjithshmet, rregullat, lojtarët. Te ekrani i lojës futja
-ngjitet me rrëshqitjen, pra raundi shënohet me renditjen para syve. Radha e
-leximit mbetet e njëjta te çdo gjerësi.
+cilën hapet faqja rri majtas — grupet, historiku, futja e raundit, renditja —
+dhe çka preket a lexohet një herë kalon djathtas: kopja rezervë, sinkronizimi,
+përgjithshmet, rregullat, lojtarët, parashikimi, shlyerja. Te ekrani i lojës
+futja ngjitet me rrëshqitjen, pra raundi shënohet me renditjen para syve; te
+fleta që shikon dikush tjetër, e tëra hyn në një ekran pa rrëshqitur. Ekranet me
+një pyetje të vetme — kodi, pritja e lidhjes — qendërzohen në vend që të rrinë
+ngjitur te qoshja. Radha e leximit mbetet e njëjta te çdo gjerësi.
 
 **Ndriçimin e zgjedh tavolina**, nga çelësi te fundfaqja e ekranit të parë:
 «Sistemi», «Dritë», «Terr». Hapet te **drita**; tema e errët rri e plotë një

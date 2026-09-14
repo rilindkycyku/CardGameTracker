@@ -226,6 +226,25 @@ h3 {
   gap: var(--rreshtimi);
 }
 
+/**
+ * Ekranet me një pyetje të vetme — kodi, pritja e lidhjes, adresa që nuk lexohet.
+ *
+ * Aty nuk ka çka të ndahet në shtylla: është një fushë dhe një buton. Te ekrani
+ * i gjerë ata rrinin të ngjitur te qoshja e sipërme majtas mbi një ekran gati
+ * bosh, sikur faqja të kishte mbetur përgjysmë; të qendërzuar lexohen si pyetje
+ * e vetme që janë.
+ *
+ * Vetëm te ekrani i gjerë: te telefoni kreu rri lart, ku e pret syri. Dhe
+ * `safe center` e jo `center`, që një përmbajtje më e gjatë se ekrani të mos
+ * humbte kreun mbi buzë — atje nuk rrëshqitet dot prapa.
+ */
+@media (min-width: 62rem) {
+  .faqja--fokus {
+    min-height: 100dvh;
+    justify-content: safe center;
+  }
+}
+
 /* ── Dy shtylla ─────────────────────────────────────────────────────────── */
 
 /**
@@ -265,6 +284,13 @@ h3 {
   .shtyllat__kryesore,
   .shtyllat__anesore {
     align-content: start;
+  }
+
+  /* Shtylla anësore mund të mbetet e zbrazët — pishpiriku nuk shlyhet dhe nuk
+     parashikohet, pra te fleta e tij nuk ka çka të shkojë djathtas. Pa këtë,
+     gjysma e ekranit do të rrinte bosh krah një tabele të ngushtuar kot. */
+  .shtyllat:has(> .shtyllat__anesore:empty) {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -925,8 +951,20 @@ a.njesi:hover {
 
 /* ── Tabelat ────────────────────────────────────────────────────────────── */
 
+/**
+ * Mbështjellësja që i lë tabelat të rrëshqasin brenda vetes.
+ *
+ * `contain: paint` nuk është zbukurim: pa të, tabela e raundeve me gjashtë
+ * lojtarë e shtynte **tërë faqen** anash rreth tetëdhjetë piksela te telefoni —
+ * faqja rrëshqiste bashkë me të, edhe pse `overflow-x: auto` e mban tabelën
+ * brenda. Asnjë element i vetëm nuk dilte jashtë ekranit; dilte vetë gjerësia e
+ * rrëshqitshme e mbështjellëses, e mbledhur lart nëpër rrjetat mbi të.
+ * Me kufizimin e vizatimit ajo mbetet aty ku është, dhe faqja rrëshqet vetëm
+ * poshtë — ashtu si duhet.
+ */
 .tabela-mbeshtjellese {
   overflow-x: auto;
+  contain: paint;
   background: var(--siperfaqe);
   border: 1px solid var(--kufiri);
   border-radius: var(--rreze);
@@ -1407,6 +1445,20 @@ th.numri {
 .celesi--emra[data-shume] .celesi__njesi {
   padding-inline: 0.4rem;
   font-size: 0.85rem;
+}
+
+/**
+ * Vija mes emrave dhe mbylljes.
+ *
+ * Emrat dhe çelësi hant/normal janë dy pyetje te një bllok i vetëm, dhe pa asgjë
+ * mes tyre butonat dalin si një listë e vetme — «Normal» lexohet si emri i
+ * radhës pas «Lesa». Etiketa i mban të dyja bashkë («Kush e mbylli, dhe si»),
+ * prandaj ndarja duhet të jetë e dukshme e jo me fjalë.
+ */
+.llogaritesi__si {
+  margin-top: 0.15rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--kufiri);
 }
 
 /* Një emër që nuk hyn pritet me tri pika: rreshti nuk guxon të zgjatet sa emri,

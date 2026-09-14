@@ -30,7 +30,7 @@ export function Shiko({ kodi }: { kodi: string }) {
   }
 
   return (
-    <div className="faqja">
+    <div className="faqja faqja--gjere">
       <PamjaERezultatit
         pamja={pamja}
         etiketa={{ emri: 'Vetëm-lexim', ikona: 'sy' }}

@@ -1349,13 +1349,23 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   për krah dhe futja ngjitet (`position: sticky`), me kufi lartësie e rrëshqitje të vetën, sepse një
   bllok i ngjitur më i gjatë se ekrani i mban rreshtat e mesit të paarritshëm. Panelat nuk kthehen
   mes futjes dhe renditjes: atje ata shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
-- **Dy ekranet e tjera e ndajnë gjerësinë me `.shtyllat`**, një ndarje e vetme e përbashkët: majtas
-  ajo për të cilën hapet faqja — grupet te ballina, historiku te grupi — dhe djathtas
-  (`.shtyllat__anesore`) çka preket një herë a asnjë: bashkimi me kod, kopja rezervë, sinkronizimi,
-  përgjithshmet, lojtarët e grupit, fshirja. Mbi 62rem dalin dy shtylla, nën të mbetet një, dhe radha
-  e HTML-së është radha e leximit në të dyja rastet. Gjerësinë e faqes e hap `.faqja--gjere` (54rem
-  mbi 48rem, 78rem mbi 62rem); pa atë modifikues faqja mbetet 47rem dhe shtyllat nuk kanë ku të
-  hapen — ishte pikërisht ajo që i priste kolonat e tabelës së përgjithshme te grupi.
+- **Ekranet e tjera e ndajnë gjerësinë me `.shtyllat`**, një ndarje e vetme e përbashkët: majtas
+  ajo për të cilën hapet faqja — grupet te ballina, historiku te grupi, renditja e rreshti i vetes te
+  fleta vetëm-lexim — dhe djathtas (`.shtyllat__anesore`) çka preket a lexohet një herë: bashkimi me
+  kod, kopja rezervë, sinkronizimi, përgjithshmet, lojtarët e grupit, fshirja, parashikimi, matrica.
+  Mbi 62rem dalin dy shtylla, nën të mbetet një, dhe radha e HTML-së është radha e leximit në të dy
+  rastet — ndarja është bërë pikërisht aty ku ajo radhë nuk prishet. Shtylla anësore mund të mbetet
+  e zbrazët (pishpiriku nuk shlyhet e nuk parashikohet), prandaj një rregull me `:has` e kthen
+  rrjetin te një kolonë e vetme në vend që të lërë gjysmën e ekranit bosh.
+
+  Gjerësinë e faqes e hap `.faqja--gjere` (54rem mbi 48rem, 78rem mbi 62rem); pa atë modifikues faqja
+  mbetet 47rem dhe shtyllat nuk kanë ku të hapen — ishte pikërisht ajo që i priste kolonat e tabelës
+  së përgjithshme te grupi.
+- **Ekranet me një pyetje të vetme marrin `.faqja--fokus`** — kodi, pritja e lidhjes, adresa që nuk
+  lexohet. Aty nuk ka çka të ndahet: një fushë dhe një buton, që te ekrani i gjerë rrinin ngjitur te
+  qoshja e sipërme majtas mbi një ekran gati bosh. Mbi 62rem qendërzohen vertikalisht me
+  `justify-content: safe center` — `safe` që një përmbajtje më e gjatë se ekrani të mos e humbte kreun
+  mbi buzë, ku nuk rrëshqitet dot prapa. Te telefoni nuk ndërron asgjë.
 
 ## Gjëra që të zënë ngushtë
 
@@ -1416,6 +1426,13 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   para te historiku — më e reja sipas datës.
 - **Kolona e parë e tabelës së raundeve rri `sticky`.** Me gjashtë lojtarë tabela del më e gjerë se
   telefoni, dhe pa të humb se cili raund po shihet sapo rrëshqitet.
+- **`.tabela-mbeshtjellese` ka `contain: paint`, dhe pa të rrëshqet tërë faqja.** Me gjashtë lojtarë,
+  tabela e raundeve e shtynte dokumentin rreth tetëdhjetë piksela anash te telefoni — edhe pse
+  `overflow-x: auto` e mban tabelën brenda, dhe edhe pse asnjë element i vetëm nuk dilte jashtë
+  ekranit (një skanim i tërë DOM-it i gjen të gjithë të prerë nga një prind që rrëshqet). Ajo që
+  dilte ishte vetë gjerësia e rrëshqitshme e mbështjellëses, e mbledhur lart nëpër rrjetat mbi të.
+  Kufizimi i vizatimit e ndal aty; mos e hiq, dhe mos e kërko fajin te kolona `sticky` — ajo u provua
+  dhe nuk ishte.
 - **Përgjigja e lidhjes mbërrin nga dy rrugë njëherësh** — `BroadcastChannel` dhe ngjarja `storage` —
   prandaj `pergjigju()` e shkruan gjendjen **para** `await`-it. Me shkrimin pas tij, thirrja e dytë e
   gjente `#pritja`-n ende të plotë, shkruheshin dy përshkrime mbi të njëjtën lidhje, e dyta kërcente,

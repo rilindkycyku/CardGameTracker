@@ -35,7 +35,7 @@ export function Pergjigja({ kodi }: { kodi: string }) {
   }, [kodi]);
 
   return (
-    <div className="faqja">
+    <div className="faqja faqja--fokus">
       <header className="kreu">
         <ShenjaEFaqes />
         <div>
