@@ -215,6 +215,7 @@ h3 {
 }
 
 .faqja {
+  --rreshtimi: clamp(1.5rem, 4.5vw, 2.2rem);
   max-width: 47rem;
   margin-inline: auto;
   padding-block: clamp(1.25rem, 4vw, 2.25rem) 4rem;
@@ -222,7 +223,101 @@ h3 {
   padding-right: max(var(--hapesira), env(safe-area-inset-right, 0px));
   display: flex;
   flex-direction: column;
-  gap: clamp(1.5rem, 4.5vw, 2.2rem);
+  gap: var(--rreshtimi);
+}
+
+/* ── Ekrani i lojës ─────────────────────────────────────────────────────── */
+
+/**
+ * Tri grupe, një radhë: futja, çka doli prej saj, dhe panelat që preken rrallë.
+ *
+ * Te telefoni kjo rri një kolonë e vetme dhe lexohet nga lart poshtë. Grupet
+ * nuk e ndërrojnë pamjen atje — kanë të njëjtën hapësirë mes bllokve si `.faqja`
+ * — por e mbajnë radhën të shkruar te një vend, dhe i japin ekranit të gjerë
+ * diçka për të ndarë në kolona.
+ */
+.loja__pune,
+.loja__panelat,
+.loja__rezultatet {
+  display: grid;
+  /* `minmax(0, 1fr)` e jo kolona e parazgjedhur: ajo matet sipas përmbajtjes,
+     dhe tabela e shlyerjes me gjashtë lojtarë do ta zgjeronte tërë faqen jashtë
+     telefonit. Tabela rrëshqet brenda mbështjellëses së vet, kurrë faqja. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--rreshtimi);
+}
+
+/**
+ * Dy panela për rresht sapo ka gjerësi për to.
+ *
+ * Secili prej tyre është një `<details>` i mbledhur ose një kartelë e shkurtër,
+ * dhe në telefon ata zënë pesë rreshta radhazi mbi asgjë. 18rem është gjerësia
+ * nën të cilën kreu i tyre («Mbyll lojën më herët» me shigjetën) nis të thyhet.
+ */
+@media (min-width: 48rem) {
+  .faqja--loja {
+    max-width: 54rem;
+  }
+
+  .loja__panelat {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  /* Hapësirën e mban rrjeti; margjina e dy detajeve ngjitur do t'i ulte vetëm
+     ata të kolonës së dytë dhe krerët do të dilnin jashtë vije. */
+  .loja__panelat > .detaje + .detaje {
+    margin-top: 0;
+  }
+}
+
+/**
+ * Futja majtas, rezultati djathtas.
+ *
+ * Kjo është pyetja e dyfishtë e çdo raundi — «sa bëri secili» dhe «ku jemi
+ * tani» — dhe në një kolonë të vetme përgjigjja e dytë rri gjithmonë një
+ * rrëshqitje poshtë. Te tableta ajo hapësirë ishte aty pa punë.
+ *
+ * Kufiri është 62rem: nën të, kolona e futjes bie nën 21rem, dhe atje rreshti
+ * «emri, dora, pikët» i llogaritësit nis të shtypet — ai bllok përdoret dhjetëra
+ * herë në mbrëmje (pika 6) dhe nuk paguan dot për pamjen e kolonës tjetër.
+ *
+ * `align-items: start` nuk është zbukurim: pa të, kolona e futjes zgjatet sa
+ * rreshti i rrjetit dhe `position: sticky` mbetet pa ku të lëvizë.
+ */
+@media (min-width: 62rem) {
+  .faqja--loja {
+    max-width: 78rem;
+  }
+
+  .loja__pune {
+    grid-template-columns: minmax(21rem, 27rem) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  /**
+   * Futja e ndjek rrëshqitjen e tabelës: raundi shënohet me renditjen para syve,
+   * dhe askush nuk ngjitet lart për të shtypur «Ruaj raundin».
+   *
+   * Lartësia dhe rrëshqitja e vet nuk janë zbukurim. Me tetë lojtarë kartela del
+   * më e gjatë se ekrani, dhe një bllok i ngjitur më i gjatë se ekrani i mban
+   * rreshtat e mesit të paarritshëm — sa rri i ngjitur, rrëshqitja e faqes nuk e
+   * lëviz. Me kufi lartësie ai rrëshqet brenda vetes, dhe rreshti i veprimeve
+   * mbetet i ngjitur në fund të tij, ashtu si te telefoni (pika 6).
+   */
+  .loja__futja {
+    position: sticky;
+    top: var(--hapesira);
+    max-height: calc(100dvh - 2 * var(--hapesira));
+    overflow: auto;
+    scrollbar-gutter: stable;
+  }
+
+  /* Rreshti i rrjetit është sa kolona më e gjatë; pa këtë, blloqet e shtyllës
+     së rezultatit do të ndaheshin sa të mbushnin tërë atë lartësi. */
+  .loja__rezultatet {
+    align-content: start;
+  }
 }
 
 .vetem-lexues {

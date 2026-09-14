@@ -1309,6 +1309,13 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - `--kufiri-veprues` (≥3:1 sipas WCAG 1.4.11) për çdo gjë që klikohet; `--kufiri` është vetëm
   dekorativ. Mos e përdor kufirin dekorativ për një kontroll.
 - `env(safe-area-inset-*)` me `viewport-fit=cover` për pamjen e instaluar. Ka edhe stil për shtypje.
+- **Ekrani i lojës ka tri grupe, dhe radha e tyre nuk ndërron me gjerësinë**: futja e raundit
+  (`.loja__futja`), çka doli prej saj (`.loja__rezultatet`) dhe panelat që preken një herë a asnjë
+  (`.loja__panelat` — lojtarët, ndarja, rregullat, kufiri, mbyllja). Ndërron vetëm sa prej tyre hyn
+  në ekran njëherësh: mbi 48rem panelat dalin dy për rresht, mbi 62rem futja dhe renditja rrinë krah
+  për krah dhe futja ngjitet (`position: sticky`), me kufi lartësie e rrëshqitje të vetën, sepse një
+  bllok i ngjitur më i gjatë se ekrani i mban rreshtat e mesit të paarritshëm. Panelat nuk kthehen
+  mes futjes dhe renditjes: atje ata shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
 
 ## Gjëra që të zënë ngushtë
 
