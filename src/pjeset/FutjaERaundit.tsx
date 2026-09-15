@@ -1,37 +1,36 @@
 /**
- * Futja e një raundi — me dorë, ose përmes llogaritësit.
+ * Futja e një raundi — kartela e mbledhur, dhe detajet te një kuti.
  *
- * Ky bllok përdoret më shumë se çdo tjetër: dhjetëra herë në një mbrëmje, nga
- * dikush që mban letrat me dorën tjetër. Prandaj çdo prekje e kursyer këtu
- * vlen më shumë se një ekran i tërë diku tjetër.
+ * Kartela e raundit nuk mban më asnjë fushë: mban atë që lexohet pa u prekur —
+ * cili raund është dhe kush përzien (te kreu, nga `Loja`), çka pritet të dalë
+ * numri (`ndihma`) — dhe një buton të vetëm që hap detajet. Kjo është kërkesë e
+ * shprehur e pronarit, dhe arsyeja është ekrani: gjashtë a tetë rreshta fushash
+ * që rrinë të zbrazëta tërë mbrëmjen e shtynin poshtë renditjen, e cila është
+ * pikërisht ajo që lexohet pas çdo raundi.
  *
- * Tri gjëra e mbajnë të shpejtë:
+ * Brenda kutisë rrinë të dyja rrugët e shënimit, dhe «Ruaj raundin N» është një
+ * i vetëm për të dyja — prekja e tij e ruan raundin drejtpërdrejt dhe e mbyll
+ * kutinë, pra një raund mbaron me hape-shëno-ruaj:
  *
- *   • «Next» i tastierës kalon te lojtari tjetër, dhe te i fundit e ruan
- *     raundin. Me gjashtë lojtarë kjo është gjashtë prekje më pak për raund,
- *     dhe dora nuk lëviz nga tastiera.
- *   • Rreshti i veprimeve rri i ngjitur në fund të kartelës. Me tastierën e
- *     hapur, ekrani i mbetur është nën gjysmën e telefonit — pa këtë, butoni
- *     „Ruaj" bie poshtë çdo here që lojtarët janë shumë.
- *   • Llogaritësi rri i hapur që në fillim te raundi i ri, e mban ekranin
- *     vetëm për vete, dhe e ruan raundin me një prekje. Raundi që bie brenda
- *     rregullit — dhe ata janë pothuajse të gjithë — nuk ka pse të kërkojë as
- *     prekjen që e hap, as kalimin nëpër fushat vetëm që të shtypet «Ruaj»
- *     prapë. Fushat kthehen sapo mbyllet ai.
+ *   • **Llogaritësi** (vetëm te bridzhi): kush e mbylli, si e mbylli, dhe çfarë
+ *     i mbeti secilit në dorë. Rruga e shpeshtë — pothuajse çdo raund bie brenda
+ *     rregullit.
+ *   • **Fushat me dorë**: një numër për lojtar. Te domina e pishpiriku kjo është
+ *     e vetmja rrugë, sepse atje numri numërohet te tavolina — gurët e mbetur,
+ *     pikët e dorës — dhe aplikacioni nuk i njeh as gurët as letrat. Te bridzhi
+ *     rri një prekje larg dhe **nuk guxon të hiqet**: te fleta origjinale ka një
+ *     raund me mbyllës −50, që nuk e jep asnjë nga dy mbylljet, dhe një raund të
+ *     papërfunduar pa asnjë mbyllës. Një aplikacion që pranon vetëm kombinimet e
+ *     lejuara nuk do t'i shënonte dot.
  *
- * Fushat mbeten burimi i vërtetë gjithsesi, dhe llogaritësi mban edhe daljen
- * e dytë — «Vendosi te fushat», që i shkruan pikët pa i ruajtur: te fleta
- * origjinale ka një raund me mbyllës −50, që nuk e jep asnjë nga dy mbylljet,
- * dhe një aplikacion që pranon vetëm kombinimet e lejuara nuk do ta shënonte
- * dot.
+ * Dy gjëra e mbajnë të shpejtë futjen me dorë, dhe asnjëra nuk u prek nga kutia:
+ * «Next» i tastierës kalon te lojtari tjetër e te i fundit ruan raundin, dhe nga
+ * pesë lojtarë e tutje shtrëngohen rreshtat (`data-shume`) — ulet vetëm ajri,
+ * kurse fushat mbeten 2.75rem, sepse ai është kufiri nën të cilin gishti nuk i
+ * zë.
  *
  * Shenja ka butonin e vet sepse tastiera numerike e Androidit s'ka minus;
  * arsyetimi i plotë dhe përpunimi i tekstit rrinë te `fusha.ts`.
- *
- * I njëjti bllok shënon edhe raundet e dominës e të pishpirikut, vetëm pa
- * llogaritës: atje numri numërohet te tavolina — gurët e mbetur në dorë,
- * pikët e dorës — dhe aplikacioni nuk i njeh as gurët as letrat. Ajo që mbetet
- * është pikërisht ky rrjet fushash, dhe ai është i njëjti për të tri.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -69,109 +68,192 @@ export function FutjaERaundit({
    *
    * Vetëm bridzhi e ka, sepse vetëm ai ka formulë: mbyllësi merr −40 ose −20,
    * i mbyllti 200 ose 100, dhe i hapuri dorën e vet një a dy herë. Te domina e
-   * pishpiriku numri numërohet te tavolina, ku janë gurët dhe letrat — atje
-   * aplikacioni nuk ka çka të llogarisë, dhe një buton «Llogaritësi» që hap një
-   * kuti të zbrazët do të ishte premtim i pambajtur.
+   * pishpiriku kutia hapet drejt te fushat: atje aplikacioni nuk ka çka të
+   * llogarisë, dhe një çelës «Llogaritësi» që hap një kuti të zbrazët do të
+   * ishte premtim i pambajtur.
    */
   llogaritesi?: boolean;
-  /** Shënimi nën fushat: çka pritet të dalë ai numër, kur rregulli e thotë. */
+  /** Shënimi nën butonin: çka pritet të dalë ai numër, kur rregulli e thotë. */
   ndihma?: string;
   onRuaj: (scores: Record<string, number | null>) => void;
   onAnulo?: () => void;
 }) {
-  const [vlerat, caktoVlerat] = useState<Vlerat>(() => nga(players, fillestare));
-  // Raundi i ri hapet me llogaritësin gati (zgjedhje e pronarit): pikët e
-  // mbrëmjes dalin nga rregulli, jo nga koka, prandaj rruga e shpeshtë nuk ka
-  // pse të kërkojë një prekje para çdo raundi. Redaktimi nis i mbyllur — atje
-  // fushat mbajnë tashmë pikët e shënuara, dhe prekja është pikërisht ajo që
-  // duhet rregulluar me dorë.
-  const [hapurLlogaritesi, hapLlogaritesin] = useState(
-    llogaritesi && !fillestare,
+  const kutia = useRef<HTMLDialogElement>(null);
+  /*
+   * Sa herë është hapur kutia — hyn te `key`-i i detajeve.
+   *
+   * Kutia rri e montuar edhe e mbyllur (ashtu e kërkon `showModal()`), prandaj
+   * gjendja e saj nuk pastrohet vetvetiu. `key`-i e ringre bllokun nga e para te
+   * çdo hapje: dora e raundit të kaluar nuk ka pse të rrijë e shkruar te raundi
+   * tjetër.
+   */
+  const [hapje, caktoHapjen] = useState(0);
+  const redaktim = !!fillestare;
+
+  function hap() {
+    caktoHapjen((n) => n + 1);
+    kutia.current?.showModal();
+  }
+
+  function mbyll() {
+    kutia.current?.close();
+  }
+
+  /*
+   * Redaktimi e hap kutinë vetë.
+   *
+   * Kush shtyp «Redakto raundin 3» te lista e ka thënë tashmë çka do; një prekje
+   * e dytë mbi një buton që sapo u shfaq do të ishte pyetje e bërë dy herë. Raundi
+   * i ri nuk e merr këtë — atje kutia pret butonin (pika 3).
+   */
+  useEffect(() => {
+    if (!fillestare) return;
+    caktoHapjen((n) => n + 1);
+    kutia.current?.showModal();
+  }, [fillestare, roundNumber]);
+
+  function dergo(scores: Record<string, number | null>) {
+    mbyll();
+    onRuaj(scores);
+  }
+
+  return (
+    <div className="futja">
+      {ndihma && <p className="ndihma">{ndihma}</p>}
+
+      <div className="veprimet">
+        <button
+          type="button"
+          className="buton buton--kryesor buton--i-plote"
+          aria-haspopup="dialog"
+          onClick={hap}
+        >
+          <Ikona emri={redaktim ? 'redakto' : 'shto'} />
+          {redaktim
+            ? `Ndrysho detajet e raundit ${roundNumber}`
+            : `Shto detajet e raundit ${roundNumber}`}
+        </button>
+
+        {onAnulo && (
+          <button type="button" className="buton" onClick={onAnulo}>
+            <Ikona emri="anulo" />
+            Anulo
+          </button>
+        )}
+      </div>
+
+      <dialog
+        ref={kutia}
+        className="kutia kutia--llogaritesi"
+        aria-label={`Detajet e raundit ${roundNumber}`}
+        /* Prekja jashtë kutisë e mbyll, si te mbledhësja: te tableta ajo është
+           lëvizja e parë e dorës. Ngjarja vjen nga vetë `<dialog>`-u kur prekja
+           bie te sfondi i tij. */
+        onClick={(e) => {
+          if (e.target === kutia.current) mbyll();
+        }}
+      >
+        <DetajetERaundit
+          key={`${roundNumber}:${hapje}`}
+          players={players}
+          roundNumber={roundNumber}
+          fillestare={fillestare ?? null}
+          llogaritesi={llogaritesi}
+          onRuaj={dergo}
+          onMbyll={mbyll}
+        />
+      </dialog>
+    </div>
   );
-  // Pikët e fundit të llogaritura rrinë këtu e jo brenda llogaritësit, sepse
-  // butoni që i ruan rri te rreshti i ngjitur poshtë — përndryshe do të binte
-  // nën fund të ekranit pikërisht kur lojtarët janë shumë.
+}
+
+/**
+ * Trupi i kutisë: dy rrugë shënimi, dhe një «Ruaj» i vetëm për të dyja.
+ *
+ * Rrugët nuk janë dy ekrane — janë dy përgjigje të së njëjtës pyetje, prandaj
+ * ndërrimi mes tyre nuk fshin asgjë: pikët e llogaritësit rrinë te llogaritësi,
+ * ato të shkruara me dorë te fushat, dhe «Vendosi te fushat» i kalon të parat te
+ * të dytat kur raundi kërkon një prekje me dorë para se të ruhet.
+ *
+ * Trupi rrëshqet brenda kutisë dhe rreshti i veprimeve rri i ngjitur në fund të
+ * saj: me tetë lojtarë as lista e duarve as rrjeti i fushave nuk hyjnë te një
+ * ekran telefoni, dhe «Ruaj raundin N» nuk guxon të bjerë poshtë tij.
+ */
+function DetajetERaundit({
+  players,
+  roundNumber,
+  fillestare,
+  llogaritesi,
+  onRuaj,
+  onMbyll,
+}: {
+  players: string[];
+  roundNumber: number;
+  fillestare: Record<string, number | null> | null;
+  llogaritesi: boolean;
+  onRuaj: (scores: Record<string, number | null>) => void;
+  onMbyll: () => void;
+}) {
+  /*
+   * Me cilën rrugë nis kutia.
+   *
+   * Raundi i ri te bridzhi nis me llogaritësin — pikët dalin nga rregulli e jo
+   * nga koka. Redaktimi nis te fushat: atje pikët janë shënuar tashmë, dhe ajo
+   * që duhet rregulluar është pikërisht një prekje me dorë. Te domina e
+   * pishpiriku llogaritës nuk ka fare.
+   */
+  const [menyra, caktoMenyren] = useState<'llogaritesi' | 'fushat'>(
+    llogaritesi && !fillestare ? 'llogaritesi' : 'fushat',
+  );
+  const [vlerat, caktoVlerat] = useState<Vlerat>(() => nga(players, fillestare));
   const [piketELlogaritura, caktoPiketELlogaritura] = useState<Record<
     string,
     number
   > | null>(null);
-  // Sa raunde janë ruajtur nga ky bllok. Hyn te `key`-i i llogaritësit, që ai
-  // të nisë nga e para pas çdo ruajtjeje: dora e raundit të kaluar nuk ka pse
-  // të rrijë e shkruar te raundi tjetër.
-  const [ruajtje, caktoRuajtjen] = useState(0);
   const fushat = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Kur ndërrohet raundi që redaktohet, fushat duhet të ndjekin atë e jo të
-  // mbajnë pikët e raundit të mëparshëm. Bashkë me to kthehet edhe llogaritësi
-  // te gjendja e vet e nisjes: hapur për raund të ri, mbyllur për redaktim.
-  useEffect(() => {
-    caktoVlerat(nga(players, fillestare));
-    hapLlogaritesin(llogaritesi && !fillestare);
-    // Pikët e llogaritësit nuk zbrazen këtu: ky efekt shkon pas atij të
-    // llogaritësit të sapomontuar, dhe do t'i fshinte pikërisht pikët që ai
-    // sapo i njoftoi — butoni «Ruaj» do të mbetej i fikur. Me llogaritësin e
-    // mbyllur ato nuk lexohen fare, dhe hapja e tij i njofton prapë.
-  }, [players, fillestare, roundNumber, llogaritesi]);
-
-  // Me llogaritësin hapur ruhen pikët e tij, prandaj edhe përmbledhja e
-  // rreshtit tregon ato: një „shuma 0" nën një llogaritës që thotë 110 do të
-  // ishte dy të vërteta njëherësh.
-  const piket = hapurLlogaritesi ? piketELlogaritura : null;
+  const meLlogaritesin = menyra === 'llogaritesi';
   const ngaFushat = players.filter((p) => numri(vlerat[p]) !== null).length;
+  const piket = meLlogaritesin ? piketELlogaritura : null;
+  const sashenuar = piket ? players.length : ngaFushat;
   const shuma = piket
     ? Object.values(piket).reduce((s, n) => s + n, 0)
     : players.reduce((s, p) => s + (numri(vlerat[p]) ?? 0), 0);
-  const sashenuar = piket ? players.length : ngaFushat;
   const shume = players.length >= SHUME;
+  const etiketa = fillestare
+    ? 'Ruaj ndryshimet'
+    : `Ruaj raundin ${roundNumber}`;
 
-  /**
-   * Ruan raundin.
-   *
-   * `rifokuso` vjen vetëm nga tastiera. Pas një prekjeje të butonit fokusi rri
-   * ku është: hapja e tastierës pa u kërkuar do ta mbulonte gjysmën e ekranit
-   * pikërisht kur përdoruesi po shikon renditjen e sapondryshuar.
-   */
-  function ruaj(rifokuso = false) {
-    // Numërohen fushat e jo `sashenuar`: me llogaritësin hapur ai i numëron
-    // pikët e tij, dhe «Next» i tastierës do të ruante një raund të zbrazët.
+  /** Ruan raundin — pikët e llogaritësit, ose ato të fushave. */
+  function ruaj() {
+    if (piket) {
+      onRuaj(piket);
+      return;
+    }
     if (ngaFushat === 0) return;
 
     const scores: Record<string, number | null> = {};
     for (const player of players) scores[player] = numri(vlerat[player]);
-    dergo(scores, rifokuso);
+    onRuaj(scores);
   }
 
   /**
-   * Dërgon pikët e gatshme — nga fushat, ose drejt nga llogaritësi.
+   * I shkruan pikët e llogaritësit te fushat, dhe kutia kalon te to.
    *
-   * Llogaritësi i kalon këtu të vetat pa i shkruar te fushat: raundi që del
-   * ashtu si e jep rregulli nuk ka pse të prekë dy butona. Fushat mbeten
-   * burimi i vërtetë për çdo raund tjetër, dhe «Vendosi te fushat» rri brenda
-   * llogaritësit pikërisht për raundin që rregulli nuk e mbulon.
+   * Nuk ruan asgjë: kjo është rruga e raundit që rregulli nuk e mbulon — te
+   * fleta origjinale ka një raund me mbyllës −50, të cilin nuk e jep asnjë nga
+   * dy mbylljet — prandaj pikët duhet të preken me dorë para se të shtypet
+   * «Ruaj».
    */
-  function dergo(scores: Record<string, number | null>, rifokuso = false) {
-    onRuaj(scores);
+  function vendosTeFushat() {
+    if (!piketELlogaritura) return;
+    caktoVlerat(
+      Object.fromEntries(
+        players.map((p) => [p, String(piketELlogaritura[p] ?? 0)]),
+      ) as Vlerat,
+    );
     caktoPiketELlogaritura(null);
-
-    if (fillestare) {
-      // Redaktimi mbaron me ruajtjen — ekrani kthehet te lista.
-      hapLlogaritesin(false);
-      return;
-    }
-
-    caktoVlerat(nga(players, null));
-    // Llogaritësi mbetet i hapur për raundin tjetër, por nis nga e para:
-    // `ruajtje` e ndërron `key`-in e tij, prandaj dora e sapofutur nuk mbetet
-    // e shkruar aty. Numri i raundit vjen nga baza pak më vonë — pa këtë,
-    // llogaritësi do të tregonte raundin e kaluar deri atëherë.
-    caktoRuajtjen((n) => n + 1);
-    if (rifokuso) fushat.current[0]?.focus();
-  }
-
-  /** Mbyll llogaritësin dhe harron pikët e tij — ato vlejnë sa rri i hapur. */
-  function mbyllLlogaritesin() {
-    hapLlogaritesin(false);
-    caktoPiketELlogaritura(null);
+    caktoMenyren('fushat');
   }
 
   /** «Next» shkon te lojtari tjetër; te i fundit ruan raundin. */
@@ -181,96 +263,91 @@ export function FutjaERaundit({
 
     const tjetra = fushat.current[i + 1];
     if (tjetra) tjetra.focus();
-    else ruaj(true);
+    else ruaj();
   }
 
   return (
-    <div className="futja">
-      {/*
-        Me llogaritësin hapur, fushat hiqen nga ekrani.
+    <div className="llogaritesi">
+      <p className="kutia__krye">
+        <span className="kutia__titull">Raundi {roundNumber}</span>
+        <span className="kutia__ndihma">
+          {meLlogaritesin ? 'kush e mbylli, dhe si' : 'pikët e secilit'}
+        </span>
+      </p>
 
-        Ato janë të zbrazëta gjithsesi — pikët po dalin nga llogaritësi — dhe
-        gjashtë rreshta të zbrazët mbi të vetëm e shtynin poshtë atë që po
-        përdoret. Nuk fshihen: «Mbyll llogaritësin» i kthen ashtu si ishin, dhe
-        «Vendosi te fushat» i kthen të mbushura. Vlerat e shkruara rrinë te
-        gjendja, prandaj asgjë nuk humbet sa rri i hapur.
-      */}
-      {!hapurLlogaritesi && (
-        <div className="futja__rrjeti" data-shume={shume || undefined}>
-          {players.map((player, i) => (
-            <div className="futja__njesi" key={player}>
-              <span className="futja__emri">{player}</span>
-              <div className="futja__vlera">
-                <button
-                  type="button"
-                  className="futja__shenja"
-                  aria-pressed={negative(vlerat[player])}
-                  onClick={() => ndrroShenjen(player)}
-                  aria-label={`Ndërro shenjën e ${player}`}
-                >
-                  {negative(vlerat[player]) ? '−' : '+'}
-                </button>
-                <input
-                  ref={(el) => {
-                    fushat.current[i] = el;
-                  }}
-                  type="text"
-                  inputMode="numeric"
-                  pattern="-?[0-9]*"
-                  enterKeyHint={i === players.length - 1 ? 'done' : 'next'}
-                  value={vlerat[player] ?? ''}
-                  onChange={(e) =>
-                    caktoVlerat((v) => ({
-                      ...v,
-                      [player]: pastro(e.target.value),
-                    }))
-                  }
-                  onKeyDown={(e) => neTaste(e, i)}
-                  aria-label={`Pikët e ${player} për raundin ${roundNumber}`}
-                />
-                {/*
-                  Mbledhësja rri brenda të njëjtit kontroll, e treta pas shenjës
-                  dhe numrit: dora mblidhet te tavolina — gurët e mbetur, letrat
-                  e mbetura — dhe deri tani ajo mbledhje bëhej jashtë
-                  aplikacionit. Shenjën nuk e prek: kthen një numër pa shenjë dhe
-                  e ruan atë që ka fusha, sepse «−» aty do të thotë mbyllje e jo
-                  dorë më e vogël.
-                */}
-                <Mbledhesja
-                  emri={player}
-                  vlera={vlerat[player] ?? ''}
-                  onCakto={(teksti) =>
-                    caktoVlerat((v) => ({
-                      ...v,
-                      [player]: negative(v[player]) ? `-${teksti}` : teksti,
-                    }))
-                  }
-                />
-              </div>
+      <div className="llogaritesi__trupi">
+        {meLlogaritesin ? (
+          <Llogaritesi players={players} onPike={caktoPiketELlogaritura} />
+        ) : (
+          <>
+            <div className="futja__rrjeti" data-shume={shume || undefined}>
+              {players.map((player, i) => (
+                <div className="futja__njesi" key={player}>
+                  <span className="futja__emri">{player}</span>
+                  <div className="futja__vlera">
+                    <button
+                      type="button"
+                      className="futja__shenja"
+                      aria-pressed={negative(vlerat[player])}
+                      onClick={() =>
+                        caktoVlerat((v) => ({ ...v, [player]: ndrro(v[player]) }))
+                      }
+                      aria-label={`Ndërro shenjën e ${player}`}
+                    >
+                      {negative(vlerat[player]) ? '−' : '+'}
+                    </button>
+                    <input
+                      ref={(el) => {
+                        fushat.current[i] = el;
+                      }}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="-?[0-9]*"
+                      enterKeyHint={i === players.length - 1 ? 'done' : 'next'}
+                      value={vlerat[player] ?? ''}
+                      onChange={(e) =>
+                        caktoVlerat((v) => ({
+                          ...v,
+                          [player]: pastro(e.target.value),
+                        }))
+                      }
+                      onKeyDown={(e) => neTaste(e, i)}
+                      aria-label={`Pikët e ${player} për raundin ${roundNumber}`}
+                    />
+                    {/*
+                      Mbledhësja rri brenda të njëjtit kontroll, e treta pas
+                      shenjës dhe numrit: dora mblidhet te tavolina — gurët e
+                      mbetur, letrat e mbetura. Shenjën nuk e prek: kthen një
+                      numër pa shenjë dhe e ruan atë që ka fusha, sepse «−» aty
+                      do të thotë mbyllje e jo dorë më e vogël.
+                    */}
+                    <Mbledhesja
+                      emri={player}
+                      vlera={vlerat[player] ?? ''}
+                      onCakto={(teksti) =>
+                        caktoVlerat((v) => ({
+                          ...v,
+                          [player]: negative(v[player]) ? `-${teksti}` : teksti,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          </>
+        )}
+      </div>
 
-      {ndihma && !hapurLlogaritesi && <p className="ndihma">{ndihma}</p>}
+      {/*
+        Rreshti i fundit: çka doli, dhe ku shkon.
 
-      {hapurLlogaritesi && (
-        <Llogaritesi
-          key={`${roundNumber}:${ruajtje}`}
-          players={players}
-          onPike={caktoPiketELlogaritura}
-          onVendos={(pike) => {
-            caktoVlerat(
-              Object.fromEntries(
-                players.map((p) => [p, String(pike[p] ?? 0)]),
-              ) as Vlerat,
-            );
-            mbyllLlogaritesin();
-          }}
-        />
-      )}
-
-      <div className="futja__fund">
+        «Ruaj raundin N» e ruan raundin drejtpërdrejt dhe e mbyll kutinë — një
+        prekje, pa kaluar nga asnjë ekran i dytë. Rri i ngjitur në fund të
+        kutisë sepse trupi mbi të rrëshqet: me tetë lojtarë ai del më i gjatë se
+        ekrani, dhe butoni që shtypet te çdo raund nuk guxon të bjerë poshtë tij.
+      */}
+      <div className="llogaritesi__fund">
         <p className="futja__shuma">
           <span>
             {sashenuar} nga {players.length} të shënuar
@@ -280,53 +357,61 @@ export function FutjaERaundit({
           </span>
         </p>
 
-        {/*
-          Një buton i vetëm «Ruaj», për të dyja rrugët.
-
-          Me llogaritësin hapur ai ruan pikët e tij; i mbyllur, ato të fushave.
-          Dy butona me të njëjtat fjalë — një i gjallë brenda llogaritësit, një
-          i fikur këtu — lexoheshin si prishje, dhe ai i llogaritësit binte nën
-          fund të ekranit sapo lojtarët ishin shumë.
-        */}
         <div className="veprimet">
           <button
             type="button"
             className="buton buton--kryesor"
-            onClick={() => (piket ? dergo(piket) : ruaj())}
+            onClick={ruaj}
             disabled={sashenuar === 0}
           >
             <Ikona emri="ruaj" />
-            {fillestare ? 'Ruaj ndryshimet' : `Ruaj raundin ${roundNumber}`}
+            {etiketa}
           </button>
 
-          {llogaritesi && (
+          {/*
+            Dalja e dytë rri këtu, krah «Ruaj» — e jo poshtë listës së duarve.
+
+            Me gjashtë lojtarë ajo listë e kalon ekranin e telefonit, prandaj
+            çka rri nën të nuk gjendet pa rrëshqitur deri në fund: butoni ishte
+            aty, dhe dukej sikur nuk ekzistonte. Rreshti i ngjitur është i vetmi
+            vend i kutisë që duket gjithmonë.
+          */}
+          {meLlogaritesin && (
             <button
               type="button"
               className="buton"
-              aria-expanded={hapurLlogaritesi}
-              onClick={() =>
-                hapurLlogaritesi ? mbyllLlogaritesin() : hapLlogaritesin(true)
-              }
+              onClick={vendosTeFushat}
+              disabled={!piket}
             >
-              <Ikona emri="llogaritesi" />
-              {hapurLlogaritesi ? 'Mbyll llogaritësin' : 'Llogaritësi'}
+              <Ikona emri="redakto" />
+              Vendosi te fushat
             </button>
           )}
 
-          {onAnulo && (
-            <button type="button" className="buton" onClick={onAnulo}>
-              <Ikona emri="anulo" />
-              Anulo
+          {/*
+            Rruga prapa, dhe vetëm kur ka ku të kthehet: te domina e pishpiriku
+            llogaritës nuk ka fare, dhe te redaktimi prekja me dorë është
+            pikërisht ajo që u kërkua.
+          */}
+          {!meLlogaritesin && llogaritesi && !fillestare && (
+            <button
+              type="button"
+              className="buton"
+              onClick={() => caktoMenyren('llogaritesi')}
+            >
+              <Ikona emri="llogaritesi" />
+              Kthehu te llogaritësi
             </button>
           )}
+
+          <button type="button" className="buton" onClick={onMbyll}>
+            <Ikona emri="anulo" />
+            Mbyll
+          </button>
         </div>
       </div>
     </div>
   );
-
-  function ndrroShenjen(player: string) {
-    caktoVlerat((v) => ({ ...v, [player]: ndrro(v[player]) }));
-  }
 }
 
 /**
@@ -344,27 +429,26 @@ export function FutjaERaundit({
 function Llogaritesi({
   players,
   onPike,
-  onVendos,
 }: {
   players: string[];
   /**
-   * Pikët e llogaritura, sa herë ndryshojnë — butoni «Ruaj» rri jashtë.
+   * Pikët e llogaritura, sa herë ndryshojnë.
    *
-   * `null` sa kohë mbyllësi nuk është zgjedhur: pa të nuk ka raund, dhe butoni
-   * jashtë mbetet i fikur.
+   * Të dy butonat që i përdorin — «Ruaj raundin N» dhe «Vendosi te fushat» —
+   * rrinë te rreshti i ngjitur i kutisë e jo këtu, sepse me tetë lojtarë lista
+   * poshtë del më e gjatë se ekrani dhe çka rri nën të nuk gjendet pa
+   * rrëshqitur. `null` sa kohë mbyllësi nuk është zgjedhur: pa të nuk ka raund,
+   * dhe të dy ata rrinë të fikur.
    */
   onPike: (pike: Record<string, number> | null) => void;
-  /** I shkruan pikët te fushat, që të preken me dorë para ruajtjes. */
-  onVendos: (pike: Record<string, number>) => void;
 }) {
   /*
    * Nis pa mbyllës të zgjedhur, me kërkesë të pronarit.
    *
-   * Më parë hapej me të parin e listës. Meqë llogaritësi tani hapet vetë te
-   * raundi i ri (pika 3), ai emër dilte i zgjedhur pa e prekur kush — dhe një
-   * prekje e vetme e «Ruaj raundin» e shkruante raundin te lojtari i gabuar.
    * Zgjedhja është pyetja e parë e raundit, prandaj rri e papërgjigjur derisa
-   * të përgjigjet.
+   * të përgjigjet: pa të pikët nuk llogariten fare dhe të dy butonat e daljes
+   * rrinë të fikur. Një emër i zgjedhur vetvetiu do ta shkruante raundin te
+   * lojtari i gabuar me një prekje të vetme.
    */
   const [mbyllesi, caktoMbyllesin] = useState('');
   const [lloji, caktoLlojin] = useState<LlojiMbylljes>('normal');
@@ -373,9 +457,9 @@ function Llogaritesi({
    * A rrinë të shpalosur emrat.
    *
    * Pa mbyllës rrinë gjithmonë — ajo është pyetja e parë e raundit. Pas tij
-   * mblidhen, dhe hapen sërish vetëm me «Ndërro». Gjendja nuk ka nevojë të
-   * pastrohet mes raundeve: `key`-i i llogaritësit mban numrin e raundit, pra
-   * çdo raund i ri e ringre këtë bllok nga e para.
+   * mblidhen, dhe hapen sërish vetëm me «Ndërro»: me tetë veta te telefoni ata
+   * do të zinin katër rreshta mbi duart, pra pikërisht hapësirën e bllokut më të
+   * përdorur të mbrëmjes.
    */
   const [dukeNdrruar, caktoNdrrimin] = useState(false);
   const zgjedhja = mbyllesi === '' || dukeNdrruar;
@@ -395,13 +479,12 @@ function Llogaritesi({
   // Pa mbyllës nuk ka pikë: `piketERaundit` do t'i jepte dënimin e plotë
   // secilit dhe shuma do të dukej si raund i vërtetë.
   const pike = useMemo(
-    () =>
-      mbyllesi ? piketERaundit(players, mbyllesi, lloji, gjendjet) : null,
+    () => (mbyllesi ? piketERaundit(players, mbyllesi, lloji, gjendjet) : null),
     [players, mbyllesi, lloji, gjendjet],
   );
 
   // Pikët ngjiten lart sa herë ndryshojnë, sepse butoni që i ruan rri te
-  // rreshti i ngjitur i futjes e jo këtu.
+  // rreshti i ngjitur i kutisë e jo këtu.
   useEffect(() => {
     onPike(pike);
   }, [pike, onPike]);
@@ -409,35 +492,26 @@ function Llogaritesi({
   const tjeret = players.filter((player) => player !== mbyllesi);
 
   return (
-    <div className="llogaritesi">
+    <>
       {/*
         Mbyllësi zgjidhet me emra të prekshëm, jo me listë të shpalosur.
 
         Një `<select>` i kërkonte dy prekje — hape, zgjidhe — dhe lista e tij
-        vizatohet nga sistemi: shkronja të vogla, të tjera nga faqja, dhe te
-        tableta një kolonë e ngushtë në mes të ekranit. Emrat janë dy deri tetë
-        dhe hyjnë të gjithë në ekran, prandaj rrinë të shkruar: një prekje, caku
-        mbi 2.75rem, dhe kush mbylli duket pa hapur asgjë.
+        vizatohet nga sistemi: shkronja të vogla, të tjera nga faqja. Emrat janë
+        dy deri tetë dhe hyjnë të gjithë në ekran, prandaj rrinë të shkruar: një
+        prekje, caku mbi 2.75rem, dhe kush mbylli duket pa hapur asgjë.
 
-        Por emrat e shkruar e kanë një çmim që lista nuk e kishte: lartësia rritet
-        me lojtarët. Me tetë veta te telefoni ata do të zinin katër rreshta mbi
-        duart — pikërisht ajo që i kushton bllokut më të përdorur të mbrëmjes
-        (pika 6). Prandaj dy gjëra e mbajnë të shkurtër:
+        Sapo zgjidhet, rreshtat mblidhen te një i vetëm — emri dhe «Ndërro» —
+        sepse pyetja është përgjigjur dhe hapësira i kthehet duarve që shënohen
+        menjëherë pas saj. Nga pesë lojtarë e tutje shtrëngohet (`data-shume`):
+        ulen ajri dhe shkronja, kurse caku i prekjes mbetet 2.75rem.
 
-          • **Sapo zgjidhet mbyllësi, rreshtat mblidhen te një i vetëm** — emri i
-            zgjedhur dhe «Ndërro». Pyetja është përgjigjur, dhe hapësira i kthehet
-            duarve që shënohen menjëherë pas saj. «Ndërro» i kthen të gjithë.
-          • **Nga pesë lojtarë e tutje shtrëngohen** (`data-shume`, si te fushat e
-            te tabelat): ulet vetëm ajri dhe shkronja, kurse caku i prekjes mbetet
-            2.75rem.
-
-        Prekja e dytë mbi të njëjtin emër nuk e zhbën zgjedhjen. Raundi nuk
-        ruhet dot pa mbyllës gjithsesi (pika 3), prandaj zbrazja nuk hap asnjë
-        rrugë — vetëm do t'i fshinte pikët e llogaritura me një prekje të
-        pakujdesshme. Mbyllësi i gabuar ndërrohet duke prekur atë të duhurin.
+        Prekja e dytë mbi të njëjtin emër nuk e zhbën zgjedhjen. Raundi nuk ruhet
+        dot pa mbyllës gjithsesi, prandaj zbrazja nuk hap asnjë rrugë — vetëm do
+        t'i fshinte pikët me një prekje të pakujdesshme.
       */}
+      <div className="llogaritesi__pyetja">
       <div className="fusha">
-        <span className="fusha__etiketa">Kush e mbylli, dhe si</span>
         <div
           className="celesi celesi--rrjet celesi--emra"
           data-shume={players.length >= SHUME || undefined}
@@ -475,8 +549,7 @@ function Llogaritesi({
 
           Janë dy pyetje te një bllok — kush mbylli, dhe si — dhe pa asgjë mes
           tyre butonat lexohen si një listë e vetme: «Normal» del si emri i
-          radhës pas «Lesa». Etiketa e bllokut i thotë të dyja bashkë, prandaj
-          ndarja e tyre nuk mund të mbetet te fjalët.
+          radhës pas «Lesa».
         */}
         <div className="celesi llogaritesi__si">
           <button
@@ -499,10 +572,12 @@ function Llogaritesi({
       </div>
 
       <p className="ndihma">
-        Mbyllësi merr {lloji === 'hant' ? '−40' : '−20'}. Lëre bosh atë që s’hapi —
-        merr {lloji === 'hant' ? '200' : '100'}.
+        Mbyllësi merr {lloji === 'hant' ? '−40' : '−20'}. Lëre bosh atë që s’hapi
+        — merr {lloji === 'hant' ? '200' : '100'}.
       </p>
+      </div>
 
+      <div className="llogaritesi__duart">
       <ul className="llogaritesi__lista">
         {tjeret.map((player) => (
           <li className="llogaritesi__njesi" key={player}>
@@ -525,8 +600,8 @@ function Llogaritesi({
               />
               {/*
                 Këtu dora është fjalë për fjalë një mbledhje letrash, prandaj
-                mbledhësja rri krah fushës e jo diku poshtë: kush i numëron
-                letrat një nga një e shtyp atë, kush e di shumën shkruan numrin.
+                mbledhësja rri krah fushës: kush i numëron letrat një nga një e
+                shtyp atë, kush e di shumën shkruan numrin.
               */}
               <Mbledhesja
                 emri={player}
@@ -546,11 +621,6 @@ function Llogaritesi({
         ))}
       </ul>
 
-      {/*
-        Shuma nuk përsëritet këtu: rreshti i ngjitur poshtë e tregon tashmë,
-        dhe dy herë i njëjti numër njëri mbi tjetrin lexohet si dy numra.
-        Mbetet ajo që ai rresht nuk e thotë — kush mbylli, dhe sa merr.
-      */}
       <p className="futja__shuma">
         {pike ? (
           <span>
@@ -560,26 +630,8 @@ function Llogaritesi({
           <span>Zgjidh kush e mbylli raundin.</span>
         )}
       </p>
-
-      {/*
-        Dalja e dytë, dhe vetë rregulli i pikës 3.
-
-        «Ruaj» rri te rreshti i ngjitur poshtë dhe i merr këto pika ashtu si
-        janë — raundi që bie brenda rregullit mbaron me një prekje. Ky buton i
-        shkruan te fushat pa i ruajtur, dhe mbetet rruga e raundit që rregulli
-        nuk e mbulon: mbyllësi −50 te fleta e vjetër, ose një pikë që duhet
-        prekur me dorë para se të ruhet.
-      */}
-      <button
-        type="button"
-        className="buton buton--i-plote"
-        onClick={() => pike && onVendos(pike)}
-        disabled={!pike}
-      >
-        <Ikona emri="llogaritesi" />
-        Vendosi te fushat
-      </button>
-    </div>
+      </div>
+    </>
   );
 }
 

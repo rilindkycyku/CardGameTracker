@@ -147,25 +147,83 @@ Në bazë shkruhen vetëm pikët e futura. Totalet, renditja dhe matrica llogari
 Kjo nuk është kursim vendi — është e vetmja mënyrë që redaktimi i raundit të tretë në raundin e
 dhjetë të mos lërë prapa një total të ngrirë diku. Nëse shton një vlerë të derivuar, mos e ruaj.
 
-### 3. Llogaritësi hapet i pari, por fushat mbeten burimi i vërtetë
+### 3. Kartela e raundit mban një buton; detajet rrinë te një kuti
 
-**Raundi i ri hapet me llogaritësin gati, me kërkesë të pronarit.** Pikët e një raundi dalin nga
-rregulli e jo nga koka, prandaj rruga e shpeshtë nuk kërkon as prekjen që e hap atë. Pas ruajtjes ai
-mbetet i hapur për raundin tjetër, por nis nga e para — `key`-i i tij mban numrin e raundit dhe sa
-raunde janë ruajtur, që dora e sapofutur të mos mbetet e shkruar aty. Redaktimi i një raundi nis i
-mbyllur: atje fushat mbajnë tashmë pikët e shënuara, dhe ajo që duhet rregulluar është pikërisht një
-prekje me dorë.
+**Kartela «Raundi N» nuk mban asnjë fushë, me kërkesë të shprehur të pronarit.** Mban atë që
+lexohet pa u prekur — cili raund është dhe kush përzien (te kreu), dhe çka pritet të dalë numri
+(`shenimi` i regjistrit) — plus një buton të vetëm: **«Shto detajet e raundit N»**. Ai e hap kutinë,
+dhe «Ruaj raundin N» brenda saj e ruan raundin drejtpërdrejt e mbyll kutinë. Pra një raund mbaron me
+hape-shëno-ruaj, dhe kartela bie te **121px** nga 572px.
 
-**Me llogaritësin hapur, fushat hiqen nga ekrani.** Janë të zbrazëta gjithsesi, dhe gjashtë rreshta
-të zbrazët mbi të vetëm e shtynin poshtë atë që po përdoret. Vlerat e shkruara rrinë te gjendja e
-komponentit, prandaj «Mbyll llogaritësin» i kthen ashtu si ishin dhe «Vendosi te fushat» i kthen të
-mbushura — nuk fshihet asgjë.
+Arsyeja është ekrani. Gjashtë a tetë rreshta fushash që rrinë të zbrazëta tërë mbrëmjen e shtynin
+poshtë renditjen — pikërisht atë që lexohet pas çdo raundi — dhe më parë edhe llogaritësi rrinte
+aty, 742 piksela i gjatë. Pyetja «ku jemi tani» rrinte gjithmonë një rrëshqitje larg nga raundi që
+sapo u shënua. Tani kartela, renditja dhe panelat hyjnë të gjitha në një ekran tableti.
 
-**Mbyllësi nuk vjen i zgjedhur**, dhe kjo rrjedh nga rreshti më sipër. Sa kohë llogaritësi hapej me
-prekje, i pari i listës ishte parazgjedhje e padëmshme; me të hapur vetvetiu, ai emër del i zgjedhur
-pa e prekur kush, dhe një prekje e vetme e «Ruaj raundin» e shkruan raundin te lojtari i gabuar.
-Prandaj asnjë emër nuk nis i shtypur, pikët nuk llogariten fare pa përgjigje (`pike` del `null`),
-dhe të dy butonat e daljes rrinë të fikur derisa të zgjidhet. Mos i kthe parazgjedhje.
+**Redaktimi e hap kutinë vetë.** Kush shtyp «Redakto raundin 3» te lista e ka thënë tashmë çka do;
+një prekje e dytë mbi një buton që sapo u shfaq do të ishte e njëjta pyetje e bërë dy herë. Raundi i
+ri nuk e merr këtë — atje kutia pret butonin.
+
+**Brenda kutisë rrinë të dyja rrugët e shënimit, dhe «Ruaj» është një i vetëm për të dyja.**
+`DetajetERaundit` e mban atë zgjedhje te një gjendje e vetme (`menyra`), dhe ndërrimi mes tyre nuk
+fshin asgjë:
+
+- **Llogaritësi** — vetëm te bridzhi, sepse vetëm ai ka formulë. Raundi i ri nis këtu: pikët dalin
+  nga rregulli e jo nga koka.
+- **Fushat me dorë** — te domina e pishpiriku kjo është e vetmja rrugë, prandaj kutia hapet drejt te
+  to dhe çelësi nuk vizatohet fare. Redaktimi nis këtu edhe te bridzhi: atje pikët janë shënuar
+  tashmë, dhe ajo që duhet rregulluar është pikërisht një prekje me dorë.
+
+**Rruga me dorë nuk guxon të hiqet**, dhe arsyeja rri te vetë të dhënat: te fleta origjinale ka një
+raund me mbyllës të shënuar **−50**, që nuk e jep asnjë nga dy mbylljet, dhe një raund të
+papërfunduar pa asnjë mbyllës. Një aplikacion që pranon vetëm kombinimet e lejuara nuk do t'i
+shënonte dot. Prova `llogaritësi i mbulon të gjitha raundet e shënuara, veç dy përjashtimeve` e mban
+këtë të matur: nëse dikush „rregullon" rregullat, ajo bie. Prandaj «Vendosi te fushat» rri te
+llogaritësi — i shkruan pikët te fushat pa i ruajtur dhe kutia kalon te to — dhe «Kthehu te
+llogaritësi» është rruga prapa.
+
+**Të dyja daljet rrinë te rreshti i ngjitur, kurrë poshtë listës.** «Vendosi te fushat» rrinte një
+herë te fundi i trupit të llogaritësit, dhe atje me gjashtë lojtarë binte nën ekranin e telefonit:
+butoni ishte aty, dhe dukej sikur nuk ekzistonte. Rreshti i ngjitur është i vetmi vend i kutisë që
+duket gjithmonë, prandaj «Ruaj raundin N» merr rreshtin e vet dhe dy daljet e tjera e ndajnë atë që
+vjen pas (`flex: 1 1 8rem`) — tre butona një mbi një do t'i hanin gjysmën e kutisë, dhe nga gjashtë
+duar do të dukeshin katër.
+
+**Ekrani i shkurtër ka rregullat e veta, dhe ato u matën e nuk u hamendësuan.** Nën 40rem lartësi —
+telefoni i kthyer anash, dhe telefoni i vogël në portret — kutia mbushej e tëra me mobilje dhe
+**asnjë dorë e vetme** nuk dukej pa rrëshqitur: i pari që të zinte syri ishte butoni «Mbyll». Prandaj
+aty ajri shtrëngohet, emrat bien te tri për rresht (kolona 4.6rem, kurse prekja mbetet 2.75rem —
+ai kufi nuk preket kurrë), ikona e dy butonave dytësorë hiqet që fjala e tyre të mbetet në dy
+rreshta, dhe sapo ka 30rem gjerësi rreshti i fundit bie te një i vetëm.
+
+Mbi 40rem gjerësi e nën 40rem lartësi — pra peizazhi — kutia hapet sa 52rem dhe trupi ndahet në dy
+shtylla: pyetja e raundit majtas (`.llogaritesi__pyetja`), duart djathtas (`.llogaritesi__duart`).
+Atje gjerësia rrinte e patrazuar kurse lartësia mungonte — 844px ekran, 480px kuti. `:has` e kufizon
+te llogaritësi: te fushat me dorë `.futja__rrjeti` i shpërndan vetë kolonat, dhe dy shtylla mbi të do
+të linin gjysmën bosh.
+
+**Tri nga këto rregulla e kërkuan emrin e kutisë ose `dialog.` para vetes** (`.kutia--llogaritesi
+.celesi--emra`, `dialog.kutia--llogaritesi`), dhe kjo nuk është hollësi: rregullat e zakonshme që ato
+mposhtin rrinë **më poshtë** te skedari me të njëjtën peshë, dhe pyetja e mediave nuk shton peshë.
+Pa atë emër fiton ai që vjen i fundit — dhe fitonte, në heshtje: kutia mbetej 30rem dhe emrat e
+duarve dilnin të prerë («Li…»).
+
+Matur me shfletues te njëmbëdhjetë ekrane × dy madhësi grupi, nga 320×568 te 1920×1080. E vetmja që
+mbetet e ngushtë është 320×568 me tetë lojtarë — telefoni më i vogël me grupin më të madh — ku duart
+nis të duken pas një rrëshqitjeje. Kutia rri e përdorshme edhe atje: rreshti i fundit brenda ekranit,
+dhe çdo prekje mbi 2.75rem.
+
+**Kutia është `<dialog>` i vërtetë**, i dyti te ky aplikacion pas mbledhëses së dorës (pika 6). Të
+dy e ndajnë `.kutia`-n — kreun, sfondin, «Esc»-in dhe prekjen jashtë — dhe hapen edhe të ndërthurur:
+mbledhësja e një dore mbi detajet e raundit, dhe «Esc» i mbyll sipas radhës. Trupi rrëshqet brenda
+kutisë dhe rreshti i veprimeve rri i ngjitur në fund të saj: me tetë lojtarë as lista e duarve as
+rrjeti i fushave nuk hyjnë te një ekran telefoni, dhe butoni që shtypet te çdo raund nuk guxon të
+bjerë poshtë tij.
+
+**Mbyllësi nuk vjen i zgjedhur.** Asnjë emër nuk nis i shtypur, pikët nuk llogariten fare pa
+përgjigje (`pike` del `null`), dhe të dy butonat e daljes rrinë të fikur derisa të zgjidhet.
+Zgjedhja është pyetja e parë e raundit, dhe një emër i shtypur pa e prekur kush do ta shkruante
+raundin te lojtari i gabuar me një prekje të vetme. Mos i kthe parazgjedhje.
 
 **Mbyllësi zgjidhet me emra të shkruar, jo me listë të shpalosur.** Ishte `<select>`: dy prekje —
 hape, zgjidhe — dhe lista vizatohej nga sistemi, pra me shkronja e gjerësi që nuk i vendos faqja.
@@ -175,31 +233,16 @@ duket pa u hapur asgjë. Prekja e dytë mbi të njëjtin emër nuk e zbraz zgjed
 dot pa mbyllës gjithsesi, prandaj zbrazja nuk hap asnjë rrugë, vetëm i fshin pikët e llogaritura.
 
 Emrat e shkruar e kanë një çmim që lista nuk e kishte: **lartësia rritet me lojtarët** — me tetë
-veta te telefoni ata zunë katër rreshta mbi duart, pra pikërisht atë që i kushton bllokut më të
-përdorur të mbrëmjes. Dy gjëra e mbajnë të shkurtër, dhe të dyja duhen:
+veta te telefoni ata zunë katër rreshta mbi duart. Dy gjëra e mbajnë të shkurtër, dhe të dyja duhen:
 
 - **Sapo zgjidhet mbyllësi, rreshtat mblidhen te një i vetëm** — emri i zgjedhur dhe «Ndërro».
   Pyetja është përgjigjur, dhe hapësira i kthehet duarve që shënohen menjëherë pas saj. Me tetë
-  lojtarë kjo e shkurton llogaritësin nga 897px në 741px. Gjendja nuk pastrohet kurrkund: `key`-i i
-  llogaritësit mban numrin e raundit, pra çdo raund i ri e ringre bllokun nga e para.
+  lojtarë kjo e shkurton llogaritësin nga 897px në 741px. Gjendja nuk pastrohet kurrkund: kutia rri
+  e montuar edhe e mbyllur (ashtu e kërkon `showModal()`), prandaj `key`-i i detajeve mban numrin e
+  raundit dhe sa herë është hapur — çdo hapje e ringre bllokun nga e para.
 - **Nga pesë lojtarë e tutje shtrëngohet** (`data-shume`, si te fushat e te tabelat): ulen ajri dhe
   shkronja, kurse caku i prekjes mbetet 2.75rem. Kolona bie te 5.2rem, pra tre emra për rresht te
   telefoni e jo dy.
-
-Llogaritësi hant/normal ka dy dalje, dhe të dyja duhen:
-
-- **«Ruaj raundin N»** — butoni i rreshtit të ngjitur, i cili me llogaritësin hapur ruan pikët e tij
-  ashtu si dalin. Raundi që bie brenda rregullit — dhe ata janë pothuajse të gjithë — mbaron me një
-  prekje. Butoni rri poshtë e jo brenda llogaritësit, sepse brenda binte nën fund të ekranit sapo
-  lojtarët ishin shumë; dhe është një i vetëm, sepse dy me të njëjtat fjalë lexoheshin si prishje.
-- **«Vendosi te fushat»** — i shkruan pikët te fushat pa i ruajtur, dhe pastaj llogaritësi hiqet nga
-  mesi. Kjo është rruga e raundit që rregulli nuk e mbulon.
-
-Kjo e dyta nuk guxon të hiqet, dhe arsyeja rri te vetë të dhënat: te fleta origjinale ka një raund me mbyllës të shënuar **−50**, që
-nuk e jep asnjë nga dy mbylljet, dhe një raund të papërfunduar pa asnjë mbyllës. Një aplikacion që
-pranon vetëm kombinimet e lejuara nuk do t'i shënonte dot. Prova
-`llogaritësi i mbulon të gjitha raundet e shënuara, veç dy përjashtimeve` e mban këtë të matur:
-nëse dikush „rregullon" rregullat, ajo bie.
 
 ### 4. Lojërat e kaluara nuk preken kur ndërron grupi
 
@@ -228,17 +271,17 @@ Dy gjëra rrjedhin prej kësaj dhe nuk guxojnë të hiqen:
 ### 6. Futja e raundit optimizohet për gjashtë lojtarë, jo për dy
 
 Ky bllok përdoret dhjetëra herë në një mbrëmje, dhe një grup me gjashtë lojtarë e trefishon punën
-e tij. Tri gjëra e mbajnë të përdorshëm, dhe asnjëra nuk guxon të hiqet pa e zëvendësuar:
+e tij. Që nga pika 3 ai rri brenda kutisë së detajeve e jo te kartela, por çka e mban të përdorshëm
+nuk ndryshoi — tri gjëra, dhe asnjëra nuk guxon të hiqet pa e zëvendësuar:
 
 - **«Next» i tastierës kalon te lojtari tjetër, dhe te i fundit ruan raundin.** Me gjashtë lojtarë
   kjo është gjashtë prekje më pak për raund. Pas ruajtjes me tastierë fokusi kthehet te i pari; pas
   një prekjeje të butonit jo, sepse hapja e tastierës pa u kërkuar do të mbulonte renditjen që
   përdoruesi sapo shkoi ta shohë.
-- **Rreshti i veprimeve rri `position: sticky` në fund të kartelës, dhe ka një «Ruaj» të vetëm** —
-  atë të fushave, ose atë të llogaritësit kur ai është hapur (pika 3). Me tastierën e hapur ekrani
-  i mbetur është nën gjysmën e telefonit. Prandaj `.kartela--kryesore` ka `overflow: clip` e jo
-  `hidden`: të dyja e presin vijën e theksit njësoj, por `hidden` krijon kontejner rrëshqitjeje dhe
-  ia heq fuqinë `sticky`-t brenda.
+- **Rreshti i veprimeve rri i ngjitur në fund të kutisë, dhe ka një «Ruaj» të vetëm** — për të dyja
+  rrugët e shënimit (pika 3). Me tastierën e hapur ekrani i mbetur është nën gjysmën e telefonit,
+  dhe butoni që shtypet te çdo raund nuk guxon të bjerë poshtë tij. Kufirin e lartësisë e vë vetë
+  kutia, prandaj asgjë te kartela nuk ka nevojë të rrijë e ngjitur — dhe asgjë nuk rri.
 - **Nga pesë lojtarë e tutje shtrëngohen rreshtat dhe tabelat** (`data-shume`). Ulet vetëm ajri:
   fushat dhe butonat mbeten 2.75rem, sepse ai është kufiri nën të cilin gishti nuk i zë.
 
@@ -250,9 +293,11 @@ edhe cila letër u harrua; shuma vetëm veten. Tri gjëra aty nuk janë zgjedhje
 - **Tastiera është e vetja.** Ajo e Androidit nuk ka as «+» as «−» — e njëjta mungesë që i dha
   shenjës te fushat një buton të vetin — prandaj një mbledhje e shkruar si tekst nuk shtypej dot
   fare në telefon.
-- **Është `<dialog>` i vërtetë** dhe i vetmi te ky aplikacion: fokusi mbetet brenda, «Esc» e mbyll,
-  dhe ekrani kthehet ashtu si ishte. Një panel i shpalosur nën rresht do t'i shtynte gjashtë a tetë
-  rreshtat e tjerë pikërisht kur syri po krahason dorën e radhës.
+- **Është `<dialog>` i vërtetë**: fokusi mbetet brenda, «Esc» e mbyll, dhe ekrani kthehet ashtu si
+  ishte. Një panel i shpalosur nën rresht do t'i shtynte gjashtë a tetë rreshtat e tjerë pikërisht
+  kur syri po krahason dorën e radhës. Ishte i vetmi te ky aplikacion derisa llogaritësi mori të
+  vetën (pika 3); të dy e ndajnë `.kutia`-n, dhe hapen edhe të ndërthurur — mbledhësja e një dore
+  mbi llogaritësin, dhe «Esc» i mbyll sipas radhës.
 - **Nuk prek shenjën.** Kthen gjithmonë një numër pa shenjë; te fushat ruhet minusi që kishte
   rreshti, sepse «−» aty do të thotë mbyllje e jo dorë më e vogël.
 
@@ -1346,17 +1391,28 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   bardhën dhe jo mbi terrin: smeraldi i plotë me gjysmë tejdukshmëri mbi sfond të errët mbetet i
   ngopur, dhe «Ruaj raundin» pa asnjë pikë dukej gati për t'u shtypur. Rregulli i emërton edhe
   variantet (`.buton--kryesor:disabled`), përndryshe ata e mposhtin mbushjen nga poshtë.
-- **Ekrani i lojës ka tri grupe, dhe radha e tyre nuk ndërron me gjerësinë**: futja e raundit
-  (`.loja__futja`), çka doli prej saj (`.loja__rezultatet`) dhe panelat që preken një herë a asnjë
-  (`.loja__panelat` — lojtarët, ndarja, rregullat, kufiri, mbyllja). Ndërron vetëm sa prej tyre hyn
-  në ekran njëherësh: mbi 48rem panelat dalin dy për rresht, mbi 62rem futja dhe renditja rrinë krah
-  për krah dhe futja ngjitet (`position: sticky`), me kufi lartësie e rrëshqitje të vetën, sepse një
-  bllok i ngjitur më i gjatë se ekrani i mban rreshtat e mesit të paarritshëm. Panelat nuk kthehen
-  mes futjes dhe renditjes: atje ata shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
+- **Ekrani i lojës ka tri grupe, dhe radha e tyre nuk ndërron me gjerësinë**: kartela e raundit
+  (`.loja__futja` — një shënim dhe një buton, pika 3), çka doli prej saj (`.loja__rezultatet`) dhe
+  panelat që preken një herë a asnjë (`.loja__panelat` — lojtarët, ndarja, rregullat, kufiri,
+  mbyllja). Ndërron vetëm sa prej tyre hyn në ekran njëherësh: mbi 48rem panelat dalin dy për rresht,
+  dhe mbi 62rem kartela dhe renditja rrinë krah për krah. Panelat nuk kthehen mes tyre: atje ata
+  shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
 
-  Mbi 62rem panelat ulen te **fundi i shtyllës së futjes** (`grid-row: 2`, me rreshtin e parë `1fr`):
-  hapësira mes tyre dhe kartelës nuk është e zbrazët, është rruga që bën kartela e ngjitur teksa
-  ndiqet renditja. Vendosja bëhet me rrjet, pra radha e HTML-së — dhe e telefonit — nuk ndryshon.
+  **Asgjë te ky ekran nuk rri e ngjitur, me kërkesë të pronarit.** Kartela e futjes e pati
+  `position: sticky` te ekrani i gjerë, që raundi të shënohej me renditjen para syve. Ajo u hoq: një
+  kartelë që ndjek rrëshqitjen kalon mbi çka rri poshtë saj, dhe atje poshtë rrinë pikërisht panelat
+  e së njëjtës shtyllë. Njëherë e nxori si gabim të matshëm — një njësi rrjeti e ngjitur nuk ndalet
+  te fundi i fushës së vet, Chrome e mban të ngjitur deri te fundi i tërë rrjetit, pra panelat
+  mbeteshin **plotësisht** të mbuluar kur faqja arrinte fundin — dhe edhe e ndrequr ashtu, kartela
+  mbetej duke notuar mbi to. Tani rrëshqet bashkë me faqen si çdo bllok tjetër. **Mos e kthe të
+  ngjitur.**
+
+  Mbi 62rem panelat rrinë **menjëherë nën kartelën e futjes**, te e njëjta shtyllë (`grid-row: 2`).
+  Rreshtat janë `auto 1fr` e jo `auto auto`: kolona e rezultatit i shtrin të dy rreshtat, dhe me dy
+  rreshta `auto` lartësia e saj u ndahej të dyve — pra mes kartelës dhe panelave hapej një vrimë sa
+  gjysma e ekranit. Me `1fr` te i dyti ajo bie e tëra atje, ku panelat rrinë të ngjitur lart
+  (`align-items: start`). Vendosja bëhet me rrjet, pra radha e HTML-së — dhe e telefonit — nuk
+  ndryshon.
 - **Ekranet e tjera e ndajnë gjerësinë me `.shtyllat`**, një ndarje e vetme e përbashkët: majtas
   ajo për të cilën hapet faqja — grupet te ballina, historiku te grupi, renditja e rreshti i vetes te
   fleta vetëm-lexim — dhe djathtas (`.shtyllat__anesore`) çka preket a lexohet një herë: bashkimi me

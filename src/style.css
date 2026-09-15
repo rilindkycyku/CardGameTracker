@@ -360,19 +360,18 @@ h3 {
 
   .loja__pune {
     grid-template-columns: minmax(23rem, 27rem) minmax(0, 1fr);
-    /* Rreshti i parë merr tërë hapësirën e lirë, i dyti sa panelat: kështu
-       futja ka ku të rrëshqasë e ngjitur (rreshti i saj është i gjatë sa
-       renditja krah tij), dhe panelat ulen te fundi i shtyllës në vend që ta
-       linin gjysmën e ekranit të zbrazët. */
-    grid-template-rows: 1fr auto;
+    /* Rreshti i parë sa kartela e futjes, i dyti merr çka mbetet. Kolona e
+       rezultatit i shtrin të dy rreshtat, dhe pa këtë ndarje lartësia e saj do
+       t'u ndahej të dyve — pra mes kartelës dhe panelave do të hapej një vrimë
+       sa gjysma e ekranit. Me `auto 1fr` ajo bie e tëra te rreshti i dytë, ku
+       panelat rrinë të ngjitur lart (`align-items: start`). */
+    grid-template-rows: auto 1fr;
     align-items: start;
   }
 
   /*
-   * Panelat kalojnë te fundi i shtyllës së majtë — pa e ndërruar radhën e
-   * HTML-së, pra pa e prekur aspak telefonin. Sa rrëshqitet, futja e ngjitur e
-   * zë hapësirën mes tyre: ajo që dukej e zbrazët është pikërisht rruga që bën
-   * kartela teksa e ndjek renditjen.
+   * Panelat rrinë menjëherë nën kartelën e futjes, te e njëjta shtyllë — pa e
+   * ndërruar radhën e HTML-së, pra pa e prekur aspak telefonin.
    */
   .loja__panelat {
     grid-column: 1;
@@ -388,24 +387,6 @@ h3 {
   .loja__rezultatet {
     grid-column: 2;
     grid-row: 1 / span 2;
-  }
-
-  /**
-   * Futja e ndjek rrëshqitjen e tabelës: raundi shënohet me renditjen para syve,
-   * dhe askush nuk ngjitet lart për të shtypur «Ruaj raundin».
-   *
-   * Lartësia dhe rrëshqitja e vet nuk janë zbukurim. Me tetë lojtarë kartela del
-   * më e gjatë se ekrani, dhe një bllok i ngjitur më i gjatë se ekrani i mban
-   * rreshtat e mesit të paarritshëm — sa rri i ngjitur, rrëshqitja e faqes nuk e
-   * lëviz. Me kufi lartësie ai rrëshqet brenda vetes, dhe rreshti i veprimeve
-   * mbetet i ngjitur në fund të tij, ashtu si te telefoni (pika 6).
-   */
-  .loja__futja {
-    position: sticky;
-    top: var(--hapesira);
-    max-height: calc(100dvh - 2 * var(--hapesira));
-    overflow: auto;
-    scrollbar-gutter: stable;
   }
 
   /* Rreshti i rrjetit është sa kolona më e gjatë; pa këtë, blloqet e shtyllës
@@ -1271,26 +1252,6 @@ th.numri {
   appearance: textfield;
 }
 
-/**
- * Rreshti i veprimeve rri i ngjitur në fund të kartelës.
- *
- * Me tastierën e hapur, ekrani i mbetur është nën gjysmën e telefonit. Pa këtë,
- * „Ruaj raundin" bie poshtë sapo lojtarët kalojnë katër — dhe ai është butoni
- * që shtypet në çdo raund.
- */
-.futja__fund {
-  position: sticky;
-  bottom: 0;
-  display: grid;
-  gap: 0.55rem;
-  padding-top: 0.55rem;
-  margin-top: -0.1rem;
-  /* Rreshti rri `sticky` mbi tabelën: një sipërfaqe e plotë me vijë mbi e ndan
-     më qartë se një tretje, dhe pa kalim nuk ka çka të dalë shirit i turbullt. */
-  background: var(--siperfaqe);
-  border-top: 1px solid var(--kufiri);
-}
-
 .futja__shuma {
   display: flex;
   flex-wrap: wrap;
@@ -1453,14 +1414,180 @@ th.numri {
 /* ── Llogaritësi ────────────────────────────────────────────────────────── */
 
 
+/**
+ * Llogaritësi rri te një kuti e vërtetë, e jo si bllok brenda kartelës.
+ *
+ * I shpalosur aty me gjashtë lojtarë dilte 742 piksela i gjatë: e mbushte tërë
+ * shtyllën e futjes te tableta — e cila rri e ngjitur, pra e mbante atë lartësi
+ * sa rrëshqitej faqja — dhe tërë ekranin te telefoni. Çka rrinte poshtë tij,
+ * renditja dhe panelat, shtyhej jashtë pamjes.
+ *
+ * Kutia e mban ekranin për vete sa shënohet raundi, dhe e kthen prapa ashtu si
+ * ishte. Prandaj sfondi dhe korniza me pika hiqen: ato e ndanin bllokun nga
+ * kartela përreth, kurse këtu përreth nuk ka çka të ndahet.
+ */
 .llogaritesi {
   display: grid;
   gap: 0.7rem;
-  margin-top: 0.15rem;
-  padding: 0.85rem;
-  border: 1px dashed var(--kufiri-veprues);
-  border-radius: var(--rreze-2);
-  background: var(--siperfaqe-2);
+}
+
+/**
+ * Trupi rrëshqet, rreshti i fundit rri i ngjitur.
+ *
+ * Me tetë lojtarë lista e duarve del më e gjatë se ekrani, dhe «Ruaj raundin»
+ * nuk guxon të bjerë poshtë tij; kufirin e lartësisë e vë vetë kutia.
+ */
+.llogaritesi__trupi {
+  display: grid;
+  gap: 0.7rem;
+}
+
+/* Rreshti i fundit i ngjitet fundit të kutisë, jo fundit të përmbajtjes së saj:
+   pa margjinën negative, mbushja e kutisë do të mbetej një rrip ku duket teksti
+   që rrëshqet poshtë tij. */
+.llogaritesi__fund {
+  position: sticky;
+  bottom: calc(-1 * var(--kutia-mbushja));
+  display: grid;
+  gap: 0.55rem;
+  margin: 0 calc(-1 * var(--kutia-mbushja)) calc(-1 * var(--kutia-mbushja));
+  padding: 0.55rem var(--kutia-mbushja) var(--kutia-mbushja);
+  background: var(--siperfaqe);
+  border-top: 1px solid var(--kufiri);
+}
+
+/**
+ * «Ruaj» merr rreshtin e vet; të dyja daljet e tjera e ndajnë atë që vjen pas.
+ *
+ * Te telefoni rregulli i përgjithshëm i `.veprimet` i shtrin të gjithë sa
+ * gjerësia, pra tre butona zinin tre rreshta — gjysma e kutisë shkonte te
+ * fundi i saj, dhe nga gjashtë duar dukeshin katër. 8rem është gjerësia nën të
+ * cilën «Vendosi te fushat» nis të thyhet në dy rreshta; mbi të dy butonat
+ * hyjnë krah për krah edhe te 360px, dhe kur mbetet një i vetëm ai zgjatet sa
+ * rreshti vetvetiu.
+ */
+.llogaritesi__fund .veprimet > .buton {
+  flex: 1 1 8rem;
+}
+
+.llogaritesi__fund .veprimet > .buton--kryesor {
+  flex-basis: 100%;
+}
+
+/**
+ * Dy gjysmat e llogaritësit: pyetja e raundit, dhe duart.
+ *
+ * Njëra nën tjetrën kudo — pra te telefoni dhe te tableti asgjë nuk ndryshon.
+ * Emërtimi ekziston vetëm që ekrani i shkurtër t'i vërë krah për krah.
+ */
+.llogaritesi__pyetja,
+.llogaritesi__duart {
+  display: grid;
+  align-content: start;
+  gap: 0.7rem;
+}
+
+/**
+ * Ekrani i shkurtër: telefoni i kthyer anash, dhe tableti i vogël në peizazh.
+ *
+ * Aty lartësia është nën 40rem — 640px, pra edhe telefoni i vogël në portret — dhe
+ * kutia mbush gjithçka me mobilje: kreu, emrat,
+ * hant/normal, shënimi dhe rreshti i fundit. Me tri butona një mbi një, duart
+ * mbeteshin **zero** të dukshme — hapje pas hapjeje, i pari që shihje ishte
+ * butoni «Mbyll». Prandaj mobiljet shtrëngohen, dhe rreshti i fundit bie te një
+ * rresht i vetëm sapo ka gjerësi për tre butona.
+ */
+@media (max-height: 40rem) {
+  .llogaritesi,
+  .llogaritesi__trupi,
+  .llogaritesi__pyetja,
+  .llogaritesi__duart {
+    gap: 0.45rem;
+  }
+
+  .llogaritesi__njesi {
+    padding-block: 0.1rem;
+  }
+
+  .llogaritesi__fund {
+    gap: 0.4rem;
+    padding-top: 0.4rem;
+  }
+
+  /* 6rem e jo 8rem: te telefoni i vogël (320px) dy butona me bazë 8rem nuk
+     hyjnë dot krah për krah, dhe secili merrte rreshtin e vet.
+
+     `:not(.buton--kryesor)` nuk është hollësi: pa të, kjo bazë e mposht edhe
+     100%-shin e «Ruaj», dhe të tre butonat hipin te një rresht ku teksti thyhet
+     në tri rreshta — 91px i lartë secili, pra rreshti i fundit dilte më i gjatë
+     se para se të shtrëngohej. */
+  .llogaritesi__fund .veprimet > .buton:not(.buton--kryesor) {
+    flex-basis: 6rem;
+    /* Te 320px secili prej tyre del 120px i gjerë, dhe «Vendosi te fushat» aty
+       thyhej në tri rreshta — 85px i lartë, pra më keq se dy butona të plotë.
+       Shkronja bie, caku i prekjes jo: lartësia mbetet 2.75rem. */
+    font-size: 0.85rem;
+  }
+
+  /* Dhe ikona e tyre hiqet, sepse ajo i hante fjalës pikërisht aq sa i duhej
+     për të mbetur në dy rreshta. Fjala rri — ikona pa fjalë do të ishte enigmë,
+     fjala pa ikonë jo (pika 9 e sistemit vizual vlen për kuptimin, jo për
+     zbukurimin). «Ruaj» e mban të vetën: ai zë rreshtin e tërë. */
+  .llogaritesi__fund .veprimet > .buton:not(.buton--kryesor) .ikona {
+    display: none;
+  }
+
+  /* Shënimi i rregullit rri, vetëm më i vogël: ai e thotë sa merr mbyllësi dhe
+     sa merr kush s'hapi, pra është pikërisht ajo që pyetet me letrat në dorë. */
+  .llogaritesi__pyetja .ndihma {
+    font-size: 0.78rem;
+  }
+
+  /* Tre emra për rresht e jo dy: kolona bie te 4.6rem, kurse lartësia e
+     prekjes mbetet 2.75rem — ai është kufiri nën të cilin gishti nuk e zë, dhe
+     ai nuk preket kurrë. Me gjashtë lojtarë kjo i bën emrat dy rreshta e jo tre.
+
+     Emërtohet edhe kutia, sepse `.celesi--emra[data-shume]` rri më poshtë te
+     skedari me të njëjtën peshë: pyetja e mediave nuk shton peshë, prandaj pa
+     atë emër fiton ai që vjen i fundit. */
+  .kutia--llogaritesi .celesi--emra,
+  .kutia--llogaritesi .celesi--emra[data-shume] {
+    grid-template-columns: repeat(auto-fit, minmax(4.6rem, 1fr));
+  }
+}
+
+/* Tre butona hyjnë në një rresht vetëm kur ka gjerësi; nën 30rem ata do të
+   shtypeshin aq sa «Vendosi te fushat» të thyhej në dy rreshta, pra rreshti i
+   kursyer do të kthehej si lartësi butoni. */
+@media (max-height: 40rem) and (min-width: 30rem) {
+  .llogaritesi__fund .veprimet > .buton,
+  .llogaritesi__fund .veprimet > .buton--kryesor {
+    flex: 1 1 auto;
+  }
+}
+
+/**
+ * I shkurtër dhe i gjerë: dy shtylla brenda kutisë.
+ *
+ * Te peizazhi gjerësia rri e patrazuar — 844px ekran, 480px kuti — kurse
+ * lartësia mungon. Pyetja e raundit shkon majtas, duart djathtas, dhe kutia
+ * hapet sa 52rem. 40rem e jo 46rem: nën atë kufi rri telefoni i vogël anash
+ * (667px), dhe pikërisht ai i kishte duart zero të dukshme. `:has` e kufizon te llogaritësi: te fushat me dorë
+ * `.futja__rrjeti` i shpërndan vetë kolonat e veta, dhe dy shtylla mbi të do të
+ * linin gjysmën bosh.
+ */
+@media (max-height: 40rem) and (min-width: 40rem) {
+  /* `dialog.` nuk është hollësi: gjerësia e zakonshme e kutisë rri më poshtë te
+     skedari me të njëjtën peshë, dhe pyetja e mediave nuk shton peshë — pa atë
+     emër kutia mbetej 30rem dhe emrat e duarve dilnin të prerë («Li…»). */
+  dialog.kutia--llogaritesi {
+    width: min(52rem, calc(100vw - 2rem));
+  }
+
+  .llogaritesi__trupi:has(> .llogaritesi__duart) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
 }
 
 /**
@@ -1697,11 +1824,14 @@ th.numri {
  * linte kutinë të varur mbi tekst të lexueshëm.
  */
 .kutia {
+  /* Mbushja rri te një token sepse `.llogaritesi__fund` duhet ta dijë sa është:
+     ai i ngjitet fundit të kutisë duke e anuluar atë me margjinë negative. */
+  --kutia-mbushja: clamp(1rem, 4vw, 1.35rem);
   width: min(22rem, calc(100vw - 2rem));
   max-height: calc(100dvh - 2rem);
   overflow: auto;
   margin: auto;
-  padding: clamp(1rem, 4vw, 1.35rem);
+  padding: var(--kutia-mbushja);
   border: 1px solid var(--kufiri);
   border-radius: var(--rreze);
   background: var(--siperfaqe);
@@ -1711,6 +1841,17 @@ th.numri {
 
 .kutia::backdrop {
   background: rgb(9 14 24 / 0.55);
+}
+
+/**
+ * Kutia e llogaritësit është më e gjerë se ajo e mbledhëses.
+ *
+ * Mbledhësja ka një tastierë me tri kolona dhe hyn te 22rem; këtu rrinë emrat e
+ * tavolinës — deri tetë, tre për rresht — dhe rreshti «emri, dora, pikët», i
+ * cili nën 23rem nis të shtypet (i njëjti kufi si shtylla e futjes te pika 6).
+ */
+.kutia--llogaritesi {
+  width: min(30rem, calc(100vw - 2rem));
 }
 
 .kutia__krye {
@@ -2477,6 +2618,7 @@ th.numri {
   .shtegu,
   .futja,
   .llogaritesi,
+  .kutia,
   .njesi__veprimet,
   .rreshti-veprimeve {
     display: none;
