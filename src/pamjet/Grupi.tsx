@@ -36,6 +36,7 @@ import {
   ruajGrup,
   shtoLoje,
 } from '../ruajtja.ts';
+import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 import { PA_KUFI, ZgjedhjaEKufirit } from '../pjeset/Kufiri.tsx';
 import { RregullatELojes } from '../pjeset/RregullatELojes.tsx';
 import { PergjithshmetEMagarecit } from '../pjeset/PergjithshmetEMagarecit.tsx';
@@ -399,6 +400,8 @@ export function Grupi({ id }: { id: number }) {
           </section>
         </div>
       </div>
+
+      <Fundfaqja />
     </div>
   );
 }

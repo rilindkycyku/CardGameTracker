@@ -12,16 +12,14 @@
 import { useRef, useState } from 'react';
 
 import { emratERinj } from '../fusha.ts';
-import { kaloTeIRi, useVersionIRi } from '../instalimi.ts';
 import { RADHA, rregullat } from '../lojerat.ts';
-import { Ikona, ShenjaEFaqes, Zemra } from '../ikonat.tsx';
+import { Ikona, ShenjaEFaqes } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
-import { CelesiINdricimit } from '../pjeset/Ndricimi.tsx';
+import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 import { PanelaEKopjes } from '../pjeset/PanelaEKopjes.tsx';
 import { grupet as lexoGrupet, numriILojerave, shtoGrup } from '../ruajtja.ts';
 import { shko } from '../rruga.ts';
 import { eshteKonfiguruar, eshteLidhur, lexoKonfigurimin } from '../supabase.ts';
-import { VERSIONI } from '../versioni.ts';
 
 export function Grupet() {
   const { te_dhenat, rifresko } = useNgarko(async () => {
@@ -31,7 +29,6 @@ export function Grupet() {
   }, []);
 
   const [hapurFormen, hapFormen] = useState(false);
-  const versionIRi = useVersionIRi();
 
   return (
     <div className="faqja faqja--gjere">
@@ -179,61 +176,7 @@ export function Grupet() {
         </div>
       </div>
 
-      {/*
-        Versioni rri te ekrani i parë, jo te ndonjë ekran „rreth".
-
-        Aplikacioni hapet nga një adresë dhe telefoni e mban në cache: pa një
-        numër të dukshëm, «e ke të renë apo të vjetrën?» nuk i përgjigjet dot
-        kush. Numri është ai i `package.json`-it, prandaj ajo që thotë ekrani
-        dhe ajo që u ndërtua janë i njëjti varg.
-      */}
-      <footer className="fundfaqja">
-        <p>
-          Bërë me <Zemra /> për tavolinën.
-        </p>
-        <p className="fundfaqja__versioni">v{VERSIONI}</p>
-
-        {/*
-          Çka del nga pajisja, thënë aty ku lexohet.
-
-          Të dhënat rrinë te telefoni (pika 1), dhe kjo nuk ndryshoi: te matja
-          shkon emri i rrugës — «/loja/[id]», «/shiko» — e asgjë tjetër. Rri
-          krah versionit sepse ky është i vetmi vend ku faqja flet për vete, dhe
-          sepse një fjali e fshehur te një ekran „rreth" nuk e lexon kush.
-        */}
-        <p className="fundfaqja__matja">
-          Numërohen vetëm hapjet e faqes — pa pikë, pa emra, pa lojëra.
-        </p>
-
-        {/*
-          Ndriçimi: ajo që e thotë telefoni, ose ajo që e thotë tavolina.
-
-          Tema e ndiqte vetëm pajisjen, dhe kjo e mbulonte mbrëmjen — ora kur
-          luhet e ka telefonin në terr gjithsesi. Ajo që nuk e mbulonte ishte
-          dita, dhe një telefon nuk e ndërron temën e vet për një aplikacion.
-          Rri këtu sepse këtu rrinë zgjedhjet që bëhen një herë.
-        */}
-        <CelesiINdricimit />
-
-        {/*
-          Versioni i ri rri e pret, dhe nuk merr pushtetin pa u thënë.
-
-          Faqja tani ruhet te koshi i punëtorit të shërbimit, prandaj ajo që
-          hapet është ajo që u ruajt — edhe kur serveri ka diçka më të re. Pa
-          këtë rresht, «e ke të renë apo të vjetrën?» do të kthehej pikërisht
-          pyetja që numri i versionit erdhi ta mbyllte. Rri këtu sepse këtu rri
-          numri, dhe shfaqet vetëm kur ka vërtet çka të merret.
-        */}
-        {versionIRi && (
-          <p className="fundfaqja__i-ri">
-            <span>Ka një version më të ri.</span>
-            <button type="button" className="buton buton--vogel" onClick={kaloTeIRi}>
-              <Ikona emri="ruaj" />
-              Merre tani
-            </button>
-          </p>
-        )}
-      </footer>
+      <Fundfaqja plote />
     </div>
   );
 }

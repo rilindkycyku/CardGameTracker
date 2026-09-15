@@ -18,6 +18,7 @@ import { Vizitori, type GjendjaEVizitorit } from '../lidhja.ts';
 import { shpaketo } from '../ndarja.ts';
 import { adresaEPergjigjes } from '../sinjalizimi.ts';
 import { KodiQR } from '../pjeset/KodiQR.tsx';
+import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 import { LidhjaEKeqe, PamjaERezultatit } from '../pjeset/PamjaERezultatit.tsx';
 
 /** Ora si `14:32`, për të thënë sa i vjetër është numri që shihet. */
@@ -110,11 +111,11 @@ export function Lidhu({ kodi }: { kodi: string }) {
           }
         />
 
-        <footer className="fundfaqja">
+        <Fundfaqja>
           <p>
             <a href="#/">Hap aplikacionin për të mbajtur pikët vetë</a>
           </p>
-        </footer>
+        </Fundfaqja>
       </div>
     );
   }

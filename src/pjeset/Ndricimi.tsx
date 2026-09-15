@@ -1,10 +1,11 @@
 /**
  * Çelësi i ndriçimit — sistemi, dritë, terr.
  *
- * Rri te fundfaqja e ekranit të parë, krah versionit dhe fjalisë së matjes:
- * atje ku faqja flet për vete. Nuk rri te ekrani i lojës me qëllim — ai bllok
- * përdoret dhjetëra herë në mbrëmje (pika 6), kurse tema zgjidhet një herë dhe
- * pastaj mbahet mend.
+ * Rri te fundfaqja, krah versionit — atje ku faqja flet për vete. Deri tani ajo
+ * fundfaqe ishte vetëm te ekrani i parë, dhe kjo e bënte temën një zgjedhje që
+ * kërkonte dalje nga loja: mbrëmja nis me dritë e mbaron në terr, dhe ndërrimi
+ * do të thoshte kthim te grupet e hapje e raundit prapë. Me kërkesë të pronarit
+ * fundfaqja tani rri te çdo ekran (`Fundfaqja`), pra edhe çelësi.
  *
  * Ikona krah emrit sepse çelësi lexohet me bisht të syrit: dielli, hëna dhe
  * telefoni thonë sa fjala, dhe më shpejt.

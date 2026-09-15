@@ -24,6 +24,7 @@ import {
 } from '../lidhjaMeServer.ts';
 import { shpaketo } from '../ndarja.ts';
 import { FushaEKodit } from '../pjeset/FushaEKodit.tsx';
+import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 import { PamjaERezultatit } from '../pjeset/PamjaERezultatit.tsx';
 import { shko } from '../rruga.ts';
 
@@ -69,11 +70,11 @@ function Forma({ keq }: { keq: boolean }) {
         «Me kod». Shkronjat e vogla, vija dhe një lidhje e ngjitur e tërë ndreqen vetë.
       </p>
 
-      <footer className="fundfaqja">
+      <Fundfaqja>
         <p>
           <a href="#/">Hap aplikacionin për të mbajtur pikët vetë</a>
         </p>
-      </footer>
+      </Fundfaqja>
     </div>
   );
 }
@@ -159,11 +160,11 @@ function Lidhur({ kodi }: { kodi: string }) {
           }
         />
 
-        <footer className="fundfaqja">
+        <Fundfaqja>
           <p>
             <a href="#/">Hap aplikacionin për të mbajtur pikët vetë</a>
           </p>
-        </footer>
+        </Fundfaqja>
       </div>
     );
   }

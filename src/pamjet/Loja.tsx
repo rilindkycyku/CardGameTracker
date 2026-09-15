@@ -54,6 +54,7 @@ import { kufiriILojes, mbaroiSipasRregullit, perfundoiMbremja } from '../fundi.t
 import { rregullat, type Rregullat } from '../lojerat.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
+import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 import { FutjaEMagarecit } from '../pjeset/FutjaEMagarecit.tsx';
 import { FutjaERaundit } from '../pjeset/FutjaERaundit.tsx';
 import { PA_KUFI, ZgjedhjaEKufirit } from '../pjeset/Kufiri.tsx';
@@ -1027,6 +1028,8 @@ export function Loja({ id }: { id: number }) {
 
         {!mbaroi && mbyllja}
       </div>
+
+      <Fundfaqja />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 
 import { Ikona, ShenjaEFaqes } from '../ikonat.tsx';
 import { dergoPergjigjen } from '../lidhja.ts';
+import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 
 /** Sa pritet pohimi para se faqja të kalojë te udhëzimi rezervë. */
 const PRITJA = 4000;
@@ -79,6 +80,8 @@ export function Pergjigja({ kodi }: { kodi: string }) {
       ) : (
         <p className="ndihma">Duke kërkuar skedën e lojës…</p>
       )}
+
+      <Fundfaqja />
     </div>
   );
 }
