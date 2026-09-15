@@ -315,6 +315,22 @@ h3 {
   gap: var(--rreshtimi);
 }
 
+/*
+ * Çdo pjesë e shtyllës së rezultatit rri te një mbështjellëse e vetja.
+ *
+ * Te telefoni kjo nuk ndërron asgjë — një kolonë, e njëjta hapësirë mes
+ * blloqeve, sepse mbështjellësja e mban vetë atë hapësirë. Ekziston për ekranin
+ * shumë të gjerë, ku ato dalin dy për rresht: një rrjet nuk i vendos dot pjesët
+ * që nuk i njeh, dhe `nth-child` do të numëronte gabim sapo parashikimi të mos
+ * vizatohet.
+ */
+.loja__bllok {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--rreshtimi);
+  align-content: start;
+}
+
 /**
  * Dy panela për rresht sapo ka gjerësi për to.
  *
@@ -424,6 +440,41 @@ h3 {
     padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px);
     padding-left: env(safe-area-inset-left, 0px);
     padding-right: env(safe-area-inset-right, 0px);
+  }
+}
+
+/**
+ * Ekrani shumë i gjerë nuk e zgjeron tabelën — i vë një tabelë tjetër krah.
+ *
+ * Sapo faqja mori tërë ekranin, shtylla e rezultatit u bë mbi 60rem, dhe tabela
+ * brenda saj u shtri bashkë me të: mes emrit dhe totalit hapej gjysmë pëllëmbe
+ * e bardhë, pikërisht ajo që bashkimi i renditjes me parashikimin e kishte
+ * mbyllur. Një tabelë e gjerë nuk lexohet më mirë se një e ngushtë — syri e
+ * humb rreshtin midis.
+ *
+ * Prandaj mbi 96rem shtylla ndahet në dy: renditja majtas, raundet djathtas,
+ * dhe shlyerja poshtë sa të dyja. Hapësira shkon te një bllok i dytë e jo te
+ * ajri i të parit, dhe mbrëmja e tërë — ku jemi, çka u shënua, kush kujt sa i
+ * del — hyn te një ekran i vetëm pa rrëshqitur.
+ *
+ * 92rem nuk u zgjodh me sy, u mat: tabela e renditjes me tetë lojtarë kërkon
+ * 493 piksela para se të nisë të rrëshqasë brenda mbështjellëses së vet, dhe
+ * kolona e majtë i arrin ata pikërisht aty (1440 jep 491 — dy piksela më pak, e
+ * ajo rrëshqet). Nën atë pikë një ndarje do të jepte dy kolona ku asnjëra nuk
+ * lexohet pa rrëshqitur, dhe atëherë një e vetme e gjerë është më e mira e
+ * mbetur. Prandaj mos e ul atë numër pa e rimatur kolonën me tetë lojtarë.
+ *
+ * Renditja merr pak më shumë se raundet (`1.1fr`): ajo ka pesë kolona të
+ * emërtuara me fjalë, kurse raundet kanë emra të shkurtuar në tri shkronja dhe
+ * numra, dhe tabela e tyre rrëshqet brenda mbështjellëses së vet kur s'i mjafton.
+ */
+@media screen and (min-width: 92rem) {
+  .loja__rezultatet {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  }
+
+  .loja__bllok--gjere {
+    grid-column: 1 / -1;
   }
 }
 

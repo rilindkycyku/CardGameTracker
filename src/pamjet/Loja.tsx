@@ -752,40 +752,50 @@ export function Loja({ id }: { id: number }) {
    * Rri te një ndryshore e jo drejtpërdrejt te vizatimi, sepse te ekrani i gjerë
    * kjo shtyllë vendoset krah futjes: dy kolona e duan bllokun të tërin, dhe një
    * listë e shpërndarë nëpër `return` nuk hyn dot brenda njërës.
+   *
+   * Brenda saj çdo pjesë ka mbështjellësen e vet (`loja__bllok`), sepse te
+   * ekrani shumë i gjerë ato dalin dy për rresht — renditja krah raundeve — dhe
+   * një rrjet nuk i vendos dot pjesët që nuk i njeh. Shlyerja merr
+   * `--gjere`: ajo është listë kartelash që rrjedh vetë, dhe një gjysmë
+   * shtyllë do t'i ngushtonte pa nevojë.
    */
   const rezultatet = magarec ? (
     <>
-      {/*
-        Rrjeti rri edhe kur s'ka ende asnjë raund: shtatë rreshta të zbrazët
-        e thonë vetë lojën — kaq shkronja ka, dhe kush i mbush i humbi.
-      */}
-      <RrjetiIMagarecit players={players} shkronjat={totalat} />
+      <div className="loja__bllok">
+        {/*
+          Rrjeti rri edhe kur s'ka ende asnjë raund: shtatë rreshta të zbrazët
+          e thonë vetë lojën — kaq shkronja ka, dhe kush i mbush i humbi.
+        */}
+        <RrjetiIMagarecit players={players} shkronjat={totalat} />
 
-      {raundet.length > 0 && (
-        <Parashikimi
-          lloji="magarec"
-          players={players}
-          totalet={totalat}
-          luajtur={raundet.length}
-        />
-      )}
+        {raundet.length > 0 && (
+          <Parashikimi
+            lloji="magarec"
+            players={players}
+            totalet={totalat}
+            luajtur={raundet.length}
+          />
+        )}
+      </div>
 
-      {raundet.length === 0 ? (
-        <div className="zbrazet">
-          <p className="zbrazet__titull">Ende asnjë raund</p>
-          <p>
-            Prek atë që e humbi raundin e parë. Shkronjat dalin vetë, një
-            për raund, derisa dikujt t'i mbushet fjala.
-          </p>
-        </div>
-      ) : (
-        <RaundetEMagarecit
-          raundet={raundetMeShkronja}
-          dukeRedaktuar={dukeRedaktuar}
-          onRedakto={redakto}
-          onFshi={fshi}
-        />
-      )}
+      <div className="loja__bllok">
+        {raundet.length === 0 ? (
+          <div className="zbrazet">
+            <p className="zbrazet__titull">Ende asnjë raund</p>
+            <p>
+              Prek atë që e humbi raundin e parë. Shkronjat dalin vetë, një
+              për raund, derisa dikujt t'i mbushet fjala.
+            </p>
+          </div>
+        ) : (
+          <RaundetEMagarecit
+            raundet={raundetMeShkronja}
+            dukeRedaktuar={dukeRedaktuar}
+            onRedakto={redakto}
+            onFshi={fshi}
+          />
+        )}
+      </div>
     </>
   ) : raundet.length === 0 ? (
     <div className="zbrazet">
@@ -808,34 +818,42 @@ export function Loja({ id }: { id: number }) {
         hapësira nuk është. Vendimin e mban `Parashikimi` — edhe rastin kur
         s'ka çka të parashikohet, ku renditja del e vetme si më parë.
       */}
-      {rregulli.parashikimi ? (
-        <Parashikimi
-          lloji={lloji}
-          players={players}
-          totalet={totalat}
-          luajtur={raundet.length}
-          renditja={hyrjetERenditjes}
-          bashko={gjere}
-        />
-      ) : (
-        <Renditja {...hyrjetERenditjes} />
-      )}
+      <div className="loja__bllok">
+        {rregulli.parashikimi ? (
+          <Parashikimi
+            lloji={lloji}
+            players={players}
+            totalet={totalat}
+            luajtur={raundet.length}
+            renditja={hyrjetERenditjes}
+            bashko={gjere}
+          />
+        ) : (
+          <Renditja {...hyrjetERenditjes} />
+        )}
+      </div>
 
-      <Raundet
-        players={players}
-        raundet={raundet}
-        totalet={totalat}
-        dukeRedaktuar={dukeRedaktuar}
-        onRedakto={redakto}
-        onFshi={fshi}
-      />
+      <div className="loja__bllok">
+        <Raundet
+          players={players}
+          raundet={raundet}
+          totalet={totalat}
+          dukeRedaktuar={dukeRedaktuar}
+          onRedakto={redakto}
+          onFshi={fshi}
+        />
+      </div>
 
       {/*
         Shlyerja vlen aty ku diferenca paguhet — bridzh e domina. Te
         pishpiriku pikët mblidhen drejt 101-shit e nuk janë borxh, prandaj
         matrica nuk vizatohet fare, si te magareci.
       */}
-      {rregulli.shlyerja && <Shlyerja players={rendituar} matrica={matrica} />}
+      {rregulli.shlyerja && (
+        <div className="loja__bllok loja__bllok--gjere">
+          <Shlyerja players={rendituar} matrica={matrica} />
+        </div>
+      )}
     </>
   );
 

@@ -1404,7 +1404,26 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   (`.loja__futja` — një shënim dhe një buton, pika 3), çka doli prej saj (`.loja__rezultatet`) dhe
   panelat që preken një herë a asnjë (`.loja__panelat` — lojtarët, ndarja, rregullat, kufiri,
   mbyllja). Ndërron vetëm sa prej tyre hyn në ekran njëherësh: mbi 48rem panelat dalin dy për rresht,
-  dhe mbi 62rem kartela dhe renditja rrinë krah për krah. Panelat nuk kthehen mes tyre: atje ata
+  mbi 62rem kartela dhe renditja rrinë krah për krah, dhe mbi 92rem vetë shtylla e rezultatit ndahet
+  në dy — renditja majtas, raundet djathtas, shlyerja poshtë sa të dyja.
+
+  **Ajo ndarja e fundit është kufi i tabelës, jo i ekranit, dhe kjo është pikërisht kërkesa e
+  pronarit: tabela të mos zgjerohet — krah saj të vijë një tabelë tjetër.** Sapo peizazhi mori tërë
+  ekranin, shtylla e rezultatit kaloi 60rem dhe tabela u shtri bashkë me të: mes emrit dhe totalit
+  hapej gjysmë pëllëmbe e bardhë, pikërisht ajo që bashkimi i renditjes me parashikimin e kishte
+  mbyllur. Një tabelë e gjerë nuk lexohet më mirë se një e ngushtë — syri e humb rreshtin midis.
+
+  **92rem nuk u zgjodh me sy, u mat.** Tabela e renditjes me tetë lojtarë kërkon 493 piksela para se
+  të nisë të rrëshqasë brenda mbështjellëses së vet, dhe kolona e majtë i arrin ata pikërisht aty:
+  te 1440 del 491 — dy piksela më pak, dhe ajo rrëshqet — kurse te 1472 del 508. Nën atë pikë një
+  ndarje do të jepte dy kolona ku asnjëra nuk lexohet pa rrëshqitur, dhe atëherë një e vetme e gjerë
+  është më e mira e mbetur. Mos e ul atë numër pa e rimatur kolonën me tetë lojtarë.
+
+  Vendosja kërkon që çdo pjesë e asaj shtylle të ketë mbështjellësen e vet (`.loja__bllok`, e vënë te
+  `Loja`): një rrjet nuk i vendos dot pjesët që nuk i njeh, dhe `nth-child` do të numëronte gabim
+  sapo parashikimi të mos vizatohet. Shlyerja merr `--gjere` dhe i shtrin të dyja kolonat — ajo është
+  listë kartelash që rrjedh vetë, dhe një gjysmë shtyllë do ta ngushtonte pa nevojë. Te telefoni
+  mbështjellëset nuk ndërrojnë asgjë: një kolonë, dhe hapësira mes blloqeve e mbajtur nga vetë ato. Panelat nuk kthehen mes tyre: atje ata
   shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
 
   **Sapo faqja hapet, renditja dhe parashikimi bëhen një tabelë e vetme.** Dy kolonat e para janë
