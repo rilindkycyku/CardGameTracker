@@ -91,7 +91,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 347 prova, pa framework provash
+npm test          # node --test — 357 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -1342,6 +1342,10 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - `--kufiri-veprues` (≥3:1 sipas WCAG 1.4.11) për çdo gjë që klikohet; `--kufiri` është vetëm
   dekorativ. Mos e përdor kufirin dekorativ për një kontroll.
 - `env(safe-area-inset-*)` me `viewport-fit=cover` për pamjen e instaluar. Ka edhe stil për shtypje.
+- **Butoni i fikur e humb ngjyrën e gjendjes, e nuk zbehet.** `opacity` e vetme punonte mbi të
+  bardhën dhe jo mbi terrin: smeraldi i plotë me gjysmë tejdukshmëri mbi sfond të errët mbetet i
+  ngopur, dhe «Ruaj raundin» pa asnjë pikë dukej gati për t'u shtypur. Rregulli i emërton edhe
+  variantet (`.buton--kryesor:disabled`), përndryshe ata e mposhtin mbushjen nga poshtë.
 - **Ekrani i lojës ka tri grupe, dhe radha e tyre nuk ndërron me gjerësinë**: futja e raundit
   (`.loja__futja`), çka doli prej saj (`.loja__rezultatet`) dhe panelat që preken një herë a asnjë
   (`.loja__panelat` — lojtarët, ndarja, rregullat, kufiri, mbyllja). Ndërron vetëm sa prej tyre hyn
@@ -1349,6 +1353,10 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   për krah dhe futja ngjitet (`position: sticky`), me kufi lartësie e rrëshqitje të vetën, sepse një
   bllok i ngjitur më i gjatë se ekrani i mban rreshtat e mesit të paarritshëm. Panelat nuk kthehen
   mes futjes dhe renditjes: atje ata shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
+
+  Mbi 62rem panelat ulen te **fundi i shtyllës së futjes** (`grid-row: 2`, me rreshtin e parë `1fr`):
+  hapësira mes tyre dhe kartelës nuk është e zbrazët, është rruga që bën kartela e ngjitur teksa
+  ndiqet renditja. Vendosja bëhet me rrjet, pra radha e HTML-së — dhe e telefonit — nuk ndryshon.
 - **Ekranet e tjera e ndajnë gjerësinë me `.shtyllat`**, një ndarje e vetme e përbashkët: majtas
   ajo për të cilën hapet faqja — grupet te ballina, historiku te grupi, renditja e rreshti i vetes te
   fleta vetëm-lexim — dhe djathtas (`.shtyllat__anesore`) çka preket a lexohet një herë: bashkimi me
@@ -1434,6 +1442,15 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - **Lojë e re niset nga lojtarët e lojës së fundit**, jo nga tërë lista e grupit: shoqëria është
   zakonisht e njëjta, prandaj më shpesh nuk ka çka të preket fare. „E fundit" është ajo që del e
   para te historiku — më e reja sipas datës.
+- **Shlyerja ka dy pamje, dhe lista rri e para.** Matrica është përgjigjja e plotë — çdo çift, në të
+  dy drejtimet — por pyetja e tavolinës është një: «unë sa i kam borxh kujt». `borxhet()` te
+  `llogaritjet.ts` (pa DOM, me katër prova) e nxjerr atë nga e njëjta matricë: një rresht për çift,
+  kurrë dy, dhe çiftet me diferencë zero nuk hyjnë fare. Drejtimi lexohet nga shenja e matricës e jo
+  nga një rregull i shkruar dy herë — kush ka më shumë pikë paguan, te të dyja lojërat që shlyhen.
+  Tabela mbetet një prekje larg, sepse ajo është pamja e fletës origjinale.
+- **Nga pesë lojtarë e tutje emri te kreu i tabelës së raundeve shkurtohet në tri shkronja**, me
+  emrin e plotë te `vetem-lexues` — gjerësinë e kolonës e vendoste emri, kurse numri është ai që
+  lexohet. E njëjta zgjidhje si dita e javës te Kujdestaria; asgjë nuk fshihet, vetëm shkurtohet.
 - **Kolona e parë e tabelës së raundeve rri `sticky`.** Me gjashtë lojtarë tabela del më e gjerë se
   telefoni, dhe pa të humb se cili raund po shihet sapo rrëshqitet.
 - **`.tabela-mbeshtjellese` ka `contain: paint`, dhe pa të rrëshqet tërë faqja.** Me gjashtë lojtarë,

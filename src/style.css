@@ -360,7 +360,34 @@ h3 {
 
   .loja__pune {
     grid-template-columns: minmax(23rem, 27rem) minmax(0, 1fr);
+    /* Rreshti i parë merr tërë hapësirën e lirë, i dyti sa panelat: kështu
+       futja ka ku të rrëshqasë e ngjitur (rreshti i saj është i gjatë sa
+       renditja krah tij), dhe panelat ulen te fundi i shtyllës në vend që ta
+       linin gjysmën e ekranit të zbrazët. */
+    grid-template-rows: 1fr auto;
     align-items: start;
+  }
+
+  /*
+   * Panelat kalojnë te fundi i shtyllës së majtë — pa e ndërruar radhën e
+   * HTML-së, pra pa e prekur aspak telefonin. Sa rrëshqitet, futja e ngjitur e
+   * zë hapësirën mes tyre: ajo që dukej e zbrazët është pikërisht rruga që bën
+   * kartela teksa e ndjek renditjen.
+   */
+  .loja__panelat {
+    grid-column: 1;
+    grid-row: 2;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .loja__futja {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .loja__rezultatet {
+    grid-column: 2;
+    grid-row: 1 / span 2;
   }
 
   /**
@@ -612,8 +639,26 @@ h3 {
   transform: translateY(0);
 }
 
-.buton:disabled {
-  opacity: 0.5;
+/**
+ * Butoni i fikur — sipërfaqe e vetja, jo gjysmë-tejdukshmëri.
+ *
+ * Ishte vetëm `opacity: 0.5`, dhe kjo punonte mbi të bardhën e nuk punonte fare
+ * mbi terrin: smeraldi i plotë me gjysmë tejdukshmëri mbi një sfond të errët
+ * mbetet i ngopur, prandaj «Ruaj raundin» pa asnjë pikë të shënuar dukej gati
+ * për t'u shtypur. Tani i fikuri e humb ngjyrën e gjendjes dhe hijen — dallohet
+ * nga forma e ngjyra, e jo nga shkalla e tejdukshmërisë.
+ *
+ * Përzgjedhësi mban edhe klasën e variantit, që `.buton--kryesor` e
+ * `.buton--rrezik` — që vijnë pas tij te skedari — të mos e mposhtin mbushjen.
+ */
+.buton:disabled,
+.buton--kryesor:disabled,
+.buton--rrezik:disabled {
+  background: var(--siperfaqe-2);
+  border-color: var(--kufiri);
+  color: var(--teksti-zbehte);
+  box-shadow: none;
+  opacity: 0.85;
   cursor: not-allowed;
 }
 
@@ -1539,6 +1584,73 @@ th.numri {
   font-variant-numeric: tabular-nums;
   text-align: right;
   color: var(--teksti);
+}
+
+/* ── Shlyerja si listë ──────────────────────────────────────────────────── */
+
+/**
+ * «Kush kujt» — matrica e lexuar si fjali.
+ *
+ * Një rresht për çift, dhe asnjë shenjë për t'u shpjeguar: emri që paguan,
+ * shigjeta, emri që merr, dhe shuma djathtas me numra tabelorë, që kolona e
+ * shumave të lexohet si kolonë edhe pa vija.
+ */
+.borxhet {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.4rem;
+}
+
+.borxhi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--kufiri);
+  border-radius: var(--rreze-2);
+  background: var(--siperfaqe);
+}
+
+.borxhi__emrat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 650;
+}
+
+/* Shigjeta tregon nga paguesi te marrësi, prandaj kthehet nga e poshtmja. */
+.borxhi__shigjeta {
+  flex: none;
+  color: var(--teksti-zbehte);
+  transform: rotate(-90deg);
+}
+
+.borxhi__sa {
+  flex: none;
+  font-family: var(--shkronja-numrat);
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Çelësi i dy pamjeve rri te kreu i seksionit, djathtas si numri i raundeve.
+   `nowrap` sepse «Kush kujt» janë dy fjalë, dhe të thyera bëjnë një buton dy
+   rreshta të lartë mbi një rresht titulli. */
+.titull-seksioni__celesi {
+  margin-left: auto;
+  flex: none;
+}
+
+.titull-seksioni__celesi .celesi__njesi {
+  white-space: nowrap;
 }
 
 /* ── Mbledhësja e dorës ─────────────────────────────────────────────────── */
@@ -2475,6 +2587,13 @@ th.numri {
 /* Njësia e lojës humb qoshet e poshtme kur ka renditje nën vete. */
 .lista li:has(.renditja-shkurter) .njesi {
   border-radius: var(--rreze-2) var(--rreze-2) 0 0;
+}
+
+/* Emri i shkurtuar te kreu i tabelës: me gjashtë lojtarë gjerësia e kolonës
+   vendoset nga emri e jo nga numri, dhe numri është ai që lexohet. Emri i plotë
+   mbetet aty për lexuesat e ekranit. */
+.tabela--raundet th[scope='col'] .emri-shkurtuar {
+  font-variant-numeric: normal;
 }
 
 /* ── Dendësia me shumë lojtarë ──────────────────────────────────────────── */

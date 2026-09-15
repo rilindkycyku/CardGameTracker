@@ -953,80 +953,80 @@ export function Loja({ id }: { id: number }) {
         </div>
 
         <div className="loja__rezultatet">{rezultatet}</div>
-      </div>
-
-      {/*
-        Panelat rrinë bashkë poshtë, dhe të gjithë të mbledhur.
-
-        Secili prej tyre preket një herë në mbrëmje, ose asnjë: kush u ul, ku
-        shpërndahet fleta, çka thotë rregulli, deri ku luhet, kur mbyllet. Mbi
-        renditje ata e shtynin poshtë pikërisht atë që pyetet pas çdo raundi;
-        këtu rrinë një rrëshqitje larg, dhe te ekrani i gjerë dy për rresht.
-      */}
-      <div className="loja__panelat">
-        {mbaroi && mbyllja}
 
         {/*
-          Te magareci numri krah emrit është shkronja e jo raundi i shënuar: aty
-          secili shënon `0` te çdo raund, prandaj raundet e luajtura do t'i ndalnin
-          të gjithëve heqjen. Kush ka marrë shkronja mbetet te loja — ato janë
-          pjesë e historikut të asaj mbrëmjeje — dhe kush u ngrit pa marrë asnjë
-          hiqet lirisht.
+          Panelat rrinë bashkë poshtë, dhe të gjithë të mbledhur.
+
+          Secili prej tyre preket një herë në mbrëmje, ose asnjë: kush u ul, ku
+          shpërndahet fleta, çka thotë rregulli, deri ku luhet, kur mbyllet. Mbi
+          renditje ata e shtynin poshtë pikërisht atë që pyetet pas çdo raundi;
+          këtu rrinë një rrëshqitje larg, dhe te ekrani i gjerë dy për rresht.
         */}
-        <LojtaretELojes
-          players={players}
-          grupi={grupi ?? undefined}
-          luajtur={magarec ? totalat : luajtur}
-          onShto={shtoLojtar}
-          onHiq={hiqLojtar}
-        />
+        <div className="loja__panelat">
+          {mbaroi && mbyllja}
 
-        {players.length > 0 && pamja && (
-          <Ndarja pamja={pamja} rreshtat={rreshtat} />
-        )}
+          {/*
+            Te magareci numri krah emrit është shkronja e jo raundi i shënuar: aty
+            secili shënon `0` te çdo raund, prandaj raundet e luajtura do t'i ndalnin
+            të gjithëve heqjen. Kush ka marrë shkronja mbetet te loja — ato janë
+            pjesë e historikut të asaj mbrëmjeje — dhe kush u ngrit pa marrë asnjë
+            hiqet lirisht.
+          */}
+          <LojtaretELojes
+            players={players}
+            grupi={grupi ?? undefined}
+            luajtur={magarec ? totalat : luajtur}
+            onShto={shtoLojtar}
+            onHiq={hiqLojtar}
+          />
 
-        {/*
-          Rregullat e lojës, një prekje larg dhe të mbledhura.
+          {players.length > 0 && pamja && (
+            <Ndarja pamja={pamja} rreshtat={rreshtat} />
+          )}
 
-          Rrinë këtu krah panelave të tjerë e jo mbi bllokun e futjes: ai
-          përdoret dhjetëra herë në mbrëmje (pika 6), kurse kjo pyetje bëhet një
-          herë — dhe kur bëhet, bëhet me letrat në dorë.
-        */}
-        <RregullatELojes rregulli={rregulli} />
+          {/*
+            Rregullat e lojës, një prekje larg dhe të mbledhura.
 
-        {/*
-          Kufiri ndërrohet edhe mes mbrëmjes.
+            Rrinë këtu krah panelave të tjerë e jo mbi bllokun e futjes: ai
+            përdoret dhjetëra herë në mbrëmje (pika 6), kurse kjo pyetje bëhet një
+            herë — dhe kur bëhet, bëhet me letrat në dorë.
+          */}
+          <RregullatELojes rregulli={rregulli} />
 
-          Pa këtë, një kufi i zgjedhur gabim te nisja do ta mbyllte fletën në mes
-          të lojës, dhe rruga e vetme prapa do të ishte rihapja pas çdo raundi
-          (pika 15). Rri i mbledhur sepse preket rrallë — një herë, nëse preket
-          fare — dhe ndryshimi ruhet aty për aty: mbrëmja mbaron ose vazhdon sipas
-          numrit të ri, pa asnjë buton të dytë.
-        */}
-        {rregulli.kufijteEMundshem.length > 0 && (
-          <details className="detaje">
-            <summary className="detaje__krye">
-              <span>
-                Deri te {kufiri === null ? 'pa kufi' : `${kufiri} pikë`}
-              </span>
-              <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
-            </summary>
-            <div className="detaje__trupi">
-              <p className="ndihma">
-                Deri ku luhet e vendos tavolina, prandaj ndërrohet edhe tani. Nëse
-                dikush e ka kaluar tashmë numrin e ri, mbrëmja mbyllet menjëherë —
-                dhe rihapet po aq lehtë.
-              </p>
-              <ZgjedhjaEKufirit
-                kufijte={rregulli.kufijteEMundshem}
-                vlera={kufiri ?? PA_KUFI}
-                onNdrysho={ndrroKufirin}
-              />
-            </div>
-          </details>
-        )}
+          {/*
+            Kufiri ndërrohet edhe mes mbrëmjes.
 
-        {!mbaroi && mbyllja}
+            Pa këtë, një kufi i zgjedhur gabim te nisja do ta mbyllte fletën në mes
+            të lojës, dhe rruga e vetme prapa do të ishte rihapja pas çdo raundi
+            (pika 15). Rri i mbledhur sepse preket rrallë — një herë, nëse preket
+            fare — dhe ndryshimi ruhet aty për aty: mbrëmja mbaron ose vazhdon sipas
+            numrit të ri, pa asnjë buton të dytë.
+          */}
+          {rregulli.kufijteEMundshem.length > 0 && (
+            <details className="detaje">
+              <summary className="detaje__krye">
+                <span>
+                  Deri te {kufiri === null ? 'pa kufi' : `${kufiri} pikë`}
+                </span>
+                <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+              </summary>
+              <div className="detaje__trupi">
+                <p className="ndihma">
+                  Deri ku luhet e vendos tavolina, prandaj ndërrohet edhe tani. Nëse
+                  dikush e ka kaluar tashmë numrin e ri, mbrëmja mbyllet menjëherë —
+                  dhe rihapet po aq lehtë.
+                </p>
+                <ZgjedhjaEKufirit
+                  kufijte={rregulli.kufijteEMundshem}
+                  vlera={kufiri ?? PA_KUFI}
+                  onNdrysho={ndrroKufirin}
+                />
+              </div>
+            </details>
+          )}
+
+          {!mbaroi && mbyllja}
+        </div>
       </div>
 
       <Fundfaqja />
