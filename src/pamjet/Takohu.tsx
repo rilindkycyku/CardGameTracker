@@ -18,6 +18,8 @@ import {
   type GjendjaEVizitoritMeTakim,
 } from '../lidhjaMeTakim.ts';
 import { shpaketo } from '../ndarja.ts';
+import { FushaEKodit } from '../pjeset/FushaEKodit.tsx';
+import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 import { PamjaERezultatit } from '../pjeset/PamjaERezultatit.tsx';
 import { shko } from '../rruga.ts';
 
@@ -35,11 +37,8 @@ export function Takohu({ kodi }: { kodi: string | null }) {
 
 /** Kutia e kodit, kur nuk vjen nga adresa ose kur adresa nuk lexohet. */
 function Forma({ keq }: { keq: boolean }) {
-  const [teksti, caktoTekstin] = useState('');
-  const iLexuar = lexoKodin(teksti);
-
   return (
-    <div className="faqja">
+    <div className="faqja faqja--fokus">
       <header className="kreu">
         <ShenjaEFaqes />
         <div>
@@ -55,43 +54,18 @@ function Forma({ keq }: { keq: boolean }) {
         </p>
       )}
 
-      <form
-        className="rreshti-fushave"
-        onSubmit={(ngjarja) => {
-          ngjarja.preventDefault();
-          if (iLexuar) shko(`/takohu/${iLexuar}`);
-        }}
-      >
-        <label className="lidhja">
-          <span className="fusha__etiketa">Kodi</span>
-          <input
-            className="fusha kodi-fusha"
-            type="text"
-            value={teksti}
-            placeholder="A3F2-7KQM"
-            autoComplete="off"
-            autoCapitalize="characters"
-            spellCheck={false}
-            onChange={(ngjarja) => caktoTekstin(ngjarja.target.value)}
-          />
-        </label>
-
-        <button type="submit" className="buton" disabled={iLexuar === null}>
-          <Ikona emri="drejtperdrejt" />
-          Bashkohu
-        </button>
-      </form>
+      <FushaEKodit onGati={(kodi) => shko(`/takohu/${kodi}`)} />
 
       <p className="ndihma">
         Kodin e tregon telefoni që mban pikët, te paneli «Pikët drejtpërdrejt» →
-        «Takim». Shkronjat e vogla dhe vija nuk kanë rëndësi.
+        «Takim». Shkronjat e vogla, vija dhe një lidhje e ngjitur e tërë ndreqen vetë.
       </p>
 
-      <footer className="fundfaqja">
+      <Fundfaqja>
         <p>
           <a href="#/">Hap aplikacionin për të mbajtur pikët vetë</a>
         </p>
-      </footer>
+      </Fundfaqja>
     </div>
   );
 }
@@ -122,7 +96,7 @@ function Lidhur({ kodi }: { kodi: string }) {
 
   if (pamja) {
     return (
-      <div className="faqja">
+      <div className="faqja faqja--gjere">
         <PamjaERezultatit
           pamja={pamja}
           etiketa={{
@@ -155,17 +129,17 @@ function Lidhur({ kodi }: { kodi: string }) {
           }
         />
 
-        <footer className="fundfaqja">
+        <Fundfaqja>
           <p>
             <a href="#/">Hap aplikacionin për të mbajtur pikët vetë</a>
           </p>
-        </footer>
+        </Fundfaqja>
       </div>
     );
   }
 
   return (
-    <div className="faqja">
+    <div className="faqja faqja--fokus">
       <header className="kreu">
         <div className="njesi__shkronja njesi__shkronja--hapur marka">
           <Ikona emri="drejtperdrejt" />

@@ -21,6 +21,8 @@
  * `lojerat.ts`, e jo te tri `if`-a nëpër këtë skedar.
  */
 
+import type { ReactNode } from 'react';
+
 import { dataShqip, matricaEShlyerjes, renditja } from '../llogaritjet.ts';
 import { rregullat } from '../lojerat.ts';
 import { FJALA, rreshtatEMagarecit } from '../magareci.ts';
@@ -37,7 +39,7 @@ import { Shlyerja } from './Shlyerja.tsx';
 /** Blloku i gabimit, i njëjti për një adresë të prerë e për një ftesë të prerë. */
 export function LidhjaEKeqe({ titulli, shpjegimi }: { titulli: string; shpjegimi: string }) {
   return (
-    <div className="faqja">
+    <div className="faqja faqja--fokus">
       <header className="kreu">
         <ShenjaEFaqes />
         <div>
@@ -90,6 +92,19 @@ export function PamjaERezultatit({
   // fletën përmbys pikërisht te ana që vetëm lexon.
   const rreshtat = renditja(emrat, totalat, rregulli.drejtimi);
 
+  /*
+   * Përmbledhja rri e ndërtuar këtu e jo te secila degë: e njëjta kartelë hap
+   * të dyja fletët — atë me pikë dhe atë të magarecit — dhe te të dyja shkon te
+   * shtylla kryesore, pra do të shkruhej dy herë me të njëjtat vlera.
+   */
+  const permbledhja = pamja.raunde > 0 && (
+    <PermbledhjaEPamjes
+      pamja={pamja}
+      rreshtat={rreshtat}
+      perfundoi={perfundoi}
+    />
+  );
+
   return (
     <>
       <header className="kreu">
@@ -131,41 +146,44 @@ export function PamjaERezultatit({
 
       {njoftimi}
 
-      {pamja.raunde > 0 && (
-        <PermbledhjaEPamjes
-          pamja={pamja}
-          rreshtat={rreshtat}
-          perfundoi={perfundoi}
-        />
-      )}
-
+      {/*
+        Fleta ndahet në dy shtylla sapo ekrani ka gjerësi, dhe ndarja është bërë
+        pikërisht aty ku radha e leximit nuk prishet: majtas përmbledhja,
+        renditja dhe rreshti i vetes — çka pyet kush sapo skanoi kodin — djathtas
+        parashikimi dhe matrica e plotë. Te telefoni shtyllat bien njëra nën
+        tjetrën, dhe atëherë radha del pikërisht ajo e dikurshmja.
+      */}
       {magarec ? (
-        <>
-          <ShenjaEMagarecit
-            magareci={
-              rreshtatEMagarecit(emrat, totalat).find((r) => r.magarec)?.player
-              ?? null
-            }
-          />
-          <RrjetiIMagarecit players={emrat} shkronjat={totalat} />
+        <div className="shtyllat">
+          <div className="shtyllat__kryesore">
+            {permbledhja}
+            <ShenjaEMagarecit
+              magareci={
+                rreshtatEMagarecit(emrat, totalat).find((r) => r.magarec)?.player
+                ?? null
+              }
+            />
+            <RrjetiIMagarecit players={emrat} shkronjat={totalat} />
 
-          {pamja.raunde > 0 && (
-            <>
+            {pamja.raunde > 0 && (
               <Vetja rreshtat={rreshtat} totalet={totalat} lloji="magarec" kufiri={null} />
+            )}
+          </div>
 
-              {!perfundoi && (
-                <Parashikimi
-                  lloji="magarec"
-                  players={emrat}
-                  totalet={totalat}
-                  luajtur={pamja.raunde}
-                />
-              )}
-            </>
-          )}
-        </>
+          <div className="shtyllat__anesore">
+            {pamja.raunde > 0 && !perfundoi && (
+              <Parashikimi
+                lloji="magarec"
+                players={emrat}
+                totalet={totalat}
+                luajtur={pamja.raunde}
+              />
+            )}
+          </div>
+        </div>
       ) : (
         <PjesaEPikeve
+          permbledhja={permbledhja}
           lloji={pamja.lloji}
           kufiri={pamja.kufiri}
           emrat={emrat}
@@ -187,12 +205,18 @@ export function PamjaERezultatit({
  * gjithë, rreshti i vetes thotë ku je ti, dhe matrica e plotë mbetet poshtë për
  * kë e do të tërën. Kush skanoi kodin e gjen përgjigjen e vet pa e prekur atë.
  *
+ * Te ekrani i gjerë ajo radhë bëhet dy shtylla — renditja e vetja majtas,
+ * parashikimi e matrica djathtas — dhe kjo është e njëjta gjë e thënë me
+ * hapësirë: e para mbetet e para, dhe e tëra shihet pa rrëshqitur. Sapo shtyllat
+ * bien njëra nën tjetrën, radha del pikërisht ajo e mësipërmja.
+ *
  * Tri lojëra e ndajnë këtë vizatim, dhe dy gjëra i ndajnë ato mes vete:
  * shlyerja (bridzh e domina po, pishpiriku jo) dhe parashikimi (vetëm bridzhi).
  * Të dyja lexohen nga regjistri, prandaj një lojë e pestë nuk e prek këtë
  * skedar fare.
  */
 function PjesaEPikeve({
+  permbledhja,
   lloji,
   kufiri,
   emrat,
@@ -201,6 +225,8 @@ function PjesaEPikeve({
   raunde,
   perfundoi,
 }: {
+  /** Kartela e përmbledhjes, e ndërtuar nga thirrësi — hap shtyllën kryesore. */
+  permbledhja: ReactNode;
   lloji: LlojiILojes;
   /** Kufiri me të cilin u luajt, nga paketa; `null` kur nuk thuhet. */
   kufiri: number | null;
@@ -215,35 +241,38 @@ function PjesaEPikeve({
   const rregulli = rregullat(lloji);
 
   return (
-    <>
-      <Renditja rreshtat={rreshtat} drejtimi={rregulli.drejtimi} />
+    <div className="shtyllat">
+      <div className="shtyllat__kryesore">
+        {permbledhja}
+        <Renditja rreshtat={rreshtat} drejtimi={rregulli.drejtimi} />
 
-      {raunde > 0 && (
-        <>
+        {raunde > 0 && (
           <Vetja
             rreshtat={rreshtat}
             totalet={totalat}
             lloji={lloji}
             kufiri={kufiri}
           />
+        )}
+      </div>
 
-          {!perfundoi && rregulli.parashikimi && (
-            <Parashikimi
-              lloji={lloji}
-              players={emrat}
-              totalet={totalat}
-              luajtur={raunde}
-            />
-          )}
-        </>
-      )}
+      <div className="shtyllat__anesore">
+        {raunde > 0 && !perfundoi && rregulli.parashikimi && (
+          <Parashikimi
+            lloji={lloji}
+            players={emrat}
+            totalet={totalat}
+            luajtur={raunde}
+          />
+        )}
 
-      {rregulli.shlyerja && (
-        <Shlyerja
-          players={rreshtat.map((rreshti) => rreshti.player)}
-          matrica={matricaEShlyerjes(emrat, totalat)}
-        />
-      )}
-    </>
+        {rregulli.shlyerja && (
+          <Shlyerja
+            players={rreshtat.map((rreshti) => rreshti.player)}
+            matrica={matricaEShlyerjes(emrat, totalat)}
+          />
+        )}
+      </div>
+    </div>
   );
 }

@@ -91,7 +91,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 347 prova, pa framework provash
+npm test          # node --test — 357 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -170,9 +170,21 @@ dhe të dy butonat e daljes rrinë të fikur derisa të zgjidhet. Mos i kthe par
 **Mbyllësi zgjidhet me emra të shkruar, jo me listë të shpalosur.** Ishte `<select>`: dy prekje —
 hape, zgjidhe — dhe lista vizatohej nga sistemi, pra me shkronja e gjerësi që nuk i vendos faqja.
 Lojtarët janë dy deri tetë dhe hyjnë të gjithë në ekran, prandaj rrinë butona me `aria-pressed`
-(`.celesi--rrjet`, i njëjti çelës si te lojërat): një prekje, caku mbi 2.75rem, dhe kush mbylli
+(`.celesi--emra`, i njëjti çelës si te lojërat): një prekje, caku mbi 2.75rem, dhe kush mbylli
 duket pa u hapur asgjë. Prekja e dytë mbi të njëjtin emër nuk e zbraz zgjedhjen — raundi nuk ruhet
 dot pa mbyllës gjithsesi, prandaj zbrazja nuk hap asnjë rrugë, vetëm i fshin pikët e llogaritura.
+
+Emrat e shkruar e kanë një çmim që lista nuk e kishte: **lartësia rritet me lojtarët** — me tetë
+veta te telefoni ata zunë katër rreshta mbi duart, pra pikërisht atë që i kushton bllokut më të
+përdorur të mbrëmjes. Dy gjëra e mbajnë të shkurtër, dhe të dyja duhen:
+
+- **Sapo zgjidhet mbyllësi, rreshtat mblidhen te një i vetëm** — emri i zgjedhur dhe «Ndërro».
+  Pyetja është përgjigjur, dhe hapësira i kthehet duarve që shënohen menjëherë pas saj. Me tetë
+  lojtarë kjo e shkurton llogaritësin nga 897px në 741px. Gjendja nuk pastrohet kurrkund: `key`-i i
+  llogaritësit mban numrin e raundit, pra çdo raund i ri e ringre bllokun nga e para.
+- **Nga pesë lojtarë e tutje shtrëngohet** (`data-shume`, si te fushat e te tabelat): ulen ajri dhe
+  shkronja, kurse caku i prekjes mbetet 2.75rem. Kolona bie te 5.2rem, pra tre emra për rresht te
+  telefoni e jo dy.
 
 Llogaritësi hant/normal ka dy dalje, dhe të dyja duhen:
 
@@ -1330,6 +1342,10 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - `--kufiri-veprues` (≥3:1 sipas WCAG 1.4.11) për çdo gjë që klikohet; `--kufiri` është vetëm
   dekorativ. Mos e përdor kufirin dekorativ për një kontroll.
 - `env(safe-area-inset-*)` me `viewport-fit=cover` për pamjen e instaluar. Ka edhe stil për shtypje.
+- **Butoni i fikur e humb ngjyrën e gjendjes, e nuk zbehet.** `opacity` e vetme punonte mbi të
+  bardhën dhe jo mbi terrin: smeraldi i plotë me gjysmë tejdukshmëri mbi sfond të errët mbetet i
+  ngopur, dhe «Ruaj raundin» pa asnjë pikë dukej gati për t'u shtypur. Rregulli i emërton edhe
+  variantet (`.buton--kryesor:disabled`), përndryshe ata e mposhtin mbushjen nga poshtë.
 - **Ekrani i lojës ka tri grupe, dhe radha e tyre nuk ndërron me gjerësinë**: futja e raundit
   (`.loja__futja`), çka doli prej saj (`.loja__rezultatet`) dhe panelat që preken një herë a asnjë
   (`.loja__panelat` — lojtarët, ndarja, rregullat, kufiri, mbyllja). Ndërron vetëm sa prej tyre hyn
@@ -1337,6 +1353,27 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   për krah dhe futja ngjitet (`position: sticky`), me kufi lartësie e rrëshqitje të vetën, sepse një
   bllok i ngjitur më i gjatë se ekrani i mban rreshtat e mesit të paarritshëm. Panelat nuk kthehen
   mes futjes dhe renditjes: atje ata shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
+
+  Mbi 62rem panelat ulen te **fundi i shtyllës së futjes** (`grid-row: 2`, me rreshtin e parë `1fr`):
+  hapësira mes tyre dhe kartelës nuk është e zbrazët, është rruga që bën kartela e ngjitur teksa
+  ndiqet renditja. Vendosja bëhet me rrjet, pra radha e HTML-së — dhe e telefonit — nuk ndryshon.
+- **Ekranet e tjera e ndajnë gjerësinë me `.shtyllat`**, një ndarje e vetme e përbashkët: majtas
+  ajo për të cilën hapet faqja — grupet te ballina, historiku te grupi, renditja e rreshti i vetes te
+  fleta vetëm-lexim — dhe djathtas (`.shtyllat__anesore`) çka preket a lexohet një herë: bashkimi me
+  kod, kopja rezervë, sinkronizimi, përgjithshmet, lojtarët e grupit, fshirja, parashikimi, matrica.
+  Mbi 62rem dalin dy shtylla, nën të mbetet një, dhe radha e HTML-së është radha e leximit në të dy
+  rastet — ndarja është bërë pikërisht aty ku ajo radhë nuk prishet. Shtylla anësore mund të mbetet
+  e zbrazët (pishpiriku nuk shlyhet e nuk parashikohet), prandaj një rregull me `:has` e kthen
+  rrjetin te një kolonë e vetme në vend që të lërë gjysmën e ekranit bosh.
+
+  Gjerësinë e faqes e hap `.faqja--gjere` (54rem mbi 48rem, 78rem mbi 62rem); pa atë modifikues faqja
+  mbetet 47rem dhe shtyllat nuk kanë ku të hapen — ishte pikërisht ajo që i priste kolonat e tabelës
+  së përgjithshme te grupi.
+- **Ekranet me një pyetje të vetme marrin `.faqja--fokus`** — kodi, pritja e lidhjes, adresa që nuk
+  lexohet. Aty nuk ka çka të ndahet: një fushë dhe një buton, që te ekrani i gjerë rrinin ngjitur te
+  qoshja e sipërme majtas mbi një ekran gati bosh. Mbi 62rem qendërzohen vertikalisht me
+  `justify-content: safe center` — `safe` që një përmbajtje më e gjatë se ekrani të mos e humbte kreun
+  mbi buzë, ku nuk rrëshqitet dot prapa. Te telefoni nuk ndërron asgjë.
 
 ## Gjëra që të zënë ngushtë
 
@@ -1388,6 +1425,16 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - **Matrica renditet sipas renditjes, jo sipas radhës së tavolinës.** Shlyerja shihet kur mbaron
   loja, dhe atëherë lexohet duke nisur nga fituesi. Vendi shkruhet krah emrit te rreshti, që radha
   të mos duket e rastit.
+- **`fusha` është klasa e mbështjellëses, jo e `input`-it.** Stilet e fushave rrinë te
+  `.fusha input[type='text']`, prandaj një `<input className="fusha">` nuk merr asnjë prej tyre dhe
+  vizatohet nga shfletuesi. Pikërisht ashtu kishte mbetur kutia e kodit te «Bashkohu» e te «Takohu»,
+  dhe dukej e huaj mes gjithçkaje tjetër pa e kuptuar kush pse. Kur i shton stil një fushe të re,
+  shkruaje `<label className="fusha">` përreth dhe klasën e vet te `input`-i brenda.
+- **Kutia e kodit i ka përmasat e `.kodi`, dhe kjo nuk është rastësi.** Kodi lexohet me zë përtej
+  tavolinës: njëri e mban në ekran, tjetri e shtyp. Me të njëjtat shkronja e të njëjtën hapësirë mes
+  tyre, krahasimi bëhet me sy shkronjë për shkronjë. `shkrimiIKodit` (te `kodi.ts`, me provat e veta)
+  e ndreq shkrimin sa shtypet — vija te vendi, `O`→`0`, `I`/`L`→`1`, dhe një adresë e ngjitur e tërë
+  bie te kodi i saj. Mos i vër `maxLength` asaj fushe: do ta priste adresën para se ajo të lexohej.
 - **Kutia e emrave pranon disa njëherësh** — «alfa, beta, gama, delta». Ndarësit janë presja,
   pikëpresja dhe rreshti i ri, kurrë hapësira: emrat me dy fjalë („alfa + zeta" te fleta e vjetër)
   duhet të mbeten një i vetëm. Shtimi mes lojës kalon një varg te `onShto`, jo një emër për
@@ -1395,8 +1442,24 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - **Lojë e re niset nga lojtarët e lojës së fundit**, jo nga tërë lista e grupit: shoqëria është
   zakonisht e njëjta, prandaj më shpesh nuk ka çka të preket fare. „E fundit" është ajo që del e
   para te historiku — më e reja sipas datës.
+- **Shlyerja ka dy pamje, dhe lista rri e para.** Matrica është përgjigjja e plotë — çdo çift, në të
+  dy drejtimet — por pyetja e tavolinës është një: «unë sa i kam borxh kujt». `borxhet()` te
+  `llogaritjet.ts` (pa DOM, me katër prova) e nxjerr atë nga e njëjta matricë: një rresht për çift,
+  kurrë dy, dhe çiftet me diferencë zero nuk hyjnë fare. Drejtimi lexohet nga shenja e matricës e jo
+  nga një rregull i shkruar dy herë — kush ka më shumë pikë paguan, te të dyja lojërat që shlyhen.
+  Tabela mbetet një prekje larg, sepse ajo është pamja e fletës origjinale.
+- **Nga pesë lojtarë e tutje emri te kreu i tabelës së raundeve shkurtohet në tri shkronja**, me
+  emrin e plotë te `vetem-lexues` — gjerësinë e kolonës e vendoste emri, kurse numri është ai që
+  lexohet. E njëjta zgjidhje si dita e javës te Kujdestaria; asgjë nuk fshihet, vetëm shkurtohet.
 - **Kolona e parë e tabelës së raundeve rri `sticky`.** Me gjashtë lojtarë tabela del më e gjerë se
   telefoni, dhe pa të humb se cili raund po shihet sapo rrëshqitet.
+- **`.tabela-mbeshtjellese` ka `contain: paint`, dhe pa të rrëshqet tërë faqja.** Me gjashtë lojtarë,
+  tabela e raundeve e shtynte dokumentin rreth tetëdhjetë piksela anash te telefoni — edhe pse
+  `overflow-x: auto` e mban tabelën brenda, dhe edhe pse asnjë element i vetëm nuk dilte jashtë
+  ekranit (një skanim i tërë DOM-it i gjen të gjithë të prerë nga një prind që rrëshqet). Ajo që
+  dilte ishte vetë gjerësia e rrëshqitshme e mbështjellëses, e mbledhur lart nëpër rrjetat mbi të.
+  Kufizimi i vizatimit e ndal aty; mos e hiq, dhe mos e kërko fajin te kolona `sticky` — ajo u provua
+  dhe nuk ishte.
 - **Përgjigja e lidhjes mbërrin nga dy rrugë njëherësh** — `BroadcastChannel` dhe ngjarja `storage` —
   prandaj `pergjigju()` e shkruan gjendjen **para** `await`-it. Me shkrimin pas tij, thirrja e dytë e
   gjente `#pritja`-n ende të plotë, shkruheshin dy përshkrime mbi të njëjtën lidhje, e dyta kërcente,

@@ -54,6 +54,7 @@ import {
   verifikoSkemen,
 } from '../supabase.ts';
 import type { GjendjaESkemes, Konfigurimi } from '../supabase.ts';
+import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 
 /** Fjala që duhet shkruar para një veprimi që nuk kthehet prapa. */
 const FJALA_E_POHIMIT = 'ZEVENDESO';
@@ -110,6 +111,8 @@ export function Sinkronizimi() {
       ) : (
         <Puna konfigurimi={konfigurimi} />
       )}
+
+      <Fundfaqja />
     </div>
   );
 }

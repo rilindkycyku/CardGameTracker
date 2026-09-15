@@ -147,6 +147,55 @@ export function matricaEShlyerjes(
   return matrica;
 }
 
+/** Një rresht i shlyerjes: kush i jep kujt, dhe sa. */
+export type Borxhi = {
+  paguesi: string;
+  marresi: string;
+  sa: number;
+};
+
+/**
+ * Matrica e lexuar si fjali: kush i del sa kujt.
+ *
+ * Matrica është përgjigjja e plotë, por jo e shpejta: me gjashtë lojtarë janë
+ * tridhjetë e gjashtë qeliza, gjysma e tyre e njëjta gjë me shenjë të kundërt,
+ * dhe pyetja e vërtetë te tavolina është një — «unë sa i kam borxh kujt». Kjo e
+ * nxjerr atë: një rresht për çift, pa e përsëritur asnjë.
+ *
+ * Drejtimi vjen nga vetë matrica e jo nga një rregull i shkruar këtu: shlyerja
+ * vlen te bridzhi dhe te domina, dhe te të dyja fiton totali më i vogël, pra kush
+ * ka më shumë pikë paguan. Një diferencë pozitive do të thotë pikërisht «i
+ * rreshtit ka aq më shumë», prandaj ai është paguesi.
+ *
+ * Çiftet me diferencë zero nuk hyjnë: dy total të barabartë nuk i detyrohen
+ * asgjë njëri-tjetrit, dhe një rresht «0» do të kërkonte të lexohej për të mos
+ * thënë asgjë. Radha është nga shuma më e madhe te më e vogla — ajo që paguhet
+ * e para është ajo që kujtohet.
+ */
+export function borxhet(
+  players: string[],
+  matrica: Record<string, Record<string, number>>,
+): Borxhi[] {
+  const lista: Borxhi[] = [];
+
+  for (let i = 0; i < players.length; i++) {
+    for (let j = i + 1; j < players.length; j++) {
+      const njeri = players[i]!;
+      const tjetri = players[j]!;
+      const diferenca = matrica[njeri]?.[tjetri] ?? 0;
+      if (diferenca === 0) continue;
+
+      lista.push(
+        diferenca > 0
+          ? { paguesi: njeri, marresi: tjetri, sa: diferenca }
+          : { paguesi: tjetri, marresi: njeri, sa: -diferenca },
+      );
+    }
+  }
+
+  return lista.sort((a, b) => b.sa - a.sa);
+}
+
 /**
  * Kush del i pari — dhe mund të jenë disa.
  *

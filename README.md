@@ -239,7 +239,8 @@ src/
   versioni.ts         versioni i `package.json`-it, i futur gjatë ndërtimit
   qr.ts               kodues QR i shkruar me dorë (byte, niveli L, v1–20)
   paketa.ts           base64 i sigurt për adresa, dhe nënshkrimi
-  kodi.ts             kodi tetëkarakterësh i bashkimit — pa DOM, pa rrjetë
+  kodi.ts             kodi tetëkarakterësh i bashkimit, dhe shkrimi i tij sa
+                      shtypet — pa DOM, pa rrjetë
   ndarja.ts           rezultati i paketuar brenda një adrese
   sinjalizimi.ts      SDP-ja e ngjeshur brenda një adrese — pa DOM, pa WebRTC
   lidhja.ts           kanali WebRTC dhe rruga e sinjalit mes skedave
@@ -264,7 +265,7 @@ src/
                       Bashkohu · Sinkronizimi
   pjeset/             Renditja · Raundet · Shlyerja · TabelaEPergjithshme
                       FutjaERaundit · Mbledhesja · LojtaretELojes
-                      PanelaEKopjes
+                      FushaEKodit · PanelaEKopjes
                       RregullatELojes
                       Ndarja · Drejtperdrejt · PaServer · MeServer
                       PamjaERezultatit · KodiQR
@@ -289,7 +290,8 @@ test/
   ndarja.test.mjs        paketimi, dhe refuzimi i adresave të prera
   sinjalizimi.test.mjs   SDP-ja e ngjeshur — kundër SDP-ve të vërteta, dhe
                          refuzimi i rreshtave të futur brenda një adrese
-  kodi.test.mjs          kodi i bashkimit, dhe shkronjat që ngatërrohen
+  kodi.test.mjs          kodi i bashkimit, shkronjat që ngatërrohen, dhe çka
+                         mbetet te fusha pas çdo prekjeje
   sherbimi.test.mjs      lista e asaj që ruhet, koshët e vjetër, dhe kërkesat
                          që punëtori nuk i prek fare
   tema.test.mjs          leximi i temës së ruajtur, dhe ngjyrat që rrinë të
@@ -340,6 +342,16 @@ me qëllim:
 
 Kontrasti mbetet **WCAG AA** në dritë e në terr: teksti mbi veprimin kryesor
 del 5.5:1 dhe 7.6:1, dhe kufijtë e kontrolleve mbi 3:1 sipas WCAG 1.4.11.
+
+**Tableta e mbajtur anash i merr dy shtylla.** Te telefoni gjithçka rri një
+kolonë e vetme dhe lexohet nga lart poshtë. Sapo ekrani ka gjerësi, ajo për të
+cilën hapet faqja rri majtas — grupet, historiku, futja e raundit, renditja —
+dhe çka preket a lexohet një herë kalon djathtas: kopja rezervë, sinkronizimi,
+përgjithshmet, rregullat, lojtarët, parashikimi, shlyerja. Te ekrani i lojës
+futja ngjitet me rrëshqitjen, pra raundi shënohet me renditjen para syve; te
+fleta që shikon dikush tjetër, e tëra hyn në një ekran pa rrëshqitur. Ekranet me
+një pyetje të vetme — kodi, pritja e lidhjes — qendërzohen në vend që të rrinë
+ngjitur te qoshja. Radha e leximit mbetet e njëjta te çdo gjerësi.
 
 **Ndriçimin e zgjedh tavolina**, nga çelësi te fundfaqja e ekranit të parë:
 «Sistemi», «Dritë», «Terr». Hapet te **drita**; tema e errët rri e plotë një

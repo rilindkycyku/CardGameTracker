@@ -369,6 +369,16 @@ function Llogaritesi({
   const [mbyllesi, caktoMbyllesin] = useState('');
   const [lloji, caktoLlojin] = useState<LlojiMbylljes>('normal');
   const [duart, caktoDuart] = useState<Record<string, string>>({});
+  /*
+   * A rrinë të shpalosur emrat.
+   *
+   * Pa mbyllës rrinë gjithmonë — ajo është pyetja e parë e raundit. Pas tij
+   * mblidhen, dhe hapen sërish vetëm me «Ndërro». Gjendja nuk ka nevojë të
+   * pastrohet mes raundeve: `key`-i i llogaritësit mban numrin e raundit, pra
+   * çdo raund i ri e ringre këtë bllok nga e para.
+   */
+  const [dukeNdrruar, caktoNdrrimin] = useState(false);
+  const zgjedhja = mbyllesi === '' || dukeNdrruar;
 
   const gjendjet: Record<string, GjendjaLojtarit> = useMemo(
     () =>
@@ -409,6 +419,18 @@ function Llogaritesi({
         dhe hyjnë të gjithë në ekran, prandaj rrinë të shkruar: një prekje, caku
         mbi 2.75rem, dhe kush mbylli duket pa hapur asgjë.
 
+        Por emrat e shkruar e kanë një çmim që lista nuk e kishte: lartësia rritet
+        me lojtarët. Me tetë veta te telefoni ata do të zinin katër rreshta mbi
+        duart — pikërisht ajo që i kushton bllokut më të përdorur të mbrëmjes
+        (pika 6). Prandaj dy gjëra e mbajnë të shkurtër:
+
+          • **Sapo zgjidhet mbyllësi, rreshtat mblidhen te një i vetëm** — emri i
+            zgjedhur dhe «Ndërro». Pyetja është përgjigjur, dhe hapësira i kthehet
+            duarve që shënohen menjëherë pas saj. «Ndërro» i kthen të gjithë.
+          • **Nga pesë lojtarë e tutje shtrëngohen** (`data-shume`, si te fushat e
+            te tabelat): ulet vetëm ajri dhe shkronja, kurse caku i prekjes mbetet
+            2.75rem.
+
         Prekja e dytë mbi të njëjtin emër nuk e zhbën zgjedhjen. Raundi nuk
         ruhet dot pa mbyllës gjithsesi (pika 3), prandaj zbrazja nuk hap asnjë
         rrugë — vetëm do t'i fshinte pikët e llogaritura me një prekje të
@@ -417,24 +439,46 @@ function Llogaritesi({
       <div className="fusha">
         <span className="fusha__etiketa">Kush e mbylli, dhe si</span>
         <div
-          className="celesi celesi--rrjet"
+          className="celesi celesi--rrjet celesi--emra"
+          data-shume={players.length >= SHUME || undefined}
           role="group"
           aria-label="Lojtari që mbylli raundin"
         >
-          {players.map((player) => (
+          {(zgjedhja ? players : [mbyllesi]).map((player) => (
             <button
               key={player}
               type="button"
               className="celesi__njesi celesi__njesi--emer"
               aria-pressed={mbyllesi === player}
-              onClick={() => caktoMbyllesin(player)}
+              onClick={() => {
+                caktoMbyllesin(player);
+                caktoNdrrimin(false);
+              }}
             >
               {player}
             </button>
           ))}
+
+          {!zgjedhja && (
+            <button
+              type="button"
+              className="celesi__njesi"
+              onClick={() => caktoNdrrimin(true)}
+            >
+              Ndërro
+            </button>
+          )}
         </div>
 
-        <div className="celesi">
+        {/*
+          Vija mes emrave dhe mbylljes.
+
+          Janë dy pyetje te një bllok — kush mbylli, dhe si — dhe pa asgjë mes
+          tyre butonat lexohen si një listë e vetme: «Normal» del si emri i
+          radhës pas «Lesa». Etiketa e bllokut i thotë të dyja bashkë, prandaj
+          ndarja e tyre nuk mund të mbetet te fjalët.
+        */}
+        <div className="celesi llogaritesi__si">
           <button
             type="button"
             className="celesi__njesi"

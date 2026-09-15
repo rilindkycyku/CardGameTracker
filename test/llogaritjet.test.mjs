@@ -20,6 +20,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import {
+  borxhet,
   dataMeNumra,
   fituesit,
   dataNgaNumrat,
@@ -776,5 +777,59 @@ test('mbrëmja e dominës te `logic.json` lexohet me të njëjtat llogari', () =
     for (const j of grupi.players) {
       assert.equal(matrica[i][j], grupi.settlement_matrix[i][j], `${i}→${j}`);
     }
+  }
+});
+
+test('borxhet e lexojnë matricën si fjali: kush i del sa kujt', () => {
+  // Fiton totali më i vogël te të dyja lojërat që shlyhen, prandaj kush ka më
+  // shumë pikë paguan — dhe matrica e thotë atë me shenjën e vet.
+  const emrat = ['Lila', 'Rila', 'Lesa'];
+  const matrica = matricaEShlyerjes(emrat, { Lila: 10, Rila: 40, Lesa: 25 });
+
+  assert.deepEqual(borxhet(emrat, matrica), [
+    { paguesi: 'Rila', marresi: 'Lila', sa: 30 },
+    { paguesi: 'Lesa', marresi: 'Lila', sa: 15 },
+    { paguesi: 'Rila', marresi: 'Lesa', sa: 15 },
+  ]);
+});
+
+test('çdo çift del një herë të vetme, e jo dy', () => {
+  // Gjysma e matricës është e njëjta gjë me shenjë të kundërt; një listë që i
+  // nxjerr të dyja do të thoshte dyfishin e borxhit që ka tavolina.
+  const emrat = ['a', 'b', 'c', 'd', 'e', 'f'];
+  const totalet = Object.fromEntries(emrat.map((e, i) => [e, i * 10]));
+  const lista = borxhet(emrat, matricaEShlyerjes(emrat, totalet));
+
+  assert.equal(lista.length, (emrat.length * (emrat.length - 1)) / 2);
+  const cifte = new Set(lista.map(({ paguesi, marresi }) => [paguesi, marresi].sort().join('|')));
+  assert.equal(cifte.size, lista.length);
+});
+
+test('barazimi nuk nxjerr borxh', () => {
+  // Dy total të barabartë nuk i detyrohen asgjë njëri-tjetrit, dhe një rresht
+  // «0» do të kërkonte të lexohej për të mos thënë asgjë.
+  const emrat = ['Lila', 'Rila', 'Lesa'];
+  const matrica = matricaEShlyerjes(emrat, { Lila: 20, Rila: 20, Lesa: 35 });
+
+  assert.deepEqual(borxhet(emrat, matrica), [
+    { paguesi: 'Lesa', marresi: 'Lila', sa: 15 },
+    { paguesi: 'Lesa', marresi: 'Rila', sa: 15 },
+  ]);
+});
+
+test('shumat e borxheve barazohen me diferencat e matricës', () => {
+  // Prova që e lidh listën me tabelën: sa merr secili sipas listës duhet të
+  // dalë sa shuma e rreshtit të tij te matrica, me shenjë të kundërt.
+  const emrat = ['Lila', 'Rila', 'Lesa', 'Yllza'];
+  const totalet = { Lila: -20, Rila: 45, Lesa: 60, Yllza: 15 };
+  const matrica = matricaEShlyerjes(emrat, totalet);
+
+  for (const emri of emrat) {
+    const nga_lista = borxhet(emrat, matrica).reduce(
+      (shuma, b) => shuma + (b.paguesi === emri ? b.sa : b.marresi === emri ? -b.sa : 0),
+      0,
+    );
+    const nga_matrica = emrat.reduce((shuma, tjetri) => shuma + matrica[emri][tjetri], 0);
+    assert.equal(nga_lista, nga_matrica, emri);
   }
 });

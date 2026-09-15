@@ -36,6 +36,7 @@ import {
   ruajGrup,
   shtoLoje,
 } from '../ruajtja.ts';
+import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 import { PA_KUFI, ZgjedhjaEKufirit } from '../pjeset/Kufiri.tsx';
 import { RregullatELojes } from '../pjeset/RregullatELojes.tsx';
 import { PergjithshmetEMagarecit } from '../pjeset/PergjithshmetEMagarecit.tsx';
@@ -180,7 +181,7 @@ export function Grupi({ id }: { id: number }) {
   }
 
   return (
-    <div className="faqja">
+    <div className="faqja faqja--gjere">
       <a className="shtegu" href="#/">
         <Ikona emri="kthehu" />
         Grupet
@@ -240,151 +241,167 @@ export function Grupi({ id }: { id: number }) {
         />
       )}
 
-      {tabelat.map((tabela) => (
-        <TabelaEPergjithshme
-          key={tabela.lloji}
-          rreshtat={tabela.rreshtat}
-          lojera={tabela.lojera}
-          emriILojes={tabela.emri}
-        />
-      ))}
+      {/*
+        Ekrani i gjerë e ndan atë që hapet nga ajo që shihet.
 
-      <PergjithshmetEMagarecit rreshtat={magarecat} lojera={saMagareca} />
+        Historiku është arsyeja pse hapet një grup — mbrëmja e djeshme ose ajo
+        që sapo nisi — prandaj rri i pari dhe majtas. Përgjithshmet dhe dy
+        panelat e grupit lexohen kur dikush pyet «kush prin gjithsej?» ose kur
+        ndërrohet lista e lojtarëve: një herë, jo çdo mbrëmje.
+      */}
+      <div className="shtyllat">
+        <div className="shtyllat__kryesore">
+          <section>
+            <h2 className="titull-seksioni">
+              <Ikona emri="kalendari" />
+              Historiku
+              <span className="titull-seksioni__numri">{lojerat.length}</span>
+            </h2>
 
-      <section>
-        <h2 className="titull-seksioni">
-          <Ikona emri="kalendari" />
-          Historiku
-          <span className="titull-seksioni__numri">{lojerat.length}</span>
-        </h2>
-
-        {lojerat.length === 0 ? (
-          <div className="zbrazet">
-            <p className="zbrazet__titull">Ende asnjë lojë</p>
-            <p>
-              Nis një lojë dhe zgjidh kush erdhi sonte. Nuk është nevoja të
-              luajnë të gjithë të grupit.
-            </p>
-          </div>
-        ) : (
-          <ul className="lista">
-            {lojerat.map((loja) => (
-              <li key={loja.id}>
-                <a className="njesi" href={`#/loja/${loja.id}`}>
-                  <span className="njesi__shkronja">
-                    <Ikona emri="kalendari" />
-                  </span>
-                  <span className="njesi__krye">
-                    <span className="njesi__emri">{dataShqip(loja.date)}</span>
-                    <span className="njesi__meta">
-                      {(raunde?.[loja.id] ?? BOSH).length}{' '}
-                      {(raunde?.[loja.id] ?? BOSH).length === 1 ? 'raund' : 'raunde'}
-                      {' · '}
-                      {loja.selectedPlayers.length} lojtarë
-                      {/*
-                        Çka u luajt shkruhet për çdo lojë veç bridzhit — ai është
-                        parazgjedhja, dhe një «Bridzh» te çdo rresht do të ishte
-                        zhurmë te një listë ku shumica janë bridzh. Te magareci
-                        del vetë fjala që mbushet.
-                      */}
-                      {llojiILojes(loja) !== 'bridzh' && (
-                        <>
-                          {' · '}
-                          <span className="njesi__lloji">
-                            {llojiILojes(loja) === 'magarec'
-                              ? FJALA
-                              : rregullat(llojiILojes(loja)).emri}
-                          </span>
-                        </>
-                      )}
-                      {/*
-                        Mbrëmja e kryer thuhet edhe këtu, e jo vetëm brenda: pa
-                        të, lista e lojërave nuk dallon atë që pret raundin e
-                        radhës nga ajo që u mbyll — dhe të dyja hapen njësoj.
-                      */}
-                      {perfundoiMbremja(loja, raunde?.[loja.id] ?? BOSH) && (
-                        <>
-                          {' · '}
-                          <span className="njesi__perfunduar">Përfundoi</span>
-                        </>
-                      )}
-                    </span>
-                  </span>
-                  <span className="njesi__veprimet">
-                    <button
-                      type="button"
-                      className="buton buton--vogel buton--rrezik"
-                      onClick={async (e) => {
-                        // Butoni rri brenda një lidhjeje: pa këtë, fshirja do
-                        // ta hapte njëkohësisht edhe lojën.
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (
-                          window.confirm(
-                            `Të fshihet loja e ${dataShqip(loja.date)} me ${(raunde?.[loja.id] ?? BOSH).length} raunde?`,
-                          )
-                        ) {
-                          await fshiLoje(loja.id);
-                          rifresko();
-                        }
-                      }}
-                    >
-                      <Ikona emri="fshi" />
-                      <span className="vetem-lexues">
-                        Fshi lojën e {dataShqip(loja.date)}
+            {lojerat.length === 0 ? (
+              <div className="zbrazet">
+                <p className="zbrazet__titull">Ende asnjë lojë</p>
+                <p>
+                  Nis një lojë dhe zgjidh kush erdhi sonte. Nuk është nevoja të
+                  luajnë të gjithë të grupit.
+                </p>
+              </div>
+            ) : (
+              <ul className="lista">
+                {lojerat.map((loja) => (
+                  <li key={loja.id}>
+                    <a className="njesi" href={`#/loja/${loja.id}`}>
+                      <span className="njesi__shkronja">
+                        <Ikona emri="kalendari" />
                       </span>
-                    </button>
-                  </span>
-                </a>
+                      <span className="njesi__krye">
+                        <span className="njesi__emri">{dataShqip(loja.date)}</span>
+                        <span className="njesi__meta">
+                          {(raunde?.[loja.id] ?? BOSH).length}{' '}
+                          {(raunde?.[loja.id] ?? BOSH).length === 1 ? 'raund' : 'raunde'}
+                          {' · '}
+                          {loja.selectedPlayers.length} lojtarë
+                          {/*
+                            Çka u luajt shkruhet për çdo lojë veç bridzhit — ai është
+                            parazgjedhja, dhe një «Bridzh» te çdo rresht do të ishte
+                            zhurmë te një listë ku shumica janë bridzh. Te magareci
+                            del vetë fjala që mbushet.
+                          */}
+                          {llojiILojes(loja) !== 'bridzh' && (
+                            <>
+                              {' · '}
+                              <span className="njesi__lloji">
+                                {llojiILojes(loja) === 'magarec'
+                                  ? FJALA
+                                  : rregullat(llojiILojes(loja)).emri}
+                              </span>
+                            </>
+                          )}
+                          {/*
+                            Mbrëmja e kryer thuhet edhe këtu, e jo vetëm brenda: pa
+                            të, lista e lojërave nuk dallon atë që pret raundin e
+                            radhës nga ajo që u mbyll — dhe të dyja hapen njësoj.
+                          */}
+                          {perfundoiMbremja(loja, raunde?.[loja.id] ?? BOSH) && (
+                            <>
+                              {' · '}
+                              <span className="njesi__perfunduar">Përfundoi</span>
+                            </>
+                          )}
+                        </span>
+                      </span>
+                      <span className="njesi__veprimet">
+                        <button
+                          type="button"
+                          className="buton buton--vogel buton--rrezik"
+                          onClick={async (e) => {
+                            // Butoni rri brenda një lidhjeje: pa këtë, fshirja do
+                            // ta hapte njëkohësisht edhe lojën.
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (
+                              window.confirm(
+                                `Të fshihet loja e ${dataShqip(loja.date)} me ${(raunde?.[loja.id] ?? BOSH).length} raunde?`,
+                              )
+                            ) {
+                              await fshiLoje(loja.id);
+                              rifresko();
+                            }
+                          }}
+                        >
+                          <Ikona emri="fshi" />
+                          <span className="vetem-lexues">
+                            Fshi lojën e {dataShqip(loja.date)}
+                          </span>
+                        </button>
+                      </span>
+                    </a>
 
-                <RenditjaEShkurter
-                  rreshtat={renditjet.get(loja.id) ?? BOSH}
-                  lloji={llojiILojes(loja)}
-                />
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+                    <RenditjaEShkurter
+                      rreshtat={renditjet.get(loja.id) ?? BOSH}
+                      lloji={llojiILojes(loja)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
 
-      <section>
-        <details
-          className="detaje"
-          open={hapurLojtaret}
-          onToggle={(e) => hapLojtaret((e.target as HTMLDetailsElement).open)}
-        >
-          <summary className="detaje__krye">
-            <span>Lojtarët e grupit</span>
-            <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
-          </summary>
-          <div className="detaje__trupi">
-            <ListaELojtareve grupi={grupi} onRuajtur={rifresko} />
-          </div>
-        </details>
+        <div className="shtyllat__anesore">
+          {tabelat.map((tabela) => (
+            <TabelaEPergjithshme
+              key={tabela.lloji}
+              rreshtat={tabela.rreshtat}
+              lojera={tabela.lojera}
+              emriILojes={tabela.emri}
+            />
+          ))}
 
-        <details className="detaje">
-          <summary className="detaje__krye">
-            <span>Fshi grupin</span>
-            <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
-          </summary>
-          <div className="detaje__trupi">
-            <p className="ndihma">
-              Fshihet grupi bashkë me të gjitha lojërat dhe raundet e tij. Nxirr
-              një kopje rezervë më parë nëse ke dyshim.
-            </p>
-            <div className="veprimet" data-hapesire="lart">
-              <button
-                type="button"
-                className="buton buton--rrezik"
-                onClick={fshiKeteGrup}
-              >
-                <Ikona emri="fshi" />
-                Fshi „{grupi.name}"
-              </button>
-            </div>
-          </div>
-        </details>
-      </section>
+          <PergjithshmetEMagarecit rreshtat={magarecat} lojera={saMagareca} />
+
+          <section>
+            <details
+              className="detaje"
+              open={hapurLojtaret}
+              onToggle={(e) => hapLojtaret((e.target as HTMLDetailsElement).open)}
+            >
+              <summary className="detaje__krye">
+                <span>Lojtarët e grupit</span>
+                <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+              </summary>
+              <div className="detaje__trupi">
+                <ListaELojtareve grupi={grupi} onRuajtur={rifresko} />
+              </div>
+            </details>
+
+            <details className="detaje">
+              <summary className="detaje__krye">
+                <span>Fshi grupin</span>
+                <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+              </summary>
+              <div className="detaje__trupi">
+                <p className="ndihma">
+                  Fshihet grupi bashkë me të gjitha lojërat dhe raundet e tij. Nxirr
+                  një kopje rezervë më parë nëse ke dyshim.
+                </p>
+                <div className="veprimet" data-hapesire="lart">
+                  <button
+                    type="button"
+                    className="buton buton--rrezik"
+                    onClick={fshiKeteGrup}
+                  >
+                    <Ikona emri="fshi" />
+                    Fshi „{grupi.name}"
+                  </button>
+                </div>
+              </div>
+            </details>
+          </section>
+        </div>
+      </div>
+
+      <Fundfaqja />
     </div>
   );
 }

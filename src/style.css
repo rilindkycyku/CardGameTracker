@@ -226,6 +226,74 @@ h3 {
   gap: var(--rreshtimi);
 }
 
+/**
+ * Ekranet me një pyetje të vetme — kodi, pritja e lidhjes, adresa që nuk lexohet.
+ *
+ * Aty nuk ka çka të ndahet në shtylla: është një fushë dhe një buton. Te ekrani
+ * i gjerë ata rrinin të ngjitur te qoshja e sipërme majtas mbi një ekran gati
+ * bosh, sikur faqja të kishte mbetur përgjysmë; të qendërzuar lexohen si pyetje
+ * e vetme që janë.
+ *
+ * Vetëm te ekrani i gjerë: te telefoni kreu rri lart, ku e pret syri. Dhe
+ * `safe center` e jo `center`, që një përmbajtje më e gjatë se ekrani të mos
+ * humbte kreun mbi buzë — atje nuk rrëshqitet dot prapa.
+ */
+@media (min-width: 62rem) {
+  .faqja--fokus {
+    min-height: 100dvh;
+    justify-content: safe center;
+  }
+}
+
+/* ── Dy shtylla ─────────────────────────────────────────────────────────── */
+
+/**
+ * Ndarja e zakonshme e një ekrani të gjerë: ajo për të cilën erdhe, dhe pjesa
+ * tjetër.
+ *
+ * Tableta e mbajtur anash është gati dyfishi i gjerësisë së një telefoni, dhe
+ * një kolonë e vetme aty do të thotë dy pëllëmbë të zbrazëta majtas e djathtas
+ * dhe një rrëshqitje e gjatë në mes. Prandaj blloqet dytësore — ato që preken
+ * një herë në mbrëmje ose asnjë — kalojnë krah asaj që lexohet, e jo nën të.
+ *
+ * Te telefoni nuk ndërron asgjë: një kolonë, dhe radha e shkruar te HTML-ja
+ * mbetet radha e leximit — e para shtylla kryesore, pastaj ajo anësore.
+ *
+ * Ekrani i lojës e ka ndarjen e vet (`.loja__pune`): atje e majta është futja e
+ * raundit, një bllok i ngushtë e i ngjitur, dhe e djathta rezultati — pra
+ * përmasat shkojnë nga ana tjetër.
+ */
+.shtyllat,
+.shtyllat__kryesore,
+.shtyllat__anesore {
+  display: grid;
+  /* Si te `.loja__pune`: kolona e parazgjedhur matet sipas përmbajtjes, dhe një
+     tabelë e gjerë do ta shtynte faqen anash në vend që të rrëshqiste vetë. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--rreshtimi);
+}
+
+@media (min-width: 62rem) {
+  .shtyllat {
+    /* 22rem është gjerësia nën të cilën tabela e përgjithshme — vendi, lojtari,
+       lojëra, fitore, mesatarja — nis të rrëshqasë brenda vetes. */
+    grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.9fr);
+    align-items: start;
+  }
+
+  .shtyllat__kryesore,
+  .shtyllat__anesore {
+    align-content: start;
+  }
+
+  /* Shtylla anësore mund të mbetet e zbrazët — pishpiriku nuk shlyhet dhe nuk
+     parashikohet, pra te fleta e tij nuk ka çka të shkojë djathtas. Pa këtë,
+     gjysma e ekranit do të rrinte bosh krah një tabele të ngushtuar kot. */
+  .shtyllat:has(> .shtyllat__anesore:empty) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* ── Ekrani i lojës ─────────────────────────────────────────────────────── */
 
 /**
@@ -255,7 +323,7 @@ h3 {
  * nën të cilën kreu i tyre («Mbyll lojën më herët» me shigjetën) nis të thyhet.
  */
 @media (min-width: 48rem) {
-  .faqja--loja {
+  .faqja--gjere {
     max-width: 54rem;
   }
 
@@ -286,13 +354,40 @@ h3 {
  * rreshti i rrjetit dhe `position: sticky` mbetet pa ku të lëvizë.
  */
 @media (min-width: 62rem) {
-  .faqja--loja {
+  .faqja--gjere {
     max-width: 78rem;
   }
 
   .loja__pune {
     grid-template-columns: minmax(23rem, 27rem) minmax(0, 1fr);
+    /* Rreshti i parë merr tërë hapësirën e lirë, i dyti sa panelat: kështu
+       futja ka ku të rrëshqasë e ngjitur (rreshti i saj është i gjatë sa
+       renditja krah tij), dhe panelat ulen te fundi i shtyllës në vend që ta
+       linin gjysmën e ekranit të zbrazët. */
+    grid-template-rows: 1fr auto;
     align-items: start;
+  }
+
+  /*
+   * Panelat kalojnë te fundi i shtyllës së majtë — pa e ndërruar radhën e
+   * HTML-së, pra pa e prekur aspak telefonin. Sa rrëshqitet, futja e ngjitur e
+   * zë hapësirën mes tyre: ajo që dukej e zbrazët është pikërisht rruga që bën
+   * kartela teksa e ndjek renditjen.
+   */
+  .loja__panelat {
+    grid-column: 1;
+    grid-row: 2;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .loja__futja {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .loja__rezultatet {
+    grid-column: 2;
+    grid-row: 1 / span 2;
   }
 
   /**
@@ -544,8 +639,26 @@ h3 {
   transform: translateY(0);
 }
 
-.buton:disabled {
-  opacity: 0.5;
+/**
+ * Butoni i fikur — sipërfaqe e vetja, jo gjysmë-tejdukshmëri.
+ *
+ * Ishte vetëm `opacity: 0.5`, dhe kjo punonte mbi të bardhën e nuk punonte fare
+ * mbi terrin: smeraldi i plotë me gjysmë tejdukshmëri mbi një sfond të errët
+ * mbetet i ngopur, prandaj «Ruaj raundin» pa asnjë pikë të shënuar dukej gati
+ * për t'u shtypur. Tani i fikuri e humb ngjyrën e gjendjes dhe hijen — dallohet
+ * nga forma e ngjyra, e jo nga shkalla e tejdukshmërisë.
+ *
+ * Përzgjedhësi mban edhe klasën e variantit, që `.buton--kryesor` e
+ * `.buton--rrezik` — që vijnë pas tij te skedari — të mos e mposhtin mbushjen.
+ */
+.buton:disabled,
+.buton--kryesor:disabled,
+.buton--rrezik:disabled {
+  background: var(--siperfaqe-2);
+  border-color: var(--kufiri);
+  color: var(--teksti-zbehte);
+  box-shadow: none;
+  opacity: 0.85;
   cursor: not-allowed;
 }
 
@@ -883,8 +996,20 @@ a.njesi:hover {
 
 /* ── Tabelat ────────────────────────────────────────────────────────────── */
 
+/**
+ * Mbështjellësja që i lë tabelat të rrëshqasin brenda vetes.
+ *
+ * `contain: paint` nuk është zbukurim: pa të, tabela e raundeve me gjashtë
+ * lojtarë e shtynte **tërë faqen** anash rreth tetëdhjetë piksela te telefoni —
+ * faqja rrëshqiste bashkë me të, edhe pse `overflow-x: auto` e mban tabelën
+ * brenda. Asnjë element i vetëm nuk dilte jashtë ekranit; dilte vetë gjerësia e
+ * rrëshqitshme e mbështjellëses, e mbledhur lart nëpër rrjetat mbi të.
+ * Me kufizimin e vizatimit ajo mbetet aty ku është, dhe faqja rrëshqet vetëm
+ * poshtë — ashtu si duhet.
+ */
 .tabela-mbeshtjellese {
   overflow-x: auto;
+  contain: paint;
   background: var(--siperfaqe);
   border: 1px solid var(--kufiri);
   border-radius: var(--rreze);
@@ -1339,13 +1464,50 @@ th.numri {
 }
 
 /**
- * Emri i mbyllësit rri i shkruar, prandaj mund të dalë i gjatë.
+ * Çelësi i emrave — më i ngushtë se ai i lojërave, sepse janë më shumë.
  *
- * Çelësi i emrave është i njëjti `.celesi--rrjet` si te lojërat — dy për rresht
- * te telefoni, më shumë kur ka vend — dhe një emër që nuk hyn pritet me tri
- * pika: rreshti nuk guxon të zgjatet sa emri, sepse nën të rri lista e duarve me
- * të njëjtat gjerësi.
+ * Emrat e lojërave janë katër dhe të njohur («Pishpirik»); emrat e tavolinës
+ * janë deri tetë dhe të shkurtër. 6rem i vë tre për rresht te telefoni e jo dy,
+ * pra tetë veta zënë tri rreshta në vend të katrave — dhe ajo lartësi i hiqet
+ * pikërisht duarve që shënohen poshtë (pika 6).
  */
+.celesi--emra {
+  grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+}
+
+/**
+ * Nga pesë lojtarë e tutje shtrëngohet, si fushat dhe tabelat.
+ *
+ * Ulet ajri dhe shkronja; lartësia mbetet 2.75rem, sepse ai është caku nën të
+ * cilin gishti nuk e zë — dhe një prekje e gabuar këtu e shkruan raundin te
+ * lojtari i gabuar.
+ */
+.celesi--emra[data-shume] {
+  grid-template-columns: repeat(auto-fit, minmax(5.2rem, 1fr));
+  gap: 0.3rem;
+}
+
+.celesi--emra[data-shume] .celesi__njesi {
+  padding-inline: 0.4rem;
+  font-size: 0.85rem;
+}
+
+/**
+ * Vija mes emrave dhe mbylljes.
+ *
+ * Emrat dhe çelësi hant/normal janë dy pyetje te një bllok i vetëm, dhe pa asgjë
+ * mes tyre butonat dalin si një listë e vetme — «Normal» lexohet si emri i
+ * radhës pas «Lesa». Etiketa i mban të dyja bashkë («Kush e mbylli, dhe si»),
+ * prandaj ndarja duhet të jetë e dukshme e jo me fjalë.
+ */
+.llogaritesi__si {
+  margin-top: 0.15rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--kufiri);
+}
+
+/* Një emër që nuk hyn pritet me tri pika: rreshti nuk guxon të zgjatet sa emri,
+   sepse nën të rri lista e duarve me të njëjtat gjerësi. */
 .celesi__njesi--emer {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1422,6 +1584,73 @@ th.numri {
   font-variant-numeric: tabular-nums;
   text-align: right;
   color: var(--teksti);
+}
+
+/* ── Shlyerja si listë ──────────────────────────────────────────────────── */
+
+/**
+ * «Kush kujt» — matrica e lexuar si fjali.
+ *
+ * Një rresht për çift, dhe asnjë shenjë për t'u shpjeguar: emri që paguan,
+ * shigjeta, emri që merr, dhe shuma djathtas me numra tabelorë, që kolona e
+ * shumave të lexohet si kolonë edhe pa vija.
+ */
+.borxhet {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.4rem;
+}
+
+.borxhi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--kufiri);
+  border-radius: var(--rreze-2);
+  background: var(--siperfaqe);
+}
+
+.borxhi__emrat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 650;
+}
+
+/* Shigjeta tregon nga paguesi te marrësi, prandaj kthehet nga e poshtmja. */
+.borxhi__shigjeta {
+  flex: none;
+  color: var(--teksti-zbehte);
+  transform: rotate(-90deg);
+}
+
+.borxhi__sa {
+  flex: none;
+  font-family: var(--shkronja-numrat);
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Çelësi i dy pamjeve rri te kreu i seksionit, djathtas si numri i raundeve.
+   `nowrap` sepse «Kush kujt» janë dy fjalë, dhe të thyera bëjnë një buton dy
+   rreshta të lartë mbi një rresht titulli. */
+.titull-seksioni__celesi {
+  margin-left: auto;
+  flex: none;
+}
+
+.titull-seksioni__celesi .celesi__njesi {
+  white-space: nowrap;
 }
 
 /* ── Mbledhësja e dorës ─────────────────────────────────────────────────── */
@@ -2360,6 +2589,13 @@ th.numri {
   border-radius: var(--rreze-2) var(--rreze-2) 0 0;
 }
 
+/* Emri i shkurtuar te kreu i tabelës: me gjashtë lojtarë gjerësia e kolonës
+   vendoset nga emri e jo nga numri, dhe numri është ai që lexohet. Emri i plotë
+   mbetet aty për lexuesat e ekranit. */
+.tabela--raundet th[scope='col'] .emri-shkurtuar {
+  font-variant-numeric: normal;
+}
+
 /* ── Dendësia me shumë lojtarë ──────────────────────────────────────────── */
 
 /**
@@ -2627,6 +2863,80 @@ th.numri {
   font-size: 1.05rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+/**
+ * Kutia ku shtypet ai kod — dhe përse duket si `.kodi` më sipër.
+ *
+ * Kodi lexohet me zë përtej tavolinës: njëri e mban në ekran, tjetri e shtyp sa
+ * e dëgjon. Nëse ajo që lexohet dhe ajo ku shkruhet duken dy sende të ndryshme,
+ * krahasimi bëhet me kujtesë; me të njëjtat përmasa e të njëjtën hapësirë mes
+ * shkronjave, bëhet me sy — shkronjë për shkronjë.
+ *
+ * Kufiri është dy piksela: kjo është e vetmja fushë e atij ekrani, dhe ekrani
+ * ekziston vetëm për të. Sapo kodi plotësohet, kufiri merr smeraldin — përgjigjja
+ * e parë, para se të preket butoni.
+ *
+ * Përzgjedhësi e mban emrin e elementit brenda mbështjellëses (`.fusha input…`)
+ * sepse ashtu e shkruan edhe rregulli bazë pak më lart: me një klasë të vetme,
+ * ai do ta mposhtte këtë me specifikë më të lartë.
+ */
+.kodi-forma {
+  display: grid;
+  gap: 0.6rem;
+}
+
+/* Tetë shkronja nuk kanë ç'të bëjnë me gjashtëqind piksela: te ekrani i gjerë
+   kutia mbetet sa i duhet, dhe butoni sa ajo. Rri majtas si kreu mbi të, që të
+   mos duket kuti e humbur në mes. */
+@media (min-width: 48rem) {
+  .kodi-forma {
+    max-width: 24rem;
+  }
+}
+
+.fusha input.kodi-kutia {
+  min-height: 3.5rem;
+  padding: 0.55rem 0.7rem;
+  border-width: 2px;
+  font-family: var(--shkronja-numrat);
+  font-size: clamp(1.35rem, 6.5vw, 1.65rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  /* Hapësira pas shkronjës së fundit numërohet edhe ajo, prandaj një tekst i
+     qendërzuar del pak majtas; kjo ia kthen. */
+  text-indent: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.fusha input.kodi-kutia::placeholder {
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: none;
+  opacity: 0.45;
+}
+
+.fusha input.kodi-kutia[data-gati] {
+  border-color: var(--hapur);
+}
+
+/* Sa shkronja mbeten — dhe pse butoni rri i fikur. Një buton i fikur pa
+   shpjegim lexohet si i prishur. */
+.kodi-gjendja {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: -0.1rem 0 0;
+  font-size: 0.85rem;
+  color: var(--teksti-zbehte);
+}
+
+.kodi-gjendja[data-gati] {
+  color: var(--hapur);
+  font-weight: 700;
 }
 
 @media (max-width: 22rem) {

@@ -38,6 +38,7 @@ function RaundetBrenda({
 }) {
   const veprime = onRedakto !== undefined && onFshi !== undefined;
   const rreshtat = sipasRadhes(raundet);
+  const shume = players.length >= SHUME;
 
   return (
     <section>
@@ -48,19 +49,31 @@ function RaundetBrenda({
       </h2>
 
       <div className="tabela-mbeshtjellese">
-        <table
-          className="tabela tabela--raundet"
-          data-shume={players.length >= 5 || undefined}
-        >
+        <table className="tabela tabela--raundet" data-shume={shume || undefined}>
           <caption className="vetem-lexues">
             Pikët e secilit lojtar raund pas raundi, me totalin në fund.
           </caption>
           <thead>
             <tr>
               <th scope="col">Raundi</th>
+              {/*
+                Me pesë lojtarë e tutje emri shkurtohet te kreu, si dita e javës
+                te Kujdestaria: gjerësinë e kolonës e vendos emri e jo numri, dhe
+                numri është ai që lexohet. Emri i plotë mbetet për lexuesat e
+                ekranit, prandaj asgjë nuk humbet — vetëm piksela.
+              */}
               {players.map((player) => (
                 <th key={player} scope="col" className="numri">
-                  {player}
+                  {shume ? (
+                    <>
+                      <span className="emri-shkurtuar" aria-hidden>
+                        {shkurto(player)}
+                      </span>
+                      <span className="vetem-lexues">{player}</span>
+                    </>
+                  ) : (
+                    player
+                  )}
                 </th>
               ))}
               {veprime && (
@@ -150,3 +163,18 @@ function RaundetBrenda({
  * mbështjellja nuk do të kursente kurrgjë.
  */
 export const Raundet = memo(RaundetBrenda);
+
+/** Nga sa lojtarë e tutje shtrëngohet tabela. E njëjta prag si te futja. */
+const SHUME = 5;
+
+/**
+ * Emri sa hyn te kreu i një kolone numrash.
+ *
+ * Tri shkronja i ndajnë emrat e një tavoline — «Lila», «Lesa», «Liridon» dalin
+ * «Lil», «Les», «Lir» — dhe kolona bie te gjerësia e numrit, që është ajo që
+ * lexohet. Nën katër shkronja nuk prek asgjë: një emër i shkurtër është tashmë
+ * i shkurtër.
+ */
+function shkurto(emri: string): string {
+  return emri.length <= 4 ? emri : emri.slice(0, 3);
+}

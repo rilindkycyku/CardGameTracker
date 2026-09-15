@@ -12,6 +12,7 @@
 
 import { shpaketo } from '../ndarja.ts';
 import { Ikona } from '../ikonat.tsx';
+import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 import { LidhjaEKeqe, PamjaERezultatit } from '../pjeset/PamjaERezultatit.tsx';
 
 export function Shiko({ kodi }: { kodi: string }) {
@@ -30,7 +31,7 @@ export function Shiko({ kodi }: { kodi: string }) {
   }
 
   return (
-    <div className="faqja">
+    <div className="faqja faqja--gjere">
       <PamjaERezultatit
         pamja={pamja}
         etiketa={{ emri: 'Vetëm-lexim', ikona: 'sy' }}
@@ -47,11 +48,11 @@ export function Shiko({ kodi }: { kodi: string }) {
         }
       />
 
-      <footer className="fundfaqja">
+      <Fundfaqja>
         <p>
           <a href="#/">Hap aplikacionin për të mbajtur pikët vetë</a>
         </p>
-      </footer>
+      </Fundfaqja>
     </div>
   );
 }
