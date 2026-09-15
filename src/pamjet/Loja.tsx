@@ -857,20 +857,7 @@ export function Loja({ id }: { id: number }) {
         renditja, ajo që pyetet pas çdo raundi, ishte disa panela poshtë.
       */}
       <div className="loja__pune">
-        {/*
-          Dy mbështjellëse e jo një, dhe e dyta nuk është zbukurim.
-
-          Te ekrani i gjerë kartela e futjes rri e ngjitur (`position: sticky`),
-          dhe panelat rrinë poshtë saj te rreshti i dytë i së njëjtës shtyllë.
-          Një element i ngjitur që është vetë njësi rrjeti nuk ndalet te fundi i
-          fushës së vet — Chrome e mban të ngjitur deri te fundi i tërë rrjetit —
-          pra kartela u rrëshqiste sipër panelave dhe ata mbeteshin të mbuluar
-          pikërisht kur faqja arrinte fundin. Njësia e rrjetit rri jashtë dhe
-          shtrihet sa rreshti i saj; e ngjitura rri brenda dhe ndalet te fundi i
-          asaj mbështjellëseje, pra saktësisht aty ku nisin panelat.
-        */}
         <div className="loja__futja">
-          <div className="loja__ngjitesi">
           <h2 className="titull-seksioni">
             <Ikona
               emri={
@@ -962,7 +949,6 @@ export function Loja({ id }: { id: number }) {
                 }
               />
             )}
-          </div>
           </div>
         </div>
 

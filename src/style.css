@@ -360,19 +360,18 @@ h3 {
 
   .loja__pune {
     grid-template-columns: minmax(23rem, 27rem) minmax(0, 1fr);
-    /* Rreshti i parë merr tërë hapësirën e lirë, i dyti sa panelat: kështu
-       futja ka ku të rrëshqasë e ngjitur (rreshti i saj është i gjatë sa
-       renditja krah tij), dhe panelat ulen te fundi i shtyllës në vend që ta
-       linin gjysmën e ekranit të zbrazët. */
-    grid-template-rows: 1fr auto;
+    /* Rreshti i parë sa kartela e futjes, i dyti merr çka mbetet. Kolona e
+       rezultatit i shtrin të dy rreshtat, dhe pa këtë ndarje lartësia e saj do
+       t'u ndahej të dyve — pra mes kartelës dhe panelave do të hapej një vrimë
+       sa gjysma e ekranit. Me `auto 1fr` ajo bie e tëra te rreshti i dytë, ku
+       panelat rrinë të ngjitur lart (`align-items: start`). */
+    grid-template-rows: auto 1fr;
     align-items: start;
   }
 
   /*
-   * Panelat kalojnë te fundi i shtyllës së majtë — pa e ndërruar radhën e
-   * HTML-së, pra pa e prekur aspak telefonin. Sa rrëshqitet, futja e ngjitur e
-   * zë hapësirën mes tyre: ajo që dukej e zbrazët është pikërisht rruga që bën
-   * kartela teksa e ndjek renditjen.
+   * Panelat rrinë menjëherë nën kartelën e futjes, te e njëjta shtyllë — pa e
+   * ndërruar radhën e HTML-së, pra pa e prekur aspak telefonin.
    */
   .loja__panelat {
     grid-column: 1;
@@ -388,36 +387,6 @@ h3 {
   .loja__rezultatet {
     grid-column: 2;
     grid-row: 1 / span 2;
-  }
-
-  /**
-   * Futja e ndjek rrëshqitjen e tabelës: raundi shënohet me renditjen para syve,
-   * dhe askush nuk ngjitet lart për të shtypur «Ruaj raundin».
-   *
-   * E ngjitura rri te një mbështjellëse brenda njësisë së rrjetit, e jo te vetë
-   * njësia, dhe kjo u pagua me një gabim: një njësi rrjeti e ngjitur nuk ndalet
-   * te fundi i fushës së vet — Chrome e mban të ngjitur deri te fundi i tërë
-   * rrjetit — pra kartela u rrëshqiste sipër panelave të rreshtit të dytë dhe
-   * ata mbeteshin të mbuluar pikërisht kur faqja arrinte fundin. Njësia
-   * shtrihet sa rreshti i saj (`align-self: stretch`), dhe e ngjitura brenda
-   * saj ndalet te fundi i asaj mbështjellëseje: saktësisht aty ku nisin panelat.
-   *
-   * Lartësia dhe rrëshqitja e vet nuk janë zbukurim. Me tetë lojtarë kartela del
-   * më e gjatë se ekrani, dhe një bllok i ngjitur më i gjatë se ekrani i mban
-   * rreshtat e mesit të paarritshëm — sa rri i ngjitur, rrëshqitja e faqes nuk e
-   * lëviz. Me kufi lartësie ai rrëshqet brenda vetes, dhe rreshti i veprimeve
-   * mbetet i ngjitur në fund të tij, ashtu si te telefoni (pika 6).
-   */
-  .loja__futja {
-    align-self: stretch;
-  }
-
-  .loja__ngjitesi {
-    position: sticky;
-    top: var(--hapesira);
-    max-height: calc(100dvh - 2 * var(--hapesira));
-    overflow: auto;
-    scrollbar-gutter: stable;
   }
 
   /* Rreshti i rrjetit është sa kolona më e gjatë; pa këtë, blloqet e shtyllës

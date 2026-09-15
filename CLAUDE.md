@@ -153,9 +153,8 @@ dhjetë të mos lërë prapa një total të ngrirë diku. Nëse shton një vler�
 kësaj ai hapej vetvetiu te çdo raund i ri dhe rrinte bllok i shpalosur brenda kartelës, dhe ajo
 zgjedhje e kishte një çmim që u pa vetëm pasi faqja mori shtylla: me gjashtë lojtarë ai bllok dilte
 **742 piksela** i gjatë. Te telefoni e zinte tërë ekranin dhe shtynte jashtë pamjes renditjen,
-parashikimin e panelat; te tableta e mbushte tërë shtyllën e futjes — e cila rri e ngjitur, pra e
-mbante atë lartësi sa rrëshqitej faqja. Pyetja «ku jemi tani» rrinte gjithmonë një rrëshqitje larg,
-pikërisht pas raundit që sapo u shënua.
+parashikimin e panelat; te tableta e mbushte tërë shtyllën e futjes. Pyetja «ku jemi tani» rrinte
+gjithmonë një rrëshqitje larg, pikërisht pas raundit që sapo u shënua.
 
 Kutia e zgjidh atë pa e prekur asnjë llogari: ekrani i mbetur është i tëri i saj sa shënohet raundi,
 «Esc» ose prekja jashtë e heqin në çast, dhe prapa saj kartela mbetet e shkurtër — fushat dhe një
@@ -1365,23 +1364,25 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - **Ekrani i lojës ka tri grupe, dhe radha e tyre nuk ndërron me gjerësinë**: futja e raundit
   (`.loja__futja`), çka doli prej saj (`.loja__rezultatet`) dhe panelat që preken një herë a asnjë
   (`.loja__panelat` — lojtarët, ndarja, rregullat, kufiri, mbyllja). Ndërron vetëm sa prej tyre hyn
-  në ekran njëherësh: mbi 48rem panelat dalin dy për rresht, mbi 62rem futja dhe renditja rrinë krah
-  për krah dhe futja ngjitet (`position: sticky`), me kufi lartësie e rrëshqitje të vetën, sepse një
-  bllok i ngjitur më i gjatë se ekrani i mban rreshtat e mesit të paarritshëm. Panelat nuk kthehen
-  mes futjes dhe renditjes: atje ata shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
+  në ekran njëherësh: mbi 48rem panelat dalin dy për rresht, dhe mbi 62rem futja dhe renditja rrinë
+  krah për krah. Panelat nuk kthehen mes futjes dhe renditjes: atje ata shtynin poshtë pikërisht atë
+  që lexohet pas çdo raundi.
 
-  Mbi 62rem panelat ulen te **fundi i shtyllës së futjes** (`grid-row: 2`, me rreshtin e parë `1fr`):
-  hapësira mes tyre dhe kartelës nuk është e zbrazët, është rruga që bën kartela e ngjitur teksa
-  ndiqet renditja. Vendosja bëhet me rrjet, pra radha e HTML-së — dhe e telefonit — nuk ndryshon.
+  **Asgjë te ky ekran nuk rri e ngjitur, me kërkesë të pronarit.** Kartela e futjes e pati
+  `position: sticky` te ekrani i gjerë, që raundi të shënohej me renditjen para syve. Ajo u hoq: një
+  kartelë që ndjek rrëshqitjen kalon mbi çka rri poshtë saj, dhe atje poshtë rrinë pikërisht panelat
+  e së njëjtës shtyllë. Njëherë e nxori si gabim të matshëm — një njësi rrjeti e ngjitur nuk ndalet
+  te fundi i fushës së vet, Chrome e mban të ngjitur deri te fundi i tërë rrjetit, pra panelat
+  mbeteshin **plotësisht** të mbuluar kur faqja arrinte fundin — dhe edhe e ndrequr ashtu, kartela
+  mbetej duke notuar mbi to. Tani rrëshqet bashkë me faqen si çdo bllok tjetër. **Mos e kthe të
+  ngjitur.**
 
-  **E ngjitura rri te një mbështjellëse brenda njësisë së rrjetit, e jo te vetë njësia**
-  (`.loja__ngjitesi` brenda `.loja__futja`), dhe kjo u pagua me një gabim: një njësi rrjeti e
-  ngjitur nuk ndalet te fundi i fushës së vet — Chrome e mban të ngjitur deri te fundi i tërë
-  rrjetit — pra kartela u rrëshqiste sipër panelave të rreshtit të dytë, dhe ata mbeteshin plotësisht
-  të mbuluar pikërisht kur faqja arrinte fundin. Njësia shtrihet sa rreshti i saj
-  (`align-self: stretch`) dhe nuk mban asnjë stil tjetër; e ngjitura brenda saj — me kufirin e
-  lartësisë dhe rrëshqitjen e vet — ndalet te fundi i asaj mbështjellëseje, pra saktësisht aty ku
-  nisin panelat. Mos i ktheni bashkë.
+  Mbi 62rem panelat rrinë **menjëherë nën kartelën e futjes**, te e njëjta shtyllë (`grid-row: 2`).
+  Rreshtat janë `auto 1fr` e jo `auto auto`: kolona e rezultatit i shtrin të dy rreshtat, dhe me dy
+  rreshta `auto` lartësia e saj u ndahej të dyve — pra mes kartelës dhe panelave hapej një vrimë sa
+  gjysma e ekranit. Me `1fr` te i dyti ajo bie e tëra atje, ku panelat rrinë të ngjitur lart
+  (`align-items: start`). Vendosja bëhet me rrjet, pra radha e HTML-së — dhe e telefonit — nuk
+  ndryshon.
 - **Ekranet e tjera e ndajnë gjerësinë me `.shtyllat`**, një ndarje e vetme e përbashkët: majtas
   ajo për të cilën hapet faqja — grupet te ballina, historiku te grupi, renditja e rreshti i vetes te
   fleta vetëm-lexim — dhe djathtas (`.shtyllat__anesore`) çka preket a lexohet një herë: bashkimi me
