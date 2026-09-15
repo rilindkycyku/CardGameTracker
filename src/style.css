@@ -394,6 +394,14 @@ h3 {
    * Futja e ndjek rrëshqitjen e tabelës: raundi shënohet me renditjen para syve,
    * dhe askush nuk ngjitet lart për të shtypur «Ruaj raundin».
    *
+   * E ngjitura rri te një mbështjellëse brenda njësisë së rrjetit, e jo te vetë
+   * njësia, dhe kjo u pagua me një gabim: një njësi rrjeti e ngjitur nuk ndalet
+   * te fundi i fushës së vet — Chrome e mban të ngjitur deri te fundi i tërë
+   * rrjetit — pra kartela u rrëshqiste sipër panelave të rreshtit të dytë dhe
+   * ata mbeteshin të mbuluar pikërisht kur faqja arrinte fundin. Njësia
+   * shtrihet sa rreshti i saj (`align-self: stretch`), dhe e ngjitura brenda
+   * saj ndalet te fundi i asaj mbështjellëseje: saktësisht aty ku nisin panelat.
+   *
    * Lartësia dhe rrëshqitja e vet nuk janë zbukurim. Me tetë lojtarë kartela del
    * më e gjatë se ekrani, dhe një bllok i ngjitur më i gjatë se ekrani i mban
    * rreshtat e mesit të paarritshëm — sa rri i ngjitur, rrëshqitja e faqes nuk e
@@ -401,6 +409,10 @@ h3 {
    * mbetet i ngjitur në fund të tij, ashtu si te telefoni (pika 6).
    */
   .loja__futja {
+    align-self: stretch;
+  }
+
+  .loja__ngjitesi {
     position: sticky;
     top: var(--hapesira);
     max-height: calc(100dvh - 2 * var(--hapesira));
@@ -1453,14 +1465,47 @@ th.numri {
 /* ── Llogaritësi ────────────────────────────────────────────────────────── */
 
 
+/**
+ * Llogaritësi rri te një kuti e vërtetë, e jo si bllok brenda kartelës.
+ *
+ * I shpalosur aty me gjashtë lojtarë dilte 742 piksela i gjatë: e mbushte tërë
+ * shtyllën e futjes te tableta — e cila rri e ngjitur, pra e mbante atë lartësi
+ * sa rrëshqitej faqja — dhe tërë ekranin te telefoni. Çka rrinte poshtë tij,
+ * renditja dhe panelat, shtyhej jashtë pamjes.
+ *
+ * Kutia e mban ekranin për vete sa shënohet raundi, dhe e kthen prapa ashtu si
+ * ishte. Prandaj sfondi dhe korniza me pika hiqen: ato e ndanin bllokun nga
+ * kartela përreth, kurse këtu përreth nuk ka çka të ndahet.
+ */
 .llogaritesi {
   display: grid;
   gap: 0.7rem;
-  margin-top: 0.15rem;
-  padding: 0.85rem;
-  border: 1px dashed var(--kufiri-veprues);
-  border-radius: var(--rreze-2);
-  background: var(--siperfaqe-2);
+}
+
+/**
+ * Trupi rrëshqet, rreshti i fundit rri i ngjitur.
+ *
+ * Me tetë lojtarë lista e duarve del më e gjatë se ekrani, dhe «Ruaj raundin»
+ * nuk guxon të bjerë poshtë tij — e njëjta arsye si te `.futja__fund`, vetëm se
+ * këtu kufirin e lartësisë e vë vetë kutia.
+ */
+.llogaritesi__trupi {
+  display: grid;
+  gap: 0.7rem;
+}
+
+/* Rreshti i fundit i ngjitet fundit të kutisë, jo fundit të përmbajtjes së saj:
+   pa margjinën negative, mbushja e kutisë do të mbetej një rrip ku duket teksti
+   që rrëshqet poshtë tij. */
+.llogaritesi__fund {
+  position: sticky;
+  bottom: calc(-1 * var(--kutia-mbushja));
+  display: grid;
+  gap: 0.55rem;
+  margin: 0 calc(-1 * var(--kutia-mbushja)) calc(-1 * var(--kutia-mbushja));
+  padding: 0.55rem var(--kutia-mbushja) var(--kutia-mbushja);
+  background: var(--siperfaqe);
+  border-top: 1px solid var(--kufiri);
 }
 
 /**
@@ -1697,11 +1742,14 @@ th.numri {
  * linte kutinë të varur mbi tekst të lexueshëm.
  */
 .kutia {
+  /* Mbushja rri te një token sepse `.llogaritesi__fund` duhet ta dijë sa është:
+     ai i ngjitet fundit të kutisë duke e anuluar atë me margjinë negative. */
+  --kutia-mbushja: clamp(1rem, 4vw, 1.35rem);
   width: min(22rem, calc(100vw - 2rem));
   max-height: calc(100dvh - 2rem);
   overflow: auto;
   margin: auto;
-  padding: clamp(1rem, 4vw, 1.35rem);
+  padding: var(--kutia-mbushja);
   border: 1px solid var(--kufiri);
   border-radius: var(--rreze);
   background: var(--siperfaqe);
@@ -1711,6 +1759,17 @@ th.numri {
 
 .kutia::backdrop {
   background: rgb(9 14 24 / 0.55);
+}
+
+/**
+ * Kutia e llogaritësit është më e gjerë se ajo e mbledhëses.
+ *
+ * Mbledhësja ka një tastierë me tri kolona dhe hyn te 22rem; këtu rrinë emrat e
+ * tavolinës — deri tetë, tre për rresht — dhe rreshti «emri, dora, pikët», i
+ * cili nën 23rem nis të shtypet (i njëjti kufi si shtylla e futjes te pika 6).
+ */
+.kutia--llogaritesi {
+  width: min(30rem, calc(100vw - 2rem));
 }
 
 .kutia__krye {
@@ -2477,6 +2536,7 @@ th.numri {
   .shtegu,
   .futja,
   .llogaritesi,
+  .kutia,
   .njesi__veprimet,
   .rreshti-veprimeve {
     display: none;
