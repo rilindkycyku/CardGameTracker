@@ -189,6 +189,30 @@ duket gjithmonë, prandaj «Ruaj raundin N» merr rreshtin e vet dhe dy daljet e
 vjen pas (`flex: 1 1 8rem`) — tre butona një mbi një do t'i hanin gjysmën e kutisë, dhe nga gjashtë
 duar do të dukeshin katër.
 
+**Ekrani i shkurtër ka rregullat e veta, dhe ato u matën e nuk u hamendësuan.** Nën 40rem lartësi —
+telefoni i kthyer anash, dhe telefoni i vogël në portret — kutia mbushej e tëra me mobilje dhe
+**asnjë dorë e vetme** nuk dukej pa rrëshqitur: i pari që të zinte syri ishte butoni «Mbyll». Prandaj
+aty ajri shtrëngohet, emrat bien te tri për rresht (kolona 4.6rem, kurse prekja mbetet 2.75rem —
+ai kufi nuk preket kurrë), ikona e dy butonave dytësorë hiqet që fjala e tyre të mbetet në dy
+rreshta, dhe sapo ka 30rem gjerësi rreshti i fundit bie te një i vetëm.
+
+Mbi 40rem gjerësi e nën 40rem lartësi — pra peizazhi — kutia hapet sa 52rem dhe trupi ndahet në dy
+shtylla: pyetja e raundit majtas (`.llogaritesi__pyetja`), duart djathtas (`.llogaritesi__duart`).
+Atje gjerësia rrinte e patrazuar kurse lartësia mungonte — 844px ekran, 480px kuti. `:has` e kufizon
+te llogaritësi: te fushat me dorë `.futja__rrjeti` i shpërndan vetë kolonat, dhe dy shtylla mbi të do
+të linin gjysmën bosh.
+
+**Tri nga këto rregulla e kërkuan emrin e kutisë ose `dialog.` para vetes** (`.kutia--llogaritesi
+.celesi--emra`, `dialog.kutia--llogaritesi`), dhe kjo nuk është hollësi: rregullat e zakonshme që ato
+mposhtin rrinë **më poshtë** te skedari me të njëjtën peshë, dhe pyetja e mediave nuk shton peshë.
+Pa atë emër fiton ai që vjen i fundit — dhe fitonte, në heshtje: kutia mbetej 30rem dhe emrat e
+duarve dilnin të prerë («Li…»).
+
+Matur me shfletues te njëmbëdhjetë ekrane × dy madhësi grupi, nga 320×568 te 1920×1080. E vetmja që
+mbetet e ngushtë është 320×568 me tetë lojtarë — telefoni më i vogël me grupin më të madh — ku duart
+nis të duken pas një rrëshqitjeje. Kutia rri e përdorshme edhe atje: rreshti i fundit brenda ekranit,
+dhe çdo prekje mbi 2.75rem.
+
 **Kutia është `<dialog>` i vërtetë**, i dyti te ky aplikacion pas mbledhëses së dorës (pika 6). Të
 dy e ndajnë `.kutia`-n — kreun, sfondin, «Esc»-in dhe prekjen jashtë — dhe hapen edhe të ndërthurur:
 mbledhësja e një dore mbi detajet e raundit, dhe «Esc» i mbyll sipas radhës. Trupi rrëshqet brenda
