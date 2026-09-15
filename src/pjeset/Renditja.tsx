@@ -14,24 +14,65 @@
  * tabelë. Numrat nuk ndryshojnë — totali mbetet shuma e pikëve — por një total
  * i mbledhur mbi një raund nuk krahasohet me një të mbledhur mbi dhjetë, dhe
  * pa këtë kolonë tabela do ta thoshte të kundërtën pa e ditur.
+ *
+ * Vetë tabela rri te `TabelaERenditjes`, e ndarë nga seksioni, sepse te ekrani
+ * i gjerë ajo vizatohet edhe nga `Parashikimi` — me dy kolona më shumë, brenda
+ * një seksioni të vetëm. Dy kopje të saj do të dilnin jashtë sinkronie
+ * pikërisht atje ku numri duhet të jetë i njëjti.
  */
 
 import { memo } from 'react';
 
 import { fituesit } from '../llogaritjet.ts';
+import type { ParashikimiILojtarit } from '../parashikimi.ts';
 import type { Drejtimi, RreshtiRenditjes } from '../tipet.ts';
 import { Ikona } from '../ikonat.tsx';
 
-function RenditjaBrenda({
+/** Sa raunde ka luajtur secili. Jepet vetëm kur nuk kanë luajtur njësoj. */
+export type RaundetELuajtura = Record<string, number> | null;
+
+export type HyrjetERenditjes = {
+  rreshtat: RreshtiRenditjes[];
+  luajtur?: RaundetELuajtura;
+  /** Nga cila anë fitohet — që kurora të mos shkojë te fundi i tabelës. */
+  drejtimi?: Drejtimi;
+};
+
+/**
+ * Shënimi mbi tabelë kur nuk kanë luajtur të gjithë të njëjtat raunde.
+ *
+ * Rri veç seksionit sepse te tabela e bashkuar ai duhet po ashtu, dhe fjalia
+ * është e njëjta — çka ndryshon është vetëm se çka vjen pas saj.
+ */
+export function NjoftimiIRaundeve() {
+  return (
+    <p className="njoftim njoftim--kujdes" data-hapesire="posht">
+      <Ikona emri="kujdes" />
+      <span>
+        Nuk kanë luajtur të gjithë të njëjtat raunde. Totalet janë të sakta, por
+        radha krahason shuma të mbledhura mbi baza të ndryshme.
+      </span>
+    </p>
+  );
+}
+
+/**
+ * Tabela e renditjes, me ose pa kolonat e parashikimit.
+ *
+ * `parashikimi` jepet vetëm kur të dyja tabelat janë bashkuar: atëherë çdo
+ * rresht merr edhe vendin që mund të dalë e raundet që i duhen për të parin.
+ * Lidhja bëhet me emrin, sepse radha e dy llogarive del e njëjta vetëm kur
+ * totalet janë të njëjta — dhe një lidhje sipas indeksit do të heshtte
+ * pikërisht kur nuk janë.
+ */
+export function TabelaERenditjes({
   rreshtat,
   luajtur,
   drejtimi = 'poshte',
-}: {
-  rreshtat: RreshtiRenditjes[];
-  /** Sa raunde ka luajtur secili. Jepet vetëm kur nuk kanë luajtur njësoj. */
-  luajtur?: Record<string, number> | null;
-  /** Nga cila anë fitohet — që kurora të mos shkojë te fundi i tabelës. */
-  drejtimi?: Drejtimi;
+  parashikimi,
+}: HyrjetERenditjes & {
+  /** Rreshtat e parashikimit, kur tabela është e bashkuar. */
+  parashikimi?: ParashikimiILojtarit[];
 }) {
   /*
    * Kurora u takon të gjithëve që e ndajnë totalin më të vogël.
@@ -43,49 +84,55 @@ function RenditjaBrenda({
    * ndodhur, prandaj ose u takon të gjithëve, ose askujt.
    */
   const pare = new Set(fituesit(rreshtat, drejtimi));
+  const sipasEmrit = new Map(parashikimi?.map((r) => [r.player, r]));
 
   return (
-    <section>
-      <h2 className="titull-seksioni">
-        <Ikona emri="renditja" />
-        Renditja
-      </h2>
-
-      {luajtur && (
-        <p className="njoftim njoftim--kujdes" data-hapesire="posht">
-          <Ikona emri="kujdes" />
-          <span>
-            Nuk kanë luajtur të gjithë të njëjtat raunde. Totalet janë të sakta,
-            por radha krahason shuma të mbledhura mbi baza të ndryshme.
-          </span>
-        </p>
-      )}
-
-      <div className="tabela-mbeshtjellese">
-        <table className="tabela">
-          <caption className="vetem-lexues">
-            Renditja e lojtarëve sipas totalit,{' '}
-            {drejtimi === 'larte'
-              ? 'nga më i madhi te më i vogli'
-              : 'nga më i vogli te më i madhi'}
-            .
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">Vendi</th>
-              <th scope="col">Lojtari</th>
-              {luajtur && (
-                <th scope="col" className="numri">
-                  Raunde
-                </th>
-              )}
+    <div className="tabela-mbeshtjellese">
+      <table
+        className="tabela"
+        data-shume={
+          (parashikimi && rreshtat.length >= 5) || undefined
+        }
+      >
+        <caption className="vetem-lexues">
+          Renditja e lojtarëve sipas totalit,{' '}
+          {drejtimi === 'larte'
+            ? 'nga më i madhi te më i vogli'
+            : 'nga më i vogli te më i madhi'}
+          .
+          {parashikimi &&
+            ' Krah saj, vendi më i mirë dhe më i keq që mund të arrijë secili' +
+              ' dhe sa raunde i duhen për vendin e parë.'}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Vendi</th>
+            <th scope="col">Lojtari</th>
+            {luajtur && (
               <th scope="col" className="numri">
-                Totali
+                Raunde
               </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rreshtat.map((rreshti) => (
+            )}
+            <th scope="col" className="numri">
+              Totali
+            </th>
+            {parashikimi && (
+              <>
+                <th scope="col" className="numri">
+                  Mund të dalë
+                </th>
+                <th scope="col" className="numri">
+                  Deri te i pari
+                </th>
+              </>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {rreshtat.map((rreshti) => {
+            const p = sipasEmrit.get(rreshti.player);
+
+            return (
               <tr
                 key={rreshti.player}
                 className={pare.has(rreshti.player) ? 'rresht--pare' : undefined}
@@ -108,11 +155,50 @@ function RenditjaBrenda({
                   </td>
                 )}
                 <td className="numri">{rreshti.total}</td>
+                {parashikimi && (
+                  <>
+                    <td
+                      className={p?.mundTeFitoje ? 'numri pike--mbyllje' : 'numri'}
+                    >
+                      {!p
+                        ? '—'
+                        : p.meIMiri === p.meIKeqi
+                          ? p.meIMiri
+                          : `${p.meIMiri}–${p.meIKeqi}`}
+                    </td>
+                    <td className="numri qeliza-raundi">
+                      {!p || p.raundetPerVendinEPare === null
+                        ? '—'
+                        : p.raundetPerVendinEPare === 0
+                          ? '·'
+                          : p.raundetPerVendinEPare}
+                    </td>
+                  </>
+                )}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function RenditjaBrenda({ rreshtat, luajtur, drejtimi = 'poshte' }: HyrjetERenditjes) {
+  return (
+    <section>
+      <h2 className="titull-seksioni">
+        <Ikona emri="renditja" />
+        Renditja
+      </h2>
+
+      {luajtur && <NjoftimiIRaundeve />}
+
+      <TabelaERenditjes
+        rreshtat={rreshtat}
+        luajtur={luajtur}
+        drejtimi={drejtimi}
+      />
     </section>
   );
 }

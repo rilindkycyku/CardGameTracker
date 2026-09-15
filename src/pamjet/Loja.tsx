@@ -54,6 +54,7 @@ import { kufiriILojes, mbaroiSipasRregullit, perfundoiMbremja } from '../fundi.t
 import { rregullat, type Rregullat } from '../lojerat.ts';
 import { Ikona } from '../ikonat.tsx';
 import { useNgarko } from '../ngarko.ts';
+import { useEkranIGjere } from '../pamja.ts';
 import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 import { FutjaEMagarecit } from '../pjeset/FutjaEMagarecit.tsx';
 import { FutjaERaundit } from '../pjeset/FutjaERaundit.tsx';
@@ -65,7 +66,7 @@ import { Parashikimi } from '../pjeset/Parashikimi.tsx';
 import { RaundetEMagarecit } from '../pjeset/RaundetEMagarecit.tsx';
 import { Raundet } from '../pjeset/Raundet.tsx';
 import { RregullatELojes } from '../pjeset/RregullatELojes.tsx';
-import { Renditja } from '../pjeset/Renditja.tsx';
+import { type HyrjetERenditjes, Renditja } from '../pjeset/Renditja.tsx';
 import {
   RrjetiIMagarecit,
   ShenjaEMagarecit,
@@ -294,6 +295,32 @@ export function Loja({ id }: { id: number }) {
       barabarte: p.barabarte,
     };
   }, [players, raundet, rregulli.drejtimi]);
+
+  /*
+   * Hyrjet e renditjes, të mbajtura bashkë.
+   *
+   * Te ekrani i gjerë ato i kalojnë `Parashikimi`-t, i cili i vizaton të dyja
+   * si një tabelë e vetme; te telefoni renditja del e vetme si më parë. Rrinë
+   * te një `useMemo` sepse `Renditja` rri pas `memo`: një objekt i ri te çdo
+   * vizatim do ta bënte atë mbështjellje peshë të kotë.
+   */
+  const hyrjetERenditjes = useMemo<HyrjetERenditjes>(
+    () => ({
+      rreshtat,
+      luajtur: barabarte ? null : luajtur,
+      drejtimi: rregulli.drejtimi,
+    }),
+    [rreshtat, barabarte, luajtur, rregulli.drejtimi],
+  );
+
+  /*
+   * A ka ekrani gjerësi sa për tabelën e bashkuar.
+   *
+   * Pyetja shkon te JS-i e jo te CSS-i sepse ajo tabelë ka kolona e krye tjetër
+   * (`pamja.ts`), dhe një fshehje me CSS do të linte të njëjtët numra dy herë
+   * te pema.
+   */
+  const gjere = useEkranIGjere();
 
   const iRadhes = useMemo(() => raundiNeVijim(raundet), [raundet]);
 
@@ -760,24 +787,27 @@ export function Loja({ id }: { id: number }) {
     </div>
   ) : (
     <>
-      <Renditja
-        rreshtat={rreshtat}
-        luajtur={barabarte ? null : luajtur}
-        drejtimi={rregulli.drejtimi}
-      />
-
       {/*
         Parashikimi kërkon kufij të numërueshëm për një raund, dhe ata i ka
         vetëm bridzhi mes lojërave me pikë: te domina e pishpiriku sa bën
         një dorë nuk e thotë rregulli (pika 12).
+
+        Kur ai vizatohet, renditja i jepet atij: te ekrani i gjerë të dyja dalin
+        si një tabelë e vetme, sepse kolonat e para janë të njëjtat dhe
+        hapësira nuk është. Vendimin e mban `Parashikimi` — edhe rastin kur
+        s'ka çka të parashikohet, ku renditja del e vetme si më parë.
       */}
-      {rregulli.parashikimi && (
+      {rregulli.parashikimi ? (
         <Parashikimi
           lloji={lloji}
           players={players}
           totalet={totalat}
           luajtur={raundet.length}
+          renditja={hyrjetERenditjes}
+          bashko={gjere}
         />
+      ) : (
+        <Renditja {...hyrjetERenditjes} />
       )}
 
       <Raundet

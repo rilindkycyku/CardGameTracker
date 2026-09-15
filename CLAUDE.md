@@ -91,7 +91,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 357 prova, pa framework provash
+npm test          # node --test — 360 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -122,14 +122,23 @@ drejtpërdrejt nga
 prishet mes provës dhe kodit.
 
 `lidhja.ts`, `lidhjaMeServer.ts`, `lidhjaMeTakim.ts`, `sistemi.ts`, `ruajtja.ts`, `matja.ts`,
-`ndricimi.ts`, `supabase.ts`, `sinkronizimi.ts` dhe `pajisja.ts` nuk hyjnë te kjo listë me qëllim: e para njeh
+`ndricimi.ts`, `supabase.ts`, `sinkronizimi.ts`, `pajisja.ts` dhe `pamja.ts` nuk hyjnë te kjo listë me qëllim: e para njeh
 `RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e treta `navigator`-in (tabelën e
 fragmenteve dhe fletën e ndarjes), e katërta bazën, e pesta `document`-in dhe `window`-in, e gjashta
 `localStorage`-in e `matchMedia`-n, e shtata `fetch`-in e `localStorage`-in, e teta të dyja ato
-bashkë me bazën, dhe e nënta `localStorage`-in e `navigator`-in. Logjika e tyre e provueshme është
+bashkë me bazën, e nënta `localStorage`-in e `navigator`-in, dhe e fundit `matchMedia`-n e
+gjerësisë. Logjika e tyre e provueshme është
 nxjerrë jashtë — te `sinjalizimi.ts`, `kodi.ts`, `kopja.ts`, `analitika.ts`, `tema.ts`,
 `bashkimi.ts`, `skema.ts`, `projekti.ts` dhe `identiteti.ts` — dhe ajo që mbetet provohet me
 shfletues.
+
+`pamja.ts` është i vetmi vend ku gjerësia e ekranit hyn te JS-i, dhe rri i ngushtë me qëllim: një
+pyetje, një hook. Çdo gjë tjetër që varet nga gjerësia rri te CSS-i, ku i takon — ai skedar
+ekziston vetëm për rastin që CSS-i nuk e bën dot, dhe ai rast është një: renditja dhe parashikimi
+bashkohen te një tabelë e vetme sapo ekrani hapet (sistemi vizual, më poshtë). Ajo nuk është pamje
+tjetër e së njëjtës tabelë — është një tabelë me kolona e krye tjetër — prandaj një fshehje me CSS
+do të linte të njëjtët numra dy herë te pema. Nëse i shtohet një pyetje e dytë, pyetja e parë është
+pse nuk e bën dot CSS-i.
 
 Çiftet e sinkronizimit lexohen si ato që ekzistonin: `bashkimi.ts` krah `sinkronizimi.ts` si
 `sherbimi.ts` krah `punetori.ts`, dhe `projekti.ts` krah `supabase.ts` si `analitika.ts` krah
@@ -1397,6 +1406,31 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   mbyllja). Ndërron vetëm sa prej tyre hyn në ekran njëherësh: mbi 48rem panelat dalin dy për rresht,
   dhe mbi 62rem kartela dhe renditja rrinë krah për krah. Panelat nuk kthehen mes tyre: atje ata
   shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
+
+  **Sapo faqja hapet, renditja dhe parashikimi bëhen një tabelë e vetme.** Dy kolonat e para janë
+  të njëjtat — vendi dhe lojtari — dhe të dyja tabelat rrinë njëra nën tjetrën te e njëjta shtyllë:
+  një kokë tabele, një radhë emrash dhe gjysmë ekrani të shpenzuar dy herë për të njëjtën gjë.
+  Prandaj mbi 48rem `Parashikimi` i vizaton të dyja bashkë — `Vendi | Lojtari | Totali | Mund të
+  dalë | Deri te i pari` — nën titullin e renditjes, me çelësin «Sa larg të shihet» e fjalinë mbi
+  tabelë dhe supozimet poshtë saj. Nën 48rem mbeten dy seksione si më parë: pesë kolona te telefoni
+  do të kërkonin një rrëshqitje anash pikërisht te tabela që lexohet pas çdo raundi.
+
+  Tri gjëra aty nuk guxojnë të ndryshojnë:
+
+  - **Tabelën e vizaton `TabelaERenditjes`, një e vetme.** Kurora, vendi i parë dhe kolona «raunde»
+    janë vendime të renditjes; dy kopje të tyre do të dilnin jashtë sinkronie pikërisht atje ku
+    numri duhet të jetë i njëjti.
+  - **Çelësi dhe fjalia rrinë mbi tabelë.** Ato e ndërrojnë pikërisht atë që shkruhet te dy kolonat
+    e fundit, dhe një kontroll nën atë që e ndryshon nuk lexohet si kontroll.
+  - **Bashkohen vetëm kur të dyja listat kanë të njëjtët lojtarë.** Tabela e bashkuar i vizaton
+    rreshtat e renditjes, pra kush mungon prej saj e humb edhe parashikimin e vet. Te ekrani i lojës
+    kjo nuk ndodh — renditja aty i merr të gjithë — por kushti rri i shkruar për çdo thirrës që i
+    jep rreshtat e filtruar (`renditjaELojes`, pika 5): ai i merr të dyja tabelat të ndara, e nuk
+    humb një lojtar në heshtje.
+
+  Pika ku bashkohen është e njëjta ku panelat dalin dy për rresht, dhe prova `tabela bashkohet vetëm
+  pasi faqja të jetë hapur` e mban të lidhur me CSS-in: gjerësinë e pesë kolonave e jep
+  `.faqja--gjere` e jo ekrani, prandaj bashkimi nuk guxon të vijë para saj.
 
   **Asgjë te ky ekran nuk rri e ngjitur, me kërkesë të pronarit.** Kartela e futjes e pati
   `position: sticky` te ekrani i gjerë, që raundi të shënohej me renditjen para syve. Ajo u hoq: një
