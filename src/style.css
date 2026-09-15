@@ -396,6 +396,37 @@ h3 {
   }
 }
 
+/**
+ * Peizazhi e merr ekranin të tërin, me kërkesë të shprehur të pronarit.
+ *
+ * Tavolina luhet me tabletin e mbajtur anash, dhe atje çdo gjë që faqja nuk e
+ * përdor lexohet si ekran i shpenzuar: 88rem-i i mëparshëm linte dy shirita
+ * bosh majtas e djathtas, dhe ajri mbi kre e nën fundfaqe hante edhe një copë
+ * lartësie pikërisht te forma ku ajo mungon më shumë. Prandaj në peizazh faqja
+ * nuk qendërzohet dhe nuk mban asnjë ajër të vetin: nga buza e ekranit te
+ * kartela e parë nuk ka asgjë.
+ *
+ * Kjo është zgjedhje e pronarit e jo rrjedhojë e kodit — portreti mbetet
+ * pikërisht si ishte, me gjerësinë e vet dhe ajrin e vet, sepse atje kolona
+ * është një dhe një kartelë buzë më buzë me ekranin nuk ka ku të marrë frymë.
+ * Mos e ndërro pa e pyetur.
+ *
+ * `env(safe-area-inset-*)` mbetet, dhe ajo nuk e prek kërkesën: te tableta ato
+ * vlera janë zero, pra padding-u del vërtet zero. Aty ku nuk janë — telefoni me
+ * prerje i kthyer anash, qoshet e rrumbullakosura, shiriti i sistemit te
+ * aplikacioni i instaluar — ato nuk shtojnë zbukurim, ato mbajnë tekstin brenda
+ * xhamit. Zeroja e tyre është e vetmja zero që do të fshihte fjalë.
+ */
+@media screen and (orientation: landscape) {
+  .faqja,
+  .faqja--gjere {
+    max-width: none;
+    padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+}
+
 .vetem-lexues {
   position: absolute;
   width: 1px;

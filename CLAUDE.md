@@ -1466,6 +1466,26 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   dy pëllëmbë boshe majtas e djathtas mbi një ekran që i kishte. Ajo që nuk u lëshua bashkë me të
   është gjerësia e leximit: `.ndihma` merr `max-width: 70ch`, sepse një fjali mbi njëqind shkronja
   për rresht e humb fillimin e rreshtit tjetër. Numri rri i lirë të shkojë sa të dojë; fjalia jo.
+
+  **Në peizazh nuk mbetet as ai numër, as asnjë ajër i faqes — me kërkesë të shprehur të pronarit.**
+  `@media screen and (orientation: landscape)` e heq `max-width`-in dhe e zbret padding-un e
+  `.faqja`-s te zero nga të katër anët: nga buza e ekranit te kartela e parë nuk ka asgjë. Tavolina
+  luhet me tabletin e mbajtur anash, dhe atje çdo gjë që faqja nuk e përdor lexohet si ekran i
+  shpenzuar. Tri gjëra rrinë me të:
+
+  - **Portreti nuk preket fare.** Atje kolona është një, dhe një kartelë buzë më buzë me ekranin nuk
+    ka ku të marrë frymë. Kjo është zgjedhje e pronarit e jo rrjedhojë e kodit — mos e ndërro pa e
+    pyetur, në asnjërin drejtim.
+  - **`env(safe-area-inset-*)` mbetet, dhe kjo nuk e prek kërkesën.** Te tableta ato vlera janë
+    zero, pra padding-u del vërtet zero. Aty ku nuk janë — telefoni me prerje i kthyer anash, qoshet
+    e rrumbullakosura, shiriti i sistemit te aplikacioni i instaluar — ato nuk shtojnë zbukurim, ato
+    mbajnë tekstin brenda xhamit. Zeroja e tyre është e vetmja zero që do të fshihte fjalë.
+  - **`screen and` nuk është hollësi.** Pa të, një fletë e shtypur në peizazh do ta merrte këtë
+    rregull dhe do të dilte pa asnjë buzë — shtypësi e pret atë që i bie jashtë zonës së vet.
+
+  Çmimi rri te ekrani shumë i gjerë: mbi 62rem shtylla e rezultatit merr çka mbetet pas 27rem-it të
+  futjes, prandaj te një monitor 1920 tabela e renditjes shtrihet dhe kolonat e saj largohen nga
+  njëra-tjetra. Te tableta — ekrani për të cilin u kërkua — ajo del pikërisht sa duhet.
 - **Shtegu i kthimit rri te vetë kreu, e jo mbi të** (`MbiTitullin` te `pjeset/Kreu.tsx`). Ishin dy
   rreshta që thoshin të njëjtën gjë: një shteg «‹ Shoqëria», dhe menjëherë poshtë tij etiketa
   «SHOQËRIA» mbi titull — te ekrani i lojës fjalë për fjalë i njëjti emër grupi dy herë, dhe te
