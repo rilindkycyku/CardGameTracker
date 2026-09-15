@@ -1404,7 +1404,7 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   (`.loja__futja` — një shënim dhe një buton, pika 3), çka doli prej saj (`.loja__rezultatet`) dhe
   panelat që preken një herë a asnjë (`.loja__panelat` — lojtarët, ndarja, rregullat, kufiri,
   mbyllja). Ndërron vetëm sa prej tyre hyn në ekran njëherësh: mbi 48rem panelat dalin dy për rresht,
-  mbi 62rem kartela dhe renditja rrinë krah për krah, dhe mbi 92rem vetë shtylla e rezultatit ndahet
+  mbi 62rem kartela dhe renditja rrinë krah për krah, dhe mbi 90rem vetë shtylla e rezultatit ndahet
   në dy — renditja majtas, raundet djathtas, shlyerja poshtë sa të dyja.
 
   **Ajo ndarja e fundit është kufi i tabelës, jo i ekranit, dhe kjo është pikërisht kërkesa e
@@ -1413,11 +1413,17 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   hapej gjysmë pëllëmbe e bardhë, pikërisht ajo që bashkimi i renditjes me parashikimin e kishte
   mbyllur. Një tabelë e gjerë nuk lexohet më mirë se një e ngushtë — syri e humb rreshtin midis.
 
-  **92rem nuk u zgjodh me sy, u mat.** Tabela e renditjes me tetë lojtarë kërkon 493 piksela para se
-  të nisë të rrëshqasë brenda mbështjellëses së vet, dhe kolona e majtë i arrin ata pikërisht aty:
-  te 1440 del 491 — dy piksela më pak, dhe ajo rrëshqet — kurse te 1472 del 508. Nën atë pikë një
-  ndarje do të jepte dy kolona ku asnjëra nuk lexohet pa rrëshqitur, dhe atëherë një e vetme e gjerë
-  është më e mira e mbetur. Mos e ul atë numër pa e rimatur kolonën me tetë lojtarë.
+  **90rem nuk u zgjodh me sy, u mat — dhe numri që e vendos është ekrani i pronarit.** Galaxy Tab A9+
+  i mbajtur anash raporton **1440×900** (1920 piksela fizikë, DPR 1.333), pra pragu duhet të bjerë
+  nën atë gjerësi ose e tërë kjo ndarje nuk shihet kurrë atje ku u kërkua. Ai numër nuk u hamendësua:
+  u nxor duke matur vetë fotografinë e ekranit që solli pronari — përmbajtja zinte 162…1757 nga 1920
+  piksela, dhe ajo del vetëm me atë raport.
+
+  Te 1440 ndarja hyn vetëm me dy lëshime të matura: futja lëshon dy rem (tavani 27 → 25, dyshemeja
+  23 e paprekur) dhe renditja merr `1.15fr` kundrejt `1fr`. Pa to kolona e majtë del rreth 478
+  piksela, kurse tabela e renditjes me tetë lojtarë kërkon 493 para se të nisë të rrëshqasë brenda
+  mbështjellëses së vet; me to del 506. Trembëdhjetë piksela hapësirë — pra mos e ul atë prag dhe mos
+  i ndërro ata dy numra pa e rimatur kolonën me tetë lojtarë te 1440.
 
   Vendosja kërkon që çdo pjesë e asaj shtylle të ketë mbështjellësen e vet (`.loja__bllok`, e vënë te
   `Loja`): një rrjet nuk i vendos dot pjesët që nuk i njeh, dhe `nth-child` do të numëronte gabim
@@ -1486,19 +1492,20 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   është gjerësia e leximit: `.ndihma` merr `max-width: 70ch`, sepse një fjali mbi njëqind shkronja
   për rresht e humb fillimin e rreshtit tjetër. Numri rri i lirë të shkojë sa të dojë; fjalia jo.
 
-  **Në peizazh nuk mbetet as ai numër, as asnjë ajër i faqes — me kërkesë të shprehur të pronarit.**
-  `@media screen and (orientation: landscape)` e heq `max-width`-in dhe e zbret padding-un e
-  `.faqja`-s te zero nga të katër anët: nga buza e ekranit te kartela e parë nuk ka asgjë. Tavolina
-  luhet me tabletin e mbajtur anash, dhe atje çdo gjë që faqja nuk e përdor lexohet si ekran i
-  shpenzuar. Tri gjëra rrinë me të:
+  **Në peizazh nuk mbetet as ai numër, dhe nga ajri i faqes mbetet vetëm një gisht — me kërkesë të
+  shprehur të pronarit.** `@media screen and (orientation: landscape)` e heq `max-width`-in dhe e
+  zbret padding-un e `.faqja`-s te `--ajri-anash` (0.75rem) nga të katër anët: aq sa kartela të mos
+  ngjitet te xhami, dhe asnjë piksel më shumë. Tavolina luhet me tabletin e mbajtur anash, dhe atje
+  çdo gjë që faqja nuk e përdor lexohet si ekran i shpenzuar. Numri rri te një vend i vetëm — nëse
+  duhet më shumë ajër a më pak, ndërrohet ai token e jo rregulli. Tri gjëra rrinë me të:
 
   - **Portreti nuk preket fare.** Atje kolona është një, dhe një kartelë buzë më buzë me ekranin nuk
     ka ku të marrë frymë. Kjo është zgjedhje e pronarit e jo rrjedhojë e kodit — mos e ndërro pa e
     pyetur, në asnjërin drejtim.
-  - **`env(safe-area-inset-*)` mbetet, dhe kjo nuk e prek kërkesën.** Te tableta ato vlera janë
-    zero, pra padding-u del vërtet zero. Aty ku nuk janë — telefoni me prerje i kthyer anash, qoshet
-    e rrumbullakosura, shiriti i sistemit te aplikacioni i instaluar — ato nuk shtojnë zbukurim, ato
-    mbajnë tekstin brenda xhamit. Zeroja e tyre është e vetmja zero që do të fshihte fjalë.
+  - **`env(safe-area-inset-*)` mbetet, me `max()`.** Te tableta ato vlera janë zero, pra vlen
+    `--ajri-anash` i plotë. Aty ku nuk janë — telefoni me prerje i kthyer anash, qoshet e
+    rrumbullakosura, shiriti i sistemit te aplikacioni i instaluar — ato marrin përsipër, sepse atje
+    nuk bëhet fjalë për zbukurim por për tekstin brenda xhamit.
   - **`screen and` nuk është hollësi.** Pa të, një fletë e shtypur në peizazh do ta merrte këtë
     rregull dhe do të dilte pa asnjë buzë — shtypësi e pret atë që i bie jashtë zonës së vet.
 

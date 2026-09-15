@@ -109,6 +109,9 @@
   --hije-1: 0 1px 2px rgb(15 23 42 / 5%);
   --hije-2: 0 1px 2px rgb(15 23 42 / 4%), 0 12px 28px -10px rgb(15 23 42 / 14%);
   --hapesira: clamp(1rem, 4vw, 1.5rem);
+  /* Ajri i vetëm që mban faqja në peizazh (shih rregullin e orientimit më
+     poshtë): sa të mos ngjitet kartela te buza e xhamit, e jo më shumë. */
+  --ajri-anash: 0.75rem;
   --shkronja: 'Quicksand', system-ui, -apple-system, 'Segoe UI', Roboto,
     Helvetica, Arial, sans-serif;
   /* Numrat e kolonave rrinë monospace: te një tabelë pikësh shifrat duhet të
@@ -419,8 +422,9 @@ h3 {
  * përdor lexohet si ekran i shpenzuar: 88rem-i i mëparshëm linte dy shirita
  * bosh majtas e djathtas, dhe ajri mbi kre e nën fundfaqe hante edhe një copë
  * lartësie pikërisht te forma ku ajo mungon më shumë. Prandaj në peizazh faqja
- * nuk qendërzohet dhe nuk mban asnjë ajër të vetin: nga buza e ekranit te
- * kartela e parë nuk ka asgjë.
+ * nuk qendërzohet dhe mban vetëm `--ajri-anash` nga të katër anët — aq sa
+ * kartela të mos ngjitet te xhami, dhe asnjë piksel më shumë. Numri rri te një
+ * vend i vetëm: nëse duhet më shumë ajër a më pak, ndërrohet ai.
  *
  * Kjo është zgjedhje e pronarit e jo rrjedhojë e kodit — portreti mbetet
  * pikërisht si ishte, me gjerësinë e vet dhe ajrin e vet, sepse atje kolona
@@ -437,9 +441,10 @@ h3 {
   .faqja,
   .faqja--gjere {
     max-width: none;
-    padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px);
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
+    padding-block: max(var(--ajri-anash), env(safe-area-inset-top, 0px))
+      max(var(--ajri-anash), env(safe-area-inset-bottom, 0px));
+    padding-left: max(var(--ajri-anash), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--ajri-anash), env(safe-area-inset-right, 0px));
   }
 }
 
@@ -452,25 +457,38 @@ h3 {
  * mbyllur. Një tabelë e gjerë nuk lexohet më mirë se një e ngushtë — syri e
  * humb rreshtin midis.
  *
- * Prandaj mbi 96rem shtylla ndahet në dy: renditja majtas, raundet djathtas,
+ * Prandaj mbi 90rem shtylla ndahet në dy: renditja majtas, raundet djathtas,
  * dhe shlyerja poshtë sa të dyja. Hapësira shkon te një bllok i dytë e jo te
  * ajri i të parit, dhe mbrëmja e tërë — ku jemi, çka u shënua, kush kujt sa i
  * del — hyn te një ekran i vetëm pa rrëshqitur.
  *
- * 92rem nuk u zgjodh me sy, u mat: tabela e renditjes me tetë lojtarë kërkon
- * 493 piksela para se të nisë të rrëshqasë brenda mbështjellëses së vet, dhe
- * kolona e majtë i arrin ata pikërisht aty (1440 jep 491 — dy piksela më pak, e
- * ajo rrëshqet). Nën atë pikë një ndarje do të jepte dy kolona ku asnjëra nuk
- * lexohet pa rrëshqitur, dhe atëherë një e vetme e gjerë është më e mira e
- * mbetur. Prandaj mos e ul atë numër pa e rimatur kolonën me tetë lojtarë.
+ * 90rem nuk u zgjodh me sy, u mat, dhe numri që e vendos është ekrani i
+ * pronarit: Galaxy Tab A9+ i mbajtur anash raporton 1440×900 (1920 fizikë,
+ * DPR 1.333). Pra pragu duhet të bjerë **nën** atë gjerësi, ose e tërë kjo
+ * ndarje nuk shihet kurrë atje ku u kërkua.
+ *
+ * Dhe te 1440 ajo hyn vetëm me dy lëshime të matura: futja lëshon dy rem (27 →
+ * 25) dhe renditja merr 1.15fr kundrejt 1fr. Pa to kolona e majtë del rreth
+ * 478 piksela, kurse tabela e renditjes me tetë lojtarë kërkon 493 para se të
+ * nisë të rrëshqasë brenda mbështjellëses së vet. Me to kalon mbi të.
+ *
+ * Prandaj mos e ul atë prag dhe mos i ndërro ato dy numra pa e rimatur kolonën
+ * me tetë lojtarë te 1440.
  *
  * Renditja merr pak më shumë se raundet (`1.1fr`): ajo ka pesë kolona të
  * emërtuara me fjalë, kurse raundet kanë emra të shkurtuar në tri shkronja dhe
  * numra, dhe tabela e tyre rrëshqet brenda mbështjellëses së vet kur s'i mjafton.
  */
-@media screen and (min-width: 92rem) {
+@media screen and (min-width: 90rem) {
+  /* Kolona e futjes lëshon dy rem, që të dyja tabelat të hyjnë krah për krah.
+     23rem mbetet dyshemeja e saj — atje rreshti «emri, dora, pikët» i
+     llogaritësit nis të shtypet — dhe kjo e prek vetëm tavanin. */
+  .loja__pune {
+    grid-template-columns: minmax(23rem, 25rem) minmax(0, 1fr);
+  }
+
   .loja__rezultatet {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   }
 
   .loja__bllok--gjere {
