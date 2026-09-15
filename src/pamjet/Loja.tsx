@@ -53,7 +53,9 @@ import {
 import { kufiriILojes, mbaroiSipasRregullit, perfundoiMbremja } from '../fundi.ts';
 import { rregullat, type Rregullat } from '../lojerat.ts';
 import { Ikona } from '../ikonat.tsx';
+import { MbiTitullin, type ShtegiIKthimit } from '../pjeset/Kreu.tsx';
 import { useNgarko } from '../ngarko.ts';
+import { useEkranIGjere } from '../pamja.ts';
 import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 import { FutjaEMagarecit } from '../pjeset/FutjaEMagarecit.tsx';
 import { FutjaERaundit } from '../pjeset/FutjaERaundit.tsx';
@@ -65,7 +67,7 @@ import { Parashikimi } from '../pjeset/Parashikimi.tsx';
 import { RaundetEMagarecit } from '../pjeset/RaundetEMagarecit.tsx';
 import { Raundet } from '../pjeset/Raundet.tsx';
 import { RregullatELojes } from '../pjeset/RregullatELojes.tsx';
-import { Renditja } from '../pjeset/Renditja.tsx';
+import { type HyrjetERenditjes, Renditja } from '../pjeset/Renditja.tsx';
 import {
   RrjetiIMagarecit,
   ShenjaEMagarecit,
@@ -295,6 +297,32 @@ export function Loja({ id }: { id: number }) {
     };
   }, [players, raundet, rregulli.drejtimi]);
 
+  /*
+   * Hyrjet e renditjes, të mbajtura bashkë.
+   *
+   * Te ekrani i gjerë ato i kalojnë `Parashikimi`-t, i cili i vizaton të dyja
+   * si një tabelë e vetme; te telefoni renditja del e vetme si më parë. Rrinë
+   * te një `useMemo` sepse `Renditja` rri pas `memo`: një objekt i ri te çdo
+   * vizatim do ta bënte atë mbështjellje peshë të kotë.
+   */
+  const hyrjetERenditjes = useMemo<HyrjetERenditjes>(
+    () => ({
+      rreshtat,
+      luajtur: barabarte ? null : luajtur,
+      drejtimi: rregulli.drejtimi,
+    }),
+    [rreshtat, barabarte, luajtur, rregulli.drejtimi],
+  );
+
+  /*
+   * A ka ekrani gjerësi sa për tabelën e bashkuar.
+   *
+   * Pyetja shkon te JS-i e jo te CSS-i sepse ajo tabelë ka kolona e krye tjetër
+   * (`pamja.ts`), dhe një fshehje me CSS do të linte të njëjtët numra dy herë
+   * te pema.
+   */
+  const gjere = useEkranIGjere();
+
   const iRadhes = useMemo(() => raundiNeVijim(raundet), [raundet]);
 
   /*
@@ -444,6 +472,22 @@ export function Loja({ id }: { id: number }) {
     [raundet, rifresko],
   );
 
+  /*
+   * Ku shpie prekja mbi rreshtin e kreut — te grupi i vet, ose te ballina kur
+   * loja e ka humbur grupin. Të dyja pamjet e kësaj faqeje e ndajnë: fleta e
+   * mbyllur ka po atë kre, dhe dy kopje do të dilnin jashtë sinkronie atje ku
+   * njëra kthen te grupi e tjetra jo.
+   */
+  const shtegu: ShtegiIKthimit = {
+    href: grupi ? `#/grupi/${grupi.id}` : '#/',
+    onClick: (ngjarja) => {
+      if (!grupi) {
+        ngjarja.preventDefault();
+        shko('/');
+      }
+    },
+  };
+
   if (te_dhenat === null) {
     return (
       <div className="faqja">
@@ -577,23 +621,17 @@ export function Loja({ id }: { id: number }) {
    */
   if (perfundoi && pamja) {
     return (
-      <div className="faqja">
-        <a
-          className="shtegu"
-          href={grupi ? `#/grupi/${grupi.id}` : '#/'}
-          onClick={(e) => {
-            if (!grupi) {
-              e.preventDefault();
-              shko('/');
-            }
-          }}
-        >
-          <Ikona emri="kthehu" />
-          {grupi ? grupi.name : 'Grupet'}
-        </a>
-
+      /*
+        `faqja--gjere` sepse `PamjaERezultatit` vizaton `.shtyllat`, dhe ato pa
+        të nuk kanë ku të hapen: dy kolona brenda 47rem janë dy kolona të
+        ngushta mes dy pëllëmbëve të zbrazëta. E njëjta fletë te `#/shiko` e
+        kishte që më parë — kjo ishte e vetmja rrugë ku i njëjti vizatim dilte
+        i ngushtuar.
+      */
+      <div className="faqja faqja--gjere">
         <PamjaERezultatit
           pamja={pamja}
+          shtegu={shtegu}
           perfundoi
           etiketa={{ emri: 'Përfundoi', ikona: 'renditja' }}
           njoftimi={
@@ -714,40 +752,50 @@ export function Loja({ id }: { id: number }) {
    * Rri te një ndryshore e jo drejtpërdrejt te vizatimi, sepse te ekrani i gjerë
    * kjo shtyllë vendoset krah futjes: dy kolona e duan bllokun të tërin, dhe një
    * listë e shpërndarë nëpër `return` nuk hyn dot brenda njërës.
+   *
+   * Brenda saj çdo pjesë ka mbështjellësen e vet (`loja__bllok`), sepse te
+   * ekrani shumë i gjerë ato dalin dy për rresht — renditja krah raundeve — dhe
+   * një rrjet nuk i vendos dot pjesët që nuk i njeh. Shlyerja merr
+   * `--gjere`: ajo është listë kartelash që rrjedh vetë, dhe një gjysmë
+   * shtyllë do t'i ngushtonte pa nevojë.
    */
   const rezultatet = magarec ? (
     <>
-      {/*
-        Rrjeti rri edhe kur s'ka ende asnjë raund: shtatë rreshta të zbrazët
-        e thonë vetë lojën — kaq shkronja ka, dhe kush i mbush i humbi.
-      */}
-      <RrjetiIMagarecit players={players} shkronjat={totalat} />
+      <div className="loja__bllok">
+        {/*
+          Rrjeti rri edhe kur s'ka ende asnjë raund: shtatë rreshta të zbrazët
+          e thonë vetë lojën — kaq shkronja ka, dhe kush i mbush i humbi.
+        */}
+        <RrjetiIMagarecit players={players} shkronjat={totalat} />
 
-      {raundet.length > 0 && (
-        <Parashikimi
-          lloji="magarec"
-          players={players}
-          totalet={totalat}
-          luajtur={raundet.length}
-        />
-      )}
+        {raundet.length > 0 && (
+          <Parashikimi
+            lloji="magarec"
+            players={players}
+            totalet={totalat}
+            luajtur={raundet.length}
+          />
+        )}
+      </div>
 
-      {raundet.length === 0 ? (
-        <div className="zbrazet">
-          <p className="zbrazet__titull">Ende asnjë raund</p>
-          <p>
-            Prek atë që e humbi raundin e parë. Shkronjat dalin vetë, një
-            për raund, derisa dikujt t'i mbushet fjala.
-          </p>
-        </div>
-      ) : (
-        <RaundetEMagarecit
-          raundet={raundetMeShkronja}
-          dukeRedaktuar={dukeRedaktuar}
-          onRedakto={redakto}
-          onFshi={fshi}
-        />
-      )}
+      <div className="loja__bllok">
+        {raundet.length === 0 ? (
+          <div className="zbrazet">
+            <p className="zbrazet__titull">Ende asnjë raund</p>
+            <p>
+              Prek atë që e humbi raundin e parë. Shkronjat dalin vetë, një
+              për raund, derisa dikujt t'i mbushet fjala.
+            </p>
+          </div>
+        ) : (
+          <RaundetEMagarecit
+            raundet={raundetMeShkronja}
+            dukeRedaktuar={dukeRedaktuar}
+            onRedakto={redakto}
+            onFshi={fshi}
+          />
+        )}
+      </div>
     </>
   ) : raundet.length === 0 ? (
     <div className="zbrazet">
@@ -760,66 +808,65 @@ export function Loja({ id }: { id: number }) {
     </div>
   ) : (
     <>
-      <Renditja
-        rreshtat={rreshtat}
-        luajtur={barabarte ? null : luajtur}
-        drejtimi={rregulli.drejtimi}
-      />
-
       {/*
         Parashikimi kërkon kufij të numërueshëm për një raund, dhe ata i ka
         vetëm bridzhi mes lojërave me pikë: te domina e pishpiriku sa bën
         një dorë nuk e thotë rregulli (pika 12).
-      */}
-      {rregulli.parashikimi && (
-        <Parashikimi
-          lloji={lloji}
-          players={players}
-          totalet={totalat}
-          luajtur={raundet.length}
-        />
-      )}
 
-      <Raundet
-        players={players}
-        raundet={raundet}
-        totalet={totalat}
-        dukeRedaktuar={dukeRedaktuar}
-        onRedakto={redakto}
-        onFshi={fshi}
-      />
+        Kur ai vizatohet, renditja i jepet atij: te ekrani i gjerë të dyja dalin
+        si një tabelë e vetme, sepse kolonat e para janë të njëjtat dhe
+        hapësira nuk është. Vendimin e mban `Parashikimi` — edhe rastin kur
+        s'ka çka të parashikohet, ku renditja del e vetme si më parë.
+      */}
+      <div className="loja__bllok">
+        {rregulli.parashikimi ? (
+          <Parashikimi
+            lloji={lloji}
+            players={players}
+            totalet={totalat}
+            luajtur={raundet.length}
+            renditja={hyrjetERenditjes}
+            bashko={gjere}
+          />
+        ) : (
+          <Renditja {...hyrjetERenditjes} />
+        )}
+      </div>
+
+      <div className="loja__bllok">
+        <Raundet
+          players={players}
+          raundet={raundet}
+          totalet={totalat}
+          dukeRedaktuar={dukeRedaktuar}
+          onRedakto={redakto}
+          onFshi={fshi}
+        />
+      </div>
 
       {/*
         Shlyerja vlen aty ku diferenca paguhet — bridzh e domina. Te
         pishpiriku pikët mblidhen drejt 101-shit e nuk janë borxh, prandaj
         matrica nuk vizatohet fare, si te magareci.
       */}
-      {rregulli.shlyerja && <Shlyerja players={rendituar} matrica={matrica} />}
+      {rregulli.shlyerja && (
+        <div className="loja__bllok loja__bllok--gjere">
+          <Shlyerja players={rendituar} matrica={matrica} />
+        </div>
+      )}
     </>
   );
 
   return (
     <div className="faqja faqja--gjere">
-      <a
-        className="shtegu"
-        href={grupi ? `#/grupi/${grupi.id}` : '#/'}
-        onClick={(e) => {
-          if (!grupi) {
-            e.preventDefault();
-            shko('/');
-          }
-        }}
-      >
-        <Ikona emri="kthehu" />
-        {grupi ? grupi.name : 'Grupet'}
-      </a>
-
       <header className="kreu">
         <div className="njesi__shkronja njesi__shkronja--hapur marka">
           <Ikona emri="kalendari" />
         </div>
         <div>
-          <p className="kreu__mbi">{grupi ? grupi.name : 'Lojë'}</p>
+          <MbiTitullin shtegu={shtegu}>
+            {grupi ? grupi.name : 'Grupet'}
+          </MbiTitullin>
           <h1 className="kreu__titull">{dataShqip(loja.date)}</h1>
           <p className="kreu__meta">
             <span className="etiketa">

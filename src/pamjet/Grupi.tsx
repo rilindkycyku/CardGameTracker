@@ -26,6 +26,7 @@ import { FJALA, fjalaE, pergjithshmetEMagarecit } from '../magareci.ts';
 import { perfundoiMbremja } from '../fundi.ts';
 import { emratERinj } from '../fusha.ts';
 import { Ikona } from '../ikonat.tsx';
+import { MbiTitullin } from '../pjeset/Kreu.tsx';
 import { useNgarko } from '../ngarko.ts';
 import {
   fshiGrup,
@@ -182,17 +183,14 @@ export function Grupi({ id }: { id: number }) {
 
   return (
     <div className="faqja faqja--gjere">
-      <a className="shtegu" href="#/">
-        <Ikona emri="kthehu" />
-        Grupet
-      </a>
-
       <header className="kreu">
         <div className="njesi__shkronja njesi__shkronja--hapur marka">
           {grupi.name.slice(0, 1).toUpperCase()}
         </div>
         <div>
-          <p className="kreu__mbi">Grupi</p>
+          {/* «Grupi» mbi emrin e grupit nuk shtonte asgjë; ajo që i duhej
+              rreshtit ishte rruga prapa. */}
+          <MbiTitullin shtegu={{ href: '#/' }}>Grupet</MbiTitullin>
           <h1 className="kreu__titull">{grupi.name}</h1>
           <p className="kreu__meta">
             <span className="etiketa">

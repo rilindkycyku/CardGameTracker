@@ -91,7 +91,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 357 prova, pa framework provash
+npm test          # node --test — 360 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -122,14 +122,23 @@ drejtpërdrejt nga
 prishet mes provës dhe kodit.
 
 `lidhja.ts`, `lidhjaMeServer.ts`, `lidhjaMeTakim.ts`, `sistemi.ts`, `ruajtja.ts`, `matja.ts`,
-`ndricimi.ts`, `supabase.ts`, `sinkronizimi.ts` dhe `pajisja.ts` nuk hyjnë te kjo listë me qëllim: e para njeh
+`ndricimi.ts`, `supabase.ts`, `sinkronizimi.ts`, `pajisja.ts` dhe `pamja.ts` nuk hyjnë te kjo listë me qëllim: e para njeh
 `RTCPeerConnection` e `BroadcastChannel`, e dyta PeerJS-in, e treta `navigator`-in (tabelën e
 fragmenteve dhe fletën e ndarjes), e katërta bazën, e pesta `document`-in dhe `window`-in, e gjashta
 `localStorage`-in e `matchMedia`-n, e shtata `fetch`-in e `localStorage`-in, e teta të dyja ato
-bashkë me bazën, dhe e nënta `localStorage`-in e `navigator`-in. Logjika e tyre e provueshme është
+bashkë me bazën, e nënta `localStorage`-in e `navigator`-in, dhe e fundit `matchMedia`-n e
+gjerësisë. Logjika e tyre e provueshme është
 nxjerrë jashtë — te `sinjalizimi.ts`, `kodi.ts`, `kopja.ts`, `analitika.ts`, `tema.ts`,
 `bashkimi.ts`, `skema.ts`, `projekti.ts` dhe `identiteti.ts` — dhe ajo që mbetet provohet me
 shfletues.
+
+`pamja.ts` është i vetmi vend ku gjerësia e ekranit hyn te JS-i, dhe rri i ngushtë me qëllim: një
+pyetje, një hook. Çdo gjë tjetër që varet nga gjerësia rri te CSS-i, ku i takon — ai skedar
+ekziston vetëm për rastin që CSS-i nuk e bën dot, dhe ai rast është një: renditja dhe parashikimi
+bashkohen te një tabelë e vetme sapo ekrani hapet (sistemi vizual, më poshtë). Ajo nuk është pamje
+tjetër e së njëjtës tabelë — është një tabelë me kolona e krye tjetër — prandaj një fshehje me CSS
+do të linte të njëjtët numra dy herë te pema. Nëse i shtohet një pyetje e dytë, pyetja e parë është
+pse nuk e bën dot CSS-i.
 
 Çiftet e sinkronizimit lexohen si ato që ekzistonin: `bashkimi.ts` krah `sinkronizimi.ts` si
 `sherbimi.ts` krah `punetori.ts`, dhe `projekti.ts` krah `supabase.ts` si `analitika.ts` krah
@@ -1395,8 +1404,58 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   (`.loja__futja` — një shënim dhe një buton, pika 3), çka doli prej saj (`.loja__rezultatet`) dhe
   panelat që preken një herë a asnjë (`.loja__panelat` — lojtarët, ndarja, rregullat, kufiri,
   mbyllja). Ndërron vetëm sa prej tyre hyn në ekran njëherësh: mbi 48rem panelat dalin dy për rresht,
-  dhe mbi 62rem kartela dhe renditja rrinë krah për krah. Panelat nuk kthehen mes tyre: atje ata
+  mbi 62rem kartela dhe renditja rrinë krah për krah, dhe mbi 90rem vetë shtylla e rezultatit ndahet
+  në dy — renditja majtas, raundet djathtas, shlyerja poshtë sa të dyja.
+
+  **Ajo ndarja e fundit është kufi i tabelës, jo i ekranit, dhe kjo është pikërisht kërkesa e
+  pronarit: tabela të mos zgjerohet — krah saj të vijë një tabelë tjetër.** Sapo peizazhi mori tërë
+  ekranin, shtylla e rezultatit kaloi 60rem dhe tabela u shtri bashkë me të: mes emrit dhe totalit
+  hapej gjysmë pëllëmbe e bardhë, pikërisht ajo që bashkimi i renditjes me parashikimin e kishte
+  mbyllur. Një tabelë e gjerë nuk lexohet më mirë se një e ngushtë — syri e humb rreshtin midis.
+
+  **90rem nuk u zgjodh me sy, u mat — dhe numri që e vendos është ekrani i pronarit.** Galaxy Tab A9+
+  i mbajtur anash raporton **1440×900** (1920 piksela fizikë, DPR 1.333), pra pragu duhet të bjerë
+  nën atë gjerësi ose e tërë kjo ndarje nuk shihet kurrë atje ku u kërkua. Ai numër nuk u hamendësua:
+  u nxor duke matur vetë fotografinë e ekranit që solli pronari — përmbajtja zinte 162…1757 nga 1920
+  piksela, dhe ajo del vetëm me atë raport.
+
+  Te 1440 ndarja hyn vetëm me dy lëshime të matura: futja lëshon dy rem (tavani 27 → 25, dyshemeja
+  23 e paprekur) dhe renditja merr `1.15fr` kundrejt `1fr`. Pa to kolona e majtë del rreth 478
+  piksela, kurse tabela e renditjes me tetë lojtarë kërkon 493 para se të nisë të rrëshqasë brenda
+  mbështjellëses së vet; me to del 506. Trembëdhjetë piksela hapësirë — pra mos e ul atë prag dhe mos
+  i ndërro ata dy numra pa e rimatur kolonën me tetë lojtarë te 1440.
+
+  Vendosja kërkon që çdo pjesë e asaj shtylle të ketë mbështjellësen e vet (`.loja__bllok`, e vënë te
+  `Loja`): një rrjet nuk i vendos dot pjesët që nuk i njeh, dhe `nth-child` do të numëronte gabim
+  sapo parashikimi të mos vizatohet. Shlyerja merr `--gjere` dhe i shtrin të dyja kolonat — ajo është
+  listë kartelash që rrjedh vetë, dhe një gjysmë shtyllë do ta ngushtonte pa nevojë. Te telefoni
+  mbështjellëset nuk ndërrojnë asgjë: një kolonë, dhe hapësira mes blloqeve e mbajtur nga vetë ato. Panelat nuk kthehen mes tyre: atje ata
   shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
+
+  **Sapo faqja hapet, renditja dhe parashikimi bëhen një tabelë e vetme.** Dy kolonat e para janë
+  të njëjtat — vendi dhe lojtari — dhe të dyja tabelat rrinë njëra nën tjetrën te e njëjta shtyllë:
+  një kokë tabele, një radhë emrash dhe gjysmë ekrani të shpenzuar dy herë për të njëjtën gjë.
+  Prandaj mbi 48rem `Parashikimi` i vizaton të dyja bashkë — `Vendi | Lojtari | Totali | Mund të
+  dalë | Deri te i pari` — nën titullin e renditjes, me çelësin «Sa larg të shihet» e fjalinë mbi
+  tabelë dhe supozimet poshtë saj. Nën 48rem mbeten dy seksione si më parë: pesë kolona te telefoni
+  do të kërkonin një rrëshqitje anash pikërisht te tabela që lexohet pas çdo raundi.
+
+  Tri gjëra aty nuk guxojnë të ndryshojnë:
+
+  - **Tabelën e vizaton `TabelaERenditjes`, një e vetme.** Kurora, vendi i parë dhe kolona «raunde»
+    janë vendime të renditjes; dy kopje të tyre do të dilnin jashtë sinkronie pikërisht atje ku
+    numri duhet të jetë i njëjti.
+  - **Çelësi dhe fjalia rrinë mbi tabelë.** Ato e ndërrojnë pikërisht atë që shkruhet te dy kolonat
+    e fundit, dhe një kontroll nën atë që e ndryshon nuk lexohet si kontroll.
+  - **Bashkohen vetëm kur të dyja listat kanë të njëjtët lojtarë.** Tabela e bashkuar i vizaton
+    rreshtat e renditjes, pra kush mungon prej saj e humb edhe parashikimin e vet. Te ekrani i lojës
+    kjo nuk ndodh — renditja aty i merr të gjithë — por kushti rri i shkruar për çdo thirrës që i
+    jep rreshtat e filtruar (`renditjaELojes`, pika 5): ai i merr të dyja tabelat të ndara, e nuk
+    humb një lojtar në heshtje.
+
+  Pika ku bashkohen është e njëjta ku panelat dalin dy për rresht, dhe prova `tabela bashkohet vetëm
+  pasi faqja të jetë hapur` e mban të lidhur me CSS-in: gjerësinë e pesë kolonave e jep
+  `.faqja--gjere` e jo ekrani, prandaj bashkimi nuk guxon të vijë para saj.
 
   **Asgjë te ky ekran nuk rri e ngjitur, me kërkesë të pronarit.** Kartela e futjes e pati
   `position: sticky` te ekrani i gjerë, që raundi të shënohej me renditjen para syve. Ajo u hoq: një
@@ -1422,9 +1481,51 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   e zbrazët (pishpiriku nuk shlyhet e nuk parashikohet), prandaj një rregull me `:has` e kthen
   rrjetin te një kolonë e vetme në vend që të lërë gjysmën e ekranit bosh.
 
-  Gjerësinë e faqes e hap `.faqja--gjere` (54rem mbi 48rem, 78rem mbi 62rem); pa atë modifikues faqja
+  Gjerësinë e faqes e hap `.faqja--gjere` (54rem mbi 48rem, 88rem mbi 62rem); pa atë modifikues faqja
   mbetet 47rem dhe shtyllat nuk kanë ku të hapen — ishte pikërisht ajo që i priste kolonat e tabelës
-  së përgjithshme te grupi.
+  së përgjithshme te grupi, dhe ajo që e mbante fletën e një loje të mbyllur me dy shtylla të
+  ngushta mes dy pëllëmbëve të zbrazëta. **Çdo ekran që vizaton `.shtyllat` e do atë modifikues** —
+  i njëjti vizatim pa të del i ngushtuar, dhe kjo nuk duket si gabim, duket si zgjedhje.
+
+  88rem-i ishte 78rem, dhe u ngrit me kërkesë të pronarit: te tableta e mbajtur anash ajo rriste
+  dy pëllëmbë boshe majtas e djathtas mbi një ekran që i kishte. Ajo që nuk u lëshua bashkë me të
+  është gjerësia e leximit: `.ndihma` merr `max-width: 70ch`, sepse një fjali mbi njëqind shkronja
+  për rresht e humb fillimin e rreshtit tjetër. Numri rri i lirë të shkojë sa të dojë; fjalia jo.
+
+  **Në peizazh nuk mbetet as ai numër, dhe nga ajri i faqes mbetet vetëm një gisht — me kërkesë të
+  shprehur të pronarit.** `@media screen and (orientation: landscape)` e heq `max-width`-in dhe e
+  zbret padding-un e `.faqja`-s te `--ajri-anash` (0.75rem) nga të katër anët: aq sa kartela të mos
+  ngjitet te xhami, dhe asnjë piksel më shumë. Tavolina luhet me tabletin e mbajtur anash, dhe atje
+  çdo gjë që faqja nuk e përdor lexohet si ekran i shpenzuar. Numri rri te një vend i vetëm — nëse
+  duhet më shumë ajër a më pak, ndërrohet ai token e jo rregulli. Tri gjëra rrinë me të:
+
+  - **Portreti nuk preket fare.** Atje kolona është një, dhe një kartelë buzë më buzë me ekranin nuk
+    ka ku të marrë frymë. Kjo është zgjedhje e pronarit e jo rrjedhojë e kodit — mos e ndërro pa e
+    pyetur, në asnjërin drejtim.
+  - **`env(safe-area-inset-*)` mbetet, me `max()`.** Te tableta ato vlera janë zero, pra vlen
+    `--ajri-anash` i plotë. Aty ku nuk janë — telefoni me prerje i kthyer anash, qoshet e
+    rrumbullakosura, shiriti i sistemit te aplikacioni i instaluar — ato marrin përsipër, sepse atje
+    nuk bëhet fjalë për zbukurim por për tekstin brenda xhamit.
+  - **`screen and` nuk është hollësi.** Pa të, një fletë e shtypur në peizazh do ta merrte këtë
+    rregull dhe do të dilte pa asnjë buzë — shtypësi e pret atë që i bie jashtë zonës së vet.
+
+  Çmimi rri te ekrani shumë i gjerë: mbi 62rem shtylla e rezultatit merr çka mbetet pas 27rem-it të
+  futjes, prandaj te një monitor 1920 tabela e renditjes shtrihet dhe kolonat e saj largohen nga
+  njëra-tjetra. Te tableta — ekrani për të cilin u kërkua — ajo del pikërisht sa duhet.
+- **Shtegu i kthimit rri te vetë kreu, e jo mbi të** (`MbiTitullin` te `pjeset/Kreu.tsx`). Ishin dy
+  rreshta që thoshin të njëjtën gjë: një shteg «‹ Shoqëria», dhe menjëherë poshtë tij etiketa
+  «SHOQËRIA» mbi titull — te ekrani i lojës fjalë për fjalë i njëjti emër grupi dy herë, dhe te
+  ekrani i grupit «Grupet» mbi «Grupi». Tani shigjeta hyn te etiketa, dhe fjala që ishte aty bëhet
+  ajo ku shkon prekja: kreu fiton një rresht te çdo ekran, dhe emri shkruhet një herë.
+
+  Pa shteg mbetet tekst i thjeshtë, dhe kjo nuk është hollësi: te `#/shiko` nuk ka ku të kthehesh —
+  kush e hapi atë adresë nuk erdhi nga asnjë ekran i atij telefoni — dhe një shigjetë që nuk shpie
+  askund është premtim i thyer. Te shtypja hiqet vetëm shigjeta; fjala mbetet, sepse ajo është emri
+  i grupit.
+
+  `.shtegu` rri ende, dhe vetëm aty ku kre nuk ka: te dy ekranet «nuk gjendet». Mos e kthe mbi një
+  kre që e ka `MbiTitullin`.
+
 - **Ekranet me një pyetje të vetme marrin `.faqja--fokus`** — kodi, pritja e lidhjes, adresa që nuk
   lexohet. Aty nuk ka çka të ndahet: një fushë dhe një buton, që te ekrani i gjerë rrinin ngjitur te
   qoshja e sipërme majtas mbi një ekran gati bosh. Mbi 62rem qendërzohen vertikalisht me

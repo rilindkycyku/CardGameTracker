@@ -109,6 +109,9 @@
   --hije-1: 0 1px 2px rgb(15 23 42 / 5%);
   --hije-2: 0 1px 2px rgb(15 23 42 / 4%), 0 12px 28px -10px rgb(15 23 42 / 14%);
   --hapesira: clamp(1rem, 4vw, 1.5rem);
+  /* Ajri i vetëm që mban faqja në peizazh (shih rregullin e orientimit më
+     poshtë): sa të mos ngjitet kartela te buza e xhamit, e jo më shumë. */
+  --ajri-anash: 0.75rem;
   --shkronja: 'Quicksand', system-ui, -apple-system, 'Segoe UI', Roboto,
     Helvetica, Arial, sans-serif;
   /* Numrat e kolonave rrinë monospace: te një tabelë pikësh shifrat duhet të
@@ -315,6 +318,22 @@ h3 {
   gap: var(--rreshtimi);
 }
 
+/*
+ * Çdo pjesë e shtyllës së rezultatit rri te një mbështjellëse e vetja.
+ *
+ * Te telefoni kjo nuk ndërron asgjë — një kolonë, e njëjta hapësirë mes
+ * blloqeve, sepse mbështjellësja e mban vetë atë hapësirë. Ekziston për ekranin
+ * shumë të gjerë, ku ato dalin dy për rresht: një rrjet nuk i vendos dot pjesët
+ * që nuk i njeh, dhe `nth-child` do të numëronte gabim sapo parashikimi të mos
+ * vizatohet.
+ */
+.loja__bllok {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--rreshtimi);
+  align-content: start;
+}
+
 /**
  * Dy panela për rresht sapo ka gjerësi për to.
  *
@@ -355,7 +374,7 @@ h3 {
  */
 @media (min-width: 62rem) {
   .faqja--gjere {
-    max-width: 78rem;
+    max-width: 88rem;
   }
 
   .loja__pune {
@@ -393,6 +412,87 @@ h3 {
      së rezultatit do të ndaheshin sa të mbushnin tërë atë lartësi. */
   .loja__rezultatet {
     align-content: start;
+  }
+}
+
+/**
+ * Peizazhi e merr ekranin të tërin, me kërkesë të shprehur të pronarit.
+ *
+ * Tavolina luhet me tabletin e mbajtur anash, dhe atje çdo gjë që faqja nuk e
+ * përdor lexohet si ekran i shpenzuar: 88rem-i i mëparshëm linte dy shirita
+ * bosh majtas e djathtas, dhe ajri mbi kre e nën fundfaqe hante edhe një copë
+ * lartësie pikërisht te forma ku ajo mungon më shumë. Prandaj në peizazh faqja
+ * nuk qendërzohet dhe mban vetëm `--ajri-anash` nga të katër anët — aq sa
+ * kartela të mos ngjitet te xhami, dhe asnjë piksel më shumë. Numri rri te një
+ * vend i vetëm: nëse duhet më shumë ajër a më pak, ndërrohet ai.
+ *
+ * Kjo është zgjedhje e pronarit e jo rrjedhojë e kodit — portreti mbetet
+ * pikërisht si ishte, me gjerësinë e vet dhe ajrin e vet, sepse atje kolona
+ * është një dhe një kartelë buzë më buzë me ekranin nuk ka ku të marrë frymë.
+ * Mos e ndërro pa e pyetur.
+ *
+ * `env(safe-area-inset-*)` mbetet, dhe ajo nuk e prek kërkesën: te tableta ato
+ * vlera janë zero, pra padding-u del vërtet zero. Aty ku nuk janë — telefoni me
+ * prerje i kthyer anash, qoshet e rrumbullakosura, shiriti i sistemit te
+ * aplikacioni i instaluar — ato nuk shtojnë zbukurim, ato mbajnë tekstin brenda
+ * xhamit. Zeroja e tyre është e vetmja zero që do të fshihte fjalë.
+ */
+@media screen and (orientation: landscape) {
+  .faqja,
+  .faqja--gjere {
+    max-width: none;
+    padding-block: max(var(--ajri-anash), env(safe-area-inset-top, 0px))
+      max(var(--ajri-anash), env(safe-area-inset-bottom, 0px));
+    padding-left: max(var(--ajri-anash), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--ajri-anash), env(safe-area-inset-right, 0px));
+  }
+}
+
+/**
+ * Ekrani shumë i gjerë nuk e zgjeron tabelën — i vë një tabelë tjetër krah.
+ *
+ * Sapo faqja mori tërë ekranin, shtylla e rezultatit u bë mbi 60rem, dhe tabela
+ * brenda saj u shtri bashkë me të: mes emrit dhe totalit hapej gjysmë pëllëmbe
+ * e bardhë, pikërisht ajo që bashkimi i renditjes me parashikimin e kishte
+ * mbyllur. Një tabelë e gjerë nuk lexohet më mirë se një e ngushtë — syri e
+ * humb rreshtin midis.
+ *
+ * Prandaj mbi 90rem shtylla ndahet në dy: renditja majtas, raundet djathtas,
+ * dhe shlyerja poshtë sa të dyja. Hapësira shkon te një bllok i dytë e jo te
+ * ajri i të parit, dhe mbrëmja e tërë — ku jemi, çka u shënua, kush kujt sa i
+ * del — hyn te një ekran i vetëm pa rrëshqitur.
+ *
+ * 90rem nuk u zgjodh me sy, u mat, dhe numri që e vendos është ekrani i
+ * pronarit: Galaxy Tab A9+ i mbajtur anash raporton 1440×900 (1920 fizikë,
+ * DPR 1.333). Pra pragu duhet të bjerë **nën** atë gjerësi, ose e tërë kjo
+ * ndarje nuk shihet kurrë atje ku u kërkua.
+ *
+ * Dhe te 1440 ajo hyn vetëm me dy lëshime të matura: futja lëshon dy rem (27 →
+ * 25) dhe renditja merr 1.15fr kundrejt 1fr. Pa to kolona e majtë del rreth
+ * 478 piksela, kurse tabela e renditjes me tetë lojtarë kërkon 493 para se të
+ * nisë të rrëshqasë brenda mbështjellëses së vet. Me to kalon mbi të.
+ *
+ * Prandaj mos e ul atë prag dhe mos i ndërro ato dy numra pa e rimatur kolonën
+ * me tetë lojtarë te 1440.
+ *
+ * Renditja merr pak më shumë se raundet (`1.1fr`): ajo ka pesë kolona të
+ * emërtuara me fjalë, kurse raundet kanë emra të shkurtuar në tri shkronja dhe
+ * numra, dhe tabela e tyre rrëshqet brenda mbështjellëses së vet kur s'i mjafton.
+ */
+@media screen and (min-width: 90rem) {
+  /* Kolona e futjes lëshon dy rem, që të dyja tabelat të hyjnë krah për krah.
+     23rem mbetet dyshemeja e saj — atje rreshti «emri, dora, pikët» i
+     llogaritësit nis të shtypet — dhe kjo e prek vetëm tavanin. */
+  .loja__pune {
+    grid-template-columns: minmax(23rem, 25rem) minmax(0, 1fr);
+  }
+
+  .loja__rezultatet {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  }
+
+  .loja__bllok--gjere {
+    grid-column: 1 / -1;
   }
 }
 
@@ -497,6 +597,39 @@ h3 {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--teksti-zbehte);
+}
+
+/*
+ * I njëjti rresht, kur ai është edhe rruga prapa.
+ *
+ * Shtegu rrinte një rresht më lart dhe e përsëriste fjalë për fjalë këtë
+ * etiketë; tani shigjeta hyn brenda saj. Margjinat negative e mbajnë shkronjën
+ * e parë mbi vijë me titullin poshtë — pa to, ajri i prekjes do ta shtynte
+ * etiketën djathtas e poshtë, dhe kreu do të dukej i shtrembër.
+ *
+ * Prekja rri mbi ajrin e vet e jo mbi lartësinë e shkronjës: 0.72rem me
+ * `letter-spacing` është fjalë e vogël, dhe pa atë ajër gishti do ta gjente
+ * vetëm gjysmën e saj.
+ */
+a.kreu__mbi {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: -0.35rem 0 -0.2rem -0.5rem;
+  padding: 0.35rem 0.55rem 0.35rem 0.4rem;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+a.kreu__mbi:hover {
+  color: var(--teksti);
+  background: var(--siperfaqe);
+}
+
+.kreu__mbi .ikona {
+  width: 1.1em;
+  height: 1.1em;
 }
 
 .kreu__titull {
@@ -793,8 +926,16 @@ h3 {
   flex: 1 1 10rem;
 }
 
+/*
+ * Gjerësia e leximit, e matur me shkronja e jo me piksela.
+ *
+ * Sapo faqja u hap te ekrani i madh, këto fjali u shtrinë sa tërë shtylla — mbi
+ * njëqind shkronja për rresht, ku syri e humb fillimin e rreshtit tjetër. Numri
+ * rri i lirë të shkojë sa të dojë; fjalia jo.
+ */
 .ndihma {
   margin: 0;
+  max-width: 70ch;
   font-size: 0.85rem;
   color: var(--teksti-zbehte);
 }
@@ -2614,6 +2755,9 @@ th.numri {
     filter: none;
   }
 
+  /* Shigjeta prapa nuk do të thotë asgjë mbi letër; fjala krah saj po — ajo
+     është emri i grupit. */
+  .kreu__mbi .ikona,
   .veprimet,
   .shtegu,
   .futja,

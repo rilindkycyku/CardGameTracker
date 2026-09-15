@@ -29,6 +29,7 @@ import { FJALA, rreshtatEMagarecit } from '../magareci.ts';
 import type { Pamja } from '../ndarja.ts';
 import type { LlojiILojes, RreshtiRenditjes } from '../tipet.ts';
 import { Ikona, ShenjaEFaqes } from '../ikonat.tsx';
+import { MbiTitullin, type ShtegiIKthimit } from './Kreu.tsx';
 import { Parashikimi } from './Parashikimi.tsx';
 import { PermbledhjaEPamjes } from './PermbledhjaEPamjes.tsx';
 import { Renditja } from './Renditja.tsx';
@@ -65,6 +66,7 @@ export function PamjaERezultatit({
   etiketa,
   njoftimi,
   perfundoi = false,
+  shtegu,
 }: {
   pamja: Pamja;
   /** Ç'lloj pamjeje është — «Vetëm-lexim», «Drejtpërdrejt» a «Përfundoi». */
@@ -82,6 +84,15 @@ export function PamjaERezultatit({
    * vlen sa një fushë e re te një kod QR (pika 7).
    */
   perfundoi?: boolean;
+  /**
+   * Ku shpie rreshti mbi titullin, kur ka ku.
+   *
+   * Te fleta e një loje të mbyllur ai kthen te grupi i saj; te `#/shiko` nuk
+   * jepet fare — kush e hapi atë adresë nuk erdhi nga asnjë ekran i këtij
+   * telefoni, dhe një shigjetë prapa do të shpinte te një aplikacion që ai
+   * mund të mos e ketë parë kurrë.
+   */
+  shtegu?: ShtegiIKthimit;
 }) {
   const rregulli = rregullat(pamja.lloji);
   const emrat = pamja.totalet.map(([emri]) => emri);
@@ -110,7 +121,7 @@ export function PamjaERezultatit({
       <header className="kreu">
         <ShenjaEFaqes />
         <div>
-          <p className="kreu__mbi">{pamja.grupi}</p>
+          <MbiTitullin shtegu={shtegu}>{pamja.grupi}</MbiTitullin>
           <h1 className="kreu__titull">{dataShqip(pamja.data)}</h1>
           <p className="kreu__meta">
             <span className="etiketa">
