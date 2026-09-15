@@ -355,7 +355,7 @@ h3 {
  */
 @media (min-width: 62rem) {
   .faqja--gjere {
-    max-width: 78rem;
+    max-width: 88rem;
   }
 
   .loja__pune {
@@ -497,6 +497,39 @@ h3 {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--teksti-zbehte);
+}
+
+/*
+ * I njëjti rresht, kur ai është edhe rruga prapa.
+ *
+ * Shtegu rrinte një rresht më lart dhe e përsëriste fjalë për fjalë këtë
+ * etiketë; tani shigjeta hyn brenda saj. Margjinat negative e mbajnë shkronjën
+ * e parë mbi vijë me titullin poshtë — pa to, ajri i prekjes do ta shtynte
+ * etiketën djathtas e poshtë, dhe kreu do të dukej i shtrembër.
+ *
+ * Prekja rri mbi ajrin e vet e jo mbi lartësinë e shkronjës: 0.72rem me
+ * `letter-spacing` është fjalë e vogël, dhe pa atë ajër gishti do ta gjente
+ * vetëm gjysmën e saj.
+ */
+a.kreu__mbi {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: -0.35rem 0 -0.2rem -0.5rem;
+  padding: 0.35rem 0.55rem 0.35rem 0.4rem;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+a.kreu__mbi:hover {
+  color: var(--teksti);
+  background: var(--siperfaqe);
+}
+
+.kreu__mbi .ikona {
+  width: 1.1em;
+  height: 1.1em;
 }
 
 .kreu__titull {
@@ -793,8 +826,16 @@ h3 {
   flex: 1 1 10rem;
 }
 
+/*
+ * Gjerësia e leximit, e matur me shkronja e jo me piksela.
+ *
+ * Sapo faqja u hap te ekrani i madh, këto fjali u shtrinë sa tërë shtylla — mbi
+ * njëqind shkronja për rresht, ku syri e humb fillimin e rreshtit tjetër. Numri
+ * rri i lirë të shkojë sa të dojë; fjalia jo.
+ */
 .ndihma {
   margin: 0;
+  max-width: 70ch;
   font-size: 0.85rem;
   color: var(--teksti-zbehte);
 }
@@ -2614,6 +2655,9 @@ th.numri {
     filter: none;
   }
 
+  /* Shigjeta prapa nuk do të thotë asgjë mbi letër; fjala krah saj po — ajo
+     është emri i grupit. */
+  .kreu__mbi .ikona,
   .veprimet,
   .shtegu,
   .futja,

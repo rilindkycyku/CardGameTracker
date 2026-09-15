@@ -53,6 +53,7 @@ import {
 import { kufiriILojes, mbaroiSipasRregullit, perfundoiMbremja } from '../fundi.ts';
 import { rregullat, type Rregullat } from '../lojerat.ts';
 import { Ikona } from '../ikonat.tsx';
+import { MbiTitullin, type ShtegiIKthimit } from '../pjeset/Kreu.tsx';
 import { useNgarko } from '../ngarko.ts';
 import { useEkranIGjere } from '../pamja.ts';
 import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
@@ -471,6 +472,22 @@ export function Loja({ id }: { id: number }) {
     [raundet, rifresko],
   );
 
+  /*
+   * Ku shpie prekja mbi rreshtin e kreut — te grupi i vet, ose te ballina kur
+   * loja e ka humbur grupin. Të dyja pamjet e kësaj faqeje e ndajnë: fleta e
+   * mbyllur ka po atë kre, dhe dy kopje do të dilnin jashtë sinkronie atje ku
+   * njëra kthen te grupi e tjetra jo.
+   */
+  const shtegu: ShtegiIKthimit = {
+    href: grupi ? `#/grupi/${grupi.id}` : '#/',
+    onClick: (ngjarja) => {
+      if (!grupi) {
+        ngjarja.preventDefault();
+        shko('/');
+      }
+    },
+  };
+
   if (te_dhenat === null) {
     return (
       <div className="faqja">
@@ -604,23 +621,17 @@ export function Loja({ id }: { id: number }) {
    */
   if (perfundoi && pamja) {
     return (
-      <div className="faqja">
-        <a
-          className="shtegu"
-          href={grupi ? `#/grupi/${grupi.id}` : '#/'}
-          onClick={(e) => {
-            if (!grupi) {
-              e.preventDefault();
-              shko('/');
-            }
-          }}
-        >
-          <Ikona emri="kthehu" />
-          {grupi ? grupi.name : 'Grupet'}
-        </a>
-
+      /*
+        `faqja--gjere` sepse `PamjaERezultatit` vizaton `.shtyllat`, dhe ato pa
+        të nuk kanë ku të hapen: dy kolona brenda 47rem janë dy kolona të
+        ngushta mes dy pëllëmbëve të zbrazëta. E njëjta fletë te `#/shiko` e
+        kishte që më parë — kjo ishte e vetmja rrugë ku i njëjti vizatim dilte
+        i ngushtuar.
+      */
+      <div className="faqja faqja--gjere">
         <PamjaERezultatit
           pamja={pamja}
+          shtegu={shtegu}
           perfundoi
           etiketa={{ emri: 'Përfundoi', ikona: 'renditja' }}
           njoftimi={
@@ -830,26 +841,14 @@ export function Loja({ id }: { id: number }) {
 
   return (
     <div className="faqja faqja--gjere">
-      <a
-        className="shtegu"
-        href={grupi ? `#/grupi/${grupi.id}` : '#/'}
-        onClick={(e) => {
-          if (!grupi) {
-            e.preventDefault();
-            shko('/');
-          }
-        }}
-      >
-        <Ikona emri="kthehu" />
-        {grupi ? grupi.name : 'Grupet'}
-      </a>
-
       <header className="kreu">
         <div className="njesi__shkronja njesi__shkronja--hapur marka">
           <Ikona emri="kalendari" />
         </div>
         <div>
-          <p className="kreu__mbi">{grupi ? grupi.name : 'Lojë'}</p>
+          <MbiTitullin shtegu={shtegu}>
+            {grupi ? grupi.name : 'Grupet'}
+          </MbiTitullin>
           <h1 className="kreu__titull">{dataShqip(loja.date)}</h1>
           <p className="kreu__meta">
             <span className="etiketa">

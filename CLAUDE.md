@@ -1456,9 +1456,30 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   e zbrazët (pishpiriku nuk shlyhet e nuk parashikohet), prandaj një rregull me `:has` e kthen
   rrjetin te një kolonë e vetme në vend që të lërë gjysmën e ekranit bosh.
 
-  Gjerësinë e faqes e hap `.faqja--gjere` (54rem mbi 48rem, 78rem mbi 62rem); pa atë modifikues faqja
+  Gjerësinë e faqes e hap `.faqja--gjere` (54rem mbi 48rem, 88rem mbi 62rem); pa atë modifikues faqja
   mbetet 47rem dhe shtyllat nuk kanë ku të hapen — ishte pikërisht ajo që i priste kolonat e tabelës
-  së përgjithshme te grupi.
+  së përgjithshme te grupi, dhe ajo që e mbante fletën e një loje të mbyllur me dy shtylla të
+  ngushta mes dy pëllëmbëve të zbrazëta. **Çdo ekran që vizaton `.shtyllat` e do atë modifikues** —
+  i njëjti vizatim pa të del i ngushtuar, dhe kjo nuk duket si gabim, duket si zgjedhje.
+
+  88rem-i ishte 78rem, dhe u ngrit me kërkesë të pronarit: te tableta e mbajtur anash ajo rriste
+  dy pëllëmbë boshe majtas e djathtas mbi një ekran që i kishte. Ajo që nuk u lëshua bashkë me të
+  është gjerësia e leximit: `.ndihma` merr `max-width: 70ch`, sepse një fjali mbi njëqind shkronja
+  për rresht e humb fillimin e rreshtit tjetër. Numri rri i lirë të shkojë sa të dojë; fjalia jo.
+- **Shtegu i kthimit rri te vetë kreu, e jo mbi të** (`MbiTitullin` te `pjeset/Kreu.tsx`). Ishin dy
+  rreshta që thoshin të njëjtën gjë: një shteg «‹ Shoqëria», dhe menjëherë poshtë tij etiketa
+  «SHOQËRIA» mbi titull — te ekrani i lojës fjalë për fjalë i njëjti emër grupi dy herë, dhe te
+  ekrani i grupit «Grupet» mbi «Grupi». Tani shigjeta hyn te etiketa, dhe fjala që ishte aty bëhet
+  ajo ku shkon prekja: kreu fiton një rresht te çdo ekran, dhe emri shkruhet një herë.
+
+  Pa shteg mbetet tekst i thjeshtë, dhe kjo nuk është hollësi: te `#/shiko` nuk ka ku të kthehesh —
+  kush e hapi atë adresë nuk erdhi nga asnjë ekran i atij telefoni — dhe një shigjetë që nuk shpie
+  askund është premtim i thyer. Te shtypja hiqet vetëm shigjeta; fjala mbetet, sepse ajo është emri
+  i grupit.
+
+  `.shtegu` rri ende, dhe vetëm aty ku kre nuk ka: te dy ekranet «nuk gjendet». Mos e kthe mbi një
+  kre që e ka `MbiTitullin`.
+
 - **Ekranet me një pyetje të vetme marrin `.faqja--fokus`** — kodi, pritja e lidhjes, adresa që nuk
   lexohet. Aty nuk ka çka të ndahet: një fushë dhe një buton, që te ekrani i gjerë rrinin ngjitur te
   qoshja e sipërme majtas mbi një ekran gati bosh. Mbi 62rem qendërzohen vertikalisht me
