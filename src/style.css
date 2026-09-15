@@ -1252,26 +1252,6 @@ th.numri {
   appearance: textfield;
 }
 
-/**
- * Rreshti i veprimeve rri i ngjitur në fund të kartelës.
- *
- * Me tastierën e hapur, ekrani i mbetur është nën gjysmën e telefonit. Pa këtë,
- * „Ruaj raundin" bie poshtë sapo lojtarët kalojnë katër — dhe ai është butoni
- * që shtypet në çdo raund.
- */
-.futja__fund {
-  position: sticky;
-  bottom: 0;
-  display: grid;
-  gap: 0.55rem;
-  padding-top: 0.55rem;
-  margin-top: -0.1rem;
-  /* Rreshti rri `sticky` mbi tabelën: një sipërfaqe e plotë me vijë mbi e ndan
-     më qartë se një tretje, dhe pa kalim nuk ka çka të dalë shirit i turbullt. */
-  background: var(--siperfaqe);
-  border-top: 1px solid var(--kufiri);
-}
-
 .futja__shuma {
   display: flex;
   flex-wrap: wrap;
@@ -1455,8 +1435,7 @@ th.numri {
  * Trupi rrëshqet, rreshti i fundit rri i ngjitur.
  *
  * Me tetë lojtarë lista e duarve del më e gjatë se ekrani, dhe «Ruaj raundin»
- * nuk guxon të bjerë poshtë tij — e njëjta arsye si te `.futja__fund`, vetëm se
- * këtu kufirin e lartësisë e vë vetë kutia.
+ * nuk guxon të bjerë poshtë tij; kufirin e lartësisë e vë vetë kutia.
  */
 .llogaritesi__trupi {
   display: grid;
