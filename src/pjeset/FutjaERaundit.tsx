@@ -510,6 +510,7 @@ function Llogaritesi({
         dot pa mbyllës gjithsesi, prandaj zbrazja nuk hap asnjë rrugë — vetëm do
         t'i fshinte pikët me një prekje të pakujdesshme.
       */}
+      <div className="llogaritesi__pyetja">
       <div className="fusha">
         <div
           className="celesi celesi--rrjet celesi--emra"
@@ -574,7 +575,9 @@ function Llogaritesi({
         Mbyllësi merr {lloji === 'hant' ? '−40' : '−20'}. Lëre bosh atë që s’hapi
         — merr {lloji === 'hant' ? '200' : '100'}.
       </p>
+      </div>
 
+      <div className="llogaritesi__duart">
       <ul className="llogaritesi__lista">
         {tjeret.map((player) => (
           <li className="llogaritesi__njesi" key={player}>
@@ -627,6 +630,7 @@ function Llogaritesi({
           <span>Zgjidh kush e mbylli raundin.</span>
         )}
       </p>
+      </div>
     </>
   );
 }

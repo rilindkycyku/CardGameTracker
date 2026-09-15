@@ -1475,6 +1475,122 @@ th.numri {
 }
 
 /**
+ * Dy gjysmat e llogaritësit: pyetja e raundit, dhe duart.
+ *
+ * Njëra nën tjetrën kudo — pra te telefoni dhe te tableti asgjë nuk ndryshon.
+ * Emërtimi ekziston vetëm që ekrani i shkurtër t'i vërë krah për krah.
+ */
+.llogaritesi__pyetja,
+.llogaritesi__duart {
+  display: grid;
+  align-content: start;
+  gap: 0.7rem;
+}
+
+/**
+ * Ekrani i shkurtër: telefoni i kthyer anash, dhe tableti i vogël në peizazh.
+ *
+ * Aty lartësia është nën 40rem — 640px, pra edhe telefoni i vogël në portret — dhe
+ * kutia mbush gjithçka me mobilje: kreu, emrat,
+ * hant/normal, shënimi dhe rreshti i fundit. Me tri butona një mbi një, duart
+ * mbeteshin **zero** të dukshme — hapje pas hapjeje, i pari që shihje ishte
+ * butoni «Mbyll». Prandaj mobiljet shtrëngohen, dhe rreshti i fundit bie te një
+ * rresht i vetëm sapo ka gjerësi për tre butona.
+ */
+@media (max-height: 40rem) {
+  .llogaritesi,
+  .llogaritesi__trupi,
+  .llogaritesi__pyetja,
+  .llogaritesi__duart {
+    gap: 0.45rem;
+  }
+
+  .llogaritesi__njesi {
+    padding-block: 0.1rem;
+  }
+
+  .llogaritesi__fund {
+    gap: 0.4rem;
+    padding-top: 0.4rem;
+  }
+
+  /* 6rem e jo 8rem: te telefoni i vogël (320px) dy butona me bazë 8rem nuk
+     hyjnë dot krah për krah, dhe secili merrte rreshtin e vet.
+
+     `:not(.buton--kryesor)` nuk është hollësi: pa të, kjo bazë e mposht edhe
+     100%-shin e «Ruaj», dhe të tre butonat hipin te një rresht ku teksti thyhet
+     në tri rreshta — 91px i lartë secili, pra rreshti i fundit dilte më i gjatë
+     se para se të shtrëngohej. */
+  .llogaritesi__fund .veprimet > .buton:not(.buton--kryesor) {
+    flex-basis: 6rem;
+    /* Te 320px secili prej tyre del 120px i gjerë, dhe «Vendosi te fushat» aty
+       thyhej në tri rreshta — 85px i lartë, pra më keq se dy butona të plotë.
+       Shkronja bie, caku i prekjes jo: lartësia mbetet 2.75rem. */
+    font-size: 0.85rem;
+  }
+
+  /* Dhe ikona e tyre hiqet, sepse ajo i hante fjalës pikërisht aq sa i duhej
+     për të mbetur në dy rreshta. Fjala rri — ikona pa fjalë do të ishte enigmë,
+     fjala pa ikonë jo (pika 9 e sistemit vizual vlen për kuptimin, jo për
+     zbukurimin). «Ruaj» e mban të vetën: ai zë rreshtin e tërë. */
+  .llogaritesi__fund .veprimet > .buton:not(.buton--kryesor) .ikona {
+    display: none;
+  }
+
+  /* Shënimi i rregullit rri, vetëm më i vogël: ai e thotë sa merr mbyllësi dhe
+     sa merr kush s'hapi, pra është pikërisht ajo që pyetet me letrat në dorë. */
+  .llogaritesi__pyetja .ndihma {
+    font-size: 0.78rem;
+  }
+
+  /* Tre emra për rresht e jo dy: kolona bie te 4.6rem, kurse lartësia e
+     prekjes mbetet 2.75rem — ai është kufiri nën të cilin gishti nuk e zë, dhe
+     ai nuk preket kurrë. Me gjashtë lojtarë kjo i bën emrat dy rreshta e jo tre.
+
+     Emërtohet edhe kutia, sepse `.celesi--emra[data-shume]` rri më poshtë te
+     skedari me të njëjtën peshë: pyetja e mediave nuk shton peshë, prandaj pa
+     atë emër fiton ai që vjen i fundit. */
+  .kutia--llogaritesi .celesi--emra,
+  .kutia--llogaritesi .celesi--emra[data-shume] {
+    grid-template-columns: repeat(auto-fit, minmax(4.6rem, 1fr));
+  }
+}
+
+/* Tre butona hyjnë në një rresht vetëm kur ka gjerësi; nën 30rem ata do të
+   shtypeshin aq sa «Vendosi te fushat» të thyhej në dy rreshta, pra rreshti i
+   kursyer do të kthehej si lartësi butoni. */
+@media (max-height: 40rem) and (min-width: 30rem) {
+  .llogaritesi__fund .veprimet > .buton,
+  .llogaritesi__fund .veprimet > .buton--kryesor {
+    flex: 1 1 auto;
+  }
+}
+
+/**
+ * I shkurtër dhe i gjerë: dy shtylla brenda kutisë.
+ *
+ * Te peizazhi gjerësia rri e patrazuar — 844px ekran, 480px kuti — kurse
+ * lartësia mungon. Pyetja e raundit shkon majtas, duart djathtas, dhe kutia
+ * hapet sa 52rem. 40rem e jo 46rem: nën atë kufi rri telefoni i vogël anash
+ * (667px), dhe pikërisht ai i kishte duart zero të dukshme. `:has` e kufizon te llogaritësi: te fushat me dorë
+ * `.futja__rrjeti` i shpërndan vetë kolonat e veta, dhe dy shtylla mbi të do të
+ * linin gjysmën bosh.
+ */
+@media (max-height: 40rem) and (min-width: 40rem) {
+  /* `dialog.` nuk është hollësi: gjerësia e zakonshme e kutisë rri më poshtë te
+     skedari me të njëjtën peshë, dhe pyetja e mediave nuk shton peshë — pa atë
+     emër kutia mbetej 30rem dhe emrat e duarve dilnin të prerë («Li…»). */
+  dialog.kutia--llogaritesi {
+    width: min(52rem, calc(100vw - 2rem));
+  }
+
+  .llogaritesi__trupi:has(> .llogaritesi__duart) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+/**
  * Çelësi i emrave — më i ngushtë se ai i lojërave, sepse janë më shumë.
  *
  * Emrat e lojërave janë katër dhe të njohur («Pishpirik»); emrat e tavolinës
