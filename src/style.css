@@ -2746,6 +2746,80 @@ th.numri {
   text-transform: uppercase;
 }
 
+/**
+ * Kutia ku shtypet ai kod — dhe përse duket si `.kodi` më sipër.
+ *
+ * Kodi lexohet me zë përtej tavolinës: njëri e mban në ekran, tjetri e shtyp sa
+ * e dëgjon. Nëse ajo që lexohet dhe ajo ku shkruhet duken dy sende të ndryshme,
+ * krahasimi bëhet me kujtesë; me të njëjtat përmasa e të njëjtën hapësirë mes
+ * shkronjave, bëhet me sy — shkronjë për shkronjë.
+ *
+ * Kufiri është dy piksela: kjo është e vetmja fushë e atij ekrani, dhe ekrani
+ * ekziston vetëm për të. Sapo kodi plotësohet, kufiri merr smeraldin — përgjigjja
+ * e parë, para se të preket butoni.
+ *
+ * Përzgjedhësi e mban emrin e elementit brenda mbështjellëses (`.fusha input…`)
+ * sepse ashtu e shkruan edhe rregulli bazë pak më lart: me një klasë të vetme,
+ * ai do ta mposhtte këtë me specifikë më të lartë.
+ */
+.kodi-forma {
+  display: grid;
+  gap: 0.6rem;
+}
+
+/* Tetë shkronja nuk kanë ç'të bëjnë me gjashtëqind piksela: te ekrani i gjerë
+   kutia mbetet sa i duhet, dhe butoni sa ajo. Rri majtas si kreu mbi të, që të
+   mos duket kuti e humbur në mes. */
+@media (min-width: 48rem) {
+  .kodi-forma {
+    max-width: 24rem;
+  }
+}
+
+.fusha input.kodi-kutia {
+  min-height: 3.5rem;
+  padding: 0.55rem 0.7rem;
+  border-width: 2px;
+  font-family: var(--shkronja-numrat);
+  font-size: clamp(1.35rem, 6.5vw, 1.65rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  /* Hapësira pas shkronjës së fundit numërohet edhe ajo, prandaj një tekst i
+     qendërzuar del pak majtas; kjo ia kthen. */
+  text-indent: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.fusha input.kodi-kutia::placeholder {
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: none;
+  opacity: 0.45;
+}
+
+.fusha input.kodi-kutia[data-gati] {
+  border-color: var(--hapur);
+}
+
+/* Sa shkronja mbeten — dhe pse butoni rri i fikur. Një buton i fikur pa
+   shpjegim lexohet si i prishur. */
+.kodi-gjendja {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: -0.1rem 0 0;
+  font-size: 0.85rem;
+  color: var(--teksti-zbehte);
+}
+
+.kodi-gjendja[data-gati] {
+  color: var(--hapur);
+  font-weight: 700;
+}
+
 @media (max-width: 22rem) {
   .kodi {
     font-size: 1.35rem;

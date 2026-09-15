@@ -239,7 +239,8 @@ src/
   versioni.ts         versioni i `package.json`-it, i futur gjatë ndërtimit
   qr.ts               kodues QR i shkruar me dorë (byte, niveli L, v1–20)
   paketa.ts           base64 i sigurt për adresa, dhe nënshkrimi
-  kodi.ts             kodi tetëkarakterësh i bashkimit — pa DOM, pa rrjetë
+  kodi.ts             kodi tetëkarakterësh i bashkimit, dhe shkrimi i tij sa
+                      shtypet — pa DOM, pa rrjetë
   ndarja.ts           rezultati i paketuar brenda një adrese
   sinjalizimi.ts      SDP-ja e ngjeshur brenda një adrese — pa DOM, pa WebRTC
   lidhja.ts           kanali WebRTC dhe rruga e sinjalit mes skedave
@@ -264,7 +265,7 @@ src/
                       Bashkohu · Sinkronizimi
   pjeset/             Renditja · Raundet · Shlyerja · TabelaEPergjithshme
                       FutjaERaundit · Mbledhesja · LojtaretELojes
-                      PanelaEKopjes
+                      FushaEKodit · PanelaEKopjes
                       RregullatELojes
                       Ndarja · Drejtperdrejt · PaServer · MeServer
                       PamjaERezultatit · KodiQR
@@ -289,7 +290,8 @@ test/
   ndarja.test.mjs        paketimi, dhe refuzimi i adresave të prera
   sinjalizimi.test.mjs   SDP-ja e ngjeshur — kundër SDP-ve të vërteta, dhe
                          refuzimi i rreshtave të futur brenda një adrese
-  kodi.test.mjs          kodi i bashkimit, dhe shkronjat që ngatërrohen
+  kodi.test.mjs          kodi i bashkimit, shkronjat që ngatërrohen, dhe çka
+                         mbetet te fusha pas çdo prekjeje
   sherbimi.test.mjs      lista e asaj që ruhet, koshët e vjetër, dhe kërkesat
                          që punëtori nuk i prek fare
   tema.test.mjs          leximi i temës së ruajtur, dhe ngjyrat që rrinë të

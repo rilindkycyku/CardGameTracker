@@ -1417,6 +1417,16 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - **Matrica renditet sipas renditjes, jo sipas radhës së tavolinës.** Shlyerja shihet kur mbaron
   loja, dhe atëherë lexohet duke nisur nga fituesi. Vendi shkruhet krah emrit te rreshti, që radha
   të mos duket e rastit.
+- **`fusha` është klasa e mbështjellëses, jo e `input`-it.** Stilet e fushave rrinë te
+  `.fusha input[type='text']`, prandaj një `<input className="fusha">` nuk merr asnjë prej tyre dhe
+  vizatohet nga shfletuesi. Pikërisht ashtu kishte mbetur kutia e kodit te «Bashkohu» e te «Takohu»,
+  dhe dukej e huaj mes gjithçkaje tjetër pa e kuptuar kush pse. Kur i shton stil një fushe të re,
+  shkruaje `<label className="fusha">` përreth dhe klasën e vet te `input`-i brenda.
+- **Kutia e kodit i ka përmasat e `.kodi`, dhe kjo nuk është rastësi.** Kodi lexohet me zë përtej
+  tavolinës: njëri e mban në ekran, tjetri e shtyp. Me të njëjtat shkronja e të njëjtën hapësirë mes
+  tyre, krahasimi bëhet me sy shkronjë për shkronjë. `shkrimiIKodit` (te `kodi.ts`, me provat e veta)
+  e ndreq shkrimin sa shtypet — vija te vendi, `O`→`0`, `I`/`L`→`1`, dhe një adresë e ngjitur e tërë
+  bie te kodi i saj. Mos i vër `maxLength` asaj fushe: do ta priste adresën para se ajo të lexohej.
 - **Kutia e emrave pranon disa njëherësh** — «alfa, beta, gama, delta». Ndarësit janë presja,
   pikëpresja dhe rreshti i ri, kurrë hapësira: emrat me dy fjalë („alfa + zeta" te fleta e vjetër)
   duhet të mbeten një i vetëm. Shtimi mes lojës kalon një varg te `onShto`, jo një emër për

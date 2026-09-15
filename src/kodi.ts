@@ -66,6 +66,46 @@ export function shfaqKodin(kodi: string): string {
 }
 
 /**
+ * Kodi sa shkruhet — çka duhet të rrijë te fusha pas çdo prekjeje.
+ *
+ * `lexoKodin` e lexon kodin kur është i plotë; kjo e mban të lexueshëm derisa
+ * të bëhet. Të dyja i bëjnë të njëjtat ndreqje, dhe kjo nuk është përsëritje pa
+ * nevojë: kush shkruan `o` te një alfabet pa `O` e sheh `0`-shin aty për aty,
+ * e nuk e mëson vetëm kur butoni nuk ndizet.
+ *
+ * Katër gjëra ndodhin këtu, dhe secila heq një pyetje te tavolina:
+ *
+ *   • Shkronjat e vogla ngrihen, sepse kodi tregohet me të mëdha.
+ *   • `O` bëhet `0`, `I` dhe `L` bëhen `1` — alfabeti nuk i ka, dhe kush e
+ *     dikton kodin me zë i ngatërron pikërisht ata.
+ *   • Vija vihet vetë pas shkronjës së katërt, që fusha të duket si kodi që
+ *     lexohet te telefoni tjetër.
+ *   • Një adresë e ngjitur nga një bisedë kthehet te kodi i saj — përndryshe do
+ *     të mbetej një rresht i gjatë që nuk hyn as te fusha.
+ *
+ * Çka nuk është e alfabetit bie: një `U` i shtypur gabimisht nuk ka ku të shkojë,
+ * dhe një fushë që e pranon do ta linte gabimin të dukej i pranuar.
+ */
+export function shkrimiIKodit(teksti: string): string {
+  // Adresa lexohet e para, si te `lexoKodin`: pa këtë, shkronjat e «bashkohu»
+  // do të hynin te kodi sapo dikush ngjit një lidhje.
+  const gjetja = (teksti ?? '').match(/#\/(?:bashkohu|takohu)\/([^/?#\s]+)/i);
+  const trupi = gjetja ? gjetja[1]! : (teksti ?? '');
+
+  const kodi = [
+    ...trupi
+      .toUpperCase()
+      .replace(/O/g, '0')
+      .replace(/[IL]/g, '1'),
+  ]
+    .filter((shkronja) => ALFABETI.includes(shkronja))
+    .join('')
+    .slice(0, GJATESIA);
+
+  return kodi.length > 4 ? shfaqKodin(kodi) : kodi;
+}
+
+/**
  * Kodi nga çka mund të shkruhet ose të ngjitet: kod, kod me vijë, a adresë.
  *
  * Vija, hapësira dhe shkronjat e vogla nuk kanë pse t'i pengojnë dikë që po e

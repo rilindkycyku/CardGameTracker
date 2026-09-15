@@ -20,6 +20,7 @@ import {
   pritjaEProves,
   serverat,
   shfaqKodin,
+  shkrimiIKodit,
   shpjegimi,
   veprimiPasGabimit,
 } from '../src/kodi.ts';
@@ -271,5 +272,56 @@ test('asnjë gabim nuk del me emrin e tipit në ekran', () => {
     // Emrat e tipeve janë anglisht dhe me vija; ekrani është shqip.
     assert.ok(!teksti.includes('-'), `${lloji}: ${teksti}`);
     assert.ok(!teksti.toLowerCase().includes(lloji.toLowerCase()) || lloji === '', lloji);
+  }
+});
+
+test('shkrimi i kodit e ndreq atë që shtypet, sa shtypet', () => {
+  // Vija vjen vetë pas së katërtës: fusha duhet të duket si kodi që lexohet te
+  // telefoni tjetër, e jo si tetë shkronja të ngjitura.
+  assert.equal(shkrimiIKodit('a3f2'), 'A3F2');
+  assert.equal(shkrimiIKodit('a3f27'), 'A3F2-7');
+  assert.equal(shkrimiIKodit('a3f27kqm'), 'A3F2-7KQM');
+  assert.equal(shkrimiIKodit('A3F2-7KQM'), 'A3F2-7KQM');
+});
+
+test('shkrimi i kodit i ndreq shkronjat që ngatërrohen', () => {
+  // Të njëjtat ndreqje si te leximi — por të dukshme sa shtypen, e jo vetëm kur
+  // butoni nuk ndizet.
+  assert.equal(shkrimiIKodit('oooo'), '0000');
+  assert.equal(shkrimiIKodit('iiiillll'), '1111-1111');
+  assert.equal(shkrimiIKodit('0o1i1l0o'), '0011-1100');
+});
+
+test('shkrimi i kodit i lë jashtë shkronjat që s’janë të alfabetit', () => {
+  // `U` nuk del kurrë te një kod; një fushë që e pranon do ta linte gabimin të
+  // dukej i pranuar.
+  assert.equal(shkrimiIKodit('a3u f2'), 'A3F2');
+  assert.equal(shkrimiIKodit('!!'), '');
+  assert.equal(shkrimiIKodit(''), '');
+});
+
+test('shkrimi i kodit nuk kalon tetë shkronja', () => {
+  assert.equal(shkrimiIKodit('a3f27kqm9999'), 'A3F2-7KQM');
+});
+
+test('një adresë e ngjitur bie te vetë kodi', () => {
+  // Kush merr një lidhje nga një bisedë e ngjit të tërën; pa këtë, te fusha do
+  // të mbetej një rresht që nuk hyn as në ekran.
+  assert.equal(
+    shkrimiIKodit('http://192.168.1.5:5173/#/bashkohu/a3f27kqm'),
+    'A3F2-7KQM',
+  );
+  assert.equal(
+    shkrimiIKodit('shiko: http://x/#/takohu/A3F27KQM faleminderit'),
+    'A3F2-7KQM',
+  );
+});
+
+test('çka shkruhet lexohet — të dyja e njohin të njëjtin kod', () => {
+  // Prova që i lidh: nëse fusha tregon një kod të plotë, butoni duhet të ndizet.
+  for (const shkrimi of ['a3f27kqm', '0o1i1l0o', 'http://x/#/bashkohu/a3f27kqm']) {
+    const te_fusha = shkrimiIKodit(shkrimi);
+    assert.equal(lexoKodin(te_fusha), lexoKodin(shkrimi), shkrimi);
+    assert.notEqual(lexoKodin(te_fusha), null, shkrimi);
   }
 });
