@@ -1457,6 +1457,24 @@ th.numri {
 }
 
 /**
+ * «Ruaj» merr rreshtin e vet; të dyja daljet e tjera e ndajnë atë që vjen pas.
+ *
+ * Te telefoni rregulli i përgjithshëm i `.veprimet` i shtrin të gjithë sa
+ * gjerësia, pra tre butona zinin tre rreshta — gjysma e kutisë shkonte te
+ * fundi i saj, dhe nga gjashtë duar dukeshin katër. 8rem është gjerësia nën të
+ * cilën «Vendosi te fushat» nis të thyhet në dy rreshta; mbi të dy butonat
+ * hyjnë krah për krah edhe te 360px, dhe kur mbetet një i vetëm ai zgjatet sa
+ * rreshti vetvetiu.
+ */
+.llogaritesi__fund .veprimet > .buton {
+  flex: 1 1 8rem;
+}
+
+.llogaritesi__fund .veprimet > .buton--kryesor {
+  flex-basis: 100%;
+}
+
+/**
  * Çelësi i emrave — më i ngushtë se ai i lojërave, sepse janë më shumë.
  *
  * Emrat e lojërave janë katër dhe të njohur («Pishpirik»); emrat e tavolinës

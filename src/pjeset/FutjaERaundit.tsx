@@ -237,6 +237,25 @@ function DetajetERaundit({
     onRuaj(scores);
   }
 
+  /**
+   * I shkruan pikët e llogaritësit te fushat, dhe kutia kalon te to.
+   *
+   * Nuk ruan asgjë: kjo është rruga e raundit që rregulli nuk e mbulon — te
+   * fleta origjinale ka një raund me mbyllës −50, të cilin nuk e jep asnjë nga
+   * dy mbylljet — prandaj pikët duhet të preken me dorë para se të shtypet
+   * «Ruaj».
+   */
+  function vendosTeFushat() {
+    if (!piketELlogaritura) return;
+    caktoVlerat(
+      Object.fromEntries(
+        players.map((p) => [p, String(piketELlogaritura[p] ?? 0)]),
+      ) as Vlerat,
+    );
+    caktoPiketELlogaritura(null);
+    caktoMenyren('fushat');
+  }
+
   /** «Next» shkon te lojtari tjetër; te i fundit ruan raundin. */
   function neTaste(e: React.KeyboardEvent, i: number) {
     if (e.key !== 'Enter') return;
@@ -258,19 +277,7 @@ function DetajetERaundit({
 
       <div className="llogaritesi__trupi">
         {meLlogaritesin ? (
-          <Llogaritesi
-            players={players}
-            onPike={caktoPiketELlogaritura}
-            onVendos={(pike) => {
-              caktoVlerat(
-                Object.fromEntries(
-                  players.map((p) => [p, String(pike[p] ?? 0)]),
-                ) as Vlerat,
-              );
-              caktoPiketELlogaritura(null);
-              caktoMenyren('fushat');
-            }}
-          />
+          <Llogaritesi players={players} onPike={caktoPiketELlogaritura} />
         ) : (
           <>
             <div className="futja__rrjeti" data-shume={shume || undefined}>
@@ -328,22 +335,6 @@ function DetajetERaundit({
                 </div>
               ))}
             </div>
-
-            {/*
-              Kthimi te llogaritësi rri vetëm te bridzhi, dhe vetëm te raundi i
-              ri: te domina e pishpiriku llogaritës nuk ka fare, dhe te
-              redaktimi prekja me dorë është pikërisht ajo që u kërkua.
-            */}
-            {llogaritesi && !fillestare && (
-              <button
-                type="button"
-                className="buton buton--i-plote"
-                onClick={() => caktoMenyren('llogaritesi')}
-              >
-                <Ikona emri="llogaritesi" />
-                Kthehu te llogaritësi
-              </button>
-            )}
           </>
         )}
       </div>
@@ -377,6 +368,42 @@ function DetajetERaundit({
             {etiketa}
           </button>
 
+          {/*
+            Dalja e dytë rri këtu, krah «Ruaj» — e jo poshtë listës së duarve.
+
+            Me gjashtë lojtarë ajo listë e kalon ekranin e telefonit, prandaj
+            çka rri nën të nuk gjendet pa rrëshqitur deri në fund: butoni ishte
+            aty, dhe dukej sikur nuk ekzistonte. Rreshti i ngjitur është i vetmi
+            vend i kutisë që duket gjithmonë.
+          */}
+          {meLlogaritesin && (
+            <button
+              type="button"
+              className="buton"
+              onClick={vendosTeFushat}
+              disabled={!piket}
+            >
+              <Ikona emri="redakto" />
+              Vendosi te fushat
+            </button>
+          )}
+
+          {/*
+            Rruga prapa, dhe vetëm kur ka ku të kthehet: te domina e pishpiriku
+            llogaritës nuk ka fare, dhe te redaktimi prekja me dorë është
+            pikërisht ajo që u kërkua.
+          */}
+          {!meLlogaritesin && llogaritesi && !fillestare && (
+            <button
+              type="button"
+              className="buton"
+              onClick={() => caktoMenyren('llogaritesi')}
+            >
+              <Ikona emri="llogaritesi" />
+              Kthehu te llogaritësi
+            </button>
+          )}
+
           <button type="button" className="buton" onClick={onMbyll}>
             <Ikona emri="anulo" />
             Mbyll
@@ -402,17 +429,18 @@ function DetajetERaundit({
 function Llogaritesi({
   players,
   onPike,
-  onVendos,
 }: {
   players: string[];
   /**
-   * Pikët e llogaritura, sa herë ndryshojnë — butoni «Ruaj» rri te rreshti i
-   * ngjitur poshtë. `null` sa kohë mbyllësi nuk është zgjedhur: pa të nuk ka
-   * raund, dhe ai buton mbetet i fikur.
+   * Pikët e llogaritura, sa herë ndryshojnë.
+   *
+   * Të dy butonat që i përdorin — «Ruaj raundin N» dhe «Vendosi te fushat» —
+   * rrinë te rreshti i ngjitur i kutisë e jo këtu, sepse me tetë lojtarë lista
+   * poshtë del më e gjatë se ekrani dhe çka rri nën të nuk gjendet pa
+   * rrëshqitur. `null` sa kohë mbyllësi nuk është zgjedhur: pa të nuk ka raund,
+   * dhe të dy ata rrinë të fikur.
    */
   onPike: (pike: Record<string, number> | null) => void;
-  /** I shkruan pikët te fushat, që të preken me dorë para ruajtjes. */
-  onVendos: (pike: Record<string, number>) => void;
 }) {
   /*
    * Nis pa mbyllës të zgjedhur, me kërkesë të pronarit.
@@ -599,24 +627,6 @@ function Llogaritesi({
           <span>Zgjidh kush e mbylli raundin.</span>
         )}
       </p>
-
-      {/*
-        Dalja e dytë, dhe ajo që nuk guxon të hiqet.
-
-        I shkruan pikët te fushat pa i ruajtur, dhe kutia kalon te ato: aty
-        preken me dorë para se të shtypet «Ruaj». Kjo është rruga e raundit që
-        rregulli nuk e mbulon — te fleta origjinale ka një raund me mbyllës −50,
-        të cilin nuk e jep asnjë nga dy mbylljet.
-      */}
-      <button
-        type="button"
-        className="buton buton--i-plote"
-        onClick={() => pike && onVendos(pike)}
-        disabled={!pike}
-      >
-        <Ikona emri="redakto" />
-        Vendosi te fushat
-      </button>
     </>
   );
 }

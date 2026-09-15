@@ -182,6 +182,13 @@ këtë të matur: nëse dikush „rregullon" rregullat, ajo bie. Prandaj «Vendo
 llogaritësi — i shkruan pikët te fushat pa i ruajtur dhe kutia kalon te to — dhe «Kthehu te
 llogaritësi» është rruga prapa.
 
+**Të dyja daljet rrinë te rreshti i ngjitur, kurrë poshtë listës.** «Vendosi te fushat» rrinte një
+herë te fundi i trupit të llogaritësit, dhe atje me gjashtë lojtarë binte nën ekranin e telefonit:
+butoni ishte aty, dhe dukej sikur nuk ekzistonte. Rreshti i ngjitur është i vetmi vend i kutisë që
+duket gjithmonë, prandaj «Ruaj raundin N» merr rreshtin e vet dhe dy daljet e tjera e ndajnë atë që
+vjen pas (`flex: 1 1 8rem`) — tre butona një mbi një do t'i hanin gjysmën e kutisë, dhe nga gjashtë
+duar do të dukeshin katër.
+
 **Kutia është `<dialog>` i vërtetë**, i dyti te ky aplikacion pas mbledhëses së dorës (pika 6). Të
 dy e ndajnë `.kutia`-n — kreun, sfondin, «Esc»-in dhe prekjen jashtë — dhe hapen edhe të ndërthurur:
 mbledhësja e një dore mbi detajet e raundit, dhe «Esc» i mbyll sipas radhës. Trupi rrëshqet brenda
