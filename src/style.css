@@ -2307,6 +2307,29 @@ th.numri {
   font-size: 0.88rem;
 }
 
+/*
+ * Matrica nuk zgjerohet sa shtylla që e mban — kartela ngushtohet sa tabela.
+ *
+ * `.tabela` merr `width: 100%`, dhe atje ku shlyerja i shtrin të tria shtyllat
+ * ajo dilte **1414 piksela kundrejt 382** që i duhen me gjashtë lojtarë (476 me
+ * tetë): numrat largoheshin katër herë më shumë se sa i kërkon përmbajtja, dhe
+ * syri e humbte rreshtin midis. Është pikërisht ajo që kërkesa e pronarit e
+ * mbyll te ekrani i gjerë — një tabelë e gjerë nuk lexohet më mirë se një e
+ * ngushtë.
+ *
+ * `fit-content` e mban tabelën saktësisht sa përmbajtja e saj, dhe kartelën
+ * bashkë me të: një kufi që rrethon gjysmë kartele të bardhë premton një tabelë
+ * që nuk vjen. `max-width: 100%` e mban rrëshqitjen e brendshme atje ku shtylla
+ * është më e ngushtë se tabela — te telefoni, ku ajo rrëshqiste edhe më parë.
+ *
+ * `:has` e kufizon te matrica: renditja dhe raundet e duan tërë gjerësinë e
+ * shtyllës së vet, sepse kolonat e tyre i ndan vetë teksti.
+ */
+.tabela-mbeshtjellese:has(> .matrica) {
+  width: fit-content;
+  max-width: 100%;
+}
+
 .matrica th {
   background: transparent;
   border: 0;

@@ -1696,6 +1696,13 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - **Matrica renditet sipas renditjes, jo sipas radhës së tavolinës.** Shlyerja shihet kur mbaron
   loja, dhe atëherë lexohet duke nisur nga fituesi. Vendi shkruhet krah emrit te rreshti, që radha
   të mos duket e rastit.
+- **Matrica nuk zgjerohet sa shtylla që e mban**, dhe kartela e saj ngushtohet bashkë me të
+  (`.tabela-mbeshtjellese:has(> .matrica)` merr `fit-content`). `.tabela` ka `width: 100%`, prandaj
+  sapo shlyerja i mori të tria shtyllat ajo dilte **1414 piksela kundrejt 382** që i duhen me
+  gjashtë lojtarë — pra numrat largoheshin katër herë më shumë se sa i kërkon përmbajtja, dhe syri e
+  humbte rreshtin midis. Te telefoni asgjë nuk ndryshoi: atje shtylla është më e ngushtë se tabela,
+  `max-width: 100%` fiton, dhe ajo rrëshqet brenda mbështjellëses si më parë. Mos i vër `width: 100%`
+  asaj tabele — ajo është rrjet numrash që e ndan vetë përmbajtja, e jo tekst që mbush një rresht.
 - **`fusha` është klasa e mbështjellëses, jo e `input`-it.** Stilet e fushave rrinë te
   `.fusha input[type='text']`, prandaj një `<input className="fusha">` nuk merr asnjë prej tyre dhe
   vizatohet nga shfletuesi. Pikërisht ashtu kishte mbetur kutia e kodit te «Bashkohu» e te «Takohu»,
