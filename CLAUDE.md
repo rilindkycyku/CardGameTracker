@@ -1407,6 +1407,24 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   mbi 62rem kartela dhe renditja rrinë krah për krah, dhe mbi 90rem vetë shtylla e rezultatit ndahet
   në dy — renditja majtas, raundet djathtas, shlyerja poshtë sa të dyja.
 
+  **Mbi 62rem shtylla e rezultatit nuk rri më bllok: pjesët e saj hyjnë vetë te rrjeti i faqes**
+  (`.loja__rezultatet { display: contents }`), dhe raundet zbresin te shtylla e majtë, nën panelat.
+  Arsyeja u mat te tableta: e majta mbaronte te panelat dhe poshtë tyre rrinte bosh sa dy ekrane,
+  kurse djathtas tri tabela prisnin radhën njëra nën tjetrën. Me gjashtë lojtarë e nëntë raunde faqja
+  binte nga **2129 piksela te 1607** te 1024×768 — pra një ekran tableti më pak për t'u rrëshqitur —
+  dhe me tetë nga 2544 te 1878. Te magareci, te pishpiriku dhe te telefoni numri nuk lëvizi fare:
+  atje shtylla e majtë është më e shkurtër se blloku i parë gjithsesi.
+
+  Çmimi është një dhe matet: te kolona e futjes tabela e raundeve rrëshqet brenda mbështjellëses së
+  vet nga gjashtë lojtarë e tutje (me kolonën e raundit të ngjitur majtas). I njëjti çmim paguhej
+  edhe mbi 90rem, ku ajo tabelë rri krah renditjes — dhe pyetja «sa mora atë raund» lexohet me një
+  rrëshqitje anash, kurse «ku jemi tani» nuk lexohej fare pa dy rrëshqitje poshtë.
+
+  Rreshtat janë tre — futja, panelat, tabelat — dhe i dyti merr çka mbetet (`auto 1fr auto`). Pa atë
+  `1fr` lartësia e renditjes, e cila i shtrin dy rreshtat e parë, do t'u ndahej të dyve dhe mes
+  kartelës e panelave do të hapej një vrimë; me të ajo bie e tëra nën panelat, dhe rreshti i tretë e
+  nis me të dyja tabelat në një vijë.
+
   **Ajo ndarja e fundit është kufi i tabelës, jo i ekranit, dhe kjo është pikërisht kërkesa e
   pronarit: tabela të mos zgjerohet — krah saj të vijë një tabelë tjetër.** Sapo peizazhi mori tërë
   ekranin, shtylla e rezultatit kaloi 60rem dhe tabela u shtri bashkë me të: mes emrit dhe totalit
@@ -1425,10 +1443,22 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   mbështjellëses së vet; me to del 506. Trembëdhjetë piksela hapësirë — pra mos e ul atë prag dhe mos
   i ndërro ata dy numra pa e rimatur kolonën me tetë lojtarë te 1440.
 
-  Vendosja kërkon që çdo pjesë e asaj shtylle të ketë mbështjellësen e vet (`.loja__bllok`, e vënë te
-  `Loja`): një rrjet nuk i vendos dot pjesët që nuk i njeh, dhe `nth-child` do të numëronte gabim
-  sapo parashikimi të mos vizatohet. Shlyerja merr `--gjere` dhe i shtrin të dyja kolonat — ajo është
-  listë kartelash që rrjedh vetë, dhe një gjysmë shtyllë do ta ngushtonte pa nevojë. Te telefoni
+  **Ai prag nuk zbret dot te tableta, dhe kjo u mat e nuk u hamendësua.** Me tetë lojtarë tabela e
+  renditjes kërkon 502 piksela dhe ajo e raundeve 524 para se të nisin të rrëshqasin; të dyja krah
+  për krah, plus dyshemeja 23rem e futjes dhe dy hapësirat, kërkojnë rreth 1477 — kurse iPad-i i
+  mbajtur anash jep 1024, 1180, 1194 a 1366. Prandaj atje ndarja e tretë nuk hyn fare, dhe hapësira e
+  zbrazët u mbush duke i zbritur raundet te shtylla e majtë (më sipër) e jo duke ulur pragun.
+
+  Mbi 90rem shtyllat janë tri te një rrjet i vetëm — futja, renditja, raundet — e jo një rrjet brenda
+  tjetrit. Hapësira mes tyre është e njëjta (`--rreshtimi`), pra gjerësitë dalin pikërisht ato që u
+  matën: te 1440 me tetë lojtarë futja 400, renditja 506, raundet 440.
+
+  Vendosja kërkon që çdo pjesë e asaj shtylle të ketë mbështjellësen e vet **me emrin e vet**
+  (`.loja__bllok--renditja`, `--raundet`, `--shlyerja`, të vëna te `Loja`): një rrjet nuk i vendos dot
+  pjesët që nuk i njeh, dhe `nth-child` do të numëronte gabim sapo parashikimi të mos vizatohet,
+  shlyerja të mos vlejë, ose lloji të jetë magarec. Prandaj edhe gjendja «ende asnjë raund» e ka
+  mbështjellësen e vet. Shlyerja i shtrin të dyja tabelat mbi 90rem — ajo është listë kartelash që
+  rrjedh vetë, dhe një gjysmë shtyllë do ta ngushtonte pa nevojë. Te telefoni
   mbështjellëset nuk ndërrojnë asgjë: një kolonë, dhe hapësira mes blloqeve e mbajtur nga vetë ato. Panelat nuk kthehen mes tyre: atje ata
   shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
 

@@ -753,15 +753,18 @@ export function Loja({ id }: { id: number }) {
    * kjo shtyllë vendoset krah futjes: dy kolona e duan bllokun të tërin, dhe një
    * listë e shpërndarë nëpër `return` nuk hyn dot brenda njërës.
    *
-   * Brenda saj çdo pjesë ka mbështjellësen e vet (`loja__bllok`), sepse te
-   * ekrani shumë i gjerë ato dalin dy për rresht — renditja krah raundeve — dhe
-   * një rrjet nuk i vendos dot pjesët që nuk i njeh. Shlyerja merr
-   * `--gjere`: ajo është listë kartelash që rrjedh vetë, dhe një gjysmë
-   * shtyllë do t'i ngushtonte pa nevojë.
+   * Brenda saj çdo pjesë ka mbështjellësen e vet (`loja__bllok`), dhe secila e
+   * mban edhe emrin e vet — `--renditja`, `--raundet`, `--shlyerja`. Emri nuk
+   * është zbukurim: sapo ekrani hapet, `.loja__rezultatet` bëhet
+   * `display: contents` dhe këto tri pjesë vendosen vetë te rrjeti i faqes,
+   * njëra prej tyre te shtylla e majtë. Një rrjet nuk i vendos dot pjesët që
+   * nuk i njeh, dhe `nth-child` do të numëronte gabim sapo parashikimi të mos
+   * vizatohet, shlyerja të mos vlejë, ose lloji të jetë magarec — prandaj edhe
+   * gjendja «ende asnjë raund» e ka mbështjellësen e vet.
    */
   const rezultatet = magarec ? (
     <>
-      <div className="loja__bllok">
+      <div className="loja__bllok loja__bllok--renditja">
         {/*
           Rrjeti rri edhe kur s'ka ende asnjë raund: shtatë rreshta të zbrazët
           e thonë vetë lojën — kaq shkronja ka, dhe kush i mbush i humbi.
@@ -778,7 +781,7 @@ export function Loja({ id }: { id: number }) {
         )}
       </div>
 
-      <div className="loja__bllok">
+      <div className="loja__bllok loja__bllok--raundet">
         {raundet.length === 0 ? (
           <div className="zbrazet">
             <p className="zbrazet__titull">Ende asnjë raund</p>
@@ -798,13 +801,15 @@ export function Loja({ id }: { id: number }) {
       </div>
     </>
   ) : raundet.length === 0 ? (
-    <div className="zbrazet">
-      <p className="zbrazet__titull">Ende asnjë raund</p>
-      <p>
-        Shëno pikët e raundit të parë te blloku i futjes. Renditja{' '}
-        {rregulli.shlyerja ? 'dhe shlyerja dalin' : 'del'} vetë sapo të ketë
-        numra.
-      </p>
+    <div className="loja__bllok loja__bllok--renditja">
+      <div className="zbrazet">
+        <p className="zbrazet__titull">Ende asnjë raund</p>
+        <p>
+          Shëno pikët e raundit të parë te blloku i futjes. Renditja{' '}
+          {rregulli.shlyerja ? 'dhe shlyerja dalin' : 'del'} vetë sapo të ketë
+          numra.
+        </p>
+      </div>
     </div>
   ) : (
     <>
@@ -818,7 +823,7 @@ export function Loja({ id }: { id: number }) {
         hapësira nuk është. Vendimin e mban `Parashikimi` — edhe rastin kur
         s'ka çka të parashikohet, ku renditja del e vetme si më parë.
       */}
-      <div className="loja__bllok">
+      <div className="loja__bllok loja__bllok--renditja">
         {rregulli.parashikimi ? (
           <Parashikimi
             lloji={lloji}
@@ -833,7 +838,7 @@ export function Loja({ id }: { id: number }) {
         )}
       </div>
 
-      <div className="loja__bllok">
+      <div className="loja__bllok loja__bllok--raundet">
         <Raundet
           players={players}
           raundet={raundet}
@@ -850,7 +855,7 @@ export function Loja({ id }: { id: number }) {
         matrica nuk vizatohet fare, si te magareci.
       */}
       {rregulli.shlyerja && (
-        <div className="loja__bllok loja__bllok--gjere">
+        <div className="loja__bllok loja__bllok--shlyerja">
           <Shlyerja players={rendituar} matrica={matrica} />
         </div>
       )}

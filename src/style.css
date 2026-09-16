@@ -377,14 +377,33 @@ h3 {
     max-width: 88rem;
   }
 
+  /*
+   * Shtylla e rezultatit nuk rri më bllok: pjesët e saj hyjnë vetë te rrjeti i
+   * faqes.
+   *
+   * Me të si mbështjellëse, e majta mbaronte te panelat dhe e djathta vazhdonte
+   * vetëm — te tableta e mbajtur anash kjo do të thoshte një shtyllë bosh sa dy
+   * ekrane, dhe tri tabela të radhitura njëra nën tjetrën krah saj. Me
+   * `display: contents` ato tri pjesë vendosen secila veç, dhe raundet zënë
+   * pikërisht atë hapësirë që rrinte e zbrazët.
+   *
+   * Prandaj çdo pjesë e mban emrin e vet te `Loja` — `nth-child` do të
+   * numëronte gabim sapo njëra prej tyre të mos vizatohej.
+   */
+  .loja__rezultatet {
+    display: contents;
+  }
+
   .loja__pune {
     grid-template-columns: minmax(23rem, 27rem) minmax(0, 1fr);
-    /* Rreshti i parë sa kartela e futjes, i dyti merr çka mbetet. Kolona e
-       rezultatit i shtrin të dy rreshtat, dhe pa këtë ndarje lartësia e saj do
-       t'u ndahej të dyve — pra mes kartelës dhe panelave do të hapej një vrimë
-       sa gjysma e ekranit. Me `auto 1fr` ajo bie e tëra te rreshti i dytë, ku
-       panelat rrinë të ngjitur lart (`align-items: start`). */
-    grid-template-rows: auto 1fr;
+    /* Tri rreshta: futja, panelat, tabelat.
+     *
+     * I dyti merr çka mbetet, dhe pa atë `1fr` lartësia e renditjes — e cila i
+     * shtrin dy rreshtat e parë — do t'u ndahej të dyve, pra mes kartelës dhe
+     * panelave do të hapej një vrimë. Me `1fr` ajo bie e tëra nën panelat, ku
+     * ata rrinë të ngjitur lart (`align-items: start`), dhe rreshti i tretë e
+     * nis me të dyja tabelat në një vijë. */
+    grid-template-rows: auto 1fr auto;
     align-items: start;
   }
 
@@ -403,15 +422,36 @@ h3 {
     grid-row: 1;
   }
 
-  .loja__rezultatet {
+  /* Ajo që lexohet pas çdo raundi rri krah futjes, në ekranin e parë. */
+  .loja__bllok--renditja {
     grid-column: 2;
     grid-row: 1 / span 2;
   }
 
-  /* Rreshti i rrjetit është sa kolona më e gjatë; pa këtë, blloqet e shtyllës
-     së rezultatit do të ndaheshin sa të mbushnin tërë atë lartësi. */
-  .loja__rezultatet {
-    align-content: start;
+  /*
+   * Raundet zbresin te shtylla e majtë, nën panelat.
+   *
+   * Aty rrinte bosh gjithçka nën ta, kurse djathtas tri tabela prisnin radhën
+   * njëra pas tjetrës. Me gjashtë lojtarë e nëntë raunde faqja bie nga 2129
+   * piksela te 1642 — pra një ekran tableti më pak për t'u rrëshqitur.
+   *
+   * Çmimi matet: te kolona e futjes tabela e raundeve rrëshqet brenda
+   * mbështjellëses së vet nga gjashtë lojtarë e tutje, me kolonën e raundit të
+   * ngjitur majtas. I njëjti çmim paguhej edhe te ekrani shumë i gjerë, ku ajo
+   * tabelë rri krah renditjes — dhe pyetja «sa mora atë raund» lexohet me një
+   * rrëshqitje anash, kurse «ku jemi tani» nuk lexohej fare pa dy rrëshqitje
+   * poshtë.
+   */
+  .loja__bllok--raundet {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  /* Shlyerja e nis rreshtin e tretë krah raundeve: është listë kartelash që
+     rrjedh vetë, prandaj një shtyllë e ngushtë nuk e pret asgjë. */
+  .loja__bllok--shlyerja {
+    grid-column: 2;
+    grid-row: 3;
   }
 }
 
@@ -480,19 +520,30 @@ h3 {
  * numra, dhe tabela e tyre rrëshqet brenda mbështjellëses së vet kur s'i mjafton.
  */
 @media screen and (min-width: 90rem) {
-  /* Kolona e futjes lëshon dy rem, që të dyja tabelat të hyjnë krah për krah.
+  /* Tri shtylla te një rrjet i vetëm, e jo një rrjet brenda tjetrit: futja,
+     renditja, raundet. Hapësira mes tyre është e njëjta (`--rreshtimi`), pra
+     gjerësitë dalin pikërisht ato që u matën — vetëm se tani raundet e ngjiten
+     renditjes në vend që të zbresin te shtylla e majtë.
+
+     Kolona e futjes lëshon dy rem, që të dyja tabelat të hyjnë krah për krah.
      23rem mbetet dyshemeja e saj — atje rreshti «emri, dora, pikët» i
      llogaritësit nis të shtypet — dhe kjo e prek vetëm tavanin. */
   .loja__pune {
-    grid-template-columns: minmax(23rem, 25rem) minmax(0, 1fr);
+    grid-template-columns:
+      minmax(23rem, 25rem) minmax(0, 1.15fr)
+      minmax(0, 1fr);
   }
 
-  .loja__rezultatet {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  .loja__bllok--raundet {
+    grid-column: 3;
+    grid-row: 1 / span 2;
   }
 
-  .loja__bllok--gjere {
-    grid-column: 1 / -1;
+  /* Shlyerja i shtrin të dyja tabelat: listë kartelash që rrjedh vetë, dhe një
+     gjysmë shtyllë do ta ngushtonte pa nevojë. */
+  .loja__bllok--shlyerja {
+    grid-column: 2 / -1;
+    grid-row: 3;
   }
 }
 
