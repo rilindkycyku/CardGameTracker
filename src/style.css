@@ -605,24 +605,47 @@ h3 {
     grid-template-columns:
       minmax(23rem, 25rem) minmax(0, 1.15fr)
       minmax(0, 1fr);
+    /*
+     * Katër rreshta, dhe i fundit merr çka mbetet: futja, panelat, shlyerja,
+     * dhe mbushja. Pa atë rresht të katërt lartësia e renditjes e e raundeve —
+     * të cilat i shtrijnë rreshtat — do t'u ndahej tre rreshtave të parë, dhe
+     * shlyerja do të zbriste poshtë tyre në vend që t'u ngjitej panelave.
+     */
+    grid-template-rows: auto auto auto 1fr;
+  }
+
+  .loja__bllok--renditja,
+  .loja__bllok--raundet {
+    grid-row: 1 / -1;
   }
 
   .loja__bllok--raundet {
     grid-column: 3;
-    grid-row: 1 / span 2;
   }
 
   /*
-   * Shlyerja i shtrin të tria shtyllat, jo dy.
+   * Shlyerja hipën te shtylla e majtë, mbi panelat — me kërkesë të pronarit.
    *
-   * Ajo është listë kartelash që rrjedh vetë, prandaj një gjysmë shtyllë do ta
-   * ngushtonte pa nevojë — dhe kur i linte dy, poshtë panelave mbetej një
-   * drejtkëndësh i bardhë sa vetë kolona e futjes. Me të tria, çiftet bien pesë
-   * për rresht e jo katër: me gjashtë lojtarë faqja bie nga 1140 piksela te
-   * 1085 te 1440×900, dhe me tetë nga 1342 te 1287.
+   * Poshtë panelave rrinte një drejtkëndësh i bardhë sa vetë kolona e futjes:
+   * renditja e raundet mbaronin te 682 e 732, kurse e majta te 555. Tani atë
+   * vend e zë matrica, e cila me gjashtë lojtarë kërkon 382 piksela — pra hyn
+   * te ajo kolonë prej 400 pa rrëshqitur fare. Me tetë ajo kërkon 476 dhe
+   * rrëshqet brenda kartelës së vet, si tabela e raundeve përbri.
+   *
+   * Rri **mbi** panelat e jo nën ta, sepse ajo lexohet kur mbaron mbrëmja
+   * kurse ata preken një herë a asnjë (pika 6). Radha e telefonit nuk u prek:
+   * atje shlyerja vinte para panelave gjithsesi.
+   *
+   * Fitimi nuk është vetëm ai drejtkëndësh: shlyerja nuk zë më një rresht të
+   * vetin poshtë gjithçkaje, prandaj faqja te 1440×900 bie nga 1221 piksela te
+   * 1068 me gjashtë lojtarë.
    */
   .loja__bllok--shlyerja {
-    grid-column: 1 / -1;
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .loja__panelat {
     grid-row: 3;
   }
 }

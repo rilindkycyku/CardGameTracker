@@ -1518,10 +1518,14 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   (`.loja__bllok--renditja`, `--raundet`, `--shlyerja`, të vëna te `Loja`): një rrjet nuk i vendos dot
   pjesët që nuk i njeh, dhe `nth-child` do të numëronte gabim sapo parashikimi të mos vizatohet,
   shlyerja të mos vlejë, ose lloji të jetë magarec. Prandaj edhe gjendja «ende asnjë raund» e ka
-  mbështjellësen e vet. Shlyerja i shtrin **të tria** shtyllat mbi 90rem — ajo është listë kartelash
-  që rrjedh vetë, dhe kur i linte vetëm dy, poshtë panelave mbetej një drejtkëndësh i bardhë sa vetë
-  kolona e futjes; me të tria çiftet bien pesë për rresht e jo katër, dhe faqja te 1440×900 bie nga
-  1140 piksela te 1085 me gjashtë lojtarë, e nga 1342 te 1287 me tetë. Te telefoni
+  mbështjellësen e vet. **Shlyerja hipën te shtylla e majtë mbi 90rem, mbi panelat — me kërkesë të
+  pronarit.** Poshtë panelave rrinte një drejtkëndësh i bardhë sa vetë kolona e futjes: renditja e
+  raundet mbaronin te 682 e 732, kurse e majta te 555. Tani atë vend e zë matrica, e cila me gjashtë
+  lojtarë kërkon 382 piksela — pra hyn te ajo kolonë prej 400 pa rrëshqitur; me tetë kërkon 476 dhe
+  rrëshqet brenda kartelës së vet, si tabela e raundeve përbri. Rri **mbi** panelat sepse ajo lexohet
+  kur mbaron mbrëmja, kurse ata preken një herë a asnjë (pika 6) — dhe radha e telefonit nuk u prek,
+  atje shlyerja vinte para tyre gjithsesi. Faqja te 1440×900 bie nga 1221 piksela te **1068** me
+  gjashtë lojtarë, dhe nga 1342 te 1143 me tetë. Te telefoni
   mbështjellëset nuk ndërrojnë asgjë: një kolonë, dhe hapësira mes blloqeve e mbajtur nga vetë ato. Panelat nuk kthehen mes tyre: atje ata
   shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
 
@@ -1720,12 +1724,16 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - **Lojë e re niset nga lojtarët e lojës së fundit**, jo nga tërë lista e grupit: shoqëria është
   zakonisht e njëjta, prandaj më shpesh nuk ka çka të preket fare. „E fundit" është ajo që del e
   para te historiku — më e reja sipas datës.
-- **Shlyerja ka dy pamje, dhe lista rri e para.** Matrica është përgjigjja e plotë — çdo çift, në të
-  dy drejtimet — por pyetja e tavolinës është një: «unë sa i kam borxh kujt». `borxhet()` te
-  `llogaritjet.ts` (pa DOM, me katër prova) e nxjerr atë nga e njëjta matricë: një rresht për çift,
-  kurrë dy, dhe çiftet me diferencë zero nuk hyjnë fare. Drejtimi lexohet nga shenja e matricës e jo
-  nga një rregull i shkruar dy herë — kush ka më shumë pikë paguan, te të dyja lojërat që shlyhen.
-  Tabela mbetet një prekje larg, sepse ajo është pamja e fletës origjinale.
+- **Shlyerja ka një pamje të vetme — tabelën — me kërkesë të pronarit.** Deri tani krah saj rrinte
+  edhe lista «kush kujt» (një rresht për çift), dhe ajo hapej e para: matrica është përgjigjja e
+  plotë, por pyetja e tavolinës dukej një — «unë sa i kam borxh kujt». Pronari e hoqi atë çelës: te
+  tavolina e tij lexohet tabela, sepse ajo është pamja e fletës origjinale, dhe dy pamje ku njëra
+  nuk preket kurrë janë një rresht i humbur mbi atë që lexohet. Mos e kthe pa e pyetur.
+
+  `borxhet()` te `llogaritjet.ts` (pa DOM, me katër prova) mbetet aty ku ishte, pa thirrës — si
+  `pastroDaten` më poshtë, dhe për të njëjtën arsye: ajo llogari nuk vjetërohet, dhe lista kthehet
+  me një thirrje nëse kërkohet sërish. Drejtimi lexohet nga shenja e matricës e jo nga një rregull i
+  shkruar dy herë — kush ka më shumë pikë paguan, te të dyja lojërat që shlyhen.
 - **Nga pesë lojtarë e tutje emri te kreu i tabelës së raundeve shkurtohet në tri shkronja**, me
   emrin e plotë te `vetem-lexues` — gjerësinë e kolonës e vendoste emri, kurse numri është ai që
   lexohet. E njëjta zgjidhje si dita e javës te Kujdestaria; asgjë nuk fshihet, vetëm shkurtohet.

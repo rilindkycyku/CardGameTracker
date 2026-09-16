@@ -13,11 +13,18 @@
  * tavolinë: shlyerja shihet kur mbaron loja, dhe atëherë pyetja është kush i
  * del sa kujt — e cila lexohet duke nisur nga fituesi. Vendi shkruhet krah
  * emrit te rreshti, që radha të mos duket e rastit.
+ *
+ * **Pamja është një, me kërkesë të pronarit.** Deri tani krah saj rrinte edhe
+ * lista «kush kujt» — një rresht për çift — dhe ajo hapej e para. Pronari e
+ * hoqi: te tavolina e tij lexohet tabela, sepse ajo është pamja e fletës
+ * origjinale, dhe një çelës mbi dy pamje ku njëra nuk preket kurrë është një
+ * rresht i humbur mbi atë që lexohet. `borxhet()` te `llogaritjet.ts` mbetet me
+ * provat e veta — ajo llogari nuk vjetërohet, dhe lista kthehet me një thirrje
+ * nëse ndonjëherë kërkohet sërish.
  */
 
-import { memo, useMemo, useState } from 'react';
+import { memo } from 'react';
 
-import { borxhet } from '../llogaritjet.ts';
 import { Ikona } from '../ikonat.tsx';
 
 function ShlyerjaBrenda({
@@ -28,64 +35,13 @@ function ShlyerjaBrenda({
   players: string[];
   matrica: Record<string, Record<string, number>>;
 }) {
-  /*
-   * Dy pamje të së njëjtës gjë, dhe lista rri e para.
-   *
-   * Matrica është përgjigjja e plotë — çdo çift, në të dy drejtimet — por pyetja
-   * që bëhet te tavolina është një e vetme: «unë sa i kam borxh kujt». Për të, një
-   * rrjet n×n me një legjendë shenjash kërkon të lexohet; një rresht «Rila → Lila
-   * 30» jo. Prandaj hapet lista, dhe tabela mbetet një prekje larg: ajo është
-   * pamja e fletës origjinale, dhe kush e njeh atë e kërkon ashtu.
-   */
-  const [pamja, caktoPamjen] = useState<'lista' | 'tabela'>('lista');
-  const lista = useMemo(() => borxhet(players, matrica), [players, matrica]);
-
   return (
     <section>
       <h2 className="titull-seksioni">
         <Ikona emri="shlyerja" />
         Shlyerja
-        <span className="celesi celesi--vogel titull-seksioni__celesi">
-          <button
-            type="button"
-            className="celesi__njesi"
-            aria-pressed={pamja === 'lista'}
-            onClick={() => caktoPamjen('lista')}
-          >
-            Kush kujt
-          </button>
-          <button
-            type="button"
-            className="celesi__njesi"
-            aria-pressed={pamja === 'tabela'}
-            onClick={() => caktoPamjen('tabela')}
-          >
-            Tabela
-          </button>
-        </span>
       </h2>
 
-      {pamja === 'lista' ? (
-        lista.length === 0 ? (
-          <p className="ndihma">
-            Të gjithë dolën me të njëjtat pikë — nuk i del asgjë askujt.
-          </p>
-        ) : (
-          <ul className="borxhet">
-            {lista.map(({ paguesi, marresi, sa }) => (
-              <li className="borxhi" key={`${paguesi}|${marresi}`}>
-                <span className="borxhi__emrat">
-                  <strong>{paguesi}</strong>
-                  <Ikona emri="shigjeta" klasa="ikona borxhi__shigjeta" />
-                  <strong>{marresi}</strong>
-                </span>
-                <span className="borxhi__sa">{sa}</span>
-              </li>
-            ))}
-          </ul>
-        )
-      ) : (
-      <>
       <div className="tabela-mbeshtjellese">
         <table className="tabela matrica" data-shume={players.length >= 5 || undefined}>
           <caption className="vetem-lexues">
@@ -147,8 +103,6 @@ function ShlyerjaBrenda({
           <span>− ka aq pikë më pak</span>
         </span>
       </p>
-      </>
-      )}
     </section>
   );
 }
