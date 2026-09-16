@@ -198,28 +198,50 @@ function ParashikimiBrenda({
     </p>
   );
 
+  /*
+   * Supozimet rrinë poshtë tabelës, por të mbledhura.
+   *
+   * Ato nuk hiqen dot (pika 12): një interval vendesh pa to është numër që nuk
+   * e kontrollon dot kush e lexon, dhe «vendi më i keq» te bridzhi është kufi i
+   * rregullit e jo i së mundshmes — pa atë fjali ai numër lexohet si parashikim.
+   *
+   * Por ato lexohen një herë, jo pas çdo raundi, kurse hapësirën e zinin
+   * gjithmonë: shtatë rreshta tekst nën tabelën që pyetet dhjetëra herë në
+   * mbrëmje, dhe te tableta e mbajtur anash pikërisht ato e shtynin tabelën e
+   * raundeve jashtë ekranit. Te një `<details>` teksti mbetet fjalë për fjalë
+   * ai që ishte, një prekje larg, dhe kreu i tij e thotë çka gjendet brenda —
+   * i njëjti zakon si rregullat e lojës (pika 16).
+   */
   const ndihma = (
-    <p className="ndihma" data-hapesire="lart">
-      {magarec ? (
-        <>
-          Mbrëmja mbaron kur mbushet fjala, prandaj {raundet(mbetur)} është sa
-          mund të luhen më së shumti — jo sa do të luhen. Shkronjat nuk kthehen
-          prapa: vendin ia ndërrojnë ato të të tjerëve, dhe ato ndahen — një
-          për raund.
-        </>
-      ) : (
-        <>
-          Loja mbaron pas dy raundeve për lojtar, prandaj {raundet(mbetur)}{' '}
-          është sa ka mbetur vërtet. Supozimi: mbyllje hant çdo raund (−40)
-          ndërsa të tjerët nuk hapin fare (+200) — pra një raund mbyll 240
-          pikë diferencë. Mbyllja është një për raund, dhe një dorë mbi 100
-          pikë e kalon kufirin 200: vendi më i keq është kufi i rregullit, jo
-          i së mundshmes.
-        </>
-      )}{' '}
-      Barazimi numërohet si i njëjti vend, dhe «·» do të thotë që e ka tashmë
-      vendin e parë.
-    </p>
+    <details className="detaje detaje--supozimet">
+      <summary className="detaje__krye">
+        <span>Si llogariten këta numra</span>
+        <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+      </summary>
+      <div className="detaje__trupi">
+        <p className="ndihma">
+          {magarec ? (
+            <>
+              Mbrëmja mbaron kur mbushet fjala, prandaj {raundet(mbetur)} është
+              sa mund të luhen më së shumti — jo sa do të luhen. Shkronjat nuk
+              kthehen prapa: vendin ia ndërrojnë ato të të tjerëve, dhe ato
+              ndahen — një për raund.
+            </>
+          ) : (
+            <>
+              Loja mbaron pas dy raundeve për lojtar, prandaj{' '}
+              {raundet(mbetur)} është sa ka mbetur vërtet. Supozimi: mbyllje
+              hant çdo raund (−40) ndërsa të tjerët nuk hapin fare (+200) — pra
+              një raund mbyll 240 pikë diferencë. Mbyllja është një për raund,
+              dhe një dorë mbi 100 pikë e kalon kufirin 200: vendi më i keq
+              është kufi i rregullit, jo i së mundshmes.
+            </>
+          )}{' '}
+          Barazimi numërohet si i njëjti vend, dhe «·» do të thotë që e ka
+          tashmë vendin e parë.
+        </p>
+      </div>
+    </details>
   );
 
   /*

@@ -2647,6 +2647,23 @@ th.numri {
   margin-top: 0.5rem;
 }
 
+/*
+ * Supozimet e parashikimit: i njëjti panel, por nën një tabelë e jo nën një
+ * panel tjetër.
+ *
+ * Teksti brenda rri fjalë për fjalë ai që ishte (pika 12) — ajo që ndryshoi
+ * është se nuk e zë ekranin derisa të pyetet. Hapësira sipër e ndan nga tabela
+ * që shpjegon, dhe `.ndihma` brenda nuk e mban margjinën e vet: kutia e mban
+ * tashmë.
+ */
+.detaje--supozimet {
+  margin-top: 0.85rem;
+}
+
+.detaje--supozimet .ndihma {
+  margin: 0;
+}
+
 .detaje__krye {
   display: flex;
   align-items: center;

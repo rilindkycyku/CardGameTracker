@@ -700,8 +700,17 @@ Katër gjëra e mbajnë të ndershëm, dhe asnjëra nuk guxon të hiqet:
   gjithë njëkohësisht; raundet u ndahen, më i liri i pari. Pa këtë, kush prin me njëqind pikë do të
   dilte i fundit pas një raundi të vetëm. E njëjta ndarje vlen te magareci për shkronjat.
 - **Kufiri i sipërm është i rregullit, jo i së mundshmes.** `2 × dora` e kalon 200-shin kur dora del
-  mbi 100 pikë. Ekrani e thotë këtë me fjalë poshtë tabelës; mos e hiq atë fjali duke e quajtur
-  hollësi.
+  mbi 100 pikë. Ekrani e thotë këtë me fjalë poshtë tabelës, dhe ajo fjali nuk hiqet — po ashtu as
+  supozimi i skenarëve, as kuptimi i «·»-it.
+
+  **Të tria rrinë të mbledhura te një `<details>` («Si llogariten këta numra»), me kërkesë të
+  pronarit.** Ato lexohen një herë, jo pas çdo raundi, kurse hapësirën e zinin gjithmonë: shtatë
+  rreshta tekst nën tabelën që pyetet dhjetëra herë në mbrëmje. Te tableta e mbajtur anash pikërisht
+  ato e shtynin tabelën e raundeve jashtë ekranit — faqja bie 77 piksela kur mblidhen, dhe 121 te
+  telefoni. Teksti brenda mbetet fjalë për fjalë ai që ishte, kreu i panelit e thotë çka gjendet
+  brenda, dhe një prekje e hap: pra numri mbetet i kontrollueshëm nga kush e lexon, e cila ishte e
+  tërë arsyeja. **Mos e shkurto atë tekst, dhe mos e hiq atë panel** — një interval vendesh pa asnjë
+  shpjegim është numër që nuk kontrollohet dot.
 - **Barazimi numërohet si i njëjti vend.** `renditja` e ndan barazimin sipas radhës së listës — aty
   duhet një vend i vetëm për rresht — por një parashikim që thotë «i dyti» vetëm sepse emri vjen më
   vonë do të ishte numër i shpikur. Prandaj vendi këtu është «sa veta kanë më pak, plus një», dhe
@@ -1607,8 +1616,13 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   1024×768 me tetë lojtarë mbaron te **702** nga 753, pra hyn e tëra edhe me shiritin e shfletuesit
   sipër; faqja bie nga 1878 te 1800 me tetë lojtarë, dhe nga 1607 te 1528 me gjashtë.
 
-  **Portreti mbetet i paprekur**, fjalë për fjalë: kreu i telefonit rri 132 piksela para e pas, dhe
-  faqja e tij e njëjta. Atje kolona është një dhe ajri është e vetmja ndarje që ka — kjo është
+  Supozimet e parashikimit u mblodhën te një panel me të njëjtin arsyetim (pika 12), dhe ai është
+  ndryshimi i vetëm i kësaj pune që e prek edhe telefonin: faqja bie edhe 77 piksela te tableta, e
+  121 te portreti. Bashkë me të gjitha, mbrëmja me gjashtë lojtarë te 1024×768 bie nga **2129
+  piksela te 1451** — pra nga tri ekrane te pak më shumë se një.
+
+  **Portreti mbetet i paprekur nga rregullat e peizazhit**, fjalë për fjalë: kreu i telefonit rri
+  132 piksela para e pas. Atje kolona është një dhe ajri është e vetmja ndarje që ka — kjo është
   zgjedhje e pronarit (më lart), e jo rrjedhojë e kodit.
 - **Shtegu i kthimit rri te vetë kreu, e jo mbi të** (`MbiTitullin` te `pjeset/Kreu.tsx`). Ishin dy
   rreshta që thoshin të njëjtën gjë: një shteg «‹ Shoqëria», dhe menjëherë poshtë tij etiketa
