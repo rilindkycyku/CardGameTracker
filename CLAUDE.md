@@ -1460,10 +1460,17 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   dhe me tetë nga 2544 te 1878. Te magareci, te pishpiriku dhe te telefoni numri nuk lëvizi fare:
   atje shtylla e majtë është më e shkurtër se blloku i parë gjithsesi.
 
-  Çmimi është një dhe matet: te kolona e futjes tabela e raundeve rrëshqet brenda mbështjellëses së
-  vet nga gjashtë lojtarë e tutje (me kolonën e raundit të ngjitur majtas). I njëjti çmim paguhej
-  edhe mbi 90rem, ku ajo tabelë rri krah renditjes — dhe pyetja «sa mora atë raund» lexohet me një
-  rrëshqitje anash, kurse «ku jemi tani» nuk lexohej fare pa dy rrëshqitje poshtë.
+  **Tavani i asaj kolone është 28rem e jo 27, dhe ai rem i fundit u mat.** Tabela e raundeve kërkon
+  390 piksela me pesë lojtarë, **436 me gjashtë**, 478 me shtatë dhe 524 me tetë. Me 27rem kolona
+  dilte 432 te iPad-i i mbajtur anash — katër piksela mungesë pikërisht te grupi për të cilin
+  optimizohet gjithçka (pika 6), pra numri i fundit lexohej me një rrëshqitje anash. Me 28rem del
+  448, dhe tabela hyn e tëra. Çmimi shkon te kolona tjetër dhe u rimat: te 1024 asaj i mbeten 517
+  piksela kundrejt 502 që kërkon renditja me tetë lojtarë. Pesëmbëdhjetë piksela hapësirë — mos e
+  ngri atë numër pa e rimatur këtë.
+
+  Shtatë e tetë lojtarë (478 e 524) rrëshqasin ende, si edhe mbi 90rem ku ajo tabelë rri krah
+  renditjes — dhe atje pyetja «sa mora atë raund» lexohet me një rrëshqitje anash, kurse «ku jemi
+  tani» nuk lexohej fare pa dy rrëshqitje poshtë.
 
   Rreshtat janë tre — futja, panelat, tabelat — dhe i dyti merr çka mbetet (`auto 1fr auto`). Pa atë
   `1fr` lartësia e renditjes, e cila i shtrin dy rreshtat e parë, do t'u ndahej të dyve dhe mes
@@ -1584,9 +1591,25 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   - **`screen and` nuk është hollësi.** Pa të, një fletë e shtypur në peizazh do ta merrte këtë
     rregull dhe do të dilte pa asnjë buzë — shtypësi e pret atë që i bie jashtë zonës së vet.
 
-  Çmimi rri te ekrani shumë i gjerë: mbi 62rem shtylla e rezultatit merr çka mbetet pas 27rem-it të
+  Çmimi rri te ekrani shumë i gjerë: mbi 62rem shtylla e rezultatit merr çka mbetet pas 28rem-it të
   futjes, prandaj te një monitor 1920 tabela e renditjes shtrihet dhe kolonat e saj largohen nga
   njëra-tjetra. Te tableta — ekrani për të cilin u kërkua — ajo del pikërisht sa duhet.
+
+  **Në peizazh shtrëngohen edhe rreshtat edhe kreu, sepse atje mungon lartësia e jo gjerësia.**
+  `--rreshtimi` (2.2rem te ekrani i gjerë) i mban të dyja hapësirat, dhe ai numër u zgjodh për një
+  kolonë të vetme te telefoni, ku ajri mes blloqeve është e vetmja ndarje që ka. Me shtylla ajri
+  vertikal paguan dy herë, prandaj `row-gap` bie te 1.35rem — kurse hapësira **mes shtyllave nuk
+  preket**: ajo i ndan dy tabela, dhe një vijë e hollë mes tyre do t'i bënte të duken një.
+
+  Kreu bie te një rresht: data dhe etiketat krah për krah (`.kreu > :last-child` bëhet `flex`, dhe
+  shtegu «‹ Shoqëria» e mban rreshtin e vet me `flex-basis: 100%`). Ai zinte **105 piksela nga 768**
+  — një e shtata e ekranit për një datë — dhe tani zë 68. Bashkë me rreshtat, tabela e renditjes te
+  1024×768 me tetë lojtarë mbaron te **702** nga 753, pra hyn e tëra edhe me shiritin e shfletuesit
+  sipër; faqja bie nga 1878 te 1800 me tetë lojtarë, dhe nga 1607 te 1528 me gjashtë.
+
+  **Portreti mbetet i paprekur**, fjalë për fjalë: kreu i telefonit rri 132 piksela para e pas, dhe
+  faqja e tij e njëjta. Atje kolona është një dhe ajri është e vetmja ndarje që ka — kjo është
+  zgjedhje e pronarit (më lart), e jo rrjedhojë e kodit.
 - **Shtegu i kthimit rri te vetë kreu, e jo mbi të** (`MbiTitullin` te `pjeset/Kreu.tsx`). Ishin dy
   rreshta që thoshin të njëjtën gjë: një shteg «‹ Shoqëria», dhe menjëherë poshtë tij etiketa
   «SHOQËRIA» mbi titull — te ekrani i lojës fjalë për fjalë i njëjti emër grupi dy herë, dhe te

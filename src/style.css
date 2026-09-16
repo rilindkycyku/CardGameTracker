@@ -395,7 +395,21 @@ h3 {
   }
 
   .loja__pune {
-    grid-template-columns: minmax(23rem, 27rem) minmax(0, 1fr);
+    /*
+     * Tavani i kolonës së futjes është 28rem e jo 27, dhe ai centimetër i
+     * fundit u mat: te ajo kolonë tani rri edhe tabela e raundeve, dhe me
+     * gjashtë lojtarë — grupi për të cilin optimizohet gjithçka (pika 6) — ajo
+     * kërkon 436 piksela. Me 27rem kolona dilte 432 te iPad-i i mbajtur anash:
+     * katër piksela mungesë, pra numri i fundit lexohej me një rrëshqitje
+     * anash. Me 28rem del 448, dhe tabela hyn e tëra.
+     *
+     * Çmimi shkon te kolona tjetër dhe u rimat: te 1024 asaj i mbeten 517
+     * piksela, kurse tabela e renditjes me tetë lojtarë kërkon 502. Pra
+     * pesëmbëdhjetë piksela hapësirë — mos e ngri këtë numër pa e rimatur atë.
+     *
+     * Shtatë e tetë lojtarë (478 e 524) rrëshqasin ende, si edhe mbi 90rem.
+     */
+    grid-template-columns: minmax(23rem, 28rem) minmax(0, 1fr);
     /* Tri rreshta: futja, panelat, tabelat.
      *
      * I dyti merr çka mbetet, dhe pa atë `1fr` lartësia e renditjes — e cila i
@@ -485,6 +499,65 @@ h3 {
       max(var(--ajri-anash), env(safe-area-inset-bottom, 0px));
     padding-left: max(var(--ajri-anash), env(safe-area-inset-left, 0px));
     padding-right: max(var(--ajri-anash), env(safe-area-inset-right, 0px));
+  }
+
+  /*
+   * Rreshtat shtrëngohen, kolonat jo — sepse në peizazh mungon lartësia, e jo
+   * gjerësia.
+   *
+   * `--rreshtimi` i mban të dyja, dhe ai numër u zgjodh për një kolonë të
+   * vetme te telefoni ku ajri mes blloqeve është e vetmja ndarje që ka. Këtu
+   * blloqet ndahen edhe me shtylla, pra ajri vertikal paguan dy herë: 35
+   * piksela mes kreut dhe punës, e po aq mes kartelës, panelave dhe tabelave.
+   * Me 1.35rem faqja fiton rreth dyzet piksela para rreshtit të parë të
+   * renditjes — dhe pikërisht ajo është tabela që lexohet pas çdo raundi.
+   *
+   * Hapësira mes shtyllave mbetet e paprekur: ajo i ndan dy tabela, dhe një
+   * vijë e hollë mes tyre do t'i bënte të duken një.
+   */
+  .faqja,
+  .loja__pune,
+  .loja__panelat,
+  .loja__rezultatet,
+  .shtyllat,
+  .shtyllat__kryesore,
+  .shtyllat__anesore {
+    row-gap: 1.35rem;
+  }
+
+  /*
+   * Kreu bie te një rresht: data dhe etiketat krah për krah.
+   *
+   * Te portreti ato rrinë njëra nën tjetrën me arsye — gjerësia nuk i nxë — por
+   * në peizazh gjerësia është pikërisht ajo që tepron, dhe lartësia ajo që
+   * mungon: titulli e etiketat bashkë zinin 105 piksela nga 768, pra një e
+   * shtata e ekranit për një datë. Bashkë me rreshtin e parë ato bien te 62.
+   *
+   * `:last-child` sepse trupi i kreut është gjithmonë fëmija i fundit — i pari
+   * është shenja, e cila te disa ekrane është `div` e te disa `span`. Shtegu
+   * («‹ Shoqëria») e mban rreshtin e vet me `flex-basis: 100%`: ai është rrugë
+   * prapa, dhe një shigjetë e ngjeshur mes datës e etiketave nuk lexohet si e
+   * tillë.
+   */
+  .kreu > :last-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.9rem;
+    row-gap: 0.35rem;
+  }
+
+  .kreu__mbi {
+    flex-basis: 100%;
+  }
+
+  .kreu__titull {
+    margin-top: 0;
+    font-size: clamp(1.35rem, 2.6vw, 1.7rem);
+  }
+
+  .kreu__meta {
+    margin: 0;
   }
 }
 
