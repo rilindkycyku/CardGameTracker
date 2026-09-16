@@ -51,6 +51,7 @@ import {
   shkronjat as shkronjatE,
 } from '../magareci.ts';
 import { kufiriILojes, mbaroiSipasRregullit, perfundoiMbremja } from '../fundi.ts';
+import { fundiIRaundeve } from '../koha.ts';
 import { rregullat, type Rregullat } from '../lojerat.ts';
 import { Ikona } from '../ikonat.tsx';
 import { MbiTitullin, type ShtegiIKthimit } from '../pjeset/Kreu.tsx';
@@ -59,6 +60,7 @@ import { useEkranIGjere } from '../pamja.ts';
 import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 import { FutjaEMagarecit } from '../pjeset/FutjaEMagarecit.tsx';
 import { FutjaERaundit } from '../pjeset/FutjaERaundit.tsx';
+import { Kohezgjatja } from '../pjeset/Kohezgjatja.tsx';
 import { PA_KUFI, ZgjedhjaEKufirit } from '../pjeset/Kufiri.tsx';
 import { LojtaretELojes } from '../pjeset/LojtaretELojes.tsx';
 import { Ndarja } from '../pjeset/Ndarja.tsx';
@@ -415,6 +417,16 @@ export function Loja({ id }: { id: number }) {
    */
   const perfundoi = loja !== null && perfundoiMbremja(loja, raundet);
 
+  /*
+   * Kur mbaroi mbrëmja: ora e raundit të fundit të shënuar.
+   *
+   * Merret nga raundet e jo nga një vulë e vënë kur shtypet «Mbyll» — fleta
+   * mbyllet ndonjëherë gjysmë ore pas dorës së fundit, e ndonjëherë të
+   * nesërmen, dhe ajo gjysmë orë nuk u luajt. Asgjë nuk ruhet: del nga raundet
+   * sa herë lexohen (pika 2), prandaj një raund i fshirë e rregullon vetvetiu.
+   */
+  const fundiIMbremjes = useMemo(() => fundiIRaundeve(raundet), [raundet]);
+
   /** Kush doli i pari — disa, kur totali fitues është i përbashkët. */
   const pareter = useMemo(
     () => fituesit(rreshtat, rregulli.drejtimi),
@@ -634,6 +646,13 @@ export function Loja({ id }: { id: number }) {
           shtegu={shtegu}
           perfundoi
           etiketa={{ emri: 'Përfundoi', ikona: 'renditja' }}
+          koha={
+            <Kohezgjatja
+              nisi={loja.createdAt}
+              fundi={fundiIMbremjes}
+              perfundoi
+            />
+          }
           njoftimi={
             <ShenjaEFundit
               rregulli={rregulli}
@@ -884,6 +903,15 @@ export function Loja({ id }: { id: number }) {
                 ? `${raundet.length} nga ${gjithsej} raunde`
                 : `${raundet.length} ${raundet.length === 1 ? 'raund' : 'raunde'}`}
             </span>
+            {/*
+              Ora e mbrëmjes: kur nisi, dhe sa ka që zgjat. Numri ecën vetë sa
+              fleta është e hapur, dhe ngrin sapo mbrëmja mbaron.
+            */}
+            <Kohezgjatja
+              nisi={loja.createdAt}
+              fundi={fundiIMbremjes}
+              perfundoi={perfundoi}
+            />
             {/*
               Çka luhet rri te kreu për çdo lojë veç bridzhit — ai është
               parazgjedhja që nga dita e parë. Te magareci shkruhet vetë fjala

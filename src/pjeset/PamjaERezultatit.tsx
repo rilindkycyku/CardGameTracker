@@ -64,6 +64,7 @@ export function LidhjaEKeqe({ titulli, shpjegimi }: { titulli: string; shpjegimi
 export function PamjaERezultatit({
   pamja,
   etiketa,
+  koha,
   njoftimi,
   perfundoi = false,
   shtegu,
@@ -71,6 +72,16 @@ export function PamjaERezultatit({
   pamja: Pamja;
   /** Ç'lloj pamjeje është — «Vetëm-lexim», «Drejtpërdrejt» a «Përfundoi». */
   etiketa: { emri: string; ikona: string };
+  /**
+   * Ora e mbrëmjes te kreu, kur thirrësi i ka vulat e saj.
+   *
+   * Jepet vetëm nga fleta e vetë pajisjes: paketa e ndarë nuk i mban ato vula
+   * dhe nuk ka pse t'i mbajë (pika 7), prandaj kush skanon një kod e sheh atë
+   * kre pikërisht si më parë. Vjen si nyjë e gatshme e jo si numra, që
+   * numërimi — i cili ecën sa mbrëmja vazhdon — të mos hyjë te një komponent
+   * që vizaton edhe fotografi të ngrira.
+   */
+  koha?: React.ReactNode;
   /** Shënimi mbi tabelë: sa i freskët është numri që shihet. */
   njoftimi: React.ReactNode;
   /**
@@ -145,6 +156,7 @@ export function PamjaERezultatit({
               etiketë «Bridzh» mbi çdo fletë do të ishte zhurmë. Te magareci
               shkruhet vetë fjala që mbushet: ajo është edhe emri, edhe rregulli.
             */}
+            {koha}
             {pamja.lloji !== 'bridzh' && (
               <span className="etiketa etiketa--hapur">
                 <Ikona emri="luaj" />

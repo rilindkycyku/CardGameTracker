@@ -169,6 +169,18 @@ export type Raundi = Sinkronizueshem & {
   gameId: number;
   roundNumber: number;
   scores: Record<string, number | null>;
+  /**
+   * Ora kur u shënua ky raund — dhe, te i fundit, ora kur mbaroi mbrëmja.
+   *
+   * Vihet një herë, kur raundi shkruhet, dhe nuk preket më nga redaktimi:
+   * `perditesuar` thotë «kur u prek së fundi», kurse kjo thotë «kur u luajt».
+   * Një raund i ndrequr të nesërmen do ta shtynte të parën e jo këtë, dhe
+   * pikërisht ai dallim e mban kohëzgjatjen të ndershme (`koha.ts`).
+   *
+   * Mungon te çdo raund i shkruar para se kjo të vinte; atëherë mbrëmja e ka
+   * fundin të panjohur, dhe ekrani hesht në vend që ta hamendësojë.
+   */
+  shkruarMe?: number;
 };
 
 /** Një rresht i renditjes. I njëjti nga si te `standings` i `logic.json`-it. */

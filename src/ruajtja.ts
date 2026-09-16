@@ -405,6 +405,9 @@ export async function shtoRaund(
     gameId,
     roundNumber,
     scores,
+    // Ora kur u luajt ky raund, dhe vetëm këtu vihet: `ruajRaund` e lë ashtu si
+    // e gjeti, sepse një raund i ndrequr nesër u shënua sot (`koha.ts`).
+    shkruarMe: Date.now(),
   }) as Raundi);
   njofto();
   return id as number;
@@ -681,13 +684,17 @@ function rekordiPerBaze(
   const gameId = idELojes(f.gameUid);
   if (gameId === undefined) return null;
   const id = ekzistuesit.rounds.get(rreshti.uid)?.id;
-  return {
+  const raundi: Record<string, unknown> = {
     ...(id === undefined ? {} : { id }),
     ...perbashket,
     gameId,
     roundNumber: f.roundNumber,
     scores: f.scores,
   };
+  // Si te loja: shkruhet vetëm kur vjen. Një raund i shënuar nga një pajisje e
+  // vjetër nuk e ka, dhe ajo mungesë do të thotë «nuk dihet» (`koha.ts`).
+  if (f.shkruarMe !== undefined) raundi.shkruarMe = f.shkruarMe;
+  return raundi;
 }
 
 /**

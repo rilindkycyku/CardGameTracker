@@ -240,13 +240,19 @@ export function lexoKopjen(teksti: string): Lexuar {
       else return { ok: false, gabimi: `Pikë jo-numerike te raundi ${r.roundNumber}.` };
     }
 
-    rounds.push({
+    const raundi: Raundi = {
       id: r.id,
       uid: uidIKopjes(r.uid, 'rounds', uidet),
       gameId: r.gameId,
       roundNumber: r.roundNumber,
       scores,
-    });
+    };
+    // Ora kur u luajt raundi, kur kopja e mban. Një vulë e prishur nuk e
+    // rrëzon skedarin: pikët janë ato që kërkohen prapa, dhe pa të mbrëmja e ka
+    // fundin të panjohur e jo të gabuar (`koha.ts`).
+    if (eshteNumer(r.shkruarMe) && r.shkruarMe > 0) raundi.shkruarMe = r.shkruarMe;
+
+    rounds.push(raundi);
   }
 
   const idEGrupeve = new Set(groups.map((g) => g.id));

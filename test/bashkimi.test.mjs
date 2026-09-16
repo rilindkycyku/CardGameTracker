@@ -327,6 +327,28 @@ test('trupi i dërguar mban vetëm fushat e lojës, dhe lidhjet si `uid`', () =>
   assert.equal('gameId' in raundi, false);
 });
 
+test('ora e raundit udhëton te cloud-i dhe kthehet prapa', () => {
+  // Pa të, dy pajisje do ta lexonin të njëjtën mbrëmje me dy kohëzgjatje —
+  // njëra e ditur, tjetra jo (`koha.ts`).
+  const uidet = { grupet: new Map([[1, 'grup_a']]), lojerat: new Map([[1, 'loje_a']]) };
+  const dala = teDhenatPerCloud('rounds', RAUNDI({ shkruarMe: 1700000123456 }), uidet);
+  assert.equal(dala.shkruarMe, 1700000123456);
+
+  const kthyer = fushatENjeRreshti('rounds', { ...DATA_E_RAUNDIT, shkruarMe: 1700000123456 });
+  assert.equal(kthyer.shkruarMe, 1700000123456);
+});
+
+test('ora e prishur e një raundi nuk i rrëzon pikët e tij', () => {
+  // Pikët janë ajo që ka rëndësi; pa orë mbrëmja thjesht e ka fundin të
+  // panjohur, dhe ekrani hesht në vend që ta hamendësojë.
+  for (const shkruarMe of [0, -1, 'mbrëmë', null]) {
+    const fushat = fushatENjeRreshti('rounds', { ...DATA_E_RAUNDIT, shkruarMe });
+    assert.notEqual(fushat, null, String(shkruarMe));
+    assert.equal('shkruarMe' in fushat, false, String(shkruarMe));
+    assert.deepEqual(fushat.scores, DATA_E_RAUNDIT.scores);
+  }
+});
+
 test('regjistri me prind të panjohur nuk niset fare', () => {
   // Do të mbërrinte te pajisja tjetër si rresht që nuk zbatohet dot kurrë.
   const g = gjendja({ games: [LOJA({ groupId: 99, sinkPezull: true })] });

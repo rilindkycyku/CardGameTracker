@@ -24,6 +24,11 @@ import {
 import { RADHA, rregullat } from '../lojerat.ts';
 import { FJALA, fjalaE, pergjithshmetEMagarecit } from '../magareci.ts';
 import { perfundoiMbremja } from '../fundi.ts';
+import {
+  fundiIRaundeve,
+  kohezgjatjaEMbremjes,
+  shkruajKohezgjatjen,
+} from '../koha.ts';
 import { emratERinj } from '../fusha.ts';
 import { Ikona } from '../ikonat.tsx';
 import { MbiTitullin } from '../pjeset/Kreu.tsx';
@@ -306,6 +311,19 @@ export function Grupi({ id }: { id: number }) {
                               <span className="njesi__perfunduar">Përfundoi</span>
                             </>
                           )}
+                          {/*
+                            Sa zgjati ajo mbrëmje — vetëm te fleta e kryer, dhe
+                            vetëm kur numri qëndron (`koha.ts`). Te një mbrëmje
+                            që vazhdon do të ishte numër i ngrirë te një listë
+                            që nuk numëron, dhe te një fletë e vjetër pa vulat e
+                            raundeve nuk dihet fare.
+                          */}
+                          {saZgjati(loja, raunde?.[loja.id] ?? BOSH) && (
+                            <>
+                              {' · '}
+                              {saZgjati(loja, raunde?.[loja.id] ?? BOSH)}
+                            </>
+                          )}
                         </span>
                       </span>
                       <span className="njesi__veprimet">
@@ -402,6 +420,26 @@ export function Grupi({ id }: { id: number }) {
       <Fundfaqja />
     </div>
   );
+}
+
+/**
+ * Sa zgjati një mbrëmje e kryer — «3 orë», «45 min» — ose asgjë.
+ *
+ * Asgjë do të thotë tri gjëra njëherësh, dhe të tria janë e njëjta heshtje:
+ * mbrëmja vazhdon ende (atëherë numri do të ngrinte te një listë që nuk
+ * numëron), fleta është e vjetër dhe raundet e saj nuk e mbajnë orën, ose
+ * dallimi i kalon dymbëdhjetë orët e besueshme (`koha.ts`).
+ */
+function saZgjati(loja: Loja, raundet: Raundi[]): string | null {
+  if (!perfundoiMbremja(loja, raundet)) return null;
+
+  const minuta = kohezgjatjaEMbremjes(
+    loja.createdAt,
+    fundiIRaundeve(raundet),
+    Date.now(),
+    true,
+  );
+  return minuta === null ? null : shkruajKohezgjatjen(minuta);
 }
 
 /**

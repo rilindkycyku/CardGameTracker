@@ -91,7 +91,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 360 prova, pa framework provash
+npm test          # node --test — 374 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -116,7 +116,8 @@ të dy ndërtimet te i njëjti kosh — dhe atëherë skedari i ri dhe ai i vjet
 
 `llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `lojerat.ts`, `parashikimi.ts`, `fundi.ts`,
 `fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts`, `kodi.ts`, `takimi.ts`,
-`analitika.ts`, `tema.ts`, `bashkimi.ts`, `skema.ts`, `projekti.ts` dhe `identiteti.ts` importohen
+`analitika.ts`, `tema.ts`, `bashkimi.ts`, `skema.ts`, `projekti.ts`, `koha.ts` dhe `identiteti.ts`
+importohen
 drejtpërdrejt nga
 `node --test`, pa bundler dhe pa DOM — prandaj `npm test` zgjat nën një sekondë dhe nuk ka çka të
 prishet mes provës dhe kodit.
@@ -1336,6 +1337,50 @@ që provohet të jetë ajo që botohet. Pa të, e tërë kjo mënyrë do të shk
 botimi, e cila është pikërisht mënyra si prishet kodi i rrjetës (e njëjta arsye si `VITE_PEER_SERVER`
 te pika 7).
 
+
+### 21. Ora e mbrëmjes del nga dy vula, dhe kur nuk dihet, ekrani hesht
+
+Pyetja vjen me letrat në dorë — *sa kohë ka që kemi nisur?* — dhe fleta e dinte vetëm ditën: `date`
+është `YYYY-MM-DD` dhe asgjë më shumë. Tani kreu i lojës e thotë orën e hapjes krah numrit që ecën me
+të («nisi 20:45 · 2 orë e 15 min»), dhe sapo mbrëmja mbaron ai numër ngrin te sa zgjati vërtet
+(«20:45–23:55 · 3 orë e 10 min»). Historiku i grupit e mban vetëm gjatësinë, te mbrëmjet e kryera.
+
+**Asnjë kohëzgjatje nuk ruhet** (pika 2): del nga dy vula sa herë lexohet, pra një raund i fshirë a i
+shtuar e rregullon vetvetiu. Vulat janë këto, dhe të dyja janë fakte e jo llogari:
+
+- **Nisja është `createdAt` i lojës**, i cili ekzistonte që në ditën e parë për të ndarë dy mbrëmje
+  të së njëjtës ditë. Ai është pikërisht çasti kur u hap fleta, pra kur u ndanë letrat e para —
+  prandaj nuk u shtua fushë e dytë për të.
+- **Fundi është `shkruarMe` i raundit të fundit**, një fushë e re te `Raundi`, e vënë një herë kur
+  raundi shkruhet dhe e paprekur nga redaktimi. `perditesuar` thotë «kur u prek së fundi»; kjo thotë
+  «kur u luajt», dhe pikërisht ai dallim e mban numrin të ndershëm kur një raund ndreqet të
+  nesërmen.
+
+Fundi nuk merret nga çasti kur shtypet «Mbyll»: fleta mbyllet ndonjëherë gjysmë ore pas dorës së
+fundit, e ndonjëherë të nesërmen, dhe ajo gjysmë orë nuk u luajt. Nuk merret as nga `mbyllur`, sepse
+ajo është vendim e jo orë (pika 15).
+
+Tri heshtje rrinë të shkruara te `koha.ts` dhe nuk guxojnë të hiqen — të tria janë e njëjta gjë, një
+numër që duket i matur e nuk është:
+
+- **Vula që mungon nuk shpikket.** Një lojë e kthyer nga një kopje e vjetër e ka `createdAt` zero,
+  dhe «01:00» aty do të ishte orë që nuk e pa kush. Atëherë kreu mbetet pikërisht ashtu si ishte.
+- **Mbrëmja e kryer pa vulat e raundeve nuk «zgjat» deri tani.** Pa këtë, çdo fletë e shkruar para
+  kësaj pune do të rritej sa herë hapet.
+- **Mbi `KUFIRI_I_BESUESHEM` (dymbëdhjetë orë) numri nuk shkruhet fare.** Një fletë e lënë hapur mbi
+  tavolinë deri nesër nuk zgjati katërmbëdhjetë orë, dhe as një mbrëmje e rihapur pas një jave për
+  të ndrequr një raund — atje raundi i fundit shkruhet sot, dhe dallimi nga hapja bëhet muaj.
+
+**Paketa e ndarë nuk i mori ato vula**, dhe nuk ka pse t'i marrë (pika 7): kush skanon një kod pyet
+kush prin e sa i del kujt, jo sa zgjati. Prandaj `PamjaERezultatit` e merr orën si nyjë të gatshme
+nga thirrësi (`koha`), dhe `#/shiko` e vizaton atë kre pikërisht si më parë. Te cloud-i fusha
+udhëton si çdo tjetër — rreshtat rrinë `jsonb`, pra skema nuk u prek (pika 19) — dhe një vulë e
+prishur nuk e rrëzon raundin: pikët janë ato që kanë rëndësi, dhe pa orë mbrëmja thjesht e ka fundin
+të panjohur.
+
+Numërimi rri te `Kohezgjatja` e jo te `koha.ts`: hapi është një minutë, sepse ekrani shkruan minuta
+dhe një numërues për sekonda do ta ndizte telefonin çdo sekondë për një shifër që nuk ndërron. Ora
+rilexohet edhe te `visibilitychange` — tableta që fjeti mbi tavolinë i ka ndalur kohëmatësit e vet.
 
 ## Sistemi vizual
 
