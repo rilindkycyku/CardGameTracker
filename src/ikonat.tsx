@@ -55,6 +55,12 @@ const SHTIGJET: Record<string, JSX.Element> = {
   ),
   ruaj: <path d="M5.5 12.5 10 17l8.5-9" />,
   anulo: <path d="M6.6 6.6l10.8 10.8M17.4 6.6 6.6 17.4" />,
+  ora: (
+    <>
+      <circle cx="12" cy="12" r="8.4" />
+      <path d="M12 7.2V12l3.2 2" />
+    </>
+  ),
   kalendari: (
     <>
       <rect x="3.6" y="5.4" width="16.8" height="15" rx="2.6" />

@@ -377,14 +377,47 @@ h3 {
     max-width: 88rem;
   }
 
+  /*
+   * Shtylla e rezultatit nuk rri më bllok: pjesët e saj hyjnë vetë te rrjeti i
+   * faqes.
+   *
+   * Me të si mbështjellëse, e majta mbaronte te panelat dhe e djathta vazhdonte
+   * vetëm — te tableta e mbajtur anash kjo do të thoshte një shtyllë bosh sa dy
+   * ekrane, dhe tri tabela të radhitura njëra nën tjetrën krah saj. Me
+   * `display: contents` ato tri pjesë vendosen secila veç, dhe raundet zënë
+   * pikërisht atë hapësirë që rrinte e zbrazët.
+   *
+   * Prandaj çdo pjesë e mban emrin e vet te `Loja` — `nth-child` do të
+   * numëronte gabim sapo njëra prej tyre të mos vizatohej.
+   */
+  .loja__rezultatet {
+    display: contents;
+  }
+
   .loja__pune {
-    grid-template-columns: minmax(23rem, 27rem) minmax(0, 1fr);
-    /* Rreshti i parë sa kartela e futjes, i dyti merr çka mbetet. Kolona e
-       rezultatit i shtrin të dy rreshtat, dhe pa këtë ndarje lartësia e saj do
-       t'u ndahej të dyve — pra mes kartelës dhe panelave do të hapej një vrimë
-       sa gjysma e ekranit. Me `auto 1fr` ajo bie e tëra te rreshti i dytë, ku
-       panelat rrinë të ngjitur lart (`align-items: start`). */
-    grid-template-rows: auto 1fr;
+    /*
+     * Tavani i kolonës së futjes është 28rem e jo 27, dhe ai centimetër i
+     * fundit u mat: te ajo kolonë tani rri edhe tabela e raundeve, dhe me
+     * gjashtë lojtarë — grupi për të cilin optimizohet gjithçka (pika 6) — ajo
+     * kërkon 436 piksela. Me 27rem kolona dilte 432 te iPad-i i mbajtur anash:
+     * katër piksela mungesë, pra numri i fundit lexohej me një rrëshqitje
+     * anash. Me 28rem del 448, dhe tabela hyn e tëra.
+     *
+     * Çmimi shkon te kolona tjetër dhe u rimat: te 1024 asaj i mbeten 517
+     * piksela, kurse tabela e renditjes me tetë lojtarë kërkon 502. Pra
+     * pesëmbëdhjetë piksela hapësirë — mos e ngri këtë numër pa e rimatur atë.
+     *
+     * Shtatë e tetë lojtarë (478 e 524) rrëshqasin ende, si edhe mbi 90rem.
+     */
+    grid-template-columns: minmax(23rem, 28rem) minmax(0, 1fr);
+    /* Tri rreshta: futja, panelat, tabelat.
+     *
+     * I dyti merr çka mbetet, dhe pa atë `1fr` lartësia e renditjes — e cila i
+     * shtrin dy rreshtat e parë — do t'u ndahej të dyve, pra mes kartelës dhe
+     * panelave do të hapej një vrimë. Me `1fr` ajo bie e tëra nën panelat, ku
+     * ata rrinë të ngjitur lart (`align-items: start`), dhe rreshti i tretë e
+     * nis me të dyja tabelat në një vijë. */
+    grid-template-rows: auto 1fr auto;
     align-items: start;
   }
 
@@ -403,15 +436,36 @@ h3 {
     grid-row: 1;
   }
 
-  .loja__rezultatet {
+  /* Ajo që lexohet pas çdo raundi rri krah futjes, në ekranin e parë. */
+  .loja__bllok--renditja {
     grid-column: 2;
     grid-row: 1 / span 2;
   }
 
-  /* Rreshti i rrjetit është sa kolona më e gjatë; pa këtë, blloqet e shtyllës
-     së rezultatit do të ndaheshin sa të mbushnin tërë atë lartësi. */
-  .loja__rezultatet {
-    align-content: start;
+  /*
+   * Raundet zbresin te shtylla e majtë, nën panelat.
+   *
+   * Aty rrinte bosh gjithçka nën ta, kurse djathtas tri tabela prisnin radhën
+   * njëra pas tjetrës. Me gjashtë lojtarë e nëntë raunde faqja bie nga 2129
+   * piksela te 1642 — pra një ekran tableti më pak për t'u rrëshqitur.
+   *
+   * Çmimi matet: te kolona e futjes tabela e raundeve rrëshqet brenda
+   * mbështjellëses së vet nga gjashtë lojtarë e tutje, me kolonën e raundit të
+   * ngjitur majtas. I njëjti çmim paguhej edhe te ekrani shumë i gjerë, ku ajo
+   * tabelë rri krah renditjes — dhe pyetja «sa mora atë raund» lexohet me një
+   * rrëshqitje anash, kurse «ku jemi tani» nuk lexohej fare pa dy rrëshqitje
+   * poshtë.
+   */
+  .loja__bllok--raundet {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  /* Shlyerja e nis rreshtin e tretë krah raundeve: është listë kartelash që
+     rrjedh vetë, prandaj një shtyllë e ngushtë nuk e pret asgjë. */
+  .loja__bllok--shlyerja {
+    grid-column: 2;
+    grid-row: 3;
   }
 }
 
@@ -445,6 +499,65 @@ h3 {
       max(var(--ajri-anash), env(safe-area-inset-bottom, 0px));
     padding-left: max(var(--ajri-anash), env(safe-area-inset-left, 0px));
     padding-right: max(var(--ajri-anash), env(safe-area-inset-right, 0px));
+  }
+
+  /*
+   * Rreshtat shtrëngohen, kolonat jo — sepse në peizazh mungon lartësia, e jo
+   * gjerësia.
+   *
+   * `--rreshtimi` i mban të dyja, dhe ai numër u zgjodh për një kolonë të
+   * vetme te telefoni ku ajri mes blloqeve është e vetmja ndarje që ka. Këtu
+   * blloqet ndahen edhe me shtylla, pra ajri vertikal paguan dy herë: 35
+   * piksela mes kreut dhe punës, e po aq mes kartelës, panelave dhe tabelave.
+   * Me 1.35rem faqja fiton rreth dyzet piksela para rreshtit të parë të
+   * renditjes — dhe pikërisht ajo është tabela që lexohet pas çdo raundi.
+   *
+   * Hapësira mes shtyllave mbetet e paprekur: ajo i ndan dy tabela, dhe një
+   * vijë e hollë mes tyre do t'i bënte të duken një.
+   */
+  .faqja,
+  .loja__pune,
+  .loja__panelat,
+  .loja__rezultatet,
+  .shtyllat,
+  .shtyllat__kryesore,
+  .shtyllat__anesore {
+    row-gap: 1.35rem;
+  }
+
+  /*
+   * Kreu bie te një rresht: data dhe etiketat krah për krah.
+   *
+   * Te portreti ato rrinë njëra nën tjetrën me arsye — gjerësia nuk i nxë — por
+   * në peizazh gjerësia është pikërisht ajo që tepron, dhe lartësia ajo që
+   * mungon: titulli e etiketat bashkë zinin 105 piksela nga 768, pra një e
+   * shtata e ekranit për një datë. Bashkë me rreshtin e parë ato bien te 62.
+   *
+   * `:last-child` sepse trupi i kreut është gjithmonë fëmija i fundit — i pari
+   * është shenja, e cila te disa ekrane është `div` e te disa `span`. Shtegu
+   * («‹ Shoqëria») e mban rreshtin e vet me `flex-basis: 100%`: ai është rrugë
+   * prapa, dhe një shigjetë e ngjeshur mes datës e etiketave nuk lexohet si e
+   * tillë.
+   */
+  .kreu > :last-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.9rem;
+    row-gap: 0.35rem;
+  }
+
+  .kreu__mbi {
+    flex-basis: 100%;
+  }
+
+  .kreu__titull {
+    margin-top: 0;
+    font-size: clamp(1.35rem, 2.6vw, 1.7rem);
+  }
+
+  .kreu__meta {
+    margin: 0;
   }
 }
 
@@ -480,19 +593,75 @@ h3 {
  * numra, dhe tabela e tyre rrëshqet brenda mbështjellëses së vet kur s'i mjafton.
  */
 @media screen and (min-width: 90rem) {
-  /* Kolona e futjes lëshon dy rem, që të dyja tabelat të hyjnë krah për krah.
+  /* Tri shtylla te një rrjet i vetëm, e jo një rrjet brenda tjetrit: futja,
+     renditja, raundet. Hapësira mes tyre është e njëjta (`--rreshtimi`), pra
+     gjerësitë dalin pikërisht ato që u matën — vetëm se tani raundet e ngjiten
+     renditjes në vend që të zbresin te shtylla e majtë.
+
+     Kolona e futjes lëshon dy rem, që të dyja tabelat të hyjnë krah për krah.
      23rem mbetet dyshemeja e saj — atje rreshti «emri, dora, pikët» i
      llogaritësit nis të shtypet — dhe kjo e prek vetëm tavanin. */
   .loja__pune {
-    grid-template-columns: minmax(23rem, 25rem) minmax(0, 1fr);
+    grid-template-columns:
+      minmax(23rem, 25rem) minmax(0, 1.15fr)
+      minmax(0, 1fr);
+    /*
+     * Tri rreshta: futja, shlyerja, panelat. I dyti merr çka mbetet, që
+     * lartësia e renditjes e e raundeve — të cilat i shtrijnë dy të parët — të
+     * bjerë e tëra nën shlyerje e jo të ndahet mes saj dhe kartelës së futjes.
+     */
+    grid-template-rows: auto 1fr auto;
   }
 
-  .loja__rezultatet {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  .loja__bllok--renditja,
+  .loja__bllok--raundet {
+    grid-row: 1 / span 2;
   }
 
-  .loja__bllok--gjere {
+  .loja__bllok--raundet {
+    grid-column: 3;
+  }
+
+  /*
+   * Panelat bien te një rresht i vetëm poshtë gjithçkaje, sa tërë gjerësia.
+   *
+   * Te shtylla e futjes ata rrinin katër njëri mbi tjetrin — rreth 320 piksela
+   * — dhe e bënin atë shtyllë më të gjatën e faqes, kurse renditja e raundet
+   * mbaronin qindra piksela më lart. Sa tërë gjerësia dalin **katër për rresht**
+   * (354 piksela secili te 1440, pra mbi 18rem-in nën të cilin kreu i tyre nis
+   * të thyhet), dhe ajo shtyllë mbaron te shlyerja.
+   *
+   * Radha e HTML-së nuk u prek: panelat ishin gjithmonë të fundit te pema, pra
+   * kjo është pikërisht radha e telefonit — dhe mbi renditje ata nuk kthehen
+   * kurrë, sepse atje shtynin poshtë atë që lexohet pas çdo raundi.
+   */
+  .loja__panelat {
     grid-column: 1 / -1;
+    grid-row: 3;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    align-items: start;
+  }
+
+  /*
+   * Shlyerja hipën te shtylla e majtë, mbi panelat — me kërkesë të pronarit.
+   *
+   * Poshtë panelave rrinte një drejtkëndësh i bardhë sa vetë kolona e futjes:
+   * renditja e raundet mbaronin te 682 e 732, kurse e majta te 555. Tani atë
+   * vend e zë matrica, e cila me gjashtë lojtarë kërkon 382 piksela — pra hyn
+   * te ajo kolonë prej 400 pa rrëshqitur fare. Me tetë ajo kërkon 476 dhe
+   * rrëshqet brenda kartelës së vet, si tabela e raundeve përbri.
+   *
+   * Rri **mbi** panelat e jo nën ta, sepse ajo lexohet kur mbaron mbrëmja
+   * kurse ata preken një herë a asnjë (pika 6). Radha e telefonit nuk u prek:
+   * atje shlyerja vinte para panelave gjithsesi.
+   *
+   * Fitimi nuk është vetëm ai drejtkëndësh: shlyerja nuk zë më një rresht të
+   * vetin poshtë gjithçkaje, prandaj faqja te 1440×900 bie nga 1221 piksela te
+   * 1068 me gjashtë lojtarë.
+   */
+  .loja__bllok--shlyerja {
+    grid-column: 1;
+    grid-row: 2;
   }
 }
 
@@ -2176,6 +2345,29 @@ th.numri {
   font-size: 0.88rem;
 }
 
+/*
+ * Matrica nuk zgjerohet sa shtylla që e mban — kartela ngushtohet sa tabela.
+ *
+ * `.tabela` merr `width: 100%`, dhe atje ku shlyerja i shtrin të tria shtyllat
+ * ajo dilte **1414 piksela kundrejt 382** që i duhen me gjashtë lojtarë (476 me
+ * tetë): numrat largoheshin katër herë më shumë se sa i kërkon përmbajtja, dhe
+ * syri e humbte rreshtin midis. Është pikërisht ajo që kërkesa e pronarit e
+ * mbyll te ekrani i gjerë — një tabelë e gjerë nuk lexohet më mirë se një e
+ * ngushtë.
+ *
+ * `fit-content` e mban tabelën saktësisht sa përmbajtja e saj, dhe kartelën
+ * bashkë me të: një kufi që rrethon gjysmë kartele të bardhë premton një tabelë
+ * që nuk vjen. `max-width: 100%` e mban rrëshqitjen e brendshme atje ku shtylla
+ * është më e ngushtë se tabela — te telefoni, ku ajo rrëshqiste edhe më parë.
+ *
+ * `:has` e kufizon te matrica: renditja dhe raundet e duan tërë gjerësinë e
+ * shtyllës së vet, sepse kolonat e tyre i ndan vetë teksti.
+ */
+.tabela-mbeshtjellese:has(> .matrica) {
+  width: fit-content;
+  max-width: 100%;
+}
+
 .matrica th {
   background: transparent;
   border: 0;
@@ -2521,6 +2713,23 @@ th.numri {
 
 .detaje + .detaje {
   margin-top: 0.5rem;
+}
+
+/*
+ * Supozimet e parashikimit: i njëjti panel, por nën një tabelë e jo nën një
+ * panel tjetër.
+ *
+ * Teksti brenda rri fjalë për fjalë ai që ishte (pika 12) — ajo që ndryshoi
+ * është se nuk e zë ekranin derisa të pyetet. Hapësira sipër e ndan nga tabela
+ * që shpjegon, dhe `.ndihma` brenda nuk e mban margjinën e vet: kutia e mban
+ * tashmë.
+ */
+.detaje--supozimet {
+  margin-top: 0.85rem;
+}
+
+.detaje--supozimet .ndihma {
+  margin: 0;
 }
 
 .detaje__krye {

@@ -55,6 +55,13 @@ fjalë: renditja, kurora dhe fjalia e fundit e lexojnë drejtimin nga vetë loja
   nga lista, dhe kush u ul vonë shtohet te lojtarët — mbrëmja zgjatet vetvetiu.
 - **Kush përzien** — radha e emrave është radha e tavolinës, prandaj krah
   titullit të raundit rri kush i përzien letrat; kalon një vend çdo raund.
+- **Sa zgjat mbrëmja** — kreu tregon orën kur u hap fleta dhe sa kohë ka që
+  luhet («nisi 20:45 · 2 orë e 15 min»); sapo mbrëmja mbaron, numri ngrin te sa
+  zgjati vërtet («20:45–23:55 · 3 orë e 10 min») dhe historiku i grupit e mban
+  atë gjatësi. Fundi është raundi i fundit i shënuar e jo çasti kur u shtyp
+  «Mbyll» — fleta mbyllet ndonjëherë gjysmë ore më vonë, dhe ajo gjysmë orë nuk
+  u luajt. Kur ora nuk dihet — një fletë e kthyer nga një kopje e vjetër, ose
+  një mbrëmje e rihapur pas një jave — nuk shkruhet numër fare.
 - **Parashikimi** — kush e arrin dot ende vendin e parë me raundet që kanë
   mbetur, dhe brenda sa raundeve. Tabela jep vendin më të mirë e më të keq që
   mund të arrijë secili, për raundin tjetër ose deri në fund. Numrat vijnë nga
@@ -233,6 +240,8 @@ src/
   supabase.ts         klienti i vogël mbi `fetch`, dhe konfigurimi i ruajtur
   sinkronizimi.ts     shkarko, zbato, dërgo — dhe katër format e një lidhjeje
   pajisja.ts          emri e id-ja e këtij shfletuesi
+  koha.ts             ora e hapjes, fundi i mbrëmjes dhe sa zgjati — pa DOM,
+                      pa bazë
   fusha.ts            teksti i fushës së pikëve, shenja e tij dhe data
   mbledhja.ts         mbledhja e dorës: termat, fshirja prapa dhe shuma —
                       pa DOM, pa React
@@ -266,7 +275,7 @@ src/
   pjeset/             Renditja · Raundet · Shlyerja · TabelaEPergjithshme
                       FutjaERaundit · Mbledhesja · LojtaretELojes
                       FushaEKodit · PanelaEKopjes
-                      RregullatELojes
+                      RregullatELojes · Kohezgjatja
                       Ndarja · Drejtperdrejt · PaServer · MeServer
                       PamjaERezultatit · KodiQR
                       FutjaEMagarecit · RrjetiIMagarecit · RaundetEMagarecit

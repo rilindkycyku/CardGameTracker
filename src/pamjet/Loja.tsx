@@ -51,6 +51,7 @@ import {
   shkronjat as shkronjatE,
 } from '../magareci.ts';
 import { kufiriILojes, mbaroiSipasRregullit, perfundoiMbremja } from '../fundi.ts';
+import { fundiIRaundeve } from '../koha.ts';
 import { rregullat, type Rregullat } from '../lojerat.ts';
 import { Ikona } from '../ikonat.tsx';
 import { MbiTitullin, type ShtegiIKthimit } from '../pjeset/Kreu.tsx';
@@ -59,6 +60,7 @@ import { useEkranIGjere } from '../pamja.ts';
 import { Fundfaqja } from '../pjeset/Fundfaqja.tsx';
 import { FutjaEMagarecit } from '../pjeset/FutjaEMagarecit.tsx';
 import { FutjaERaundit } from '../pjeset/FutjaERaundit.tsx';
+import { Kohezgjatja } from '../pjeset/Kohezgjatja.tsx';
 import { PA_KUFI, ZgjedhjaEKufirit } from '../pjeset/Kufiri.tsx';
 import { LojtaretELojes } from '../pjeset/LojtaretELojes.tsx';
 import { Ndarja } from '../pjeset/Ndarja.tsx';
@@ -415,6 +417,16 @@ export function Loja({ id }: { id: number }) {
    */
   const perfundoi = loja !== null && perfundoiMbremja(loja, raundet);
 
+  /*
+   * Kur mbaroi mbrëmja: ora e raundit të fundit të shënuar.
+   *
+   * Merret nga raundet e jo nga një vulë e vënë kur shtypet «Mbyll» — fleta
+   * mbyllet ndonjëherë gjysmë ore pas dorës së fundit, e ndonjëherë të
+   * nesërmen, dhe ajo gjysmë orë nuk u luajt. Asgjë nuk ruhet: del nga raundet
+   * sa herë lexohen (pika 2), prandaj një raund i fshirë e rregullon vetvetiu.
+   */
+  const fundiIMbremjes = useMemo(() => fundiIRaundeve(raundet), [raundet]);
+
   /** Kush doli i pari — disa, kur totali fitues është i përbashkët. */
   const pareter = useMemo(
     () => fituesit(rreshtat, rregulli.drejtimi),
@@ -634,6 +646,13 @@ export function Loja({ id }: { id: number }) {
           shtegu={shtegu}
           perfundoi
           etiketa={{ emri: 'Përfundoi', ikona: 'renditja' }}
+          koha={
+            <Kohezgjatja
+              nisi={loja.createdAt}
+              fundi={fundiIMbremjes}
+              perfundoi
+            />
+          }
           njoftimi={
             <ShenjaEFundit
               rregulli={rregulli}
@@ -753,15 +772,18 @@ export function Loja({ id }: { id: number }) {
    * kjo shtyllë vendoset krah futjes: dy kolona e duan bllokun të tërin, dhe një
    * listë e shpërndarë nëpër `return` nuk hyn dot brenda njërës.
    *
-   * Brenda saj çdo pjesë ka mbështjellësen e vet (`loja__bllok`), sepse te
-   * ekrani shumë i gjerë ato dalin dy për rresht — renditja krah raundeve — dhe
-   * një rrjet nuk i vendos dot pjesët që nuk i njeh. Shlyerja merr
-   * `--gjere`: ajo është listë kartelash që rrjedh vetë, dhe një gjysmë
-   * shtyllë do t'i ngushtonte pa nevojë.
+   * Brenda saj çdo pjesë ka mbështjellësen e vet (`loja__bllok`), dhe secila e
+   * mban edhe emrin e vet — `--renditja`, `--raundet`, `--shlyerja`. Emri nuk
+   * është zbukurim: sapo ekrani hapet, `.loja__rezultatet` bëhet
+   * `display: contents` dhe këto tri pjesë vendosen vetë te rrjeti i faqes,
+   * njëra prej tyre te shtylla e majtë. Një rrjet nuk i vendos dot pjesët që
+   * nuk i njeh, dhe `nth-child` do të numëronte gabim sapo parashikimi të mos
+   * vizatohet, shlyerja të mos vlejë, ose lloji të jetë magarec — prandaj edhe
+   * gjendja «ende asnjë raund» e ka mbështjellësen e vet.
    */
   const rezultatet = magarec ? (
     <>
-      <div className="loja__bllok">
+      <div className="loja__bllok loja__bllok--renditja">
         {/*
           Rrjeti rri edhe kur s'ka ende asnjë raund: shtatë rreshta të zbrazët
           e thonë vetë lojën — kaq shkronja ka, dhe kush i mbush i humbi.
@@ -778,7 +800,7 @@ export function Loja({ id }: { id: number }) {
         )}
       </div>
 
-      <div className="loja__bllok">
+      <div className="loja__bllok loja__bllok--raundet">
         {raundet.length === 0 ? (
           <div className="zbrazet">
             <p className="zbrazet__titull">Ende asnjë raund</p>
@@ -798,13 +820,15 @@ export function Loja({ id }: { id: number }) {
       </div>
     </>
   ) : raundet.length === 0 ? (
-    <div className="zbrazet">
-      <p className="zbrazet__titull">Ende asnjë raund</p>
-      <p>
-        Shëno pikët e raundit të parë te blloku i futjes. Renditja{' '}
-        {rregulli.shlyerja ? 'dhe shlyerja dalin' : 'del'} vetë sapo të ketë
-        numra.
-      </p>
+    <div className="loja__bllok loja__bllok--renditja">
+      <div className="zbrazet">
+        <p className="zbrazet__titull">Ende asnjë raund</p>
+        <p>
+          Shëno pikët e raundit të parë te blloku i futjes. Renditja{' '}
+          {rregulli.shlyerja ? 'dhe shlyerja dalin' : 'del'} vetë sapo të ketë
+          numra.
+        </p>
+      </div>
     </div>
   ) : (
     <>
@@ -818,7 +842,7 @@ export function Loja({ id }: { id: number }) {
         hapësira nuk është. Vendimin e mban `Parashikimi` — edhe rastin kur
         s'ka çka të parashikohet, ku renditja del e vetme si më parë.
       */}
-      <div className="loja__bllok">
+      <div className="loja__bllok loja__bllok--renditja">
         {rregulli.parashikimi ? (
           <Parashikimi
             lloji={lloji}
@@ -833,7 +857,7 @@ export function Loja({ id }: { id: number }) {
         )}
       </div>
 
-      <div className="loja__bllok">
+      <div className="loja__bllok loja__bllok--raundet">
         <Raundet
           players={players}
           raundet={raundet}
@@ -850,7 +874,7 @@ export function Loja({ id }: { id: number }) {
         matrica nuk vizatohet fare, si te magareci.
       */}
       {rregulli.shlyerja && (
-        <div className="loja__bllok loja__bllok--gjere">
+        <div className="loja__bllok loja__bllok--shlyerja">
           <Shlyerja players={rendituar} matrica={matrica} />
         </div>
       )}
@@ -879,6 +903,15 @@ export function Loja({ id }: { id: number }) {
                 ? `${raundet.length} nga ${gjithsej} raunde`
                 : `${raundet.length} ${raundet.length === 1 ? 'raund' : 'raunde'}`}
             </span>
+            {/*
+              Ora e mbrëmjes: kur nisi, dhe sa ka që zgjat. Numri ecën vetë sa
+              fleta është e hapur, dhe ngrin sapo mbrëmja mbaron.
+            */}
+            <Kohezgjatja
+              nisi={loja.createdAt}
+              fundi={fundiIMbremjes}
+              perfundoi={perfundoi}
+            />
             {/*
               Çka luhet rri te kreu për çdo lojë veç bridzhit — ai është
               parazgjedhja që nga dita e parë. Te magareci shkruhet vetë fjala

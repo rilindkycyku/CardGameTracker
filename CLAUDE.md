@@ -91,7 +91,7 @@ npm install
 npm run dev       # serveri i zhvillimit
 npm run build     # tsc --noEmit && vite build && vite build -c vite.punetori.config.ts
 npm run preview
-npm test          # node --test — 360 prova, pa framework provash
+npm test          # node --test — 374 prova, pa framework provash
 ```
 
 `npm test` para çdo commit-i. Nuk ka linter të konfiguruar.
@@ -116,7 +116,8 @@ të dy ndërtimet te i njëjti kosh — dhe atëherë skedari i ri dhe ai i vjet
 
 `llogaritjet.ts`, `pikezimi.ts`, `magareci.ts`, `lojerat.ts`, `parashikimi.ts`, `fundi.ts`,
 `fusha.ts`, `qr.ts`, `paketa.ts`, `ndarja.ts`, `sinjalizimi.ts`, `kodi.ts`, `takimi.ts`,
-`analitika.ts`, `tema.ts`, `bashkimi.ts`, `skema.ts`, `projekti.ts` dhe `identiteti.ts` importohen
+`analitika.ts`, `tema.ts`, `bashkimi.ts`, `skema.ts`, `projekti.ts`, `koha.ts` dhe `identiteti.ts`
+importohen
 drejtpërdrejt nga
 `node --test`, pa bundler dhe pa DOM — prandaj `npm test` zgjat nën një sekondë dhe nuk ka çka të
 prishet mes provës dhe kodit.
@@ -699,8 +700,17 @@ Katër gjëra e mbajnë të ndershëm, dhe asnjëra nuk guxon të hiqet:
   gjithë njëkohësisht; raundet u ndahen, më i liri i pari. Pa këtë, kush prin me njëqind pikë do të
   dilte i fundit pas një raundi të vetëm. E njëjta ndarje vlen te magareci për shkronjat.
 - **Kufiri i sipërm është i rregullit, jo i së mundshmes.** `2 × dora` e kalon 200-shin kur dora del
-  mbi 100 pikë. Ekrani e thotë këtë me fjalë poshtë tabelës; mos e hiq atë fjali duke e quajtur
-  hollësi.
+  mbi 100 pikë. Ekrani e thotë këtë me fjalë poshtë tabelës, dhe ajo fjali nuk hiqet — po ashtu as
+  supozimi i skenarëve, as kuptimi i «·»-it.
+
+  **Të tria rrinë të mbledhura te një `<details>` («Si llogariten këta numra»), me kërkesë të
+  pronarit.** Ato lexohen një herë, jo pas çdo raundi, kurse hapësirën e zinin gjithmonë: shtatë
+  rreshta tekst nën tabelën që pyetet dhjetëra herë në mbrëmje. Te tableta e mbajtur anash pikërisht
+  ato e shtynin tabelën e raundeve jashtë ekranit — faqja bie 77 piksela kur mblidhen, dhe 121 te
+  telefoni. Teksti brenda mbetet fjalë për fjalë ai që ishte, kreu i panelit e thotë çka gjendet
+  brenda, dhe një prekje e hap: pra numri mbetet i kontrollueshëm nga kush e lexon, e cila ishte e
+  tërë arsyeja. **Mos e shkurto atë tekst, dhe mos e hiq atë panel** — një interval vendesh pa asnjë
+  shpjegim është numër që nuk kontrollohet dot.
 - **Barazimi numërohet si i njëjti vend.** `renditja` e ndan barazimin sipas radhës së listës — aty
   duhet një vend i vetëm për rresht — por një parashikim që thotë «i dyti» vetëm sepse emri vjen më
   vonë do të ishte numër i shpikur. Prandaj vendi këtu është «sa veta kanë më pak, plus një», dhe
@@ -1337,6 +1347,50 @@ botimi, e cila është pikërisht mënyra si prishet kodi i rrjetës (e njëjta 
 te pika 7).
 
 
+### 21. Ora e mbrëmjes del nga dy vula, dhe kur nuk dihet, ekrani hesht
+
+Pyetja vjen me letrat në dorë — *sa kohë ka që kemi nisur?* — dhe fleta e dinte vetëm ditën: `date`
+është `YYYY-MM-DD` dhe asgjë më shumë. Tani kreu i lojës e thotë orën e hapjes krah numrit që ecën me
+të («nisi 20:45 · 2 orë e 15 min»), dhe sapo mbrëmja mbaron ai numër ngrin te sa zgjati vërtet
+(«20:45–23:55 · 3 orë e 10 min»). Historiku i grupit e mban vetëm gjatësinë, te mbrëmjet e kryera.
+
+**Asnjë kohëzgjatje nuk ruhet** (pika 2): del nga dy vula sa herë lexohet, pra një raund i fshirë a i
+shtuar e rregullon vetvetiu. Vulat janë këto, dhe të dyja janë fakte e jo llogari:
+
+- **Nisja është `createdAt` i lojës**, i cili ekzistonte që në ditën e parë për të ndarë dy mbrëmje
+  të së njëjtës ditë. Ai është pikërisht çasti kur u hap fleta, pra kur u ndanë letrat e para —
+  prandaj nuk u shtua fushë e dytë për të.
+- **Fundi është `shkruarMe` i raundit të fundit**, një fushë e re te `Raundi`, e vënë një herë kur
+  raundi shkruhet dhe e paprekur nga redaktimi. `perditesuar` thotë «kur u prek së fundi»; kjo thotë
+  «kur u luajt», dhe pikërisht ai dallim e mban numrin të ndershëm kur një raund ndreqet të
+  nesërmen.
+
+Fundi nuk merret nga çasti kur shtypet «Mbyll»: fleta mbyllet ndonjëherë gjysmë ore pas dorës së
+fundit, e ndonjëherë të nesërmen, dhe ajo gjysmë orë nuk u luajt. Nuk merret as nga `mbyllur`, sepse
+ajo është vendim e jo orë (pika 15).
+
+Tri heshtje rrinë të shkruara te `koha.ts` dhe nuk guxojnë të hiqen — të tria janë e njëjta gjë, një
+numër që duket i matur e nuk është:
+
+- **Vula që mungon nuk shpikket.** Një lojë e kthyer nga një kopje e vjetër e ka `createdAt` zero,
+  dhe «01:00» aty do të ishte orë që nuk e pa kush. Atëherë kreu mbetet pikërisht ashtu si ishte.
+- **Mbrëmja e kryer pa vulat e raundeve nuk «zgjat» deri tani.** Pa këtë, çdo fletë e shkruar para
+  kësaj pune do të rritej sa herë hapet.
+- **Mbi `KUFIRI_I_BESUESHEM` (dymbëdhjetë orë) numri nuk shkruhet fare.** Një fletë e lënë hapur mbi
+  tavolinë deri nesër nuk zgjati katërmbëdhjetë orë, dhe as një mbrëmje e rihapur pas një jave për
+  të ndrequr një raund — atje raundi i fundit shkruhet sot, dhe dallimi nga hapja bëhet muaj.
+
+**Paketa e ndarë nuk i mori ato vula**, dhe nuk ka pse t'i marrë (pika 7): kush skanon një kod pyet
+kush prin e sa i del kujt, jo sa zgjati. Prandaj `PamjaERezultatit` e merr orën si nyjë të gatshme
+nga thirrësi (`koha`), dhe `#/shiko` e vizaton atë kre pikërisht si më parë. Te cloud-i fusha
+udhëton si çdo tjetër — rreshtat rrinë `jsonb`, pra skema nuk u prek (pika 19) — dhe një vulë e
+prishur nuk e rrëzon raundin: pikët janë ato që kanë rëndësi, dhe pa orë mbrëmja thjesht e ka fundin
+të panjohur.
+
+Numërimi rri te `Kohezgjatja` e jo te `koha.ts`: hapi është një minutë, sepse ekrani shkruan minuta
+dhe një numërues për sekonda do ta ndizte telefonin çdo sekondë për një shifër që nuk ndërron. Ora
+rilexohet edhe te `visibilitychange` — tableta që fjeti mbi tavolinë i ka ndalur kohëmatësit e vet.
+
 ## Sistemi vizual
 
 Paleta, rrezet, hijet, kartelat dhe tabelat vijnë nga
@@ -1407,6 +1461,31 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   mbi 62rem kartela dhe renditja rrinë krah për krah, dhe mbi 90rem vetë shtylla e rezultatit ndahet
   në dy — renditja majtas, raundet djathtas, shlyerja poshtë sa të dyja.
 
+  **Mbi 62rem shtylla e rezultatit nuk rri më bllok: pjesët e saj hyjnë vetë te rrjeti i faqes**
+  (`.loja__rezultatet { display: contents }`), dhe raundet zbresin te shtylla e majtë, nën panelat.
+  Arsyeja u mat te tableta: e majta mbaronte te panelat dhe poshtë tyre rrinte bosh sa dy ekrane,
+  kurse djathtas tri tabela prisnin radhën njëra nën tjetrën. Me gjashtë lojtarë e nëntë raunde faqja
+  binte nga **2129 piksela te 1607** te 1024×768 — pra një ekran tableti më pak për t'u rrëshqitur —
+  dhe me tetë nga 2544 te 1878. Te magareci, te pishpiriku dhe te telefoni numri nuk lëvizi fare:
+  atje shtylla e majtë është më e shkurtër se blloku i parë gjithsesi.
+
+  **Tavani i asaj kolone është 28rem e jo 27, dhe ai rem i fundit u mat.** Tabela e raundeve kërkon
+  390 piksela me pesë lojtarë, **436 me gjashtë**, 478 me shtatë dhe 524 me tetë. Me 27rem kolona
+  dilte 432 te iPad-i i mbajtur anash — katër piksela mungesë pikërisht te grupi për të cilin
+  optimizohet gjithçka (pika 6), pra numri i fundit lexohej me një rrëshqitje anash. Me 28rem del
+  448, dhe tabela hyn e tëra. Çmimi shkon te kolona tjetër dhe u rimat: te 1024 asaj i mbeten 517
+  piksela kundrejt 502 që kërkon renditja me tetë lojtarë. Pesëmbëdhjetë piksela hapësirë — mos e
+  ngri atë numër pa e rimatur këtë.
+
+  Shtatë e tetë lojtarë (478 e 524) rrëshqasin ende, si edhe mbi 90rem ku ajo tabelë rri krah
+  renditjes — dhe atje pyetja «sa mora atë raund» lexohet me një rrëshqitje anash, kurse «ku jemi
+  tani» nuk lexohej fare pa dy rrëshqitje poshtë.
+
+  Rreshtat janë tre — futja, panelat, tabelat — dhe i dyti merr çka mbetet (`auto 1fr auto`). Pa atë
+  `1fr` lartësia e renditjes, e cila i shtrin dy rreshtat e parë, do t'u ndahej të dyve dhe mes
+  kartelës e panelave do të hapej një vrimë; me të ajo bie e tëra nën panelat, dhe rreshti i tretë e
+  nis me të dyja tabelat në një vijë.
+
   **Ajo ndarja e fundit është kufi i tabelës, jo i ekranit, dhe kjo është pikërisht kërkesa e
   pronarit: tabela të mos zgjerohet — krah saj të vijë një tabelë tjetër.** Sapo peizazhi mori tërë
   ekranin, shtylla e rezultatit kaloi 60rem dhe tabela u shtri bashkë me të: mes emrit dhe totalit
@@ -1425,10 +1504,28 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   mbështjellëses së vet; me to del 506. Trembëdhjetë piksela hapësirë — pra mos e ul atë prag dhe mos
   i ndërro ata dy numra pa e rimatur kolonën me tetë lojtarë te 1440.
 
-  Vendosja kërkon që çdo pjesë e asaj shtylle të ketë mbështjellësen e vet (`.loja__bllok`, e vënë te
-  `Loja`): një rrjet nuk i vendos dot pjesët që nuk i njeh, dhe `nth-child` do të numëronte gabim
-  sapo parashikimi të mos vizatohet. Shlyerja merr `--gjere` dhe i shtrin të dyja kolonat — ajo është
-  listë kartelash që rrjedh vetë, dhe një gjysmë shtyllë do ta ngushtonte pa nevojë. Te telefoni
+  **Ai prag nuk zbret dot te tableta, dhe kjo u mat e nuk u hamendësua.** Me tetë lojtarë tabela e
+  renditjes kërkon 502 piksela dhe ajo e raundeve 524 para se të nisin të rrëshqasin; të dyja krah
+  për krah, plus dyshemeja 23rem e futjes dhe dy hapësirat, kërkojnë rreth 1477 — kurse iPad-i i
+  mbajtur anash jep 1024, 1180, 1194 a 1366. Prandaj atje ndarja e tretë nuk hyn fare, dhe hapësira e
+  zbrazët u mbush duke i zbritur raundet te shtylla e majtë (më sipër) e jo duke ulur pragun.
+
+  Mbi 90rem shtyllat janë tri te një rrjet i vetëm — futja, renditja, raundet — e jo një rrjet brenda
+  tjetrit. Hapësira mes tyre është e njëjta (`--rreshtimi`), pra gjerësitë dalin pikërisht ato që u
+  matën: te 1440 me tetë lojtarë futja 400, renditja 506, raundet 440.
+
+  Vendosja kërkon që çdo pjesë e asaj shtylle të ketë mbështjellësen e vet **me emrin e vet**
+  (`.loja__bllok--renditja`, `--raundet`, `--shlyerja`, të vëna te `Loja`): një rrjet nuk i vendos dot
+  pjesët që nuk i njeh, dhe `nth-child` do të numëronte gabim sapo parashikimi të mos vizatohet,
+  shlyerja të mos vlejë, ose lloji të jetë magarec. Prandaj edhe gjendja «ende asnjë raund» e ka
+  mbështjellësen e vet. **Shlyerja hipën te shtylla e majtë mbi 90rem, mbi panelat — me kërkesë të
+  pronarit.** Poshtë panelave rrinte një drejtkëndësh i bardhë sa vetë kolona e futjes: renditja e
+  raundet mbaronin te 682 e 732, kurse e majta te 555. Tani atë vend e zë matrica, e cila me gjashtë
+  lojtarë kërkon 382 piksela — pra hyn te ajo kolonë prej 400 pa rrëshqitur; me tetë kërkon 476 dhe
+  rrëshqet brenda kartelës së vet, si tabela e raundeve përbri. Rri **mbi** panelat sepse ajo lexohet
+  kur mbaron mbrëmja, kurse ata preken një herë a asnjë (pika 6) — dhe radha e telefonit nuk u prek,
+  atje shlyerja vinte para tyre gjithsesi. Faqja te 1440×900 bie nga 1221 piksela te **1068** me
+  gjashtë lojtarë, dhe nga 1342 te 1143 me tetë. Te telefoni
   mbështjellëset nuk ndërrojnë asgjë: një kolonë, dhe hapësira mes blloqeve e mbajtur nga vetë ato. Panelat nuk kthehen mes tyre: atje ata
   shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
 
@@ -1465,6 +1562,15 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   mbeteshin **plotësisht** të mbuluar kur faqja arrinte fundin — dhe edhe e ndrequr ashtu, kartela
   mbetej duke notuar mbi to. Tani rrëshqet bashkë me faqen si çdo bllok tjetër. **Mos e kthe të
   ngjitur.**
+
+  **Mbi 90rem panelat bien te një rresht i vetëm poshtë gjithçkaje, sa tërë gjerësia.** Te shtylla e
+  futjes ata rrinin katër njëri mbi tjetrin — rreth 320 piksela — dhe e bënin atë shtyllë më të
+  gjatën e faqes, kurse renditja e raundet mbaronin qindra piksela më lart. Sa tërë gjerësia dalin
+  katër për rresht (`repeat(auto-fit, minmax(18rem, 1fr))` → 328 piksela secili te 1440, pra mbi
+  18rem-in nën të cilin kreu i tyre nis të thyhet; me pesë panela — kur loja ka edhe kufirin —
+  `auto-fit` i kalon vetë te dy rreshta e nuk i ngushton nën atë kufi). Faqja te 1440×900 bie nga
+  1068 piksela te **924**, pra e tërë mbrëmja hyn te një ekran i vetëm. Radha e HTML-së nuk u prek:
+  panelat ishin gjithmonë të fundit te pema.
 
   Mbi 62rem panelat rrinë **menjëherë nën kartelën e futjes**, te e njëjta shtyllë (`grid-row: 2`).
   Rreshtat janë `auto 1fr` e jo `auto auto`: kolona e rezultatit i shtrin të dy rreshtat, dhe me dy
@@ -1509,9 +1615,30 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   - **`screen and` nuk është hollësi.** Pa të, një fletë e shtypur në peizazh do ta merrte këtë
     rregull dhe do të dilte pa asnjë buzë — shtypësi e pret atë që i bie jashtë zonës së vet.
 
-  Çmimi rri te ekrani shumë i gjerë: mbi 62rem shtylla e rezultatit merr çka mbetet pas 27rem-it të
+  Çmimi rri te ekrani shumë i gjerë: mbi 62rem shtylla e rezultatit merr çka mbetet pas 28rem-it të
   futjes, prandaj te një monitor 1920 tabela e renditjes shtrihet dhe kolonat e saj largohen nga
   njëra-tjetra. Te tableta — ekrani për të cilin u kërkua — ajo del pikërisht sa duhet.
+
+  **Në peizazh shtrëngohen edhe rreshtat edhe kreu, sepse atje mungon lartësia e jo gjerësia.**
+  `--rreshtimi` (2.2rem te ekrani i gjerë) i mban të dyja hapësirat, dhe ai numër u zgjodh për një
+  kolonë të vetme te telefoni, ku ajri mes blloqeve është e vetmja ndarje që ka. Me shtylla ajri
+  vertikal paguan dy herë, prandaj `row-gap` bie te 1.35rem — kurse hapësira **mes shtyllave nuk
+  preket**: ajo i ndan dy tabela, dhe një vijë e hollë mes tyre do t'i bënte të duken një.
+
+  Kreu bie te një rresht: data dhe etiketat krah për krah (`.kreu > :last-child` bëhet `flex`, dhe
+  shtegu «‹ Shoqëria» e mban rreshtin e vet me `flex-basis: 100%`). Ai zinte **105 piksela nga 768**
+  — një e shtata e ekranit për një datë — dhe tani zë 68. Bashkë me rreshtat, tabela e renditjes te
+  1024×768 me tetë lojtarë mbaron te **702** nga 753, pra hyn e tëra edhe me shiritin e shfletuesit
+  sipër; faqja bie nga 1878 te 1800 me tetë lojtarë, dhe nga 1607 te 1528 me gjashtë.
+
+  Supozimet e parashikimit u mblodhën te një panel me të njëjtin arsyetim (pika 12), dhe ai është
+  ndryshimi i vetëm i kësaj pune që e prek edhe telefonin: faqja bie edhe 77 piksela te tableta, e
+  121 te portreti. Bashkë me të gjitha, mbrëmja me gjashtë lojtarë te 1024×768 bie nga **2129
+  piksela te 1451** — pra nga tri ekrane te pak më shumë se një.
+
+  **Portreti mbetet i paprekur nga rregullat e peizazhit**, fjalë për fjalë: kreu i telefonit rri
+  132 piksela para e pas. Atje kolona është një dhe ajri është e vetmja ndarje që ka — kjo është
+  zgjedhje e pronarit (më lart), e jo rrjedhojë e kodit.
 - **Shtegu i kthimit rri te vetë kreu, e jo mbi të** (`MbiTitullin` te `pjeset/Kreu.tsx`). Ishin dy
   rreshta që thoshin të njëjtën gjë: një shteg «‹ Shoqëria», dhe menjëherë poshtë tij etiketa
   «SHOQËRIA» mbi titull — te ekrani i lojës fjalë për fjalë i njëjti emër grupi dy herë, dhe te
@@ -1582,6 +1709,13 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - **Matrica renditet sipas renditjes, jo sipas radhës së tavolinës.** Shlyerja shihet kur mbaron
   loja, dhe atëherë lexohet duke nisur nga fituesi. Vendi shkruhet krah emrit te rreshti, që radha
   të mos duket e rastit.
+- **Matrica nuk zgjerohet sa shtylla që e mban**, dhe kartela e saj ngushtohet bashkë me të
+  (`.tabela-mbeshtjellese:has(> .matrica)` merr `fit-content`). `.tabela` ka `width: 100%`, prandaj
+  sapo shlyerja i mori të tria shtyllat ajo dilte **1414 piksela kundrejt 382** që i duhen me
+  gjashtë lojtarë — pra numrat largoheshin katër herë më shumë se sa i kërkon përmbajtja, dhe syri e
+  humbte rreshtin midis. Te telefoni asgjë nuk ndryshoi: atje shtylla është më e ngushtë se tabela,
+  `max-width: 100%` fiton, dhe ajo rrëshqet brenda mbështjellëses si më parë. Mos i vër `width: 100%`
+  asaj tabele — ajo është rrjet numrash që e ndan vetë përmbajtja, e jo tekst që mbush një rresht.
 - **`fusha` është klasa e mbështjellëses, jo e `input`-it.** Stilet e fushave rrinë te
   `.fusha input[type='text']`, prandaj një `<input className="fusha">` nuk merr asnjë prej tyre dhe
   vizatohet nga shfletuesi. Pikërisht ashtu kishte mbetur kutia e kodit te «Bashkohu» e te «Takohu»,
@@ -1599,12 +1733,16 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
 - **Lojë e re niset nga lojtarët e lojës së fundit**, jo nga tërë lista e grupit: shoqëria është
   zakonisht e njëjta, prandaj më shpesh nuk ka çka të preket fare. „E fundit" është ajo që del e
   para te historiku — më e reja sipas datës.
-- **Shlyerja ka dy pamje, dhe lista rri e para.** Matrica është përgjigjja e plotë — çdo çift, në të
-  dy drejtimet — por pyetja e tavolinës është një: «unë sa i kam borxh kujt». `borxhet()` te
-  `llogaritjet.ts` (pa DOM, me katër prova) e nxjerr atë nga e njëjta matricë: një rresht për çift,
-  kurrë dy, dhe çiftet me diferencë zero nuk hyjnë fare. Drejtimi lexohet nga shenja e matricës e jo
-  nga një rregull i shkruar dy herë — kush ka më shumë pikë paguan, te të dyja lojërat që shlyhen.
-  Tabela mbetet një prekje larg, sepse ajo është pamja e fletës origjinale.
+- **Shlyerja ka një pamje të vetme — tabelën — me kërkesë të pronarit.** Deri tani krah saj rrinte
+  edhe lista «kush kujt» (një rresht për çift), dhe ajo hapej e para: matrica është përgjigjja e
+  plotë, por pyetja e tavolinës dukej një — «unë sa i kam borxh kujt». Pronari e hoqi atë çelës: te
+  tavolina e tij lexohet tabela, sepse ajo është pamja e fletës origjinale, dhe dy pamje ku njëra
+  nuk preket kurrë janë një rresht i humbur mbi atë që lexohet. Mos e kthe pa e pyetur.
+
+  `borxhet()` te `llogaritjet.ts` (pa DOM, me katër prova) mbetet aty ku ishte, pa thirrës — si
+  `pastroDaten` më poshtë, dhe për të njëjtën arsye: ajo llogari nuk vjetërohet, dhe lista kthehet
+  me një thirrje nëse kërkohet sërish. Drejtimi lexohet nga shenja e matricës e jo nga një rregull i
+  shkruar dy herë — kush ka më shumë pikë paguan, te të dyja lojërat që shlyhen.
 - **Nga pesë lojtarë e tutje emri te kreu i tabelës së raundeve shkurtohet në tri shkronja**, me
   emrin e plotë te `vetem-lexues` — gjerësinë e kolonës e vendoste emri, kurse numri është ai që
   lexohet. E njëjta zgjidhje si dita e javës te Kujdestaria; asgjë nuk fshihet, vetëm shkurtohet.

@@ -207,6 +207,27 @@ test('kopja i pranon të katër llojet e lojërave', () => {
   }
 });
 
+test('ora e raundit mbijeton kopjen, dhe ajo e prishur nuk e rrëzon skedarin', () => {
+  const me = { ...RAUNDI, shkruarMe: 1700000123456 };
+  const dala = lexoKopjen(teksti(ndertoKopjen([GRUPI], [LOJA], [me])));
+  assert.equal(dala.ok, true);
+  assert.equal(dala.kopja.rounds[0].shkruarMe, 1700000123456);
+
+  // Një kopje e vjetër nuk e ka fare fushën, dhe kjo është e ligjshme: mbrëmja
+  // e ka fundin të panjohur e jo të gabuar (`koha.ts`).
+  const pa = lexoKopjen(teksti(ndertoKopjen([GRUPI], [LOJA], [RAUNDI])));
+  assert.equal(pa.ok, true);
+  assert.equal('shkruarMe' in pa.kopja.rounds[0], false);
+
+  for (const shkruarMe of [0, -5, '21:00']) {
+    const dala = lexoKopjen(
+      teksti(ndertoKopjen([GRUPI], [LOJA], [{ ...RAUNDI, shkruarMe }])),
+    );
+    assert.equal(dala.ok, true, String(shkruarMe));
+    assert.equal('shkruarMe' in dala.kopja.rounds[0], false, String(shkruarMe));
+  }
+});
+
 test('kufiri i mbrëmjes mbijeton kopjen, dhe ai i shpikur refuzohet', () => {
   // Zeroja është «pa kufi» dhe kalon; një numër i thyer a negativ do të bënte
   // një mbrëmje që ose nuk mbaron kurrë, ose mbaron para raundit të parë.

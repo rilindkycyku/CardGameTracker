@@ -108,6 +108,7 @@ export type FushatERaundit = {
   gameUid: string;
   roundNumber: number;
   scores: Record<string, number | null>;
+  shkruarMe?: number;
 };
 
 export type Fushat = FushatEGrupit | FushatELojes | FushatERaundit;
@@ -211,7 +212,17 @@ export function fushatENjeRreshti(store: string, data: unknown): Fushat | null {
       else return null;
     }
 
-    return { gameUid: o.gameUid, roundNumber: o.roundNumber, scores };
+    const raundi: FushatERaundit = {
+      gameUid: o.gameUid,
+      roundNumber: o.roundNumber,
+      scores,
+    };
+    // Ora kur u luajt raundi: numër i vërtetë, ose asgjë. Një vulë e prishur
+    // nuk e rrëzon raundin — pikët janë ato që kanë rëndësi, dhe pa të mbrëmja
+    // thjesht e ka fundin të panjohur (`koha.ts`).
+    if (eshteNumer(o.shkruarMe) && o.shkruarMe > 0) raundi.shkruarMe = o.shkruarMe;
+
+    return raundi;
   }
 
   return null;
@@ -259,7 +270,14 @@ export function teDhenatPerCloud(
   const r = rekordi as Raundi;
   const gameUid = uidet.lojerat?.get(r.gameId);
   if (!gameUid) return null;
-  return { gameUid, roundNumber: r.roundNumber, scores: r.scores };
+
+  const fushat: FushatERaundit = {
+    gameUid,
+    roundNumber: r.roundNumber,
+    scores: r.scores,
+  };
+  if (r.shkruarMe !== undefined) fushat.shkruarMe = r.shkruarMe;
+  return fushat;
 }
 
 /* ── Ana lokale ─────────────────────────────────────────────────────────── */
