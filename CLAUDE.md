@@ -1563,6 +1563,15 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   mbetej duke notuar mbi to. Tani rrëshqet bashkë me faqen si çdo bllok tjetër. **Mos e kthe të
   ngjitur.**
 
+  **Mbi 90rem panelat bien te një rresht i vetëm poshtë gjithçkaje, sa tërë gjerësia.** Te shtylla e
+  futjes ata rrinin katër njëri mbi tjetrin — rreth 320 piksela — dhe e bënin atë shtyllë më të
+  gjatën e faqes, kurse renditja e raundet mbaronin qindra piksela më lart. Sa tërë gjerësia dalin
+  katër për rresht (`repeat(auto-fit, minmax(18rem, 1fr))` → 328 piksela secili te 1440, pra mbi
+  18rem-in nën të cilin kreu i tyre nis të thyhet; me pesë panela — kur loja ka edhe kufirin —
+  `auto-fit` i kalon vetë te dy rreshta e nuk i ngushton nën atë kufi). Faqja te 1440×900 bie nga
+  1068 piksela te **924**, pra e tërë mbrëmja hyn te një ekran i vetëm. Radha e HTML-së nuk u prek:
+  panelat ishin gjithmonë të fundit te pema.
+
   Mbi 62rem panelat rrinë **menjëherë nën kartelën e futjes**, te e njëjta shtyllë (`grid-row: 2`).
   Rreshtat janë `auto 1fr` e jo `auto auto`: kolona e rezultatit i shtrin të dy rreshtat, dhe me dy
   rreshta `auto` lartësia e saj u ndahej të dyve — pra mes kartelës dhe panelave hapej një vrimë sa
