@@ -612,10 +612,17 @@ h3 {
     grid-row: 1 / span 2;
   }
 
-  /* Shlyerja i shtrin të dyja tabelat: listë kartelash që rrjedh vetë, dhe një
-     gjysmë shtyllë do ta ngushtonte pa nevojë. */
+  /*
+   * Shlyerja i shtrin të tria shtyllat, jo dy.
+   *
+   * Ajo është listë kartelash që rrjedh vetë, prandaj një gjysmë shtyllë do ta
+   * ngushtonte pa nevojë — dhe kur i linte dy, poshtë panelave mbetej një
+   * drejtkëndësh i bardhë sa vetë kolona e futjes. Me të tria, çiftet bien pesë
+   * për rresht e jo katër: me gjashtë lojtarë faqja bie nga 1140 piksela te
+   * 1085 te 1440×900, dhe me tetë nga 1342 te 1287.
+   */
   .loja__bllok--shlyerja {
-    grid-column: 2 / -1;
+    grid-column: 1 / -1;
     grid-row: 3;
   }
 }

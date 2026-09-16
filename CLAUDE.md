@@ -1518,8 +1518,10 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   (`.loja__bllok--renditja`, `--raundet`, `--shlyerja`, të vëna te `Loja`): një rrjet nuk i vendos dot
   pjesët që nuk i njeh, dhe `nth-child` do të numëronte gabim sapo parashikimi të mos vizatohet,
   shlyerja të mos vlejë, ose lloji të jetë magarec. Prandaj edhe gjendja «ende asnjë raund» e ka
-  mbështjellësen e vet. Shlyerja i shtrin të dyja tabelat mbi 90rem — ajo është listë kartelash që
-  rrjedh vetë, dhe një gjysmë shtyllë do ta ngushtonte pa nevojë. Te telefoni
+  mbështjellësen e vet. Shlyerja i shtrin **të tria** shtyllat mbi 90rem — ajo është listë kartelash
+  që rrjedh vetë, dhe kur i linte vetëm dy, poshtë panelave mbetej një drejtkëndësh i bardhë sa vetë
+  kolona e futjes; me të tria çiftet bien pesë për rresht e jo katër, dhe faqja te 1440×900 bie nga
+  1140 piksela te 1085 me gjashtë lojtarë, e nga 1342 te 1287 me tetë. Te telefoni
   mbështjellëset nuk ndërrojnë asgjë: një kolonë, dhe hapësira mes blloqeve e mbajtur nga vetë ato. Panelat nuk kthehen mes tyre: atje ata
   shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
 
