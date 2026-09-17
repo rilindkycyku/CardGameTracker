@@ -20,14 +20,24 @@
 import { useSyncExternalStore } from 'react';
 
 /**
- * E njëjta pikë ku panelat e ekranit të lojës dalin dy për rresht.
+ * Gjerësia nga e cila pesë kolonat e tabelës së bashkuar hyjnë pa rrëshqitur.
  *
- * Nën të rri telefoni në portret, ku pesë kolona nuk hyjnë pa rrëshqitur — dhe
- * renditja është pikërisht ajo që lexohet pas çdo raundi (pika 3), prandaj një
- * rrëshqitje anash aty do të kushtonte më shumë se kursimi i lartësisë. Mbi të
- * rrinë tableta, telefoni i kthyer anash dhe kompjuteri.
+ * Ishte 48rem — pika ku hapet faqja — sepse atëherë ajo tabelë kërkonte 477
+ * piksela dhe telefoni jep 356. Tani tabelat e ekranit të lojës shtrëngohen nën
+ * 62rem, dhe nën 48rem edhe një hap më tej (`style.css`), pra e njëjta tabelë
+ * kërkon 349: hyn te telefoni, dhe atje kursen 361 piksela lartësi, sepse
+ * renditja dhe parashikimi ishin e njëjta listë lojtarësh e shkruar dy herë.
+ *
+ * 24rem (384px) është pragu i matur: me ajrin e faqes mbeten 352 piksela, pra
+ * tabela hyn me pak vend për të tepërt. Nën të — telefonat e vjetër e të
+ * vegjël, 375px e poshtë — ajo do të rrëshqiste anash pikërisht te tabela që
+ * lexohet pas çdo raundi (pika 3), prandaj atje mbeten dy seksione si më parë.
+ *
+ * Numri varet nga ai shtrëngim, dhe prova `bashkimi qëndron mbi shtrëngimin e
+ * tabelave` i lidh të dy: nëse shtrëngimi hiqet, ky prag duhet të ngjitet
+ * sërish.
  */
-export const PYETJA_E_GJERE = '(min-width: 48rem)';
+export const PYETJA_E_GJERE = '(min-width: 24rem)';
 
 function lista(): MediaQueryList | null {
   return window.matchMedia?.(PYETJA_E_GJERE) ?? null;

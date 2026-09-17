@@ -520,21 +520,26 @@ h3 {
     padding-left: max(var(--ajri-anash), env(safe-area-inset-left, 0px));
     padding-right: max(var(--ajri-anash), env(safe-area-inset-right, 0px));
   }
+}
 
-  /*
-   * Rreshtat shtrëngohen, kolonat jo — sepse në peizazh mungon lartësia, e jo
-   * gjerësia.
-   *
-   * `--rreshtimi` i mban të dyja, dhe ai numër u zgjodh për një kolonë të
-   * vetme te telefoni ku ajri mes blloqeve është e vetmja ndarje që ka. Këtu
-   * blloqet ndahen edhe me shtylla, pra ajri vertikal paguan dy herë: 35
-   * piksela mes kreut dhe punës, e po aq mes kartelës, panelave dhe tabelave.
-   * Me 1.35rem faqja fiton rreth dyzet piksela para rreshtit të parë të
-   * renditjes — dhe pikërisht ajo është tabela që lexohet pas çdo raundi.
-   *
-   * Hapësira mes shtyllave mbetet e paprekur: ajo i ndan dy tabela, dhe një
-   * vijë e hollë mes tyre do t'i bënte të duken një.
-   */
+/**
+ * Ajri mes rreshtave shtrëngohet te çdo ekran — edhe te telefoni, me kërkesë të
+ * pronarit.
+ *
+ * `--rreshtimi` (2.2rem te ekrani i gjerë, 1.5rem te telefoni) i mban të dyja
+ * hapësirat e një rrjeti, dhe ai numër u zgjodh për një kolonë të vetme ku ajri
+ * mes blloqeve është e vetmja ndarje që ka. Kudo tjetër blloqet ndahen edhe me
+ * shtylla, pra ajri vertikal paguan dy herë. Me 1.35rem faqja fiton rreth dyzet
+ * piksela te tableta para rreshtit të parë të renditjes — dhe njëzet te
+ * telefoni, ku pesë blloqe rrinë njëri mbi tjetrin.
+ *
+ * Hapësira **mes shtyllave nuk preket**: ajo i ndan dy tabela, dhe një vijë e
+ * hollë mes tyre do t'i bënte të duken një.
+ *
+ * `@media screen` e jo një pyetje gjerësie, sepse vlen kudo; shtypja rri jashtë
+ * saj, si te rregullat e peizazhit.
+ */
+@media screen {
   .faqja,
   .loja__pune,
   .loja__panelat,
@@ -544,21 +549,29 @@ h3 {
   .shtyllat__anesore {
     row-gap: 1.35rem;
   }
+}
 
-  /*
-   * Kreu bie te një rresht: data dhe etiketat krah për krah.
-   *
-   * Te portreti ato rrinë njëra nën tjetrën me arsye — gjerësia nuk i nxë — por
-   * në peizazh gjerësia është pikërisht ajo që tepron, dhe lartësia ajo që
-   * mungon: titulli e etiketat bashkë zinin 105 piksela nga 768, pra një e
-   * shtata e ekranit për një datë. Bashkë me rreshtin e parë ato bien te 62.
-   *
-   * `:last-child` sepse trupi i kreut është gjithmonë fëmija i fundit — i pari
-   * është shenja, e cila te disa ekrane është `div` e te disa `span`. Shtegu
-   * («‹ Shoqëria») e mban rreshtin e vet me `flex-basis: 100%`: ai është rrugë
-   * prapa, dhe një shigjetë e ngjeshur mes datës e etiketave nuk lexohet si e
-   * tillë.
-   */
+/**
+ * Kreu bie te një rresht kudo ku gjerësia e mban: data dhe etiketat krah për
+ * krah.
+ *
+ * Te peizazhi dhe te tableta në portret ai zinte 105 piksela nga 768 — një e
+ * shtata e ekranit për një datë — dhe bashkë me rreshtin e parë bie te 62.
+ *
+ * **Telefoni rri jashtë, dhe kjo u mat e nuk u hamendësua**: atje titulli dhe
+ * tri etiketat nuk hyjnë dot te një rresht gjithsesi, prandaj rreshti flex
+ * thjesht i rithyen ndryshe — kreu dilte **138 piksela në vend të 132**. Pra
+ * rregulli që kursen lartësi te ekrani i gjerë shton lartësi te i ngushti; aty
+ * ku nuk kursen, nuk hyn.
+ *
+ * `:last-child` sepse trupi i kreut është gjithmonë fëmija i fundit — i pari
+ * është shenja, e cila te disa ekrane është `div` e te disa `span`. Shtegu
+ * («‹ Shoqëria») e mban rreshtin e vet me `flex-basis: 100%`: ai është rrugë
+ * prapa, dhe një shigjetë e ngjeshur mes datës e etiketave nuk lexohet si e
+ * tillë.
+ */
+@media screen and (orientation: landscape),
+  screen and (orientation: portrait) and (min-width: 54rem) {
   .kreu > :last-child {
     display: flex;
     flex-wrap: wrap;
@@ -578,6 +591,87 @@ h3 {
 
   .kreu__meta {
     margin: 0;
+  }
+}
+
+/**
+ * Nën ekranin e gjerë tabelat e mbrëmjes shtrëngohen — ajri, e jo ajo që
+ * lexohet.
+ *
+ * Nën 62rem çdo tabelë e ekranit të lojës e ndan gjerësinë me dikë: me shtyllën
+ * tjetër te tableta në portret, ose me vetë buzën e telefonit. Dhe ajo që i
+ * mbante të gjera nuk ishin numrat — ishte ajri anash secilës qelizë dhe
+ * hapësira mes shkronjave te kryet. Të dyja ulen këtu; shkronja, numri dhe çdo
+ * cak prekjeje mbeten ato që ishin (2.75rem, pika 6).
+ *
+ * Matur te telefoni (390×844, pra 356 piksela përmbajtje) me gjashtë lojtarë:
+ * tabela e raundeve kërkonte 429 dhe rrëshqiste 73 piksela anash — pra kolona e
+ * fundit dhe butonat e redaktimit rrinin jashtë ekranit — kurse matrica
+ * kërkonte 366. Tani kërkojnë 354 e 340: **të dyja hyjnë të tëra**, dhe një
+ * mbrëmje me gjashtë veta lexohet pa asnjë rrëshqitje anash. Me shtatë a tetë
+ * ato rrëshqasin sërish, si më parë e më pak.
+ *
+ * Te tableta në portret i njëjti shtrëngim i lë raundet te 421 me tetë lojtarë,
+ * pra brenda shtyllës së tyre prej 447.
+ *
+ * Kryet shtrëngohen, por nuk thyhen. `white-space: normal` këtu do të ishte
+ * gabim i heshtur: kolona e emrit te renditja e mban `width: 99%`, pra ajo e
+ * merr tërë hapësirën e lirë dhe kolonat e tjera bien te gjerësia e tyre më e
+ * vogël e mundshme — me krye që thyhen, ajo gjerësi bëhet një fjalë e vetme,
+ * dhe «MUND TË DALË» del në tri rreshta mbi një tabelë që kishte vend për një.
+ * U provua, dhe ashtu doli.
+ */
+@media (width < 62rem) {
+  .loja__pune .tabela:not(.matrica) th,
+  .loja__pune .tabela:not(.matrica) td {
+    padding-inline: 0.45rem;
+  }
+
+  /* Të katër selektorët duhen: rregulli i dendësisë (`[data-shume]`, nga pesë
+     lojtarë e tutje) rri më poshtë te skedari me të njëjtën peshë, prandaj pa e
+     emërtuar edhe atë ai do të fitonte me 0.5rem-in e vet. Raundet shtrëngohen
+     më shumë se të tjerat sepse kolonat e tyre janë më të shumtat: me gjashtë
+     lojtarë tetë kolona, dhe secila kursen dy herë. */
+  .loja__pune .tabela--raundet th,
+  .loja__pune .tabela--raundet td,
+  .loja__pune .tabela--raundet[data-shume] th,
+  .loja__pune .tabela--raundet[data-shume] td {
+    padding-inline: 0.25rem;
+  }
+
+  /* Matrica e ka dendësinë e vet (`border-spacing`, jo kufij), prandaj rri
+     jashtë rregullit të përgjithshëm dhe emërtohet veç. */
+  .loja__pune .matrica[data-shume] td {
+    padding: 0.45rem 0.3rem;
+  }
+
+  .loja__pune .matrica[data-shume] th {
+    padding: 0.3rem 0.25rem;
+  }
+
+  .loja__pune .tabela:not(.matrica) th {
+    letter-spacing: 0.06em;
+  }
+}
+
+/**
+ * Te telefoni shtrëngimi shkon një hap më tej, dhe ai hap e bën të mundur
+ * bashkimin e renditjes me parashikimin.
+ *
+ * Te ekrani i ngushtë ato dyja rrinin dy seksione — e njëjta listë lojtarësh e
+ * shkruar dy herë, 935 piksela nga 2834 — sepse tabela e bashkuar me pesë
+ * kolona kërkonte 477 dhe telefoni jep 356. Me ajrin e qelizave te 0.25rem ajo
+ * kërkon 349, pra hyn, dhe `pamja.ts` e ul pragun e bashkimit te 24rem: aq sa
+ * duhet që ato pesë kolona të hyjnë, e jo aq sa duhet që faqja të hapet.
+ *
+ * Prandaj ky numër dhe ai i `pamja.ts`-së lexohen bashkë, dhe një provë i lidh:
+ * nëse ky shtrëngim hiqet, bashkimi duhet të kthehet lart, përndryshe tabela
+ * që lexohet pas çdo raundi do të rrëshqiste anash.
+ */
+@media (width < 48rem) {
+  .loja__pune .tabela:not(.matrica) th,
+  .loja__pune .tabela:not(.matrica) td {
+    padding-inline: 0.25rem;
   }
 }
 
@@ -631,34 +725,6 @@ h3 {
  */
 @media screen and (orientation: portrait) and (min-width: 54rem) and
   (width < 62rem) {
-  .loja__pune .tabela:not(.matrica) th,
-  .loja__pune .tabela:not(.matrica) td {
-    padding-inline: 0.45rem;
-  }
-
-  /* Të katër selektorët duhen: rregulli i dendësisë (`[data-shume]`, nga pesë
-     lojtarë e tutje) rri më poshtë te skedari me të njëjtën peshë, prandaj pa e
-     emërtuar edhe atë ai do të fitonte me 0.5rem-in e vet. */
-  .loja__pune .tabela--raundet th,
-  .loja__pune .tabela--raundet td,
-  .loja__pune .tabela--raundet[data-shume] th,
-  .loja__pune .tabela--raundet[data-shume] td {
-    padding-inline: 0.3rem;
-  }
-
-  /*
-   * Kryet shtrëngohen, por nuk thyhen.
-   *
-   * `white-space: normal` këtu do të ishte gabim i heshtur: kolona e emrit te
-   * renditja e mban `width: 99%`, pra ajo e merr tërë hapësirën e lirë dhe
-   * kolonat e tjera bien te gjerësia e tyre më e vogël e mundshme — me krye që
-   * thyhen, ajo gjerësi bëhet një fjalë e vetme, dhe «MUND TË DALË» del në tri
-   * rreshta mbi një tabelë që kishte vend për një. U provua, dhe ashtu doli.
-   */
-  .loja__pune .tabela:not(.matrica) th {
-    letter-spacing: 0.06em;
-  }
-
   .loja__pune {
     grid-template-columns: minmax(0, 24.5rem) minmax(0, 1fr);
     align-items: start;

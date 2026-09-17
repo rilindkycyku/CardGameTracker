@@ -136,7 +136,8 @@ shfletues.
 `pamja.ts` është i vetmi vend ku gjerësia e ekranit hyn te JS-i, dhe rri i ngushtë me qëllim: një
 pyetje, një hook. Çdo gjë tjetër që varet nga gjerësia rri te CSS-i, ku i takon — ai skedar
 ekziston vetëm për rastin që CSS-i nuk e bën dot, dhe ai rast është një: renditja dhe parashikimi
-bashkohen te një tabelë e vetme sapo ekrani hapet (sistemi vizual, më poshtë). Ajo nuk është pamje
+bashkohen te një tabelë e vetme sapo ajo tabelë hyn në ekran — nga 24rem e tutje, pra te çdo telefon
+i sotëm (sistemi vizual, më poshtë). Ajo nuk është pamje
 tjetër e së njëjtës tabelë — është një tabelë me kolona e krye tjetër — prandaj një fshehje me CSS
 do të linte të njëjtët numra dy herë te pema. Nëse i shtohet një pyetje e dytë, pyetja e parë është
 pse nuk e bën dot CSS-i.
@@ -1532,13 +1533,19 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   mbështjellëset nuk ndërrojnë asgjë: një kolonë, dhe hapësira mes blloqeve e mbajtur nga vetë ato. Panelat nuk kthehen mes tyre: atje ata
   shtynin poshtë pikërisht atë që lexohet pas çdo raundi.
 
-  **Sapo faqja hapet, renditja dhe parashikimi bëhen një tabelë e vetme.** Dy kolonat e para janë
-  të njëjtat — vendi dhe lojtari — dhe të dyja tabelat rrinë njëra nën tjetrën te e njëjta shtyllë:
-  një kokë tabele, një radhë emrash dhe gjysmë ekrani të shpenzuar dy herë për të njëjtën gjë.
-  Prandaj mbi 48rem `Parashikimi` i vizaton të dyja bashkë — `Vendi | Lojtari | Totali | Mund të
+  **Sapo pesë kolonat hyjnë në ekran, renditja dhe parashikimi bëhen një tabelë e vetme.** Dy
+  kolonat e para janë të njëjtat — vendi dhe lojtari — dhe të dyja tabelat rrinë njëra nën tjetrën te
+  e njëjta shtyllë: një kokë tabele, një radhë emrash dhe gjysmë ekrani të shpenzuar dy herë për të
+  njëjtën gjë. Prandaj `Parashikimi` i vizaton të dyja bashkë — `Vendi | Lojtari | Totali | Mund të
   dalë | Deri te i pari` — nën titullin e renditjes, me çelësin «Sa larg të shihet» e fjalinë mbi
-  tabelë dhe supozimet poshtë saj. Nën 48rem mbeten dy seksione si më parë: pesë kolona te telefoni
-  do të kërkonin një rrëshqitje anash pikërisht te tabela që lexohet pas çdo raundi.
+  tabelë dhe supozimet poshtë saj.
+
+  Pragu ishte 48rem — pika ku hapet faqja — sepse ajo tabelë kërkonte 477 piksela dhe telefoni jep
+  356. Me shtrëngimin e tabelave (më poshtë) ajo kërkon 349, prandaj pragu ra te **24rem** (384px):
+  aq sa duhet që kolonat të hyjnë, e jo aq sa duhet që faqja të hapet. Te telefoni kjo i heq 361
+  piksela faqes — ishte e njëjta listë lojtarësh e shkruar dy herë. Nën 24rem — telefonat e vjetër e
+  të vegjël, 375px e poshtë — mbeten dy seksione si më parë, sepse atje pesë kolona do të kërkonin
+  një rrëshqitje anash pikërisht te tabela që lexohet pas çdo raundi.
 
   Tri gjëra aty nuk guxojnë të ndryshojnë:
 
@@ -1553,9 +1560,10 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
     jep rreshtat e filtruar (`renditjaELojes`, pika 5): ai i merr të dyja tabelat të ndara, e nuk
     humb një lojtar në heshtje.
 
-  Pika ku bashkohen është e njëjta ku panelat dalin dy për rresht, dhe prova `tabela bashkohet vetëm
-  pasi faqja të jetë hapur` e mban të lidhur me CSS-in: gjerësinë e pesë kolonave e jep
-  `.faqja--gjere` e jo ekrani, prandaj bashkimi nuk guxon të vijë para saj.
+  Prova `bashkimi qëndron mbi shtrëngimin e tabelave` e mban atë prag të lidhur me CSS-in: kur
+  bashkimi vjen para hapjes së faqes, shtrëngimi i telefonit — ajri anash i qelizave te 0.25rem —
+  duhet të jetë aty; nëse dikush e heq atë rresht, pragu duhet të ngjitet sërish, përndryshe tabela
+  do të rrëshqiste anash në heshtje.
 
   **Asgjë te ky ekran nuk rri e ngjitur, me kërkesë të pronarit.** Kartela e futjes e pati
   `position: sticky` te ekrani i gjerë, që raundi të shënohej me renditjen para syve. Ajo u hoq: një
@@ -1649,22 +1657,27 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   121 te portreti. Bashkë me të gjitha, mbrëmja me gjashtë lojtarë te 1024×768 bie nga **2129
   piksela te 1451** — pra nga tri ekrane te pak më shumë se një.
 
-  **Telefoni në portret mbetet i paprekur nga këto rregulla**, fjalë për fjalë: kreu rri 132 piksela
-  para e pas, dhe faqja te 390×844 me gjashtë lojtarë rri 2834 piksela para e pas. Atje kolona është
-  një dhe ajri është e vetmja ndarje që ka — kjo është zgjedhje e pronarit (më lart), e jo rrjedhojë
-  e kodit. Ato që i marrin i merr vetëm tableta, nga 54rem e tutje.
+  **Nga këto rregulla telefoni merr ajrin mes rreshtave, dhe asgjë tjetër** — me kërkesë të pronarit,
+  e cila e hoqi përjashtimin e mëparshëm. `row-gap: 1.35rem` rri tani te një `@media screen` pa pyetje
+  gjerësie, pra vlen kudo; gjerësia e faqes dhe ajri anash mbeten ato që ishin te telefoni (buzë më
+  buzë me ekranin një kartelë nuk ka ku të marrë frymë), dhe **kreu nuk bie te një rresht atje**:
+  u mat, dhe me titullin e tri etiketat që nuk hyjnë dot bashkë te 390 piksela, rreshti flex
+  thjesht i rithyen ndryshe — kreu dilte **138 piksela në vend të 132**. Rregulli që kursen lartësi
+  te ekrani i gjerë shton lartësi te i ngushti, prandaj aty ku nuk kursen, nuk hyn.
 
   **Te tableta në portret faqja bëhet dy shtylla, dhe tabelat shtrëngohen aq sa të hyjnë**
   (`(min-width: 54rem) and (width < 62rem)`, pra brezi mes telefonit dhe ndarjes së vjetër të
   62rem-it). Numrat u matën te Galaxy Tab A9+ i mbajtur përpjetë — 900×1440 — ku faqja jep 876
   piksela: dy tabela nuk hynin dot aty, sepse renditja kërkonte 477 e raundet 429.
 
-  **Shtrëngimi prek vetëm ajrin, kurrë atë që lexohet a preket.** Ajri anash i qelizave bie te
-  0.45rem (te raundet 0.3rem, ku kolonat janë shumë dhe secila kursen dy herë), dhe hapësira mes
-  shkronjave te kryet nga 0.12em te 0.06em. Kryet e renditjes janë fjalë e jo shkurtesa — «MUND TË
-  DALË», «DERI TE I PARI» — dhe pikërisht ato e mbanin atë tabelë të gjerë: me kaq ajo bie nga 477
-  te 381, dhe raundet nga 429 te 366 me gjashtë lojtarë. Shkronja, numri dhe çdo cak prekjeje
-  mbeten ato që ishin. Matrica rri jashtë të dyjave: ajo i ka rregullat e veta të dendësisë.
+  **Shtrëngimi prek vetëm ajrin, kurrë atë që lexohet a preket, dhe vlen nën 62rem — pra te çdo ekran
+  ku tabelat e ndajnë gjerësinë me dikë**, qoftë me shtyllën tjetër te tableta, qoftë me vetë buzën e
+  telefonit. Ajri anash i qelizave bie te 0.45rem (te raundet 0.25rem, ku kolonat janë shumë dhe
+  secila kursen dy herë), dhe hapësira mes shkronjave te kryet nga 0.12em te 0.06em. Kryet e
+  renditjes janë fjalë e jo shkurtesa — «MUND TË DALË», «DERI TE I PARI» — dhe pikërisht ato e
+  mbanin atë tabelë të gjerë: me kaq ajo bie nga 477 te 381, dhe raundet nga 429 te 354 me gjashtë
+  lojtarë. Shkronja, numri dhe çdo cak prekjeje mbeten ato që ishin. Matrica e ka dendësinë e vet
+  (`border-spacing`), prandaj emërtohet veç.
 
   **Kryet nuk guxojnë të thyhen**, dhe kjo u provua: me `white-space: normal` kolona e emrit te
   renditja — e cila e mban `width: 99%` — merr tërë hapësirën e lirë dhe kolonat e tjera bien te
@@ -1681,6 +1694,20 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   Me deri në shtatë lojtarë asnjë tabelë nuk rrëshqet; me tetë rrëshqet vetëm matrica, brenda
   kartelës së vet dhe me emrin e rreshtit të ngjitur — ajo është nëntë kolona numrash me tri shifra,
   dhe rrëshqet edhe te telefoni.
+
+  **Te telefoni i njëjti shtrëngim shkon një hap më tej, dhe ai hap bën dy gjëra.** Nën 48rem ajri
+  anash i qelizave bie te 0.25rem, dhe me kaq:
+
+  - **tabelat hyjnë të tëra te ekrani.** Me gjashtë lojtarë tabela e raundeve kërkonte 429 dhe
+    rrëshqiste 73 piksela anash — pra kolona e fundit dhe butonat e redaktimit rrinin jashtë ekranit
+    — kurse matrica kërkonte 366. Tani kërkojnë 354 e 344, dhe te një telefon prej 390 pikselash
+    (356 përmbajtje) një mbrëmje me gjashtë veta lexohet **pa asnjë rrëshqitje anash**. Me shtatë a
+    tetë rrëshqasin sërish, si më parë e më pak;
+  - **tabela e bashkuar hyn edhe atje**, prandaj pragu i bashkimit ra te 24rem (më lart).
+
+  Bashkë me ajrin mes rreshtave, faqja e telefonit (390×844, gjashtë lojtarë e nëntë raunde) bie nga
+  **2834 piksela te 2451**, dhe me tetë nga 3105 te 2635. Te telefonat nën 384px (375, 360) mbeten dy
+  seksione, por tabelat shtrëngohen edhe atje: rrëshqitja bie nga 103 piksela te 28.
 
   Faqja te 900×1440 bie te **1440 piksela — një ekran i vetëm, pa asnjë rrëshqitje** — me pesë,
   gjashtë e shtatë lojtarë (nga 2145, 2309 e 2390), dhe te 1485 me tetë (nga 2472). Te 864, dyshemeja
