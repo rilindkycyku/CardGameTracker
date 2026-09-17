@@ -1459,7 +1459,9 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   panelat që preken një herë a asnjë (`.loja__panelat` — lojtarët, ndarja, rregullat, kufiri,
   mbyllja). Ndërron vetëm sa prej tyre hyn në ekran njëherësh: mbi 48rem panelat dalin dy për rresht,
   mbi 62rem kartela dhe renditja rrinë krah për krah, dhe mbi 90rem vetë shtylla e rezultatit ndahet
-  në dy — renditja majtas, raundet djathtas, shlyerja poshtë sa të dyja.
+  në dy — renditja majtas, raundet djathtas, shlyerja poshtë sa të dyja. Tableta e mbajtur përpjetë
+  e ka brezin e vet mes dy të parave (54rem deri 62rem, vetëm në portret): panelat rrinë krah
+  renditjes, dhe raundet krah shlyerjes sa kohë ato dyja hyjnë — hollësitë te sistemi vizual.
 
   **Mbi 62rem shtylla e rezultatit nuk rri më bllok: pjesët e saj hyjnë vetë te rrjeti i faqes**
   (`.loja__rezultatet { display: contents }`), dhe raundet zbresin te shtylla e majtë, nën panelat.
@@ -1583,7 +1585,12 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   fleta vetëm-lexim — dhe djathtas (`.shtyllat__anesore`) çka preket a lexohet një herë: bashkimi me
   kod, kopja rezervë, sinkronizimi, përgjithshmet, lojtarët e grupit, fshirja, parashikimi, matrica.
   Mbi 62rem dalin dy shtylla, nën të mbetet një, dhe radha e HTML-së është radha e leximit në të dy
-  rastet — ndarja është bërë pikërisht aty ku ajo radhë nuk prishet. Shtylla anësore mund të mbetet
+  rastet — ndarja është bërë pikërisht aty ku ajo radhë nuk prishet. **Tableta në portret e merr atë
+  ndarje nga 54rem**, sepse atje faqja e ka tërë gjerësinë: me një kolonë të vetme renditja e fletës
+  së mbyllur shtrihej sa 876 piksela për 280 që kërkon, kurse matrica — 366 — rrinte një ekran
+  poshtë. Me dy shtylla (443 + 398) fleta e mbyllur, ballina dhe ekrani i grupit hyjnë të tëra te një
+  ekran prej 1440 pikselash. Çmimi është ai i njohur: me tetë lojtarë matrica rrëshqet brenda
+  kartelës së vet, njësoj si te ekrani i gjerë. Shtylla anësore mund të mbetet
   e zbrazët (pishpiriku nuk shlyhet e nuk parashikohet), prandaj një rregull me `:has` e kthen
   rrjetin te një kolonë e vetme në vend që të lërë gjysmën e ekranit bosh.
 
@@ -1605,9 +1612,14 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   çdo gjë që faqja nuk e përdor lexohet si ekran i shpenzuar. Numri rri te një vend i vetëm — nëse
   duhet më shumë ajër a më pak, ndërrohet ai token e jo rregulli. Tri gjëra rrinë me të:
 
-  - **Portreti nuk preket fare.** Atje kolona është një, dhe një kartelë buzë më buzë me ekranin nuk
-    ka ku të marrë frymë. Kjo është zgjedhje e pronarit e jo rrjedhojë e kodit — mos e ndërro pa e
-    pyetur, në asnjërin drejtim.
+  - **Tableta në portret e merr të njëjtin rregull; telefoni jo** — edhe kjo me kërkesë të shprehur
+    të pronarit, dhe pas saj pyetja rri e mbyllur për të dyja anët. E njëjta pyetje mediash e mban
+    tani edhe `screen and (orientation: portrait) and (min-width: 54rem)`, sepse tavolina luhet edhe
+    me tabletin e mbajtur përpjetë: atje faqja rrinte 864 piksela mbi një ekran prej 900, pra
+    tabelat shtriheshin kot kurse ekrani rrinte i papërdorur. **Nën 54rem — pra telefoni në portret
+    — nuk preket asnjë piksel:** atje kolona është një, dhe një kartelë buzë më buzë me ekranin nuk
+    ka ku të marrë frymë. Të dyja janë zgjedhje e pronarit e jo rrjedhojë e kodit — mos e ndërro
+    asnjërën pa e pyetur, në asnjërin drejtim.
   - **`env(safe-area-inset-*)` mbetet, me `max()`.** Te tableta ato vlera janë zero, pra vlen
     `--ajri-anash` i plotë. Aty ku nuk janë — telefoni me prerje i kthyer anash, qoshet e
     rrumbullakosura, shiriti i sistemit te aplikacioni i instaluar — ato marrin përsipër, sepse atje
@@ -1636,9 +1648,40 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   121 te portreti. Bashkë me të gjitha, mbrëmja me gjashtë lojtarë te 1024×768 bie nga **2129
   piksela te 1451** — pra nga tri ekrane te pak më shumë se një.
 
-  **Portreti mbetet i paprekur nga rregullat e peizazhit**, fjalë për fjalë: kreu i telefonit rri
-  132 piksela para e pas. Atje kolona është një dhe ajri është e vetmja ndarje që ka — kjo është
-  zgjedhje e pronarit (më lart), e jo rrjedhojë e kodit.
+  **Telefoni në portret mbetet i paprekur nga këto rregulla**, fjalë për fjalë: kreu rri 132 piksela
+  para e pas, dhe faqja te 390×844 me gjashtë lojtarë rri 2834 piksela para e pas. Atje kolona është
+  një dhe ajri është e vetmja ndarje që ka — kjo është zgjedhje e pronarit (më lart), e jo rrjedhojë
+  e kodit. Ato që i marrin i merr vetëm tableta, nga 54rem e tutje.
+
+  **Te tableta në portret dy ndarje e mbushin gjerësinë që u lirua** (`(min-width: 54rem) and
+  (width < 62rem)`, pra brezi mes telefonit dhe ndarjes së vjetër të 62rem-it). Numrat u matën te
+  Galaxy Tab A9+ i mbajtur përpjetë — 900×1440 — ku me gjashtë lojtarë renditja kërkon 477 piksela,
+  raundet 429, shlyerja 366 dhe një panel 288, kurse secili bllok zinte 814:
+
+  - **Renditja krah panelave** (480 + 288 + 35 = 803). Ajo shumë hyn edhe me tetë lojtarë, sepse
+    renditja e ka kryen të gjerë e nuk kalon 480 sado veta të jenë. Panelat bien te një kolonë e
+    vetme — 18rem mbetet gjerësia nën të cilën kreu i tyre thyhet — dhe rrinë brenda lartësisë së
+    renditjes në vend që të zënë një rresht të vetin.
+  - **Raundet krah shlyerjes**, te një mbështjellëse e re (`.loja__poshtme` te `Loja`), e cila kudo
+    tjetër rri `display: contents` — pra telefoni, peizazhi dhe ekrani i gjerë nuk e shohin fare.
+    Ekziston sepse kolonat e një rrjeti janë të njëjtat për çdo rresht, dhe këto dy ndarje duan
+    përmasa të ndryshme. Vendimin e merr përmbajtja e jo një numër i shkruar me dorë: `flex-wrap` i
+    mban krah për krah sa kohë hyjnë (429 + 366 + 35 = 830 me gjashtë), dhe me shtatë a tetë lojtarë
+    (471 + 446, pastaj 512 + 520) i zbret njëra nën tjetrën, pikërisht si më parë. Shlyerja nuk
+    zgjerohet (`flex-grow: 0`), sepse ajo është rrjet numrash që e ndan vetë përmbajtja.
+
+  Që ajo mbështjellje të vendoset nga numrat e jo nga fjalët, legjenda e matricës merr
+  `contain: inline-size`: e pathyer ajo zë 436 piksela — më shumë se vetë matrica me gjashtë veta —
+  dhe pa atë rresht një fjali e vogël nën tabelë e zbriste tabelën e raundeve një rresht më poshtë.
+  Vizatohet pikërisht si më parë; thjesht nuk e vendos më vetë gjerësinë.
+
+  Futja mbetet sa tërë gjerësia dhe e para e faqes: ajo kartelë mban butonin që shtypet dhjetëra
+  herë në mbrëmje (pika 3), dhe te magareci mban emrat e tavolinës një për buton.
+
+  Faqja te 900×1440 bie nga **2309 piksela te 1626** me gjashtë lojtarë e nëntë raunde, dhe nga 2145
+  te 1477 me pesë; me tetë, ku dy tabelat e fundit nuk hyjnë më krah për krah, nga 2472 te 2136. Te
+  domina me gjashtë veta e tërë mbrëmja bie te **1440** — pikërisht një ekran. Mos i ndërro këta
+  numra pa i rimatur.
 - **Shtegu i kthimit rri te vetë kreu, e jo mbi të** (`MbiTitullin` te `pjeset/Kreu.tsx`). Ishin dy
   rreshta që thoshin të njëjtën gjë: një shteg «‹ Shoqëria», dhe menjëherë poshtë tij etiketa
   «SHOQËRIA» mbi titull — te ekrani i lojës fjalë për fjalë i njëjti emër grupi dy herë, dhe te
