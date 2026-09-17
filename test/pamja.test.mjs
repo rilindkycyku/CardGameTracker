@@ -1,12 +1,21 @@
 /**
- * Prova e pikës ku tabelat bashkohen.
+ * Prova e pikës ku renditja dhe parashikimi bashkohen te një tabelë.
  *
  * `pamja.ts` njeh `matchMedia`-n, prandaj vetë leximi provohet me shfletues.
- * Ajo që provohet këtu është pyetja: ajo duhet të jetë e njëjta pikë ku faqja
- * hapet dhe panelat dalin dy për rresht. Nëse dikush e ndërron njërën pa
- * tjetrën, tabela e bashkuar del te një gjerësi për të cilën faqja nuk është
- * hapur ende — pesë kolona brenda 47rem, pra emra të prerë ose një rrëshqitje
- * anash pikërisht te tabela që lexohet pas çdo raundi.
+ * Ajo që provohet këtu është pyetja, dhe kushti mbi të cilin ajo qëndron.
+ *
+ * Deri para pak ai kusht ishte hapja e faqes: tabela e bashkuar ka pesë kolona,
+ * kërkonte 477 piksela, dhe telefoni jep 356 — pra bashkimi duhej të priste
+ * 48rem-in, ku faqja hapet dhe panelat dalin dy për rresht. Tani tabelat e
+ * ekranit të lojës shtrëngohen nën 62rem, dhe nën 48rem edhe një hap më tej,
+ * pra e njëjta tabelë kërkon 349 dhe hyn edhe te telefoni — ku kursen 361
+ * piksela lartësi, sepse renditja dhe parashikimi ishin e njëjta listë
+ * lojtarësh e shkruar dy herë.
+ *
+ * Prandaj prova e dytë nuk pyet më «a ka hapur faqja?», por «mbi çka qëndron
+ * ky prag?»: nëse bashkimi vjen para hapjes, shtrëngimi që e bën të mundur
+ * duhet të jetë aty. Nëse dikush e heq atë rresht CSS-i, kjo bie — përndryshe
+ * tabela që lexohet pas çdo raundi (pika 3) do të rrëshqiste anash në heshtje.
  */
 
 import { readFileSync } from 'node:fs';
@@ -17,26 +26,35 @@ import { PYETJA_E_GJERE } from '../src/pamja.ts';
 
 const css = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8');
 
-test('pyetja e ekranit të gjerë është një pikë e vërtetë e CSS-it', () => {
+const pragu = Number(PYETJA_E_GJERE.match(/(\d+(?:\.\d+)?)rem/)[1]);
+
+test('pyetja e ekranit të gjerë është pyetje mediash e vlefshme', () => {
   assert.match(PYETJA_E_GJERE, /^\(min-width: \d+(\.\d+)?rem\)$/);
-  assert.ok(
-    css.includes(`@media ${PYETJA_E_GJERE}`),
-    `${PYETJA_E_GJERE} nuk gjendet te style.css`,
-  );
 });
 
-test('tabela bashkohet vetëm pasi faqja të jetë hapur', () => {
-  /*
-   * `.faqja--gjere` e ngre faqen nga 47rem sapo ekrani kalon një pikë. Tabela e
-   * bashkuar duhet të presë atë pikë e jo të vijë para saj, sepse gjerësinë e
-   * pesë kolonave e jep faqja e jo ekrani.
-   */
-  const pikat = [...css.matchAll(/@media \(min-width: (\d+(?:\.\d+)?)rem\)/g)]
-    .map((p) => Number(p[1]));
-  const kur = Number(PYETJA_E_GJERE.match(/(\d+(?:\.\d+)?)rem/)[1]);
+test('bashkimi qëndron mbi shtrëngimin e tabelave', () => {
+  if (pragu >= 48) {
+    /*
+     * Bashkimi pret hapjen e faqes, si më parë — dhe atëherë ai prag duhet të
+     * jetë pikë e vërtetë e CSS-it, e jo numër i shpikur.
+     */
+    assert.ok(
+      css.includes(`@media ${PYETJA_E_GJERE}`),
+      `${PYETJA_E_GJERE} nuk gjendet te style.css`,
+    );
+    return;
+  }
 
-  assert.ok(pikat.length > 0);
-  assert.equal(kur, Math.min(...pikat), 'bashkimi nis te pika e parë e faqes');
+  /*
+   * Bashkimi vjen para hapjes, pra qëndron mbi shtrëngimin e telefonit: ajri
+   * anash i qelizave te 0.25rem, pikërisht ai që e ul tabelën nga 477 te 349.
+   */
+  const fillimi = css.indexOf('@media (width < 48rem)');
+  assert.ok(fillimi > -1, 'mungon shtrëngimi i tabelave nën 48rem');
+
+  const blloku = css.slice(fillimi, css.indexOf('\n}', fillimi));
+  assert.match(blloku, /\.loja__pune \.tabela:not\(\.matrica\)/);
+  assert.match(blloku, /padding-inline: 0\.25rem/);
 });
 
 test('pamja.ts nuk njeh as bazën, as React-in', () => {
