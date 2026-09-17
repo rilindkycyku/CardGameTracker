@@ -780,18 +780,6 @@ export function Loja({ id }: { id: number }) {
    * nuk i njeh, dhe `nth-child` do të numëronte gabim sapo parashikimi të mos
    * vizatohet, shlyerja të mos vlejë, ose lloji të jetë magarec — prandaj edhe
    * gjendja «ende asnjë raund» e ka mbështjellësen e vet.
-   *
-   * Dy të fundmet — raundet dhe shlyerja — rrinë bashkë te `.loja__poshtme`,
-   * dhe ajo mbështjellëse ekziston për një gjerësi të vetme: tableta e mbajtur
-   * në portret. Atje ato dyja hyjnë krah për krah (429 + 366 piksela me gjashtë
-   * lojtarë), kurse renditja krah panelave do të donte një ndarje krejt tjetër
-   * kolonash — dhe një rrjet i vetëm nuk i mban dot të dyja ndarjet, sepse
-   * kolonat e tij janë të njëjtat për çdo rresht. Me shtatë a tetë lojtarë ato
-   * nuk hyjnë më, dhe atëherë `flex-wrap` i zbret vetë njëra nën tjetrën — pra
-   * vendimin e merr përmbajtja e jo një numër i shkruar me dorë.
-   *
-   * Kudo tjetër mbetet `display: contents`, prandaj asnjë vendosje e shkruar
-   * për telefonin a për peizazhin nuk e sheh fare.
    */
   const rezultatet = magarec ? (
     <>
@@ -812,25 +800,23 @@ export function Loja({ id }: { id: number }) {
         )}
       </div>
 
-      <div className="loja__poshtme">
-        <div className="loja__bllok loja__bllok--raundet">
-          {raundet.length === 0 ? (
-            <div className="zbrazet">
-              <p className="zbrazet__titull">Ende asnjë raund</p>
-              <p>
-                Prek atë që e humbi raundin e parë. Shkronjat dalin vetë, një
-                për raund, derisa dikujt t'i mbushet fjala.
-              </p>
-            </div>
-          ) : (
-            <RaundetEMagarecit
-              raundet={raundetMeShkronja}
-              dukeRedaktuar={dukeRedaktuar}
-              onRedakto={redakto}
-              onFshi={fshi}
-            />
-          )}
-        </div>
+      <div className="loja__bllok loja__bllok--raundet">
+        {raundet.length === 0 ? (
+          <div className="zbrazet">
+            <p className="zbrazet__titull">Ende asnjë raund</p>
+            <p>
+              Prek atë që e humbi raundin e parë. Shkronjat dalin vetë, një
+              për raund, derisa dikujt t'i mbushet fjala.
+            </p>
+          </div>
+        ) : (
+          <RaundetEMagarecit
+            raundet={raundetMeShkronja}
+            dukeRedaktuar={dukeRedaktuar}
+            onRedakto={redakto}
+            onFshi={fshi}
+          />
+        )}
       </div>
     </>
   ) : raundet.length === 0 ? (
@@ -871,29 +857,27 @@ export function Loja({ id }: { id: number }) {
         )}
       </div>
 
-      <div className="loja__poshtme">
-        <div className="loja__bllok loja__bllok--raundet">
-          <Raundet
-            players={players}
-            raundet={raundet}
-            totalet={totalat}
-            dukeRedaktuar={dukeRedaktuar}
-            onRedakto={redakto}
-            onFshi={fshi}
-          />
-        </div>
-
-        {/*
-          Shlyerja vlen aty ku diferenca paguhet — bridzh e domina. Te
-          pishpiriku pikët mblidhen drejt 101-shit e nuk janë borxh, prandaj
-          matrica nuk vizatohet fare, si te magareci.
-        */}
-        {rregulli.shlyerja && (
-          <div className="loja__bllok loja__bllok--shlyerja">
-            <Shlyerja players={rendituar} matrica={matrica} />
-          </div>
-        )}
+      <div className="loja__bllok loja__bllok--raundet">
+        <Raundet
+          players={players}
+          raundet={raundet}
+          totalet={totalat}
+          dukeRedaktuar={dukeRedaktuar}
+          onRedakto={redakto}
+          onFshi={fshi}
+        />
       </div>
+
+      {/*
+        Shlyerja vlen aty ku diferenca paguhet — bridzh e domina. Te
+        pishpiriku pikët mblidhen drejt 101-shit e nuk janë borxh, prandaj
+        matrica nuk vizatohet fare, si te magareci.
+      */}
+      {rregulli.shlyerja && (
+        <div className="loja__bllok loja__bllok--shlyerja">
+          <Shlyerja players={rendituar} matrica={matrica} />
+        </div>
+      )}
     </>
   );
 

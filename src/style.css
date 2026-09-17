@@ -343,21 +343,6 @@ h3 {
   align-content: start;
 }
 
-/*
- * Raundet dhe shlyerja, të mbledhura te një mbështjellëse që kudo rri e
- * padukshme.
- *
- * `display: contents` do të thotë se as telefoni, as peizazhi dhe as ekrani
- * shumë i gjerë nuk e shohin fare: ato dy blloqe vendosen secili vetë te rrjeti
- * i faqes, pikërisht si më parë. Ekziston për një gjerësi të vetme — tableta e
- * mbajtur në portret — ku ato dyja hyjnë krah për krah kurse renditja krah
- * panelave kërkon një ndarje tjetër kolonash. Kolonat e një rrjeti janë të
- * njëjtat për çdo rresht, prandaj dy ndarje duan dy rrjete.
- */
-.loja__poshtme {
-  display: contents;
-}
-
 /**
  * Dy panela për rresht sapo ka gjerësi për to.
  *
@@ -553,7 +538,6 @@ h3 {
   .faqja,
   .loja__pune,
   .loja__panelat,
-  .loja__poshtme,
   .loja__rezultatet,
   .shtyllat,
   .shtyllat__kryesore,
@@ -598,55 +582,85 @@ h3 {
 }
 
 /**
- * Tableta në portret: panelat krah renditjes, dhe dy tabelat e fundit krah
- * njëra-tjetrës.
+ * Tableta në portret: katër blloqe te dy shtylla, dhe tabelat shtrëngohen që
+ * dy prej tyre të hyjnë krah për krah.
  *
  * E njëjta kërkesë si te peizazhi, te forma tjetër e së njëjtës tavolinë: e
  * tërë mbrëmja të hyjë me sa më pak rrëshqitje. Numrat u matën te Galaxy Tab
- * A9+ i mbajtur në portret — 900×1440 piksela CSS — dhe atje faqja ishte 2309
- * piksela e gjatë me gjashtë lojtarë e nëntë raunde, pra pak a shumë një ekran
- * e gjysmë.
+ * A9+ i mbajtur përpjetë — 900×1440 piksela CSS — ku faqja ishte 2309 piksela e
+ * gjatë me gjashtë lojtarë e nëntë raunde, pra një ekran e gjysmë, dhe çdo
+ * bllok zinte tërë rreshtin e vet edhe kur kërkonte gjysmën.
  *
- * Ajo lartësi nuk vinte nga përmbajtja, vinte nga gjerësia e papërdorur: çdo
- * bllok zinte tërë rreshtin e vet edhe kur kërkonte gjysmën. Me gjashtë lojtarë
- * renditja kërkon 477 piksela, raundet 429, shlyerja 366 dhe një panel 288 —
- * pra dy prej tyre hyjnë krah për krah te 876-a që jep faqja pa kufi, kurse
- * kolonat e tyre shtriheshin kot te 814.
+ * Me faqen pa kufi mbeten 876 piksela, pra dy shtylla me hapësirën mes tyre.
+ * Aty nuk hynin dot dy tabela: renditja kërkonte 477 dhe raundet 429. Prandaj
+ * te ky brez — dhe vetëm te ky — tabelat shtrëngohen, dhe ulet vetëm ajri:
+ * shkronja, numri dhe çdo gjë që preket mbeten ato që ishin.
  *
- * Prandaj këtu rrinë dy ndarje, dhe secila është ajo që hyn:
+ *   • **Ajri anash i qelizave** bie te 0.45rem, dhe te raundet te 0.3rem —
+ *     atje kolonat janë shumë dhe secila kursen dy herë. Renditja bie nga 477
+ *     te 405, raundet nga 429 te 366 me gjashtë lojtarë.
+ *   • **Hapësira mes shkronjave te kryet** bie nga 0.12em te 0.06em. Kryet e
+ *     renditjes janë fjalë e jo shkurtesa («MUND TË DALË», «DERI TE I PARI»),
+ *     dhe vetëm ato e mbajnë atë tabelë të gjerë: me kaq ajo bie te 381, pra
+ *     hyn te shtylla prej 390 me kryet e plota, pa u thyer asnjë.
  *
- *   • **renditja krah panelave** — 480 + 288 + 35 = 803, pra hyn edhe me tetë
- *     lojtarë (renditja e ka kryen të gjerë dhe nuk kalon 480 sado veta të
- *     jenë). Panelat bien te një kolonë e vetme: 18rem është gjerësia nën të
- *     cilën kreu i tyre nis të thyhet, dhe me të ata rrinë brenda lartësisë së
- *     renditjes në vend që të zënë një rresht të vetin.
- *   • **raundet krah shlyerjes** — 429 + 366 + 35 = 830 me gjashtë lojtarë,
- *     dhe këtu vendos përmbajtja e jo një numër i shkruar me dorë: `flex-wrap`
- *     i mban krah për krah sa kohë hyjnë, dhe me shtatë a tetë lojtarë (471 +
- *     446, pastaj 512 + 520) i zbret njëra nën tjetrën, pikërisht si më parë.
- *     Shlyerja nuk zgjerohet (`flex-grow: 0`) — ajo është rrjet numrash që e
- *     ndan vetë përmbajtja (shih `.tabela-mbeshtjellese:has(> .matrica)`) —
- *     prandaj çka tepron i shkon tabelës së raundeve.
+ * Shtyllat nuk janë të barabarta, dhe raporti u mat: e majta merr 24.5rem (390
+ * piksela) sepse renditja kërkon 381 sado lojtarë të jenë — kryet e saj e
+ * vendosin gjerësinë, jo numrat — kurse e djathta merr çka mbetet (447) sepse
+ * atje rrinë të dyja tabelat që rriten me lojtarët: raundet (366 me gjashtë,
+ * 401 me shtatë, 437 me tetë) dhe matrica (366, 446, 520).
  *
- * Futja mbetet sa tërë gjerësia, e para e faqes: ajo kartelë mban një buton të
- * vetëm që shtypet dhjetëra herë në mbrëmje (pika 3), dhe te magareci mban
- * emrat e tavolinës një për buton. Një kolonë e ngushtë do t'i hiqte pikërisht
- * asaj.
+ * Prandaj majtas rrinë renditja dhe panelat, djathtas raundet dhe shlyerja. Me
+ * deri në shtatë lojtarë asnjë tabelë nuk rrëshqet; me tetë rrëshqet vetëm
+ * matrica, brenda kartelës së vet dhe me emrin e rreshtit të ngjitur — ajo është
+ * 9 kolona numrash me tri shifra, dhe rrëshqet edhe te telefoni.
+ *
+ * Futja mbetet sa tërë gjerësia, e para e faqes: ajo kartelë mban butonin që
+ * shtypet dhjetëra herë në mbrëmje (pika 3), dhe te magareci mban emrat e
+ * tavolinës një për buton. Një kolonë e ngushtë do t'i hiqte pikërisht asaj.
  *
  * Kufiri i sipërm është 62rem sepse mbi të vlen ndarja e vjetër — futja majtas,
- * rezultati djathtas — dhe ajo është e matur për ekrane më të gjera. Ky rregull
- * mbush vetëm brezin mes tyre: tableta në portret, dhe asgjë tjetër.
+ * rezultati djathtas — e matur për ekrane më të gjera. Ky rregull mbush vetëm
+ * brezin mes telefonit dhe asaj: tabletën në portret, dhe asgjë tjetër.
  *
- * Faqja te 900×1440 bie nga 2309 piksela te 1626 me gjashtë lojtarë e nëntë
- * raunde, dhe nga 2145 te 1477 me pesë. Me tetë lojtarë dy tabelat e fundit nuk
- * hyjnë më krah për krah, pra fitohet vetëm rreshti i panelave dhe ajri: 2472 →
- * 2136. Te domina me gjashtë veta e tërë mbrëmja bie te 1440 — pikërisht një
- * ekran. Mos i ndërro këta numra pa i rimatur.
+ * Faqja te 900×1440 bie te **1440 piksela — pra një ekran i vetëm, pa asnjë
+ * rrëshqitje** — me pesë, gjashtë e shtatë lojtarë (nga 2145, 2309 e 2390), dhe
+ * te 1485 me tetë (nga 2472). Te 864, dyshemeja e brezit, me gjashtë lojtarë
+ * numri mbetet 1440; me tetë del 1512, dhe atje rrëshqasin të dyja tabelat e
+ * djathta. Mos i ndërro këta numra pa i rimatur.
  */
 @media screen and (orientation: portrait) and (min-width: 54rem) and
   (width < 62rem) {
+  .loja__pune .tabela:not(.matrica) th,
+  .loja__pune .tabela:not(.matrica) td {
+    padding-inline: 0.45rem;
+  }
+
+  /* Të katër selektorët duhen: rregulli i dendësisë (`[data-shume]`, nga pesë
+     lojtarë e tutje) rri më poshtë te skedari me të njëjtën peshë, prandaj pa e
+     emërtuar edhe atë ai do të fitonte me 0.5rem-in e vet. */
+  .loja__pune .tabela--raundet th,
+  .loja__pune .tabela--raundet td,
+  .loja__pune .tabela--raundet[data-shume] th,
+  .loja__pune .tabela--raundet[data-shume] td {
+    padding-inline: 0.3rem;
+  }
+
+  /*
+   * Kryet shtrëngohen, por nuk thyhen.
+   *
+   * `white-space: normal` këtu do të ishte gabim i heshtur: kolona e emrit te
+   * renditja e mban `width: 99%`, pra ajo e merr tërë hapësirën e lirë dhe
+   * kolonat e tjera bien te gjerësia e tyre më e vogël e mundshme — me krye që
+   * thyhen, ajo gjerësi bëhet një fjalë e vetme, dhe «MUND TË DALË» del në tri
+   * rreshta mbi një tabelë që kishte vend për një. U provua, dhe ashtu doli.
+   */
+  .loja__pune .tabela:not(.matrica) th {
+    letter-spacing: 0.06em;
+  }
+
   .loja__pune {
-    grid-template-columns: minmax(0, 1fr) minmax(17rem, 18rem);
+    grid-template-columns: minmax(0, 24.5rem) minmax(0, 1fr);
     align-items: start;
   }
 
@@ -666,59 +680,36 @@ h3 {
     grid-row: 2;
   }
 
-  .loja__panelat {
+  .loja__bllok--raundet {
     grid-column: 2;
     grid-row: 2;
+  }
+
+  /* Shlyerja rri te shtylla e gjerë me matricën e saj; panelat, që preken një
+     herë a asnjë, marrin atë të ngushtën nën renditje. */
+  .loja__bllok--shlyerja {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .loja__panelat {
+    grid-column: 1;
+    grid-row: 3;
     grid-template-columns: minmax(0, 1fr);
     align-items: start;
   }
 
-  /*
-   * Rreshti i fundit: dy tabela sa kohë hyjnë, dhe një nën tjetrën kur jo.
-   *
-   * `row-gap`-in e mban rregulli i mësipërm (1.35rem, i njëjti si te peizazhi),
-   * prandaj këtu vihet vetëm hapësira mes shtyllave — ajo i ndan dy tabela dhe
-   * mbetet e plotë.
-   */
-  .loja__poshtme {
+  /* Pa shlyerje — magareci dhe pishpiriku — rreshti i fundit u mbetet i tëri
+     panelave, dhe atëherë ata kthehen dy për rresht si te çdo ekran i hapur. */
+  .loja__pune:not(:has(.loja__bllok--shlyerja)) .loja__panelat {
     grid-column: 1 / -1;
-    grid-row: 3;
-    display: flex;
-    flex-wrap: wrap;
-    column-gap: var(--rreshtimi);
-    align-items: start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .loja__poshtme > .loja__bllok {
-    /* Pa këtë, gjerësia më e vogël e mundshme e një njësie flex është ajo e
-       përmbajtjes së saj — pra tabela do ta shtynte rreshtin në vend që të
-       rrëshqiste brenda mbështjellëses së vet. */
-    min-width: 0;
-  }
-
-  .loja__poshtme > .loja__bllok--raundet {
-    flex: 1 1 auto;
-  }
-
-  .loja__poshtme > .loja__bllok--shlyerja {
-    flex: 0 1 auto;
-  }
-
-  /*
-   * Legjenda nuk vendos nëse dy tabelat hyjnë krah për krah — vendos matrica.
-   *
-   * Gjerësia e një njësie flex del nga përmbajtja e saj e pathyer, dhe legjenda
-   * e shlyerjes është një rresht prej dy shënimesh: e pathyer ajo zë 436
-   * piksela, pra më shumë se vetë matrica me gjashtë lojtarë (366). Pa këtë
-   * rresht, ajo fjali e vogël nën tabelë e zbriste tabelën e raundeve një
-   * rresht më poshtë — pra vendimin e merrte teksti e jo numrat.
-   *
-   * `contain: inline-size` do të thotë «matu sikur të ishe e zbrazët»: legjenda
-   * vazhdon të vizatohet pikërisht si më parë brenda gjerësisë që del, thjesht
-   * nuk e vendos më atë gjerësi vetë.
-   */
-  .loja__poshtme .legjenda {
-    contain: inline-size;
+  /* Mbrëmja pa asnjë raund ende: atëherë djathtas nuk ka çka të vijë, prandaj
+     fjalia «ende asnjë raund» e merr rreshtin e tërë e nuk rri gjysmë faqeje. */
+  .loja__pune:not(:has(.loja__bllok--raundet)) .loja__bllok--renditja {
+    grid-column: 1 / -1;
   }
 }
 

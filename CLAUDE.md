@@ -1460,8 +1460,9 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   mbyllja). Ndërron vetëm sa prej tyre hyn në ekran njëherësh: mbi 48rem panelat dalin dy për rresht,
   mbi 62rem kartela dhe renditja rrinë krah për krah, dhe mbi 90rem vetë shtylla e rezultatit ndahet
   në dy — renditja majtas, raundet djathtas, shlyerja poshtë sa të dyja. Tableta e mbajtur përpjetë
-  e ka brezin e vet mes dy të parave (54rem deri 62rem, vetëm në portret): panelat rrinë krah
-  renditjes, dhe raundet krah shlyerjes sa kohë ato dyja hyjnë — hollësitë te sistemi vizual.
+  e ka brezin e vet mes dy të parave (54rem deri 62rem, vetëm në portret): dy shtylla me nga dy
+  blloqe — renditja e panelat majtas, raundet e shlyerja djathtas — dhe tabelat shtrëngohen aq sa
+  dy prej tyre të hyjnë krah për krah. Hollësitë te sistemi vizual.
 
   **Mbi 62rem shtylla e rezultatit nuk rri më bllok: pjesët e saj hyjnë vetë te rrjeti i faqes**
   (`.loja__rezultatet { display: contents }`), dhe raundet zbresin te shtylla e majtë, nën panelat.
@@ -1653,35 +1654,39 @@ kërkesë të pronarit**, prandaj të dy projektet nuk duken më si i njëjti do
   një dhe ajri është e vetmja ndarje që ka — kjo është zgjedhje e pronarit (më lart), e jo rrjedhojë
   e kodit. Ato që i marrin i merr vetëm tableta, nga 54rem e tutje.
 
-  **Te tableta në portret dy ndarje e mbushin gjerësinë që u lirua** (`(min-width: 54rem) and
-  (width < 62rem)`, pra brezi mes telefonit dhe ndarjes së vjetër të 62rem-it). Numrat u matën te
-  Galaxy Tab A9+ i mbajtur përpjetë — 900×1440 — ku me gjashtë lojtarë renditja kërkon 477 piksela,
-  raundet 429, shlyerja 366 dhe një panel 288, kurse secili bllok zinte 814:
+  **Te tableta në portret faqja bëhet dy shtylla, dhe tabelat shtrëngohen aq sa të hyjnë**
+  (`(min-width: 54rem) and (width < 62rem)`, pra brezi mes telefonit dhe ndarjes së vjetër të
+  62rem-it). Numrat u matën te Galaxy Tab A9+ i mbajtur përpjetë — 900×1440 — ku faqja jep 876
+  piksela: dy tabela nuk hynin dot aty, sepse renditja kërkonte 477 e raundet 429.
 
-  - **Renditja krah panelave** (480 + 288 + 35 = 803). Ajo shumë hyn edhe me tetë lojtarë, sepse
-    renditja e ka kryen të gjerë e nuk kalon 480 sado veta të jenë. Panelat bien te një kolonë e
-    vetme — 18rem mbetet gjerësia nën të cilën kreu i tyre thyhet — dhe rrinë brenda lartësisë së
-    renditjes në vend që të zënë një rresht të vetin.
-  - **Raundet krah shlyerjes**, te një mbështjellëse e re (`.loja__poshtme` te `Loja`), e cila kudo
-    tjetër rri `display: contents` — pra telefoni, peizazhi dhe ekrani i gjerë nuk e shohin fare.
-    Ekziston sepse kolonat e një rrjeti janë të njëjtat për çdo rresht, dhe këto dy ndarje duan
-    përmasa të ndryshme. Vendimin e merr përmbajtja e jo një numër i shkruar me dorë: `flex-wrap` i
-    mban krah për krah sa kohë hyjnë (429 + 366 + 35 = 830 me gjashtë), dhe me shtatë a tetë lojtarë
-    (471 + 446, pastaj 512 + 520) i zbret njëra nën tjetrën, pikërisht si më parë. Shlyerja nuk
-    zgjerohet (`flex-grow: 0`), sepse ajo është rrjet numrash që e ndan vetë përmbajtja.
+  **Shtrëngimi prek vetëm ajrin, kurrë atë që lexohet a preket.** Ajri anash i qelizave bie te
+  0.45rem (te raundet 0.3rem, ku kolonat janë shumë dhe secila kursen dy herë), dhe hapësira mes
+  shkronjave te kryet nga 0.12em te 0.06em. Kryet e renditjes janë fjalë e jo shkurtesa — «MUND TË
+  DALË», «DERI TE I PARI» — dhe pikërisht ato e mbanin atë tabelë të gjerë: me kaq ajo bie nga 477
+  te 381, dhe raundet nga 429 te 366 me gjashtë lojtarë. Shkronja, numri dhe çdo cak prekjeje
+  mbeten ato që ishin. Matrica rri jashtë të dyjave: ajo i ka rregullat e veta të dendësisë.
 
-  Që ajo mbështjellje të vendoset nga numrat e jo nga fjalët, legjenda e matricës merr
-  `contain: inline-size`: e pathyer ajo zë 436 piksela — më shumë se vetë matrica me gjashtë veta —
-  dhe pa atë rresht një fjali e vogël nën tabelë e zbriste tabelën e raundeve një rresht më poshtë.
-  Vizatohet pikërisht si më parë; thjesht nuk e vendos më vetë gjerësinë.
+  **Kryet nuk guxojnë të thyhen**, dhe kjo u provua: me `white-space: normal` kolona e emrit te
+  renditja — e cila e mban `width: 99%` — merr tërë hapësirën e lirë dhe kolonat e tjera bien te
+  gjerësia e një fjale, pra «MUND TË DALË» del në tri rreshta mbi një tabelë që kishte vend për një.
 
-  Futja mbetet sa tërë gjerësia dhe e para e faqes: ajo kartelë mban butonin që shtypet dhjetëra
-  herë në mbrëmje (pika 3), dhe te magareci mban emrat e tavolinës një për buton.
+  **Shtyllat nuk janë të barabarta, dhe raporti u mat.** E majta merr 24.5rem (390 piksela) sepse
+  renditja kërkon 381 sado lojtarë të jenë — kryet e saj e vendosin gjerësinë, jo numrat — kurse e
+  djathta merr çka mbetet (447), sepse atje rrinë të dyja tabelat që rriten me lojtarët: raundet
+  (366 me gjashtë, 401 me shtatë, 437 me tetë) dhe matrica (366, 446, 520). Prandaj majtas rrinë
+  renditja dhe panelat, djathtas raundet dhe shlyerja; futja mbetet sa tërë gjerësia, e para e faqes
+  (pika 3). Kur shlyerje nuk ka — magareci, pishpiriku — rreshti i fundit u mbetet panelave, dhe ata
+  kthehen dy për rresht; kur raunde ende nuk ka, fjalia «ende asnjë raund» e merr rreshtin e tërë.
 
-  Faqja te 900×1440 bie nga **2309 piksela te 1626** me gjashtë lojtarë e nëntë raunde, dhe nga 2145
-  te 1477 me pesë; me tetë, ku dy tabelat e fundit nuk hyjnë më krah për krah, nga 2472 te 2136. Te
-  domina me gjashtë veta e tërë mbrëmja bie te **1440** — pikërisht një ekran. Mos i ndërro këta
-  numra pa i rimatur.
+  Me deri në shtatë lojtarë asnjë tabelë nuk rrëshqet; me tetë rrëshqet vetëm matrica, brenda
+  kartelës së vet dhe me emrin e rreshtit të ngjitur — ajo është nëntë kolona numrash me tri shifra,
+  dhe rrëshqet edhe te telefoni.
+
+  Faqja te 900×1440 bie te **1440 piksela — një ekran i vetëm, pa asnjë rrëshqitje** — me pesë,
+  gjashtë e shtatë lojtarë (nga 2145, 2309 e 2390), dhe te 1485 me tetë (nga 2472). Te 864, dyshemeja
+  e brezit, me gjashtë lojtarë mbetet 1440; me tetë del 1512, dhe atje rrëshqasin të dyja tabelat e
+  djathta. Mos i ndërro këta numra pa i rimatur.
+
 - **Shtegu i kthimit rri te vetë kreu, e jo mbi të** (`MbiTitullin` te `pjeset/Kreu.tsx`). Ishin dy
   rreshta që thoshin të njëjtën gjë: një shteg «‹ Shoqëria», dhe menjëherë poshtë tij etiketa
   «SHOQËRIA» mbi titull — te ekrani i lojës fjalë për fjalë i njëjti emër grupi dy herë, dhe te
