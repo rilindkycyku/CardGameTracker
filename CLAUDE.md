@@ -1392,6 +1392,36 @@ Numërimi rri te `Kohezgjatja` e jo te `koha.ts`: hapi është një minutë, sep
 dhe një numërues për sekonda do ta ndizte telefonin çdo sekondë për një shifër që nuk ndërron. Ora
 rilexohet edhe te `visibilitychange` — tableta që fjeti mbi tavolinë i ka ndalur kohëmatësit e vet.
 
+### 22. Një mbrëmje e sjellë shtohet; vetëm kopja rezervë zëvendëson
+
+Bridzhi tani luhet edhe te telefoni
+([bridzh-online](https://github.com/rilindkycyku/bridzh-online)), dhe kur mbrëmja
+mbaron atje nxirret si skedar. `sjellja.ts` e lexon, dhe `SillMbremjen` e shkruan
+te grupi — me `shtoLoje` e `shtoRaund`, pra si çdo mbrëmje tjetër.
+
+**Dallimi nga `kopja.ts` është i tëri, dhe nuk guxon të turbullohet.** Kopja
+rezervë e zëvendëson bazën, sepse ajo është e tërë historia; kjo shton një mbrëmje
+të vetme, dhe asnjë natë e shkruar më parë nuk preket. **Mos e kalo kurrë një
+mbrëmje të sjellë nëpër `zevendeso`** — ai skedar do të fshinte një vit histori
+për të shtuar një natë.
+
+Tri gjëra rrinë të shkruara:
+
+- **Lloji nuk hamendësohet.** Skedari e thotë, dhe çka nuk është `bridzh`
+  refuzohet. Një mbrëmje e panjohur e lexuar bridzh do të nxirrte fituesin e
+  gabuar te ajo ku fiton më i madhi (pika 16).
+- **Çka nuk lexohet refuzohet e tëra.** Si te `kopja.ts` dhe si te sinjali: një
+  mbrëmje gjysmake do të shkruhej te historiku pa u vënë re, dhe një raund që
+  mungon nuk duket si gabim — duket si raund që nuk u luajt.
+- **Qeliza që mungon mbetet e ligjshme.** Kush u ul te raundi i pestë nuk ka pikë
+  te të parët, dhe ajo zbrazëti ka kuptimin e vet (pika 5). Ajo që refuzohet është
+  një **emër** që nuk rri te lojtarët e mbrëmjes: ai do të shkruante një kolonë që
+  nuk ekziston.
+
+Emri i formatit dhe numri i versionit rrinë te të dyja anët — `sjellja.ts` këtu,
+`eksporti.ts` atje — si `takimi.ts` krah `api/sinjali.ts`: një anë e vetme që e
+lexon formatin nuk është kontroll fare.
+
 ## Sistemi vizual
 
 Paleta, rrezet, hijet, kartelat dhe tabelat vijnë nga

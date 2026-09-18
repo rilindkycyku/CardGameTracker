@@ -104,6 +104,12 @@ fjalë: renditja, kurora dhe fjalia e fundit e lexojnë drejtimin nga vetë loja
   lexon as shkruan në bazën e tij. Pamja që hapet nis me përmbledhjen — kush
   prin, sa vjen i dyti prapa, sa raunde kanë mbetur dhe kush përzien — dhe ka
   «Unë jam …»: prek emrin tënd, dhe del rreshti yt i matricës, kujt sa i del.
+- **Mbrëmja e luajtur te telefoni** — bridzhi tani luhet edhe drejtpërdrejt mes
+  telefonave, me [bridzh-online](https://github.com/rilindkycyku/bridzh-online), dhe
+  kur mbaron atje nxirret si skedar. Paneli «Sill një mbrëmje» te ekrani i grupit e
+  hap atë skedar dhe i shton raundet e tij te ai grup. **Shton, nuk zëvendëson** —
+  ndryshe nga kopja rezervë, e cila e kthen tërë bazën. Ndarja mbetet ajo që ishte:
+  atje ndahen letrat, këtu numërohen pikët.
 - **Kopje rezervë** — nxjerrja dhe kthimi i tërë historikut si një skedar JSON.
 - **Sinkronizim mes pajisjeve, i zgjedhur** — nëse i do të njëjtat mbrëmje te
   telefoni dhe te tableti, lidh **projektin tënd** Supabase: adresën dhe çelësin

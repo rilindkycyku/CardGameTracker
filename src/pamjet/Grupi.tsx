@@ -32,6 +32,7 @@ import {
 import { emratERinj } from '../fusha.ts';
 import { Ikona } from '../ikonat.tsx';
 import { MbiTitullin } from '../pjeset/Kreu.tsx';
+import { SillMbremjen } from '../pjeset/SillMbremjen.tsx';
 import { useNgarko } from '../ngarko.ts';
 import {
   fshiGrup,
@@ -377,6 +378,8 @@ export function Grupi({ id }: { id: number }) {
           <PergjithshmetEMagarecit rreshtat={magarecat} lojera={saMagareca} />
 
           <section>
+            <SillMbremjen grupi={grupi} onSjelle={rifresko} />
+
             <details
               className="detaje"
               open={hapurLojtaret}
