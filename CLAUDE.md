@@ -1097,6 +1097,17 @@ Serveri i sinjalizimit (pika 20) nuk e prek këtë: atje kalojnë vetëm kredenc
 as një emër i vetëm lojtari nuk hyn dot. Ai është një server që lidh dy telefona; ky do të ishte një
 server që mban një mbrëmje, dhe ata të dy nuk janë e njëjta gjë.
 
+**Projekti mund të mbajë edhe aplikacione të tjera, dhe kjo është me qëllim.** Tavolina i shkruan
+rreshtat vetëm te `tavolina_records`, dhe politika, trigger-i e indeksi e mbajnë emrin e asaj tabele
+— pra një projekt i vetëm mban njëkohësisht edhe `financare_records` e `guestseat_records`, nën një
+llogari të vetme dhe nën të njëjtin rregull RLS. Dy gjëra rrjedhin prej saj dhe nuk guxojnë të
+hiqen: skripti nuk prek kurrë asgjë jashtë tabelës së vet (asnjë `drop` i pakualifikuar, asnjë
+cilësim i tërë projektit veç `grant`-eve të skemës), dhe regjistrimi e thotë adresën e vet me emër
+(`shtegiRegjistrimit` te `projekti.ts`) — sepse **Site URL** është e vetmja gjë e përbashkët e një
+projekti, dhe ajo i takon atij aplikacioni që e zuri i pari. Pa atë `redirect_to`, linku i
+konfirmimit e çon njeriun te aplikacioni tjetër dhe llogaria mbetet e pakonfirmuar pa asnjë shenjë
+se pse.
+
 **Tabelën nuk e krijon dot aplikacioni, dhe kjo nuk është mangësi.** Çelësi publik që rri te
 pajisja arrin **vetëm** te PostgREST-i, i cili shërben rreshta; tabela, politika dhe trigger-i
 kërkojnë SQL, dhe asnjë cilësim i projektit nuk e bën atë çelës të aftë për të — e cila është

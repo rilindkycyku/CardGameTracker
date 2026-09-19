@@ -487,6 +487,23 @@ function Skripti({ url, nga }: { url: string; nga: number }) {
         kontrollon vetë a ekziston.
       </p>
 
+      {/*
+        Një projekt i vetëm mban më shumë se një aplikacion, dhe kjo thuhet
+        pikërisht këtu — te hapi ku njeriu po shikon një skript SQL dhe po
+        pyet se çka do t'i bëjë bazës që e ka. Përgjigjja është: një tabelë të
+        vetën, dhe asgjë tjetër.
+      */}
+      <p className="ndihma">
+        A e mban ky projekt edhe një aplikacion tjetër tëndin? Atëherë s'ka çka
+        të ndahet: Tavolina i shkruan mbrëmjet te tabela e vet
+        (<code>tavolina_records</code>), skripti nuk prek asgjë tjetër që
+        gjendet aty, dhe të gjitha rrinë nën të njëjtën llogari e të njëjtin
+        rregull sigurie. Te <strong>Authentication → URL Configuration</strong>{' '}
+        mos ia prek <strong>Site URL</strong>-në atij aplikacioni — shto adresën
+        e kësaj faqeje te <strong>Redirect URLs</strong>, dhe linkun e
+        konfirmimit Tavolina e kërkon me emër.
+      </p>
+
       {deshtoi && (
         <p className="njoftim njoftim--kujdes">
           <Ikona emri="kujdes" />

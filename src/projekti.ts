@@ -190,3 +190,25 @@ export function mesazhiGabimit(statusi: number, data: Record<string, unknown> | 
 
   return teksti || `Projekti u përgjigj me gabimin ${statusi}.`;
 }
+
+/**
+ * Shtegu i regjistrimit, me adresën e këtij aplikacioni të thënë me emër.
+ *
+ * Një projekt ka një **Site URL** të vetme, dhe atje e dërgon GoTrue-ja linkun
+ * e konfirmimit kur askush nuk thotë ndryshe. Kjo mjafton për një projekt që e
+ * ka vetëm Tavolina, dhe del e gabuar sapo i njëjti projekt mban edhe një
+ * aplikacion tjetër të përdoruesit — atëherë Site URL është adresa e atij
+ * tjetrit, dhe linku i konfirmimit e çon njeriun atje e jo këtu. Ai link hapet
+ * një herë; kush e humb rrugën atje mbetet me një llogari të pakonfirmuar dhe
+ * pa asnjë shenjë se pse.
+ *
+ * Emërtimi i adresës e mbyll atë: Supabase e nderon `redirect_to` kur adresa
+ * rri te lista **Redirect URLs** e projektit, dhe kthehet te Site URL në heshtje
+ * kur nuk rri. Prandaj dërgohet gjithmonë — në rastin më të keq nuk ndërron
+ * asgjë, dhe në më të mirin e bën një projekt të vetëm të mbajë tri
+ * aplikacione.
+ */
+export function shtegiRegjistrimit(origjina: unknown): string {
+  const adresa = String(origjina ?? '').trim();
+  return adresa ? `signup?redirect_to=${encodeURIComponent(adresa)}` : 'signup';
+}

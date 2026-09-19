@@ -18,6 +18,7 @@ import {
   mesazhiGabimit,
   normalizoUrl,
   referencaProjektit,
+  shtegiRegjistrimit,
 } from '../src/projekti.ts';
 
 /** Një JWT i rremë me rolin e dhënë — vetëm `role`-i lexohet, dhe lexohet për
@@ -166,4 +167,21 @@ test('konfigurimi i ri nis i zbrazët', () => {
   assert.match(bosh, /url: '',/);
   assert.match(bosh, /anonKey: '',/);
   assert.match(bosh, /refreshToken: '',/);
+});
+
+test('regjistrimi e thotë adresën e vet, që një projekt të mbajë tri aplikacione', () => {
+  // Pa këtë, linku i konfirmimit shkon te Site URL i projektit — dhe kur ai
+  // projekt mban edhe FinanCarePersonal-in a GuestSeat-in, ajo adresë është e
+  // njërit prej tyre. Njeriu shtyp «Krijo llogari» këtu dhe përfundon te një
+  // aplikacion tjetër, ose te një faqe që nuk e pret.
+  assert.equal(
+    shtegiRegjistrimit('https://tavolina.shembull.com'),
+    'signup?redirect_to=https%3A%2F%2Ftavolina.shembull.com',
+  );
+
+  // Pa adresë nuk shpiket asnjë: atëherë vlen Site URL i projektit, pra
+  // pikërisht sjellja që kishte deri tani.
+  assert.equal(shtegiRegjistrimit(''), 'signup');
+  assert.equal(shtegiRegjistrimit(null), 'signup');
+  assert.equal(shtegiRegjistrimit(undefined), 'signup');
 });
