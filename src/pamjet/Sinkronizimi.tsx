@@ -311,33 +311,21 @@ function Lidhja({ konfiguruar }: { konfiguruar: boolean }) {
         )}
       </div>
 
-      <details className="detaje">
-        <summary className="detaje__krye">
-          <span>Si ngrihet një projekt</span>
-          <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
-        </summary>
-        <div className="detaje__trupi">
-          <ol className="hapat">
-            <li>
-              Hap <code>supabase.com</code> dhe krijo një projekt falas — ose, më
-              mirë, <strong>përdor një që e ke tashmë</strong> nga një aplikacion
-              tjetër yti.
-            </li>
-            <li>
-              Te <strong>Settings → API</strong> merr adresën e projektit dhe
-              çelësin publik, dhe ngjiti më sipër.
-            </li>
-            <li>
-              Shtyp «Krijo llogari» me një email e fjalëkalim që do t'i përdorësh
-              te të gjitha pajisjet.
-            </li>
-            <li>
-              Pastaj këtu del një buton që e hap skriptin SQL te projekti yt —
-              një prekje, dhe «Run».
-            </li>
-          </ol>
-        </div>
-      </details>
+      {/*
+        Udhëzimi i plotë — krijimi i projektit, çelësat, Site URL — rrinte këtu
+        dhe po aq te tri aplikacionet e tjera: të njëjtat fjalë te katër vende,
+        që zhvendoseshin veç e veç. Tani rri te një i vetëm. Këtu mbetet vetëm
+        ajo që askush tjetër nuk e thotë dot për Tavolinën: skripti i saj, te
+        butoni poshtë, me migrimet e veta gjithmonë të freskëta.
+      */}
+      <p className="ndihma">
+        Ngritja bëhet një herë, te një projekt Supabase që e zotëron vetë — dhe
+        një projekt i vetëm i mban të gjitha aplikacionet e tua, secili me
+        tabelën e vet (<code>tavolina_records</code> këtu).{' '}
+        <a href="https://supabase-hub.rilindkycyku.dev" target="_blank" rel="noreferrer">
+          Si ngrihet projekti — udhëzimi i plotë
+        </a>
+      </p>
 
       {konfiguruar && (
         <div className="veprimet" data-hapesire="lart">
