@@ -174,6 +174,14 @@ Dy gjëra duhen ditur:
 - **Skripti i secilit ekzekutohet një herë**, nga vetë aplikacioni — «Konfiguro
   projektin» te ekrani i tij. Secili krijon vetëm tabelën e vet.
 
+**Cili rresht i kujt është** e thotë vetë emri i tabelës, prandaj asnjë nga të
+tre nuk mban një kolonë që e përsërit — do të ishte vlerë e derivuar e ruajtur
+(pika 2). Kur ajo kolonë duhet vërtet, për ta lexuar bazën si një e tërë, skripti
+[`sql/tri-aplikacionet.sql`](https://github.com/rilindkycyku/financarepersonal/blob/main/sql/tri-aplikacionet.sql)
+te FinanCarePersonal e nxjerr kur lexohet: dy pamje mbi tri tabelat, njëra me
+kolonën `app` dhe tjetra me kohën kur secili aplikacion e preku projektin së
+fundi. Ekzekutohet një herë te SQL Editor-i dhe nuk prek asnjë rresht.
+
 Anash kësaj ka edhe një përfitim që nuk ka të bëjë me kodin: plani falas i
 Supabase-it e ndal një projekt që rri disa ditë pa u prekur. Një projekt që e
 përdorin disa aplikacione nuk rri pa u prekur — prandaj mbrëmjet e një shoqërie
