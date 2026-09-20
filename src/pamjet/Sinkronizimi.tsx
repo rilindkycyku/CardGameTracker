@@ -319,8 +319,9 @@ function Lidhja({ konfiguruar }: { konfiguruar: boolean }) {
         <div className="detaje__trupi">
           <ol className="hapat">
             <li>
-              Hap <code>supabase.com</code>, krijo një projekt falas dhe prit sa
-              të ngrihet.
+              Hap <code>supabase.com</code> dhe krijo një projekt falas — ose, më
+              mirë, <strong>përdor një që e ke tashmë</strong> nga një aplikacion
+              tjetër yti.
             </li>
             <li>
               Te <strong>Settings → API</strong> merr adresën e projektit dhe
