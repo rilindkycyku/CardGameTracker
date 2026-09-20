@@ -1,7 +1,7 @@
 {
   "name": "cardgametracker",
   "private": true,
-  "version": "1.25.4",
+  "version": "1.25.5",
   "type": "module",
   "description": "Numërues pikësh dhe llogarie për lojërat e tavolinës: bridzh, magarec, domina, pishpirik",
   "scripts": {

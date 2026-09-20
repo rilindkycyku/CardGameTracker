@@ -151,6 +151,43 @@ Për ta pasur atë numërim, «Web Analytics» ndizet një herë te paneli i pro
 te Vercel; skripti vjen nga vetë domeni (`/_vercel/insights/…`), prandaj asnjë
 host i huaj nuk kërkohet me hapjen e faqes.
 
+### Një projekt Supabase mban edhe aplikacionet e tjera
+
+Nuk të duhet një projekt për çdo aplikacion. Tavolina i shkruan mbrëmjet **vetëm**
+te `tavolina_records`, dhe politika, trigger-i e indeksi e mbajnë emrin e asaj
+tabele — pra nuk përplasen dot me tabelën e një aplikacioni tjetër te e njëjta
+bazë. Skripti i konfigurimit e krijon atë tabelë e nuk prek asgjë tjetër që
+gjendet aty, dhe ekzekutimi i dytë nuk ndryshon gjë.
+
+Pra një projekt i vetëm mban njëkohësisht Tavolinën (`tavolina_records`),
+[FinanCarePersonal](https://github.com/rilindkycyku/financarepersonal)
+(`financare_records`) dhe [GuestSeat](https://github.com/rilindkycyku/guestseat)
+(`guestseat_records`). Rreshtat i ndan kolona `user_id` dhe i njëjti rregull
+`row level security`, prandaj një llogari e vetme — i njëjti email e fjalëkalim —
+hyn te të tria: te i pari shtypet «Krijo llogari», te dy të tjerët «Hyr».
+
+Dy gjëra duhen ditur:
+
+- **Site URL është e përbashkët**, dhe i takon atij aplikacioni që e zuri i pari.
+  Mos ia prek: të tre e kërkojnë adresën e vet me emër te regjistrimi
+  (`redirect_to`), prandaj mjafton ta shtosh atë adresë te **Redirect URLs**.
+- **Skripti i secilit ekzekutohet një herë**, nga vetë aplikacioni — «Konfiguro
+  projektin» te ekrani i tij. Secili krijon vetëm tabelën e vet.
+
+**Cili rresht i kujt është** e thotë vetë emri i tabelës, prandaj asnjë nga të
+tre nuk mban një kolonë që e përsërit — do të ishte vlerë e derivuar e ruajtur
+(pika 2). Kur ajo kolonë duhet vërtet, për ta lexuar bazën si një e tërë, skripti
+[`sql/tri-aplikacionet.sql`](https://github.com/rilindkycyku/financarepersonal/blob/main/sql/tri-aplikacionet.sql)
+te FinanCarePersonal e nxjerr kur lexohet: dy pamje mbi tri tabelat, njëra me
+kolonën `app` dhe tjetra me kohën kur secili aplikacion e preku projektin së
+fundi. Ekzekutohet një herë te SQL Editor-i dhe nuk prek asnjë rresht.
+
+Anash kësaj ka edhe një përfitim që nuk ka të bëjë me kodin: plani falas i
+Supabase-it e ndal një projekt që rri disa ditë pa u prekur. Një projekt që e
+përdorin disa aplikacione nuk rri pa u prekur — prandaj mbrëmjet e një shoqërie
+që luan një herë në muaj rrinë gjallë mbi shpinën e një libri llogarish që hapet
+çdo ditë.
+
 ## Rregullat e pikëzimit
 
 Hapja lejohet me 51 pikë kombinimesh prej një dore me 14 letra. Raundin e mbyll

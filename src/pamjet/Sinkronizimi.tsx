@@ -248,6 +248,38 @@ function Lidhja({ konfiguruar }: { konfiguruar: boolean }) {
             />
           </label>
 
+          {/*
+            Llogaria është e projektit, e jo e Tavolinës, dhe linku i konfirmimit
+            mund të bjerë te një aplikacion tjetër. Të dyja duhen thënë, dhe të
+            dyja lexohen një herë — prandaj rrinë të mbledhura krah pikërisht
+            atyre dy butonave që i prodhojnë, e jo si dy paragrafë mbi to.
+          */}
+          <details className="detaje">
+            <summary className="detaje__krye">
+              <span>«Hyr» apo «Krijo llogari»?</span>
+              <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+            </summary>
+            <div className="detaje__trupi">
+              <p className="ndihma">
+                Llogaria rri te projekti, prandaj është <strong>një e vetme</strong> për
+                të gjitha aplikacionet e tua që e ndajnë atë — Tavolina,
+                FinanCarePersonal, GuestSeat. Krijoje një herë, te cilido prej tyre,
+                dhe te të tjerat shtyp <strong>«Hyr»</strong> me të njëjtin email e
+                fjalëkalim.
+              </p>
+
+              <p className="ndihma">
+                Linku i konfirmimit kthehet vetëm te <strong>një</strong> adresë — ajo e
+                aplikacionit që e zuri i pari <strong>Site URL</strong>-në e projektit —
+                prandaj mund të të hapë një aplikacion tjetër tëndin e jo atë ku shtype
+                «Krijo llogari». Kjo nuk është prishje: llogarinë e konfirmon vetë
+                Supabase para se të të dërgojë diku, pra ajo është e konfirmuar
+                gjithsesi. Kthehu këtu dhe shtyp «Hyr». Që linku të bjerë te vendi i
+                duhur, shto adresën e secilit aplikacion te <strong>Redirect URLs</strong>.
+              </p>
+            </div>
+          </details>
+
           <div className="veprimet">
             <button
               type="button"
@@ -287,8 +319,9 @@ function Lidhja({ konfiguruar }: { konfiguruar: boolean }) {
         <div className="detaje__trupi">
           <ol className="hapat">
             <li>
-              Hap <code>supabase.com</code>, krijo një projekt falas dhe prit sa
-              të ngrihet.
+              Hap <code>supabase.com</code> dhe krijo një projekt falas — ose, më
+              mirë, <strong>përdor një që e ke tashmë</strong> nga një aplikacion
+              tjetër yti.
             </li>
             <li>
               Te <strong>Settings → API</strong> merr adresën e projektit dhe
@@ -486,6 +519,30 @@ function Skripti({ url, nga }: { url: string; nga: number }) {
         Ekzekutohet një herë, dhe përsëritja nuk prish gjë: çdo fjali e tij
         kontrollon vetë a ekziston.
       </p>
+
+      {/*
+        Një projekt i vetëm mban më shumë se një aplikacion — por kjo pyetje
+        bëhet një herë, nëse bëhet, kurse hapësirën e zinte gjithmonë (pika 12).
+        Prandaj rri e mbledhur: kush e ka atë pyetje e hap, dhe kush nuk e ka
+        shkon drejt te butoni.
+      */}
+      <details className="detaje">
+        <summary className="detaje__krye">
+          <span>A e mban ky projekt edhe një aplikacion tjetër?</span>
+          <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
+        </summary>
+        <div className="detaje__trupi">
+          <p className="ndihma">
+            S'ka çka të ndahet: Tavolina i shkruan mbrëmjet te tabela e vet
+            (<code>tavolina_records</code>), skripti nuk prek asgjë tjetër që
+            gjendet aty, dhe të gjitha rrinë nën të njëjtën llogari e të njëjtin
+            rregull sigurie. Te <strong>Authentication → URL Configuration</strong>{' '}
+            mos ia prek <strong>Site URL</strong>-në atij aplikacioni — shto adresën
+            e kësaj faqeje te <strong>Redirect URLs</strong>, dhe linkun e
+            konfirmimit Tavolina e kërkon me emër.
+          </p>
+        </div>
+      </details>
 
       {deshtoi && (
         <p className="njoftim njoftim--kujdes">

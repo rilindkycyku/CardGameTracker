@@ -26,7 +26,12 @@
  * mbeten `fetch`-i dhe `localStorage`-i.
  */
 
-import { kontrolloCelesin, mesazhiGabimit, referencaProjektit } from './projekti.ts';
+import {
+  kontrolloCelesin,
+  mesazhiGabimit,
+  referencaProjektit,
+  shtegiRegjistrimit,
+} from './projekti.ts';
 import {
   ID_SKEMES,
   MIGRIMET,
@@ -345,7 +350,11 @@ export async function regjistrohu({
     ...(url ? { url } : {}),
     ...(anonKey ? { anonKey } : {}),
   };
-  const data = (await fetchAuth(k, 'signup', { email: email.trim(), password })) as Sesioni;
+  const origjina = typeof window === 'undefined' ? '' : window.location.origin;
+  const data = (await fetchAuth(k, shtegiRegjistrimit(origjina), {
+    email: email.trim(),
+    password,
+  })) as Sesioni;
 
   if (!data.access_token) return { konfirmim: true, konfigurimi: null };
 
