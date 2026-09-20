@@ -322,7 +322,7 @@ function Lidhja({ konfiguruar }: { konfiguruar: boolean }) {
         Ngritja bëhet një herë, te një projekt Supabase që e zotëron vetë — dhe
         një projekt i vetëm i mban të gjitha aplikacionet e tua, secili me
         tabelën e vet (<code>tavolina_records</code> këtu).{' '}
-        <a href="https://supabase.rilindkycyku.dev" target="_blank" rel="noreferrer">
+        <a href="https://supabase-hub.rilindkycyku.dev" target="_blank" rel="noreferrer">
           Si ngrihet projekti — udhëzimi i plotë
         </a>
       </p>
