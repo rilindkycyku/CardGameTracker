@@ -248,6 +248,30 @@ function Lidhja({ konfiguruar }: { konfiguruar: boolean }) {
             />
           </label>
 
+          {/*
+            Llogaria është e projektit, e jo e Tavolinës — pra e ndajnë të gjitha
+            aplikacionet që e përdorin atë projekt. Thënë pikërisht këtu, sepse
+            këtu zgjidhet «Hyr» kundrejt «Krijo llogari», dhe zgjedhja e gabuar
+            e nxjerr gabimin «kjo llogari ekziston tashmë».
+          */}
+          <p className="ndihma">
+            Llogaria rri te projekti, prandaj është <strong>një e vetme</strong> për
+            të gjitha aplikacionet e tua që e ndajnë atë — Tavolina,
+            FinanCarePersonal, GuestSeat. Krijoje një herë, te cilido prej tyre,
+            dhe te të tjerat shtyp <strong>«Hyr»</strong> me të njëjtin email e
+            fjalëkalim.
+          </p>
+
+          <p className="ndihma">
+            Linku i konfirmimit kthehet vetëm te <strong>një</strong> adresë — ajo e
+            aplikacionit që e zuri i pari <strong>Site URL</strong>-në e projektit —
+            prandaj mund të të hapë një aplikacion tjetër tëndin e jo atë ku shtype
+            «Krijo llogari». Kjo nuk është prishje: llogarinë e konfirmon vetë
+            Supabase para se të të dërgojë diku, pra ajo është e konfirmuar
+            gjithsesi. Kthehu këtu dhe shtyp «Hyr». Që linku të bjerë te vendi i
+            duhur, shto adresën e secilit aplikacion te <strong>Redirect URLs</strong>.
+          </p>
+
           <div className="veprimet">
             <button
               type="button"
