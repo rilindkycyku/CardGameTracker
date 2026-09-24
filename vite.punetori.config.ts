@@ -17,7 +17,7 @@
 import { readFileSync, rmSync } from 'node:fs';
 import { defineConfig } from 'vite';
 
-import paketa from './package.json';
+import paketa from './package.json' with { type: 'json' };
 import { precachja, type Manifesti } from './src/sherbimi.ts';
 
 const manifesti: Manifesti = JSON.parse(

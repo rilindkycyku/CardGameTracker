@@ -1,7 +1,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
-import paketa from './package.json';
+import paketa from './package.json' with { type: 'json' };
 import { SHTEGU } from './src/takimi.ts';
 
 /**
@@ -68,5 +68,16 @@ export default defineConfig({
      * të vjetërohej te ndërtimi i parë që ndërron një hash — pra menjëherë.
      */
     manifest: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('scheduler')) return 'vendor-react';
+            if (id.includes('idb')) return 'vendor-idb';
+            if (id.includes('peerjs')) return 'vendor-peerjs';
+          }
+        },
+      },
+    },
   },
 });

@@ -16,34 +16,46 @@
  *
  * Rruga `#/sinkronizimi` është e pesta dhe e vetmja që shkruan jashtë pajisjes
  * (pika 19): projekti Supabase të cilin e sjell vetë përdoruesi.
+ *
+ * Pamjet e rënda ngarkohen me `React.lazy` në vend të importit statik, kështu
+ * që hapja e parë e aplikacionit shkarkon vetëm Grupet-in (dritarja kryesore)
+ * dhe pjesën tjetër vetëm kur kërkohet. Veçanërisht e rëndësishme për pamjet
+ * me PeerJS (Bashkohu, Takohu) dhe Sinkronizimin me Supabase.
  */
 
+import { Suspense, lazy } from 'react';
 import { Grupet } from './pamjet/Grupet.tsx';
-import { Grupi } from './pamjet/Grupi.tsx';
-import { Bashkohu } from './pamjet/Bashkohu.tsx';
-import { Lidhu } from './pamjet/Lidhu.tsx';
-import { Loja } from './pamjet/Loja.tsx';
-import { Pergjigja } from './pamjet/Pergjigja.tsx';
-import { Shiko } from './pamjet/Shiko.tsx';
-import { Takohu } from './pamjet/Takohu.tsx';
-import { Sinkronizimi } from './pamjet/Sinkronizimi.tsx';
 import { numri, pjeset, useRruga } from './rruga.ts';
+
+const Grupi = lazy(() => import('./pamjet/Grupi.tsx').then((m) => ({ default: m.Grupi })));
+const Bashkohu = lazy(() => import('./pamjet/Bashkohu.tsx').then((m) => ({ default: m.Bashkohu })));
+const Lidhu = lazy(() => import('./pamjet/Lidhu.tsx').then((m) => ({ default: m.Lidhu })));
+const Loja = lazy(() => import('./pamjet/Loja.tsx').then((m) => ({ default: m.Loja })));
+const Pergjigja = lazy(() => import('./pamjet/Pergjigja.tsx').then((m) => ({ default: m.Pergjigja })));
+const Shiko = lazy(() => import('./pamjet/Shiko.tsx').then((m) => ({ default: m.Shiko })));
+const Takohu = lazy(() => import('./pamjet/Takohu.tsx').then((m) => ({ default: m.Takohu })));
+const Sinkronizimi = lazy(() => import('./pamjet/Sinkronizimi.tsx').then((m) => ({ default: m.Sinkronizimi })));
 
 export function App() {
   const rruga = useRruga();
   const [pjesa, e_dyta] = pjeset(rruga);
   const id = numri(e_dyta);
 
+  // Grupet — faqja kryesore — mbetet import statik për t'u shfaqur menjëherë.
+  // Çdo pamje tjetër ngarkohet kur kërkohet me Suspense.
+  let pamja: React.ReactNode;
+
   // Paketa mund të përmbajë „/" pas base64-shit? Nuk mundet — alfabeti i
   // `paketa.ts` e përjashton — prandaj pjesa e dytë mjafton.
-  if (pjesa === 'shiko' && e_dyta) return <Shiko kodi={e_dyta} />;
-  if (pjesa === 'lidhu' && e_dyta) return <Lidhu kodi={e_dyta} />;
-  if (pjesa === 'pergjigje' && e_dyta) return <Pergjigja kodi={e_dyta} />;
-  if (pjesa === 'bashkohu') return <Bashkohu kodi={e_dyta ?? null} />;
-  if (pjesa === 'takohu') return <Takohu kodi={e_dyta ?? null} />;
-  if (pjesa === 'sinkronizimi') return <Sinkronizimi />;
-  if (pjesa === 'grupi' && id !== null) return <Grupi id={id} />;
-  if (pjesa === 'loja' && id !== null) return <Loja id={id} />;
+  if (pjesa === 'shiko' && e_dyta) pamja = <Shiko kodi={e_dyta} />;
+  else if (pjesa === 'lidhu' && e_dyta) pamja = <Lidhu kodi={e_dyta} />;
+  else if (pjesa === 'pergjigje' && e_dyta) pamja = <Pergjigja kodi={e_dyta} />;
+  else if (pjesa === 'bashkohu') pamja = <Bashkohu kodi={e_dyta ?? null} />;
+  else if (pjesa === 'takohu') pamja = <Takohu kodi={e_dyta ?? null} />;
+  else if (pjesa === 'sinkronizimi') pamja = <Sinkronizimi />;
+  else if (pjesa === 'grupi' && id !== null) pamja = <Grupi id={id} />;
+  else if (pjesa === 'loja' && id !== null) pamja = <Loja id={id} />;
+  else return <Grupet />;
 
-  return <Grupet />;
+  return <Suspense fallback={null}>{pamja}</Suspense>;
 }
