@@ -3658,3 +3658,41 @@ th.numri {
     letter-spacing: 0.08em;
   }
 }
+
+/* Njoftimi i versionit të ri (floating toast) */
+.njoftim-versioni {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 1000;
+  max-width: 24rem;
+  padding: 1rem;
+  background: var(--ngjyra-sip-2, #182234);
+  border: 1px solid var(--vija, rgba(255, 255, 255, 0.12));
+  border-radius: var(--rrezja-madhe, 1rem);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.njoftim-versioni__trupi {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.njoftim-versioni__teksti {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+}
+.njoftim-versioni__teksti strong {
+  color: var(--tekst, #f8fafc);
+}
+.njoftim-versioni__teksti span {
+  color: var(--tekst-zbehte, #94a3b8);
+}
+.njoftim-versioni__veprimet {
+  display: flex;
+  gap: 0.5rem;
+}

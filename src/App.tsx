@@ -1,3 +1,4 @@
+import { NjoftimiVersionit } from './pjeset/NjoftimiVersionit.tsx';
 /**
  * Shpërndarja e rrugëve.
  *
@@ -55,7 +56,7 @@ export function App() {
   else if (pjesa === 'sinkronizimi') pamja = <Sinkronizimi />;
   else if (pjesa === 'grupi' && id !== null) pamja = <Grupi id={id} />;
   else if (pjesa === 'loja' && id !== null) pamja = <Loja id={id} />;
-  else return <Grupet />;
+  else pamja = <Grupet />;
 
-  return <Suspense fallback={null}>{pamja}</Suspense>;
+  return (<><Suspense fallback={null}>{pamja}</Suspense><NjoftimiVersionit /></>);
 }
