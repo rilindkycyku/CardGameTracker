@@ -49,7 +49,6 @@ import {
   normalizoUrl,
   onKonfigurim,
   pastroKonfigurimin,
-  regjistrohu,
   ruajKonfigurimin,
   verifikoSkemen,
 } from '../supabase.ts';
@@ -119,17 +118,59 @@ export function Sinkronizimi() {
 
 /* ── 1. I palidhur ──────────────────────────────────────────────────────── */
 
+/** Lexon parametrat e konfigurimit nga linku */
+function lexoParametratKonfigurimit() {
+  if (typeof window === "undefined") return { url: null, anonKey: null };
+  const params = new URLSearchParams(window.location.search);
+  let hashQuery = "";
+  if (window.location.hash && window.location.hash.includes("?")) {
+    hashQuery = window.location.hash.slice(window.location.hash.indexOf("?"));
+  }
+  const hashParams = new URLSearchParams(hashQuery);
+
+  let url = hashParams.get("sb_url") || hashParams.get("url") || params.get("sb_url") || params.get("url");
+  let anonKey =
+    hashParams.get("sb_key") ||
+    hashParams.get("key") ||
+    hashParams.get("anonKey") ||
+    params.get("sb_key") ||
+    params.get("key") ||
+    params.get("anonKey");
+  const setupEncoded = hashParams.get("setup") || params.get("setup");
+
+  if (setupEncoded) {
+    try {
+      const decoded = JSON.parse(atob(setupEncoded));
+      if (decoded?.url) url = decoded.url;
+      if (decoded?.anonKey || decoded?.key) anonKey = decoded.anonKey || decoded.key;
+    } catch {}
+  }
+
+  return { url: url ? url.trim() : null, anonKey: anonKey ? anonKey.trim() : null };
+}
+
 function Lidhja({ konfiguruar }: { konfiguruar: boolean }) {
   const ruajtur = lexoKonfigurimin();
-  const [url, caktoUrl] = useState(ruajtur.url);
-  const [celesi, caktoCelesin] = useState(ruajtur.anonKey);
+  const ngaLinku = lexoParametratKonfigurimit();
+  const [url, caktoUrl] = useState(ngaLinku.url || ruajtur.url);
+  const [celesi, caktoCelesin] = useState(ngaLinku.anonKey || ruajtur.anonKey);
+  const [ngaLinkuAktiv] = useState(Boolean(ngaLinku.url && ngaLinku.anonKey));
+
+  useEffect(() => {
+    if (ngaLinkuAktiv) {
+      try {
+        const pastruar = window.location.pathname + window.location.hash.split("?")[0];
+        window.history.replaceState({}, document.title, pastruar);
+      } catch {}
+    }
+  }, [ngaLinkuAktiv]);
   const [email, caktoEmail] = useState(ruajtur.email);
   const [fjalekalimi, caktoFjalekalimin] = useState('');
   const [pune, caktoPunen] = useState(false);
   const [gabimi, caktoGabimin] = useState<string | null>(null);
   const [mesazhi, caktoMesazhin] = useState<string | null>(null);
 
-  async function nis(krijo: boolean) {
+  async function nis() {
     caktoGabimin(null);
     caktoMesazhin(null);
 
@@ -145,22 +186,13 @@ function Lidhja({ konfiguruar }: { konfiguruar: boolean }) {
     }
 
     caktoPunen(true);
+    if (adresa.includes('supabase-hub.rilindkycyku.dev')) {
+      caktoGabimin('«https://supabase-hub.rilindkycyku.dev» është adresa e Supabase Hub. Këtu kërkohet Project URL nga Supabase Dashboard → Settings → API.');
+      caktoPunen(false);
+      return;
+    }
     try {
-      if (krijo) {
-        const { konfirmim } = await regjistrohu({
-          email,
-          password: fjalekalimi,
-          url: adresa,
-          anonKey: kontrolli.vlera,
-        });
-        if (konfirmim) {
-          caktoMesazhin(
-            'Llogaria u krijua. Supabase të dërgoi një email konfirmimi — hape atë link, pastaj kthehu këtu dhe shtyp «Hyr».',
-          );
-        }
-      } else {
-        await hyr({ email, password: fjalekalimi, url: adresa, anonKey: kontrolli.vlera });
-      }
+      await hyr({ email, password: fjalekalimi, url: adresa, anonKey: kontrolli.vlera });
     } catch (err) {
       caktoGabimin(gabimiIThene(err));
     } finally {
@@ -177,6 +209,12 @@ function Lidhja({ konfiguruar }: { konfiguruar: boolean }) {
       </h2>
 
       <div className="kartela kartela--kryesore">
+        {ngaLinkuAktiv && (
+          <p className="njoftim njoftim--mire">
+            <Ikona emri="info" />
+            <span>Projekti u konfigurua automatikisht përmes linkut! Shkruaj vetëm email dhe fjalëkalim për të hyrë.</span>
+          </p>
+        )}
         <p className="ndihma">
           Tavolina nuk ka server. Nëse i do të njëjtat mbrëmje te telefoni dhe te
           tableti, sjell <strong>projektin tënd</strong> Supabase: baza është e
@@ -254,46 +292,25 @@ function Lidhja({ konfiguruar }: { konfiguruar: boolean }) {
             dyja lexohen një herë — prandaj rrinë të mbledhura krah pikërisht
             atyre dy butonave që i prodhojnë, e jo si dy paragrafë mbi to.
           */}
-          <details className="detaje">
-            <summary className="detaje__krye">
-              <span>«Hyr» apo «Krijo llogari»?</span>
-              <Ikona emri="shigjeta" klasa="ikona detaje__shigjeta" />
-            </summary>
-            <div className="detaje__trupi">
-              <p className="ndihma">
-                Llogaria rri te projekti, prandaj është <strong>një e vetme</strong> për
-                të gjitha aplikacionet e tua që e ndajnë atë — Tavolina,
-                FinanCarePersonal, GuestSeat. Krijoje një herë, te cilido prej tyre,
-                dhe te të tjerat shtyp <strong>«Hyr»</strong> me të njëjtin email e
-                fjalëkalim.
-              </p>
-
-              <p className="ndihma">
-                Linku i konfirmimit kthehet vetëm te <strong>një</strong> adresë — ajo e
-                aplikacionit që e zuri i pari <strong>Site URL</strong>-në e projektit —
-                prandaj mund të të hapë një aplikacion tjetër tëndin e jo atë ku shtype
-                «Krijo llogari». Kjo nuk është prishje: llogarinë e konfirmon vetë
-                Supabase para se të të dërgojë diku, pra ajo është e konfirmuar
-                gjithsesi. Kthehu këtu dhe shtyp «Hyr». Që linku të bjerë te vendi i
-                duhur, shto adresën e secilit aplikacion te <strong>Redirect URLs</strong>.
-              </p>
-            </div>
-          </details>
-
-          <div className="veprimet">
+                    <div className="veprimet">
             <button
               type="button"
               className="buton buton--kryesor"
               disabled={pune}
-              onClick={() => void nis(false)}
+              onClick={() => void nis()}
             >
               <Ikona emri="drejtperdrejt" />
-              Hyr
+              Hyr dhe sinkronizo
             </button>
-            <button type="button" className="buton" disabled={pune} onClick={() => void nis(true)}>
-              <Ikona emri="shto" />
-              Krijo llogari
-            </button>
+            <a
+              href="https://supabase-hub.rilindkycyku.dev"
+              target="_blank"
+              rel="noreferrer"
+              className="buton"
+              style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+            >
+              Supabase Hub ↗
+            </a>
           </div>
         </div>
 
