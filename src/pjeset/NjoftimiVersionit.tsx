@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { kaloTeIRi, useVersionIRi } from '../instalimi.ts';
-import Ikona from '../pjeset/Ikona.tsx';
+import { Ikona } from '../ikonat.tsx';
 
 export function NjoftimiVersionit() {
   const kaVersion = useVersionIRi();
